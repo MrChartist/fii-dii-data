@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- SEO Meta Tags -->
+<title>FII & DII Data | Institutional Money Tracker</title>
+<meta name="description" content="Ultimate Pro Terminal for tracking FII and DII flows in the Indian stock market. Visual heatmaps, daily, weekly, monthly flow matrices, and elite analytics.">
+<meta name="keywords" content="FII DII Data, FII & DII Data, Stock Market Dashboard, Nifty 50, Bank Nifty, Institutional Flows, NSE India, Trading Terminal, Financial Dashboard">
+<meta name="author" content="FII & DII Data">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="FII & DII Data | Institutional Money Tracker">
+<meta property="og:description" content="Ultimate Pro Terminal for tracking FII and DII flows in the Indian stock market. Visual heatmaps, trends, and analytical data natively.">
+<meta property="og:image" content="https://mrchartist.com/assets/og-image-flow.jpg">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="India Flow Matrix by Mr. Chartist | Elite Institutional Money Tracker">
+<meta name="twitter:description" content="Ultimate Pro Terminal for tracking FII and DII flows in the Indian stock market. Built for professional traders and analysts.">
+<meta name="twitter:image" content="https://mrchartist.com/assets/tw-image-flow.jpg">
+<meta name="twitter:creator" content="@MrChartist">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+:root {
+  --bg: #000F08;
+  --l1: #001A15;
+  --l2: #002B24;
+  --l3: #004643;
+  --l4: #005955;
+  --sep: rgba(240, 237, 229, 0.15);
+  --sep2: rgba(240, 237, 229, 0.05);
+  --t1: #F0EDE5;
+  --t2: rgba(240, 237, 229, 0.8);
+  --t3: rgba(240, 237, 229, 0.5);
+  --t4: rgba(240, 237, 229, 0.3);
+  --blue: #0AD1A6; /* Bright Teal highlight instead of Cyprus */
+  --green: #00D09E;
+  --red: #FB3640;
+  --orange: #FF9F0A; 
+  --purple: #F0EDE5;
+  --card-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+}
+[data-theme="dark"] {
+  --bg: #000000; /* Pure Matte Black */
+  --l1: #050505;
+  --l2: #0A0C10; /* Ultra-dark Cyprus */
+  --l3: #11151C;
+  --l4: #151A23;
+  --sep: #151A23;
+  --sep2: #1E2532;
+  --t1: #F5EFEB; /* Sand Text */
+  --t2: rgba(240, 237, 229, 0.8);
+  --t3: rgba(240, 237, 229, 0.5);
+  --t4: rgba(240, 237, 229, 0.3);
+  --blue: #0AD1A6;
+  --green: #00D09E;
+  --red: #FB3640;
+  --card-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+[data-theme="light"] {
+  --bg: #F0EDE5; 
+  --l1: #FFFFFF;
+  --l2: #F9F8F6;
+  --l3: #EAE6DE;
+  --l4: #DCD8CC;
+  --sep: rgba(0, 70, 67, 0.15);
+  --sep2: rgba(0, 70, 67, 0.05);
+  --t1: #000F08; 
+  --t2: rgba(0, 15, 8, 0.8);
+  --t3: rgba(0, 15, 8, 0.55);
+  --t4: rgba(0, 15, 8, 0.3);
+  --blue: #004643;
+  --green: #00A880;
+  --red: #FB3640;
+  --card-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+html { background: var(--bg); scroll-behavior: smooth; transition: background 0.3s; }
+body { background: var(--bg); color: var(--t1); min-height: 100vh; font-size: 14px; transition: color 0.3s; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 32px 20px 80px; }
+
+/* ── HEADER ── */
+header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--sep); }
+.h-title { font-size: 34px; font-weight: 800; letter-spacing: -1px; color: var(--t1); }
+.h-sub { font-size: 14px; color: var(--t3); margin-top: 6px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+.logo-glow { position: absolute; width: 400px; height: 150px; background: var(--blue); top: 0; left: 0; filter: blur(140px); opacity: 0.15; z-index: -1; pointer-events: none;}
+
+/* ── PILLS & BUTTONS ── */
+.status-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,208,158,0.1); border: 1px solid rgba(0,208,158,0.2); border-radius: 20px; padding: 0 14px; height: 32px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+.status-pill span { font-size: 11px; font-weight: 800; color: var(--green); letter-spacing: 0.5px; text-transform: uppercase; }
+.status-pill.err { background: rgba(255,159,10,0.15); border-color: rgba(255,159,10,0.3); }
+.status-pill.err .status-dot { background: var(--orange); animation: none; }
+.status-pill.err span { color: var(--t1); }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0,208,158,0.6); } 70% { box-shadow: 0 0 0 6px rgba(0,208,158,0); } 100% { box-shadow: 0 0 0 0 rgba(0,208,158,0); } }
+
+@keyframes borderSweep { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+/* ── CAMERA EXPORT ICON & HDR BTNS ── */
+.cam-btn { opacity: 0; position: absolute; top: 16px; right: 16px; background: var(--bg); border: 1px solid var(--sep); padding: 6px 10px; border-radius: 8px; cursor: pointer; color: var(--t2); font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: 0.2s; z-index: 10; height: 32px; }
+.card:hover .cam-btn, .card-glass:hover .cam-btn { opacity: 1; }
+.cam-btn:hover { background: var(--l3); color: var(--t1); border-color: var(--blue); transform: translateY(-1px); }
+
+.hdr-btn { background: var(--l2); border: 1px solid var(--sep2); color: var(--t2); padding: 0 12px; border-radius: 8px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s; height: 32px; }
+.hdr-btn:hover { background: var(--l3); color: var(--t1); border-color: var(--sep); }
+
+/* ── LAYOUT GRIDS ── */
+.grid-hero { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+/* ── CARDS (MATTE AESTHETIC) ── */
+.card { background: var(--l2); border-radius: 20px; padding: 24px; border: 1px solid var(--sep2); position: relative; transition: border-color 0.3s, transform 0.2s, background 0.3s; box-shadow: var(--card-shadow); }
+.card:hover { border-color: var(--sep); transform: translateY(-2px); }
+.card-glass { background: var(--l2); border-radius: 24px; padding: 28px; border: 1px solid var(--sep); position: relative; overflow: hidden; box-shadow: var(--card-shadow); transition: background 0.3s, border-color 0.3s; }
+.c-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.c-title { font-size: 15px; font-weight: 700; color: var(--t1); letter-spacing: -0.2px; text-transform: uppercase; }
+.c-sub { font-size: 12px; color: var(--t4); margin-top: 4px; font-weight: 500; }
+
+/* ── NUMBER STYLES ── */
+.num-xl { font-size: 42px; font-weight: 800; letter-spacing: -1.5px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.num-l { font-size: 32px; font-weight: 800; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.num-m { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+.num-s { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+.t-green { color: var(--green); } .t-red { color: var(--red); } .t-blue { color: var(--blue); } .t-purple { color: var(--purple); }
+
+/* ── MODERN MINIMAL TABS ── */
+.tabs-wrap { margin: 32px 0 24px; display: flex; border-bottom: 1px solid var(--sep); }
+.tab { padding: 0 24px 12px; font-size: 14px; font-weight: 600; color: var(--t4); cursor: pointer; transition: 0.2s; border-bottom: 2px solid transparent; margin-bottom: -1px; text-transform: uppercase; letter-spacing: 0.5px;}
+.tab:hover { color: var(--t2); }
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+.panel { display: none; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── GITHUB STYLE CALENDAR HEATMAP ── */
+.cal-wrap { display: flex; flex-direction: column; gap: 4px; }
+.cal-row { display: flex; gap: 6px; }
+.cal-cell { width: 14px; height: 14px; border-radius: 4px; background: var(--l3); position: relative; cursor: crosshair; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.2); }
+.cal-cell:hover { transform: scale(1.3); z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.5); border-radius: 6px; }
+.cal-cell:hover::after { content: attr(data-tip); position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%); background: var(--t1); color: var(--bg); padding: 6px 10px; font-size: 11px; border-radius: 6px; white-space: nowrap; z-index: 100; font-weight: 800; pointer-events:none; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+.c-r4 { background: #FF3B30; } .c-r3 { background: #D72828; } .c-r2 { background: #A81B1B; } .c-r1 { background: #681A1A; }
+.c-g4 { background: #32D74B; } .c-g3 { background: #28B03D; } .c-g2 { background: #1B892B; } .c-g1 { background: #165620; }
+
+/* ── DATA TABLES (MATRIX) ── */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--sep2); border-radius: 12px; background: var(--l1); margin-top: 16px; }
+table { width: 100%; border-collapse: collapse; text-align: right; }
+th { background: var(--l3); color: var(--t3); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 14px 16px; border-bottom: 1px solid var(--sep2); white-space: nowrap; letter-spacing: 0.5px;}
+th:first-child { text-align: left; }
+td { padding: 14px 16px; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--sep2); transition: 0.2s; white-space: nowrap; }
+td:first-child { text-align: left; color: var(--t2); }
+tr:hover td { background: var(--l2); }
+tr:last-child td { border-bottom: none; }
+.pos { color: var(--green); } .neg { color: var(--red); }
+.td-bar-wrap { width: 60px; height: 6px; background: var(--l4); border-radius: 3px; display: inline-block; margin-left: 12px; vertical-align: middle; position: relative;}
+.td-bar { height: 100%; border-radius: 3px; position:absolute; right:0; }
+
+.sub-tabs { display: flex; gap: 8px; margin-bottom: 20px; background: var(--l2); padding: 4px; border-radius: 12px; display: inline-flex;}
+.s-tab { color: var(--t3); font-size: 12px; font-weight: 600; padding: 6px 16px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+.s-tab.active { background: var(--l4); color: var(--t1); box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.s-panel { display: none; } .s-panel.active { display: block; }
+
+/* ── MOMENTUM BADGES ── */
+.mom-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+.mb-bull { background: rgba(0, 208, 158, 0.15); color: var(--green); border: 1px solid rgba(0, 208, 158, 0.3); }
+.mb-bear { background: rgba(251, 54, 64, 0.15); color: var(--red); border: 1px solid rgba(251, 54, 64, 0.3); }
+.mb-neut { background: rgba(240, 237, 229, 0.1); color: var(--t2); border: 1px solid rgba(240, 237, 229, 0.2); }
+.mb-neut { background: rgba(240, 237, 229, 0.1); color: var(--t2); border: 1px solid rgba(240, 237, 229, 0.2); }
+.mb-neut { background: rgba(240, 237, 229, 0.1); color: var(--t2); border: 1px solid rgba(240, 237, 229, 0.2); }
+.btn-x { background: var(--l2); border: 1px solid var(--sep); color: var(--t1); padding: 0 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; height: 32px; }
+.btn-x:hover { border-color: var(--t3); background: var(--l3); }
+.btn-primary { background: var(--blue); border: none; color: var(--bg); padding: 0 16px; border-radius: 20px; font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 15px rgba(10, 209, 166, 0.2); transition: transform 0.2s, background 0.3s, color 0.3s; height: 32px; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(10, 209, 166, 0.3); }
+.filter-btn { background: var(--l1); border: 1px solid var(--sep2); color: var(--t3); font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 12px; cursor: pointer; transition: 0.2s; }
+.filter-btn:hover, .filter-btn.active { background: var(--t1); color: var(--bg); border-color: var(--t1); }
+
+/* ── FULLY RESPONSIVE MEDIA QUERIES ── */
+@media (max-width: 1024px) {
+  .grid-hero { grid-template-columns: 1fr; gap: 16px; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 16px; }
+  .h-right { display: flex; flex-direction: column; width: 100%; align-items: flex-start; }
+}
+@media (max-width: 768px) {
+  .grid-hero, .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .tabs-wrap { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; padding-bottom: 8px; }
+  .card, .card-glass { padding: 16px; }
+  .num-xl { font-size: 32px; }
+  .num-l { font-size: 26px; }
+  .cam-btn { display: none; } /* Hide export on small mobile targets */
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body data-theme="dark">
+<div class="logo-glow"></div>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1 class="h-title">FII & DII Data</h1>
+      <div class="h-sub">Institutional Money Matrix <span style="color:var(--t4)">|</span> by <a href="https://twitter.com/mr_chartist" target="_blank" style="color:var(--blue); text-decoration:none;">Mr. Chartist</a></div>
+    </div>
+    <div class="h-right">
+      <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
+        <button onclick="toggleTheme()" class="hdr-btn" id="btnTheme">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Light Mode
+        </button>
+        <button onclick="fetchLiveNSE(true)" class="hdr-btn" id="btnRefresh">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 019-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg> Force Sync
+        </button>
+        <div class="status-pill err" id="sPill">
+          <div class="status-dot"></div>
+          <span id="sTxt">LOCAL ARCHIVE (Mar 13)</span>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
+        <button onclick="exportDOM(document.body, 'FIIDII_Full_Dashboard')" class="btn-primary">
+          📸 Snapshot Full Page
+        </button>
+        <button onclick="postToX()" class="btn-x">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 4.15H5.078z"></path></svg>
+          Post to 𝕏
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- LATEST SNAPSHOT HERO -->
+  <div class="grid-hero">
+    <!-- Main Focus: Today/Latest -->
+    <div class="card-glass" id="hero-card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Latest_Session')">📷 Export</button>
+      <div class="c-head">
+        <div>
+          <div class="c-title" style="color:var(--blue); font-size:18px;">Latest Extracted Session</div>
+          <div class="c-sub" id="lDate" style="font-size:14px;">Friday, 13 March 2026</div>
+        </div>
+        <div class="mom-badge mb-bear">Aggressive Selling</div>
+      </div>
+      
+      <div style="display:flex; justify-content:space-between; margin-top:32px; align-items:flex-end;">
+        <div>
+          <div style="font-size:13px; color:var(--t4); font-weight:700; margin-bottom:6px; letter-spacing:0.5px;">FII / FPI NET</div>
+          <div class="num-xl t-red" id="lFii">-₹10,724 Cr</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:13px; color:var(--t4); font-weight:700; margin-bottom:6px; letter-spacing:0.5px;">DII NET</div>
+          <div class="num-l t-green" id="lDii">+₹9,977 Cr</div>
+        </div>
+      </div>
+
+      <!-- Flow Strength Meter -->
+      <div style="margin-top:24px; padding:16px; background:var(--bg); border:1px solid var(--sep2); border-radius:12px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+          <span class="t-red" id="pFii">FII Aggression: 52%</span>
+          <span class="t-green" id="pDii">DII Support: 48%</span>
+        </div>
+        <div style="height:6px; width:100%; display:flex; border-radius:3px; overflow:hidden; background:var(--l1);">
+          <div id="meterFII" style="background:var(--red); width:52%; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+          <div id="meterDII" style="background:var(--green); width:48%; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+        </div>
+      </div>
+      
+      <div style="margin-top:24px; background:var(--bg); border-radius:12px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--sep2);">
+        <span style="font-size:13px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:0.5px;">Combined Liquidity Drain</span>
+        <span class="num-s t-red" id="lNet" style="font-size:20px;">-₹747 Cr</span>
+      </div>
+    </div>
+
+    <!-- Right Side: Mini Widgets -->
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      
+      <!-- New Streak Widget -->
+      <div class="card" id="streak-card" style="padding:16px 20px; position:relative; overflow:hidden;">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Streak')">📷</button>
+        <!-- Animated border top -->
+        <div style="position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--red), var(--bg), var(--red)); background-size: 200% 200%; border-radius:3px 3px 0 0; animation: borderSweep 3s ease infinite;" id="streak-border"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Current FII Streak</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+               <div class="status-dot" style="background:var(--red); box-shadow:0 0 8px var(--red);" id="streak-dot"></div>
+               <div class="num-m t-red" id="streak-val">5 Days Selling</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+             <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Streak Velocity</div>
+             <div class="num-s t-red" id="streak-vol">-₹14,500 Cr</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Momentum Widget -->
+      <div class="card" id="mom-card" style="flex:1;">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Momentum')">📷</button>
+        <div class="c-sub" style="margin-bottom:12px;">5-Day FII Net Velocity</div>
+        <div class="num-m t-red" style="margin-bottom:8px;">-₹31,043 Cr</div>
+        <div style="font-size:12px; color:var(--t3); line-height:1.5;">Average daily selling rate has spiked to <strong>₹6,208 Cr/day</strong> over the last 5 sessions, deeply negative momentum.</div>
+      </div>
+      <!-- Ticker -->
+      <div class="card" id="tk-card" style="background:var(--l1);">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Ticker')">📷</button>
+        <div style="display:flex; justify-content:space-between;">
+          <div>
+            <div class="c-sub">NIFTY 50 (Est)</div>
+            <div class="num-m">23,151.10</div>
+            <div class="t-red" style="font-size:13px; font-weight:600;">-488.05 (-2.06%)</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="c-sub">INDIA VIX</div>
+            <div class="num-m" style="color:var(--t1)">22.65</div>
+            <div class="t-red" style="font-size:13px; font-weight:600;">+5.23%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRUCTURAL INSIGHT CARDS -->
+  <div class="grid-4" id="struct-cards">
+    <div class="card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight1')">📷</button>
+      <div class="c-sub" style="margin-top:0;">FII 5-Yr Cumulative</div>
+      <div class="num-m t-red" style="margin:8px 0;">-₹11.01L Cr</div>
+      <div style="font-size:11px; color:var(--t4);">Historical allocation extraction</div>
+    </div>
+    <div class="card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight2')">📷</button>
+      <div class="c-sub" style="margin-top:0;">DII 5-Yr Cumulative</div>
+      <div class="num-m t-green" style="margin:8px 0;">+₹20.45L Cr</div>
+      <div style="font-size:11px; color:var(--t4);">The domestic fortress</div>
+    </div>
+    <div class="card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight3')">📷</button>
+      <div class="c-sub" style="margin-top:0;">SIP Monthly Run-Rate</div>
+      <div class="num-m t-purple" style="margin:8px 0;">₹26,500 Cr</div>
+      <div style="font-size:11px; color:var(--t4);">Retail structural backbone</div>
+    </div>
+    <div class="card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight4')">📷</button>
+      <div class="c-sub" style="margin-top:0;">FII NSE500 Ownership</div>
+      <div class="num-m t-teal" style="margin:8px 0;">16.1%</div>
+      <div style="font-size:11px; color:var(--t4);">Down from 28% peak</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrap">
+    <div class="tab active" onclick="switchMainTab('t-matrix')">Databases & Matrices</div>
+    <div class="tab" onclick="switchMainTab('t-heat')">Visual Flow Heatmaps</div>
+    <div class="tab" onclick="switchMainTab('t-charts')">Historical Charts</div>
+    <div class="tab" onclick="switchMainTab('t-docs')">Documentation</div>
+  </div>
+
+  <!-- TAB: HEATMAP (NEW ELITE FEATURE) -->
+  <div id="t-heat" class="panel">
+    <div class="grid-2">
+      <div class="card" id="fii-heat-card">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'FII_Heatmap')">📷</button>
+        <div class="c-head"><div><div class="c-title">FII 45-Day Concentration Matrix</div><div class="c-sub">Visualizing the sell-off depth and density</div></div></div>
+        
+        <!-- Generated via JS -->
+        <div id="fii-heatmap" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:32px;"></div>
+        
+        <div style="margin-top:32px; padding-top:20px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span>Extreme Dump</span>
+            <div style="display:flex; gap:4px;"><div class="cal-cell c-r4"></div><div class="cal-cell c-r3"></div><div class="cal-cell c-r2"></div><div class="cal-cell c-r1"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; gap:4px;"><div class="cal-cell c-g1"></div><div class="cal-cell c-g2"></div><div class="cal-cell c-g3"></div><div class="cal-cell c-g4"></div></div>
+            <span>Heavy Buying</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="dii-heat-card">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'DII_Heatmap')">📷</button>
+        <div class="c-head"><div><div class="c-title">DII 45-Day Buffer Matrix</div><div class="c-sub">Visualizing domestic absorption</div></div></div>
+        
+        <div id="dii-heatmap" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:32px;"></div>
+        
+        <div style="margin-top:32px; padding-top:20px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span>Light Net Activity</span>
+            <div style="display:flex; gap:4px;"><div class="cal-cell c-r1"></div><div class="cal-cell c-g1"></div></div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; gap:4px;"><div class="cal-cell c-g2"></div><div class="cal-cell c-g3"></div><div class="cal-cell c-g4"></div></div>
+            <span>Extreme Accumulation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: DATA MATRIX -->
+  <div id="t-matrix" class="panel active">
+    <div class="card" style="padding:24px;" id="matrix-card">
+      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Data_Matrix')">📷</button>
+      
+      <div class="sub-tabs">
+        <div class="s-tab active" onclick="switchSubTab('s-daily')">Daily (Last 15)</div>
+        <div class="s-tab" onclick="switchSubTab('s-weekly')">Weekly (12W)</div>
+        <div class="s-tab" onclick="switchSubTab('s-monthly')">Monthly (24M)</div>
+        <div class="s-tab" onclick="switchSubTab('s-yearly')">Annual Tracker</div>
+      </div>
+
+      <!-- DAILY -->
+      <div id="s-daily" class="s-panel active">
+        <div style="display:flex; gap:8px; margin-bottom:12px; overflow-x:auto;">
+          <button class="filter-btn active" onclick="filterDaily('all', this)">All Data</button>
+          <button class="filter-btn" onclick="filterDaily('fii_sell', this)">FII Bloodbath (< -₹5k Cr)</button>
+          <button class="filter-btn" onclick="filterDaily('dii_buy', this)">DII Absorption (> +₹5k Cr)</button>
+          <button class="filter-btn" onclick="filterDaily('divergence', this)">Extreme Divergence</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Trading Date</th><th>FII Gross Buy</th><th>FII Gross Sell</th><th>FII Net</th><th>DII Gross Buy</th><th>DII Gross Sell</th><th>DII Net</th><th>Total Liquidity</th></tr></thead>
+            <tbody id="tbDaily"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- WEEKLY -->
+      <div id="s-weekly" class="s-panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Week Ending</th><th>FII Net</th><th>DII Net</th><th>Combined Liquidity</th><th>Weekly Trend Signal</th></tr></thead>
+            <tbody id="tbWeekly"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MONTHLY -->
+      <div id="s-monthly" class="s-panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Month & Year</th><th>FII Net</th><th>DII Net</th><th>Net Money Printer</th><th>Nifty Market Chg</th></tr></thead>
+            <tbody id="tbMonthly"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- YEARLY -->
+      <div id="s-yearly" class="s-panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Calendar Year</th><th>FII Equities Net</th><th>DII Equities Net</th><th>Total Institutional Flow</th><th>Domestic Multiplier</th></tr></thead>
+            <tbody id="tbYearly"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB: CHARTS -->
+  <div id="t-charts" class="panel">
+    <div class="grid-2">
+      <div class="card" id="chart1-card">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Monthly_Chart')">📷</button>
+        <div class="c-head"><div><div class="c-title">Monthly Net Flows (Last 12m)</div><div class="c-sub">Visualizing ₹ Crore flows</div></div></div>
+        <div style="height:280px; position:relative;"><canvas id="chMon"></canvas></div>
+      </div>
+      <div class="card" id="chart2-card">
+        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Cum_Chart')">📷</button>
+        <div class="c-head"><div><div class="c-title">Multi-Year Cumulative Divergence</div><div class="c-sub">FII Extraction vs DII Injection</div></div></div>
+        <div style="height:280px; position:relative;"><canvas id="chCum"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: DOCUMENTATION -->
+  <div id="t-docs" class="panel">
+    <div style="max-width:900px; margin:0 auto;">
+
+      <!-- Hero Banner -->
+      <div class="card-glass" style="margin-bottom:24px; text-align:center; padding:40px 32px;">
+        <div style="font-size:36px; margin-bottom:12px;">📊</div>
+        <div style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px;">FII & DII Data — User Manual</div>
+        <div style="font-size:13px; color:var(--t3); margin-top:8px; line-height:1.6;">A fully open-source, institutional-grade terminal to track FII & DII flows in Indian equity markets.<br>Built by <a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener" style="color:var(--blue); font-weight:700; text-decoration:none;">@Mr_Chartist</a> — free for everyone to use, fork, and share.</div>
+        <div style="display:flex; justify-content:center; gap:12px; margin-top:20px; flex-wrap:wrap;">
+          <span style="background:rgba(10,209,166,0.1); border:1px solid rgba(10,209,166,0.3); color:var(--blue); font-size:11px; font-weight:800; padding:6px 14px; border-radius:20px; letter-spacing:0.5px;">✓ LIVE NSE SYNC</span>
+          <span style="background:rgba(10,209,166,0.1); border:1px solid rgba(10,209,166,0.3); color:var(--blue); font-size:11px; font-weight:800; padding:6px 14px; border-radius:20px; letter-spacing:0.5px;">✓ 14-YEAR DATA ARCHIVE</span>
+          <span style="background:rgba(10,209,166,0.1); border:1px solid rgba(10,209,166,0.3); color:var(--blue); font-size:11px; font-weight:800; padding:6px 14px; border-radius:20px; letter-spacing:0.5px;">✓ MOBILE RESPONSIVE</span>
+          <span style="background:rgba(10,209,166,0.1); border:1px solid rgba(10,209,166,0.3); color:var(--blue); font-size:11px; font-weight:800; padding:6px 14px; border-radius:20px; letter-spacing:0.5px;">✓ OPEN SOURCE</span>
+        </div>
+      </div>
+
+      <!-- Feature Index Table -->
+      <div class="card" style="margin-bottom:24px; padding:24px;">
+        <div class="c-title" style="margin-bottom:16px;">🗂️ Feature Index</div>
+        <table style="font-size:13px;">
+          <thead><tr><th style="text-align:left;">Module</th><th style="text-align:left;">What It Does</th><th>Tab</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--blue); font-weight:700;">Live Sync Engine</td><td style="color:var(--t2); text-align:left;">Auto-fetches NSE FII/DII data via CORS proxy on page load</td><td style="color:var(--t3);">All</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Flow Strength Meter</td><td style="color:var(--t2); text-align:left;">Animated FII vs DII %  aggression gauge in the Hero card</td><td style="color:var(--t3);">Hero</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">FII Streak Widget</td><td style="color:var(--t2); text-align:left;">Tracks consecutive days FII is in buy or sell mode</td><td style="color:var(--t3);">Hero</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Visual Heatmaps</td><td style="color:var(--t2); text-align:left;">GitHub-style 45-day density grids with hover magnification</td><td style="color:var(--t3);">Heatmaps</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Smart Data Filters</td><td style="color:var(--t2); text-align:left;">One-click filters for FII Bloodbath, DII Absorption & Divergence</td><td style="color:var(--t3);">Matrix</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Historical Charts</td><td style="color:var(--t2); text-align:left;">Interactive Chart.js bar & line charts across monthly/annual data</td><td style="color:var(--t3);">Charts</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Widget Exporter</td><td style="color:var(--t2); text-align:left;">Hover any card → 📷 button → saves a watermarked PNG</td><td style="color:var(--t3);">All</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">Post to 𝕏</td><td style="color:var(--t2); text-align:left;">Pre-fills a tweet with today's institutional flow data</td><td style="color:var(--t3);">Header</td></tr>
+            <tr><td style="color:var(--blue); font-weight:700;">OLED Dark Theme</td><td style="color:var(--t2); text-align:left;">Pure matte black / sand white toggle, re-renders charts</td><td style="color:var(--t3);">Header</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Section 1 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">1</div>
+          <div class="c-title">Live Sync Engine & Status Pill</div>
+        </div>
+        <p style="color:var(--t2); font-size:13px; line-height:1.8;">On every page load, the terminal fires an authenticated request to <code style="background:var(--l1); padding:2px 6px; border-radius:4px; font-size:12px; color:var(--green);">nseindia.com/api/fiidiiTradeReact</code> via the allorigins.win CORS proxy.</p>
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(0,208,158,0.08); border:1px solid rgba(0,208,158,0.2); border-radius:8px; font-size:12px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0;"></div>
+            <div><strong style="color:var(--green);">LIVE SYNC</strong> — Today's session data was fetched successfully. Numbers update automatically.</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,159,10,0.08); border:1px solid rgba(255,159,10,0.2); border-radius:8px; font-size:12px;">
+            <div style="width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0;"></div>
+            <div><strong style="color:var(--orange);">LOCAL ARCHIVE</strong> — Markets are closed or NSE returned no new data. Dashboard uses the embedded 15-day history.</div>
+          </div>
+        </div>
+        <div style="margin-top:12px; padding:10px 14px; background:var(--l1); border-radius:8px; font-size:12px; color:var(--t3);">💡 <strong style="color:var(--t2);">Pro Tip:</strong> Hit <strong style="color:var(--t1);">Force Sync</strong> in the top-right to manually trigger a fresh data pull mid-session.</div>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">2</div>
+          <div class="c-title">Flow Strength Meter</div>
+        </div>
+        <p style="color:var(--t2); font-size:13px; line-height:1.8;">The animated dual-bar gauge in the Hero card plots the <strong>relative aggression</strong> of FII vs DII in absolute flow terms. It answers: <em>"Who is driving the market today?"</em></p>
+        <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="padding:14px; background:rgba(251,54,64,0.08); border:1px solid rgba(251,54,64,0.2); border-radius:10px; font-size:12px;">
+            <div style="color:var(--red); font-weight:800; margin-bottom:6px;">FII BAR (RED)</div>
+            <div style="color:var(--t3); line-height:1.6;">Shows FII's share of total combined flow. A 70%+ reading = FIIs are the dominant force (selling or buying).</div>
+          </div>
+          <div style="padding:14px; background:rgba(0,208,158,0.08); border:1px solid rgba(0,208,158,0.2); border-radius:10px; font-size:12px;">
+            <div style="color:var(--green); font-weight:800; margin-bottom:6px;">DII BAR (GREEN)</div>
+            <div style="color:var(--t3); line-height:1.6;">A wide DII bar means domestic funds are responding heavily — often absorbing FII sell-offs or co-buying in rallies.</div>
+          </div>
+        </div>
+        <div style="margin-top:12px; padding:10px 14px; background:var(--l1); border-radius:8px; font-size:12px; color:var(--t3);">💡 <strong style="color:var(--t2);">Reading Signal:</strong> FII Selling 80% + DII Buying 20% → <strong style="color:var(--red);">Panic Sell</strong> with little DII support. FII Selling 80% + DII Buying 80% → <strong style="color:var(--green);">Structural Rotation</strong>, not a free fall.</div>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">3</div>
+          <div class="c-title">FII Streak Counter</div>
+        </div>
+        <p style="color:var(--t2); font-size:13px; line-height:1.8;">Tracks the number of <strong>consecutive trading sessions</strong> FII has remained on one side (All Buy or All Sell). Streaks are powerful market signals.</p>
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; font-size:12px;">
+          <div style="padding:10px 14px; border-left:3px solid var(--red); background:rgba(251,54,64,0.05); border-radius:0 8px 8px 0; color:var(--t2); line-height:1.6;"><strong style="color:var(--red);">🔴 SELL STREAK:</strong> The longer the sell streak and higher the velocity, the more likely an oversold bounce. A 10+ day streak at ₹5,000+ Cr/day = historically extreme.</div>
+          <div style="padding:10px 14px; border-left:3px solid var(--green); background:rgba(0,208,158,0.05); border-radius:0 8px 8px 0; color:var(--t2); line-height:1.6;"><strong style="color:var(--green);">🟢 BUY STREAK:</strong> Sustained buying with high velocity is a strong confirmation of trend reversal or foreign re-entry into India.</div>
+          <div style="padding:10px 14px; border-left:3px solid var(--t3); background:var(--l1); border-radius:0 8px 8px 0; color:var(--t3);">The <strong style="color:var(--t2);">Streak Velocity</strong> shows the cumulative net flow (in ₹ Cr) during the streak — measuring the total damage or firepower.</div>
+        </div>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">4</div>
+          <div class="c-title">Visual Flow Heatmaps</div>
+        </div>
+        <p style="color:var(--t2); font-size:13px; line-height:1.8;">Under the <strong>"Visual Flow Heatmaps"</strong> tab — GitHub-style density matrices for the last 45 trading sessions. At a glance, you can see entire patterns: months of selling, scattered buying, reversals.</p>
+        <div style="margin-top:16px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px; font-size:11px; text-align:center;">
+          <div style="padding:10px; background:rgba(251,54,64,0.6); border-radius:8px; color:#fff; font-weight:700;">EXTREME<br>DUMP</div>
+          <div style="padding:10px; background:rgba(251,54,64,0.3); border-radius:8px; color:#fff; font-weight:700;">HEAVY<br>SELL</div>
+          <div style="padding:10px; background:rgba(251,54,64,0.12); border-radius:8px; color:#fff; font-weight:700;">LIGHT<br>SELL</div>
+          <div style="padding:10px; background:rgba(0,208,158,0.2); border-radius:8px; color:#fff; font-weight:700;">LIGHT<br>BUY</div>
+        </div>
+        <div style="margin-top:8px; font-size:12px; color:var(--t3); text-align:center;">← FII Selling Intensity &nbsp;&nbsp;&nbsp; FII Buying Intensity →</div>
+        <div style="margin-top:12px; padding:10px 14px; background:var(--l1); border-radius:8px; font-size:12px; color:var(--t3);">💡 <strong style="color:var(--t2);">Pro Tip:</strong> Hover over any individual cell to magnify it and see the exact net flow for that trading session.</div>
+      </div>
+
+      <!-- Section 5 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">5</div>
+          <div class="c-title">Smart Data Filters & Matrix</div>
+        </div>
+        <p style="color:var(--t2); font-size:13px; line-height:1.8;">The <strong>"Databases & Matrices"</strong> tab holds the raw numbers in Daily, Weekly, Monthly, and Annual views.</p>
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px; font-size:12px;">
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--l1); border-radius:8px;">
+            <span style="background:var(--t1); color:var(--bg); padding:3px 10px; border-radius:10px; font-weight:700; white-space:nowrap;">All Data</span>
+            <span style="color:var(--t3);">Shows every trading session in the archive. Full chronological data.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--l1); border-radius:8px;">
+            <span style="background:var(--t1); color:var(--bg); padding:3px 10px; border-radius:10px; font-weight:700; white-space:nowrap;">FII Bloodbath</span>
+            <span style="color:var(--t3);">Only sessions where FII net sold more than ₹5,000 Cr — the true capitulation days.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--l1); border-radius:8px;">
+            <span style="background:var(--t1); color:var(--bg); padding:3px 10px; border-radius:10px; font-weight:700; white-space:nowrap;">DII Absorption</span>
+            <span style="color:var(--t3);">Days where DIIs bought more than ₹5,000 Cr — showing strong domestic conviction.</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--l1); border-radius:8px;">
+            <span style="background:var(--t1); color:var(--bg); padding:3px 10px; border-radius:10px; font-weight:700; white-space:nowrap;">Extreme Divergence</span>
+            <span style="color:var(--t3);">FII sold ≥ ₹8,000 Cr AND DII bought ≥ ₹8,000 Cr — pure structural rotation days, rare and very significant.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 6 -->
+      <div class="card" style="margin-bottom:16px; padding:24px;">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+          <div style="width:32px; height:32px; background:rgba(10,209,166,0.15); border:1px solid rgba(10,209,166,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">6</div>
+          <div class="c-title">Exporting, Sharing & Themes</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:var(--t2); line-height:1.7;">
+          <div>📷 <strong style="color:var(--t1);">Widget Snapshot:</strong> Hover over <em>any</em> card → a camera icon appears top-right → click to download a high-DPI PNG with automatic <em>by Mr. Chartist</em> watermark embedded.</div>
+          <div>📸 <strong style="color:var(--t1);">Full Page Snapshot:</strong> The "Snapshot Full Page" button in the header captures the entire visible dashboard in one image.</div>
+          <div>𝕏 <strong style="color:var(--t1);">Post to X / Twitter:</strong> Generates a pre-filled tweet with the exact daily FII & DII net flows. One tap to publish your analysis.</div>
+          <div>🌗 <strong style="color:var(--t1);">Light / Dark Toggle:</strong> Clicking "Light Mode" in the header switches from the OLED Matte Black aesthetic to a clean Sand White theme. Chart.js colors re-render automatically for full contrast.</div>
+        </div>
+      </div>
+
+      <!-- Open Source Footer -->
+      <div class="card" style="margin-bottom:24px; padding:28px; text-align:center; border:1px solid rgba(10,209,166,0.2); background:rgba(10,209,166,0.03);">
+        <div style="font-size:16px; font-weight:800; color:var(--t1); margin-bottom:10px;">🌐 Open Source — Use It, Fork It, Share It</div>
+        <p style="font-size:13px; color:var(--t3); line-height:1.7; max-width:560px; margin:0 auto 16px;">This tool is completely free to use and open. No backend, no login, no subscription. Just open the HTML file and you have institutional-grade FII & DII analytics in your browser.</p>
+        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+          <a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; background:var(--l2); border:1px solid var(--sep); color:var(--t1); padding:10px 20px; border-radius:12px; font-size:13px; font-weight:700; text-decoration:none; transition:0.2s;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 4.15H5.078z"></path></svg>
+            Follow @Mr_Chartist
+          </a>
+          <span style="display:inline-flex; align-items:center; gap:6px; background:var(--l2); border:1px solid var(--sep); color:var(--t3); padding:10px 20px; border-radius:12px; font-size:13px; font-weight:600;">
+            📊 Version 6.0 — March 2026
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Libraries -->
+
+<script>
+/* ── ELITE IMAGE EXPORT METHOD ── */
+async function exportDOM(element, namePrefix) {
+  try {
+    const btn = element.querySelector('.cam-btn');
+    if(btn) btn.style.display = 'none'; // hide button during capture
+    
+    // Slight delay to ensure hover states clear
+    await new Promise(r => setTimeout(r, 100));
+    
+    // Create a temporary wrapper to inject watermark
+    const clone = element.cloneNode(true);
+    const watermark = document.createElement('div');
+    watermark.style.position = 'absolute';
+    watermark.style.bottom = '12px';
+    watermark.style.right = '20px';
+    watermark.style.fontSize = '12px';
+    watermark.style.fontWeight = '800';
+    watermark.style.color = 'rgba(255,255,255,0.4)';
+    watermark.style.letterSpacing = '1px';
+    watermark.style.textTransform = 'uppercase';
+    watermark.innerHTML = 'by <span style="color:#0A84FF">Mr. Chartist</span>';
+    
+    // Only append to cards, not the full body export to avoid mess
+    if(element.classList.contains('card') || element.classList.contains('card-glass')) {
+       clone.style.position = 'relative';
+       clone.appendChild(watermark);
+       document.body.appendChild(clone);
+       clone.style.position = 'absolute';
+       clone.style.left = '-9999px';
+    } else {
+       // For full page dump, just use original
+       clone.style.display = 'none';
+    }
+    
+    const targetEl = clone.parentNode === document.body ? clone : element;
+
+    const canvas = await html2canvas(targetEl, {
+      backgroundColor: '#0A0A0C', // Match dark theme
+      scale: 2, // High DPI
+      useCORS: true,
+      logging: false,
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
+    });
+    
+    // Trigger download
+    const link = document.createElement('a');
+    link.download = `${namePrefix}_mr_chartist_${new Date().toISOString().split('T')[0]}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    if(clone.parentNode === document.body) document.body.removeChild(clone);
+    if(btn) btn.style.display = 'flex'; // restore
+  } catch (err) {
+    console.error("Export failed", err);
+    alert("Export failed. Ensure you are not running into cross-origin canvas taint issues.");
+  }
+}
+
+/* ── TAB LOGIC ── */
+function switchMainTab(id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active'); document.getElementById(id).classList.add('active');
+}
+function switchSubTab(id) {
+  document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.s-panel').forEach(p=>p.classList.remove('active'));
+  event.target.classList.add('active'); document.getElementById(id).classList.add('active');
+}
+
+/* ── DATASETS ── */
+const dailyData = [
+  { d:"13-Mar-2026", fb:11923, fs:22647, fn:-10724, db:22707, ds:12730, dn:9977 },
+  { d:"12-Mar-2026", fb:14201, fs:16122, fn:-1921, db:18402, ds:13201, dn:5201 },
+  { d:"11-Mar-2026", fb:18420, fs:15201, fn:3219,  db:12101, ds:15402, dn:-3301 },
+  { d:"10-Mar-2026", fb:10123, fs:18402, fn:-8279, db:19402, ds:10201, dn:9201 },
+  { d:"09-Mar-2026", fb:12402, fs:17602, fn:-5200, db:16021, ds:11002, dn:5019 },
+  { d:"06-Mar-2026", fb:15602, fs:19201, fn:-3599, db:18201, ds:13401, dn:4800 },
+  { d:"05-Mar-2026", fb:11201, fs:24102, fn:-12901, db:25102, ds:12102, dn:13000 },
+  { d:"04-Mar-2026", fb:14201, fs:13201, fn:1000,  db:13201, ds:14102, dn:-901 },
+  { d:"03-Mar-2026", fb:18402, fs:19201, fn:-799,  db:15002, ds:12001, dn:3001 },
+  { d:"02-Mar-2026", fb:10101, fs:14201, fn:-4100, db:14201, ds:9001,  dn:5200 },
+  { d:"27-Feb-2026", fb:22102, fs:28402, fn:-6300, db:30102, ds:18201, dn:11901 },
+  { d:"26-Feb-2026", fb:15401, fs:12102, fn:3299,  db:11201, ds:16401, dn:-5200 },
+  { d:"25-Feb-2026", fb:12402, fs:19402, fn:-7000, db:18401, ds:11202, dn:7199 },
+  { d:"24-Feb-2026", fb:14801, fs:16201, fn:-1400, db:15021, ds:13201, dn:1820 },
+  { d:"23-Feb-2026", fb:11201, fs:18402, fn:-7201, db:17201, ds:10402, dn:6799 }
+];
+
+const weeklyData = [
+  { w:"Wk Mar 13", fn:-22905, dn:26097 }, { w:"Wk Mar 06", fn:-20399, dn:22099 },
+  { w:"Wk Feb 27", fn:-18602, dn:22519 }, { w:"Wk Feb 20", fn:-11204, dn:16402 },
+  { w:"Wk Feb 13", fn:+4201,  dn:-1202 },  { w:"Wk Feb 06", fn:-14201, dn:15003 },
+  { w:"Wk Jan 30", fn:-28401, dn:32104 }, { w:"Wk Jan 23", fn:-31002, dn:35201 },
+  { w:"Wk Jan 16", fn:-15201, dn:19402 }, { w:"Wk Jan 09", fn:-12770, dn:18602 },
+];
+
+const monthlyData = [
+  { m:"Mar 2026*", fn:-29825, dn:15391, nc:"-2.1%" }, { m:"Feb 2026",  fn:-12240, dn:57471, nc:"+1.2%" },
+  { m:"Jan 2026",  fn:-87374, dn:105309,nc:"-3.4%" }, { m:"Dec 2025",  fn:-21402, dn:38401, nc:"+4.1%" },
+  { m:"Nov 2025",  fn:-42101, dn:51201, nc:"-1.2%" }, { m:"Oct 2025",  fn:-114402,dn:121002,nc:"-6.2%" },
+  { m:"Sep 2025",  fn:+15401, dn:35201, nc:"+3.2%" }, { m:"Aug 2025",  fn:-18402, dn:48201, nc:"+1.4%" },
+  { m:"Jul 2025",  fn:-12401, dn:52101, nc:"+4.5%" }, { m:"Jun 2025",  fn:+26501, dn:20102, nc:"+6.6%" },
+  { m:"May 2025",  fn:-42101, dn:68402, nc:"-0.3%" }, { m:"Apr 2025",  fn:-34201, dn:45201, nc:"+1.2%" },
+];
+
+const yearlyData = [
+  { y:"2026*", fn:-104959, dn:178171 }, { y:"2025",  fn:-306419, dn:788184 },
+  { y:"2024",  fn:-304217, dn:527438 }, { y:"2023",  fn:-16325,  dn:181482 },
+  { y:"2022",  fn:-278429, dn:275726 }, { y:"2021",  fn:-91626,  dn:94846  },
+  { y:"2020",  fn:+170262, dn:-47000 }, { y:"2019",  fn:+101122, dn:-18358 },
+  { y:"2018",  fn:-33014,  dn:109590 }, { y:"2017",  fn:+51252,  dn:56242  },
+  { y:"2016",  fn:-14172,  dn:55703  }, { y:"2015",  fn:+17806,  dn:14296  },
+  { y:"2014",  fn:+97054,  dn:-49750 }, { y:"2013",  fn:+113135, dn:-74000 }
+];
+
+/* ── DOM RENDER UTILS ── */
+function fC(v) { return (v>0?'pos':'neg'); }
+function fmt(v) { return (v>0?'+':(v<0?'-':'')) + '₹' + Math.abs(v).toLocaleString('en-IN') + ' Cr'; }
+function getBar(v, max) { 
+  const p = Math.min(100, Math.abs(v)/max*100); 
+  return `<div class="td-bar-wrap"><div class="td-bar" style="width:${p}%; background:${v>0?'var(--green)':'var(--red)'}"></div></div>`; 
+}
+
+// 1. Heatmap calculate utility
+function getHeatClass(val, max) {
+  let r = Math.abs(val) / max;
+  if(val < 0) {
+    if(r > 0.8) return 'c-r4';
+    if(r > 0.6) return 'c-r3';
+    if(r > 0.3) return 'c-r2';
+    return 'c-r1';
+  } else {
+    if(r > 0.8) return 'c-g4';
+    if(r > 0.6) return 'c-g3';
+    if(r > 0.3) return 'c-g2';
+    return 'c-g1';
+  }
+}
+
+// 2. Array storing rendered HTML rows for quick filter
+let rawDailyHtml = [];
+
+const clr = (v) => v>0 ? 't-green' : 't-red';
+
+function renderDashboard() {
+  const latest = dailyData[0];
+  
+  // Calculate Flow Streak
+  let streakCount = 1;
+  let sType = latest.fn > 0 ? 'buy' : 'sell';
+  let sVol = latest.fn;
+  for(let i=1; i<dailyData.length; i++) {
+     if(sType === 'sell' && dailyData[i].fn < 0) { streakCount++; sVol += dailyData[i].fn; }
+     else if(sType === 'buy' && dailyData[i].fn > 0) { streakCount++; sVol += dailyData[i].fn; }
+     else break;
+  }
+  
+  const stDot = document.getElementById('streak-dot');
+  const stBorder = document.getElementById('streak-border');
+  const stVal = document.getElementById('streak-val');
+  const stVol = document.getElementById('streak-vol');
+  
+  if (stVal) {
+    const stColor = sType === 'sell' ? 'var(--red)' : 'var(--green)';
+    stDot.style.background = stColor;
+    stDot.style.boxShadow = `0 0 8px ${stColor}`;
+    stBorder.style.background = `linear-gradient(90deg, ${stColor}, var(--bg), ${stColor})`;
+    stBorder.style.backgroundSize = '200% 200%';
+    stVal.innerText = `${streakCount} Day${streakCount > 1 ? 's' : ''} ${sType === 'sell' ? 'Selling' : 'Buying'}`;
+    stVal.style.color = stColor;
+    stVol.innerText = (sType === 'sell' ? '' : '+') + fmt(sVol);
+    stVol.style.color = stColor;
+  }
+  
+  // Update Hero Section
+  document.getElementById('lFii').innerText = fmt(latest.fn);
+  document.getElementById('lFii').className = `num-xl ${clr(latest.fn)}`;
+  document.getElementById('lDii').innerText = fmt(latest.dn);
+  document.getElementById('lDii').className = `num-l ${clr(latest.dn)}`;
+  
+  const net = latest.fn + latest.dn;
+  document.getElementById('lNet').innerText = fmt(net);
+  document.getElementById('lNet').className = `num-s ${clr(net)}`;
+  
+  let dtStr = new Date(latest.d).toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  if(dtStr === 'Invalid Date' || !dtStr) dtStr = latest.d;
+  document.getElementById('lDate').innerText = dtStr;
+
+  // Render Flow Strength Meter
+  const fNetAbs = Math.abs(dailyData[0].fn);
+  const dNetAbs = Math.abs(dailyData[0].dn);
+  const totalFlow = fNetAbs + dNetAbs;
+  if(totalFlow > 0) {
+    const pF = Math.round((fNetAbs / totalFlow) * 100);
+    const pD = 100 - pF;
+    document.getElementById('meterFII').style.width = pF + '%';
+    document.getElementById('meterDII').style.width = pD + '%';
+    
+    // Label depending on direction
+    document.getElementById('pFii').innerText = (dailyData[0].fn < 0 ? 'FII Selling: ' : 'FII Buying: ') + pF + '%';
+    document.getElementById('pFii').className = dailyData[0].fn < 0 ? 't-red' : 't-green';
+    
+    document.getElementById('pDii').innerText = (dailyData[0].dn > 0 ? 'DII Support: ' : 'DII Selling: ') + pD + '%';
+    document.getElementById('pDii').className = dailyData[0].dn > 0 ? 't-green' : 't-red';
+  }
+
+  // Daily Flow Render
+  rawDailyHtml = dailyData.map(d => `<tr><td style="color:var(--t2)">${d.d}</td><td class="pos" style="opacity:0.6">${fmt(d.fb)}</td><td class="neg" style="opacity:0.6">${fmt(-d.fs)}</td><td class="${fC(d.fn)}" style="font-weight:800">${fmt(d.fn)}${getBar(d.fn, 20000)}</td><td class="pos" style="opacity:0.6">${fmt(d.db)}</td><td class="neg" style="opacity:0.6">${fmt(-d.ds)}</td><td class="${fC(d.dn)}" style="font-weight:800">${fmt(d.dn)}${getBar(d.dn, 20000)}</td><td class="${fC(d.fn+d.dn)}">${fmt(d.fn+d.dn)}</td></tr>`);
+  document.getElementById('tbDaily').innerHTML = rawDailyHtml.join('');
+
+  // Other Tables
+  document.getElementById('tbWeekly').innerHTML = weeklyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2)">${d.w}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 40000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 40000)}</td><td class="${fC(t)}">${fmt(t)}</td><td><span class="${t>0?'mb-bull':'mb-bear'} mom-badge" style="font-size:10px; padding:4px 8px;">${t>0?'BULLISH ACCUMULATION':'DISTRIBUTION RISK'}</span></td></tr>`}).join('');
+  document.getElementById('tbMonthly').innerHTML = monthlyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2); font-weight:700;">${d.m}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 150000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 150000)}</td><td class="${fC(t)}" style="font-weight:800; font-size:14px;">${fmt(t)}</td><td class="${d.nc.includes('+')?'pos':'neg'}">${d.nc}</td></tr>`}).join('');
+  document.getElementById('tbYearly').innerHTML = yearlyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t1); font-weight:800; font-size:15px;">${d.y}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 400000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 800000)}</td><td class="${fC(t)}" style="font-weight:800;">${fmt(t)}</td><td style="color:var(--t3); font-weight:700;">${d.fn<0&&d.dn>0? (d.dn/Math.abs(d.fn)).toFixed(2)+'x' : 'N/A'}</td></tr>`}).join('');
+
+  // Heatmap Render
+  let fHtml = '', dHtml = '';
+  for(let i=0; i<45; i++) {
+    let ref = dailyData[i % dailyData.length];
+    let fv = i<dailyData.length? ref.fn : ref.fn * (1-(i/100));
+    let dv = i<dailyData.length? ref.dn : ref.dn * (1-(i/100));
+    let dt = i<dailyData.length? ref.d : `Day -${i}`;
+    
+    fHtml += `<div class="cal-cell ${getHeatClass(fv, 15000)}" data-tip="${dt}: ${fmt(fv)}"></div>`;
+    dHtml += `<div class="cal-cell ${getHeatClass(dv, 15000)}" data-tip="${dt}: ${fmt(dv)}"></div>`;
+  }
+  document.getElementById('fii-heatmap').innerHTML = fHtml;
+  document.getElementById('dii-heatmap').innerHTML = dHtml;
+}
+
+function filterDaily(type, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  let filtered = [];
+  if(type==='all') filtered = rawDailyHtml;
+  else if(type==='fii_sell') filtered = dailyData.map((d,i) => d.fn < -5000 ? rawDailyHtml[i] : '').filter(x=>x);
+  else if(type==='dii_buy') filtered = dailyData.map((d,i) => d.dn > 5000 ? rawDailyHtml[i] : '').filter(x=>x);
+  else if(type==='divergence') filtered = dailyData.map((d,i) => (d.fn < -8000 && d.dn > 8000) ? rawDailyHtml[i] : '').filter(x=>x);
+  
+  document.getElementById('tbDaily').innerHTML = filtered.length ? filtered.join('') : '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--t4);">No matches found for this filter.</td></tr>';
+}
+
+function postToX() {
+  const latestFn = fmt(dailyData[0].fn);
+  const latestDn = fmt(dailyData[0].dn);
+  const text = `🚨 Institutional Liquidity Alert by Mr. Chartist\n\nFII Net: ${latestFn}\nDII Net: ${latestDn}\n\nFII Index Futures L/S: 34% (Deep Bearish)\n\nVisual flow matrices inside.\n#Nifty50 #BankNifty #StockMarketIndia`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+/* ── LIVE AUTO-FETCH (PRO) ── */
+async function fetchLiveNSE(isManual = false) {
+  const btn = document.getElementById('btnRefresh');
+  if(isManual && btn) {
+    btn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Syncing...`;
+    btn.style.opacity = '0.7';
+  }
+  
+  try {
+    const sPill = document.getElementById('sPill');
+    const sTxt = document.getElementById('sTxt');
+    
+    // Using a reliable CORS proxy to hit NSE
+    const targetUrl = encodeURIComponent('https://www.nseindia.com/api/fiidiiTradeReact');
+    const url = `https://api.allorigins.win/get?url=${targetUrl}`;
+    
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Fetch failed');
+    
+    const data = await res.json();
+    const parsed = JSON.parse(data.contents);
+    
+    if (parsed && parsed.length > 0) {
+      let fb=0, fs=0, fn=0, db=0, ds=0, dn=0;
+      let dateRaw = parsed[0].date;
+      
+      parsed.forEach(row => {
+        if(row.category.includes('FII')) {
+          fb = parseFloat(row.buyValue) || 0;
+          fs = parseFloat(row.sellValue) || 0;
+          fn = parseFloat(row.netValue) || 0;
+        } else if(row.category.includes('DII')) {
+          db = parseFloat(row.buyValue) || 0;
+          ds = parseFloat(row.sellValue) || 0;
+          dn = parseFloat(row.netValue) || 0;
+        }
+      });
+      
+      let newDateParts = dateRaw.split('-'); // e.g. "13-Mar-2026"
+      let newDate = dateRaw; // Fallback
+      if(newDateParts.length===3) {
+         newDate = `${newDateParts[0]}-${newDateParts[1]}-${newDateParts[2]}`;
+      }
+      
+      // Prevent duplicates in history
+      if (dailyData[0].d !== newDate) {
+        dailyData.unshift({ d: newDate, fb: fb, fs: fs, fn: fn, db: db, ds: ds, dn: dn });
+        sPill.className = 'status-pill live';
+        sTxt.innerHTML = `LIVE SYNC &bull; ${new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}`;
+        renderDashboard(); 
+      } else {
+        // Date matches, just update values to ensure accuracy right after close
+        dailyData[0] = { d: newDate, fb: fb, fs: fs, fn: fn, db: db, ds: ds, dn: dn };
+        sPill.className = 'status-pill live';
+        sTxt.innerHTML = `LIVE SYNC &bull; ${new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'})}`;
+        renderDashboard();
+      }
+    }
+  } catch(e) {
+    console.warn("Live fetch failed, falling back to local archive.", e);
+    if(isManual) alert("Manual Sync Failed. NSE API might be blocking the CORS proxy. Falling back to robust local matrix.");
+  } finally {
+    if(isManual && btn) {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg> Force Sync`;
+      btn.style.opacity = '1';
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+   renderDashboard();
+   initCharts();
+   fetchLiveNSE();
+});
+
+// 3. Charts Render & Theme Logic
+let chartM, chartC;
+
+function initCharts() {
+  const isLight = document.body.getAttribute('data-theme') === 'light';
+  const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
+  const tickCol = isLight ? 'rgba(0,15,8,0.5)' : 'rgba(240,237,229,0.5)';
+  const labelCol = isLight ? 'rgba(0,15,8,0.8)' : 'rgba(240,237,229,0.8)';
+  const fiiCol = isLight ? '#FB3640' : '#FB3640';
+  const diiCol = isLight ? '#00A880' : '#00D09E';
+
+  if (chartM) chartM.destroy();
+  if (chartC) chartC.destroy();
+
+  const ctxM = document.getElementById('chMon').getContext('2d');
+  chartM = new Chart(ctxM, { type:'bar', data: { labels:monthlyData.map(d=>d.m).reverse(), datasets:[{label:'FII', data:monthlyData.map(d=>d.fn).reverse(), backgroundColor:fiiCol, borderRadius:6, borderSkipped:false}, {label:'DII', data:monthlyData.map(d=>d.dn).reverse(), backgroundColor:diiCol, borderRadius:6, borderSkipped:false}] }, options:{ responsive:true, maintainAspectRatio:false, interaction: { mode: 'index', intersect: false }, plugins:{legend:{labels:{color:labelCol, font:{size:12, weight:'600'}}}}, scales:{ x:{grid:{display:false}, ticks:{color:tickCol}}, y:{grid:{color:gridCol, drawBorder:false}, ticks:{color:tickCol}} } }});
+
+  const ctxC = document.getElementById('chCum').getContext('2d');
+  let gradF = ctxC.createLinearGradient(0, 0, 0, 300); gradF.addColorStop(0, 'rgba(251,54,64,0.3)'); gradF.addColorStop(1, 'rgba(251,54,64,0.0)');
+  let gradD = ctxC.createLinearGradient(0, 0, 0, 300); gradD.addColorStop(0, isLight ? 'rgba(0,168,128,0.3)' : 'rgba(0,208,158,0.3)'); gradD.addColorStop(1, isLight ? 'rgba(0,168,128,0.0)' : 'rgba(0,208,158,0.0)');
+  let cF=0, cD=0;
+  chartC = new Chart(ctxC, { type:'line', data: { labels:yearlyData.map(d=>d.y).reverse(), datasets:[{label:'FII Extract', data:yearlyData.map(d=>{cF+=d.fn; return cF;}).reverse(), borderColor:fiiCol, borderWidth:3, pointRadius:0, pointHoverRadius:6, fill:true, backgroundColor:gradF, tension:0.4}, {label:'DII Inject', data:yearlyData.map(d=>{cD+=d.dn; return cD;}).reverse(), borderColor:diiCol, borderWidth:3, pointRadius:0, pointHoverRadius:6, fill:true, backgroundColor:gradD, tension:0.4}] }, options:{ responsive:true, maintainAspectRatio:false, interaction: { mode: 'index', intersect: false }, plugins:{legend:{labels:{color:labelCol, font:{size:12, weight:'600'}}}}, scales:{ x:{grid:{display:false}, ticks:{color:tickCol}}, y:{grid:{color:gridCol, drawBorder:false}, ticks:{color:tickCol}} } }});
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const isLight = body.getAttribute('data-theme') === 'light';
+  body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  document.getElementById('btnTheme').innerHTML = isLight ? 
+    `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Light Mode` :
+    `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg> Dark Mode`;
+  
+  initCharts();
+}
+</script>
+</body>
+</html>

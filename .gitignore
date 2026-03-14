@@ -1,0 +1,11 @@
+# Scratch files
+test.js
+*.tmp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
