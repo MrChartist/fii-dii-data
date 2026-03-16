@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "fii_dii_india_flows_dashboard.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "data/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/server.js" },
+    { "source": "/", "destination": "/fii_dii_india_flows_dashboard.html" }
+  ]
+}
