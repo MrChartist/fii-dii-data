@@ -364,8 +364,8 @@ tr:last-child td { border-bottom: none; }
 
     <!-- FII F&O Grid -->
     <div class="c-sub" style="margin-bottom:12px; color:var(--blue);">FOREIGN INSTITUTIONAL INVESTORS (FII)</div>
-    <div class="grid-3">
-      <!-- FII Futures -->
+    <div class="grid-4">
+      <!-- FII Index Futures -->
       <div class="card" style="padding:16px;">
         <div class="c-sub" style="margin-top:0;">Index Futures</div>
         <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px; font-weight:700;">
@@ -374,6 +374,17 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div style="height:6px; background:var(--l4); border-radius:3px; margin-top:8px; display:flex; overflow:hidden;">
           <div id="barFiiFut" style="background:var(--green); width:50%; transition:width 1s;"></div>
+        </div>
+      </div>
+      <!-- FII Stock Futures -->
+      <div class="card" style="padding:16px;">
+        <div class="c-sub" style="margin-top:0;">Stock Futures</div>
+        <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px; font-weight:700;">
+          <span class="t-green">Long: <span id="fiiStkFutL">—</span></span>
+          <span class="t-red">Short: <span id="fiiStkFutS">—</span></span>
+        </div>
+        <div style="height:6px; background:var(--l4); border-radius:3px; margin-top:8px; display:flex; overflow:hidden;">
+          <div id="barFiiStkFut" style="background:var(--green); width:50%; transition:width 1s;"></div>
         </div>
       </div>
       <!-- FII Calls -->
@@ -404,8 +415,8 @@ tr:last-child td { border-bottom: none; }
 
     <!-- DII F&O Grid -->
     <div class="c-sub" style="margin-bottom:12px; margin-top:16px; color:var(--purple);">DOMESTIC INSTITUTIONAL INVESTORS (DII)</div>
-    <div class="grid-3" style="margin-bottom:0;">
-      <!-- DII Futures -->
+    <div class="grid-4" style="margin-bottom:0;">
+      <!-- DII Index Futures -->
       <div class="card" style="padding:16px;">
         <div class="c-sub" style="margin-top:0;">Index Futures</div>
         <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px; font-weight:700;">
@@ -414,6 +425,17 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div style="height:6px; background:var(--l4); border-radius:3px; margin-top:8px; display:flex; overflow:hidden;">
           <div id="barDiiFut" style="background:var(--green); width:50%; transition:width 1s;"></div>
+        </div>
+      </div>
+      <!-- DII Stock Futures -->
+      <div class="card" style="padding:16px;">
+        <div class="c-sub" style="margin-top:0;">Stock Futures</div>
+        <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px; font-weight:700;">
+          <span class="t-green">Long: <span id="diiStkFutL">—</span></span>
+          <span class="t-red">Short: <span id="diiStkFutS">—</span></span>
+        </div>
+        <div style="height:6px; background:var(--l4); border-radius:3px; margin-top:8px; display:flex; overflow:hidden;">
+          <div id="barDiiStkFut" style="background:var(--green); width:50%; transition:width 1s;"></div>
         </div>
       </div>
       <div style="grid-column: span 2; display:flex; align-items:center; padding-left:16px;">
@@ -964,6 +986,12 @@ function renderDashboard() {
     document.getElementById('fiiFutS').innerText = fnl(latest.fii_idx_fut_short);
     fillRatio(latest.fii_idx_fut_long, latest.fii_idx_fut_short, 'barFiiFut');
 
+    if (document.getElementById('fiiStkFutL')) {
+      document.getElementById('fiiStkFutL').innerText = fnl(latest.fii_stk_fut_long);
+      document.getElementById('fiiStkFutS').innerText = fnl(latest.fii_stk_fut_short);
+      fillRatio(latest.fii_stk_fut_long, latest.fii_stk_fut_short, 'barFiiStkFut');
+    }
+
     document.getElementById('fiiCallL').innerText = fnl(latest.fii_idx_call_long);
     document.getElementById('fiiCallS').innerText = fnl(latest.fii_idx_call_short);
     fillRatio(latest.fii_idx_call_long, latest.fii_idx_call_short, 'barFiiCall');
@@ -976,6 +1004,12 @@ function renderDashboard() {
     document.getElementById('diiFutL').innerText = fnl(latest.dii_idx_fut_long);
     document.getElementById('diiFutS').innerText = fnl(latest.dii_idx_fut_short);
     fillRatio(latest.dii_idx_fut_long, latest.dii_idx_fut_short, 'barDiiFut');
+
+    if (document.getElementById('diiStkFutL')) {
+      document.getElementById('diiStkFutL').innerText = fnl(latest.dii_stk_fut_long);
+      document.getElementById('diiStkFutS').innerText = fnl(latest.dii_stk_fut_short);
+      fillRatio(latest.dii_stk_fut_long, latest.dii_stk_fut_short, 'barDiiStkFut');
+    }
 
     // Sentiment heuristic
     const futNet = latest.fii_idx_fut_long - latest.fii_idx_fut_short;
@@ -1250,6 +1284,7 @@ function toggleTheme() {
 async function fetchNiftyVIX() {
   const YF = 'https://query1.finance.yahoo.com/v8/finance/chart/';
   const fmt2 = n => n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  
   async function getQuote(ticker) {
     const r = await fetch(`${YF}${encodeURIComponent(ticker)}?interval=1d&range=1d&includePrePost=false`, { signal: AbortSignal.timeout(8000) });
     const j = await r.json();
@@ -1258,23 +1293,28 @@ async function fetchNiftyVIX() {
     const prev  = m.previousClose || m.chartPreviousClose;
     return { price, change: price - prev, pct: (price - prev) / prev * 100, state: m.marketState };
   }
+  
   try {
     const [nifty, vix] = await Promise.all([getQuote('^NSEI'), getQuote('^INDIAVIX')]);
+    
     const el = id => document.getElementById(id);
     const sign = v => v >= 0 ? '+' : '';
+    
     if (el('niftyPrice')) el('niftyPrice').innerText = fmt2(nifty.price);
     if (el('niftyChange')) {
       el('niftyChange').innerText = `${sign(nifty.change)}${fmt2(nifty.change)} (${sign(nifty.pct)}${nifty.pct.toFixed(2)}%)`;
       el('niftyChange').style.cssText = `color:${nifty.change >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600;font-size:13px`;
     }
+    
     if (el('vixPrice')) {
       el('vixPrice').innerText = fmt2(vix.price);
       el('vixPrice').style.color = vix.price > 20 ? 'var(--red)' : vix.price > 14 ? 'var(--orange)' : 'var(--green)';
     }
     if (el('vixChange')) {
-      el('vixChange').innerText = `${sign(vix.change)}${vix.pct.toFixed(2)}%`;
+      el('vixChange').innerText = `${sign(vix.change)}${fmt2(vix.change)} (${sign(vix.pct)}${vix.pct.toFixed(2)}%)`;
       el('vixChange').style.cssText = `color:${vix.change >= 0 ? 'var(--red)' : 'var(--green)'};font-weight:600;font-size:13px`;
     }
+    
     if (el('tkDate')) el('tkDate').innerText = `${nifty.state === 'REGULAR' ? '🟢 Market Open' : '🔴 After Close'} · Live via Yahoo Finance`;
     console.log('[NIFTY] ✅ Live:', nifty.price, '| VIX:', vix.price);
   } catch(e) {
@@ -1282,7 +1322,10 @@ async function fetchNiftyVIX() {
     const tk = document.getElementById('tkDate');
     if (tk) tk.innerText = 'Yahoo Finance temporarily unavailable';
   }
-  setTimeout(fetchNiftyVIX, 5 * 60 * 1000);
+  
+  // Refresh every 5 minutes
+
+  setTimeout(fetchNiftyVIX, 3 * 60 * 1000);
 }
 
 </script>

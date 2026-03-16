@@ -16,16 +16,16 @@ jobs:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: '20'
 
       - name: 📦 Install dependencies
-        run: pip install requests
+        run: npm install
 
       - name: 📡 Fetch NSE FII/DII data
-        run: python scripts/fetch_data.py
+        run: npm run fetch
 
       - name: 💾 Commit updated data
         run: |
