@@ -2,8 +2,6 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const { parse } = require('csv-parse/sync');
-const sqlite3 = require('sqlite3');
-const { open } = require('sqlite');
 
 // ── Configuration ───────────────────────────────────────────────────────────
 const CONFIG = {
@@ -14,11 +12,10 @@ const CONFIG = {
     RETRY: { attempts: 3, baseDelayMs: 2000 },
     HISTORY_MAX: 60,
     DATA_DIR: path.join(process.cwd(), 'data'),
-    DB_PATH: path.join(process.cwd(), 'data', 'fiidii.db')
 };
 
 const HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
     "Accept": "*/*",
     "Accept-Language": "en-US,en;q=0.9",
     "Accept-Encoding": "gzip, deflate, br",
@@ -28,12 +25,80 @@ const HEADERS = {
 
 let nseCookies = "";
 
-// ── Database Connection ──────────────────────────────────────────────────────
-async function getDB() {
-    return open({
-        filename: CONFIG.DB_PATH,
-        driver: sqlite3.Database
+// ── JSON Storage (replaces SQLite) ──────────────────────────────────────────
+
+function readJSON(filename, defaultVal) {
+    try {
+        const p = path.join(CONFIG.DATA_DIR, filename);
+        if (!fs.existsSync(p)) return defaultVal;
+        return JSON.parse(fs.readFileSync(p, 'utf8'));
+    } catch {
+        return defaultVal;
+    }
+}
+
+function writeJSON(filename, data) {
+    const p = path.join(CONFIG.DATA_DIR, filename);
+    const tmp = p + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmp, p);
+}
+
+// Fake getDB() compatible API – returns object matching sqlite API used by server.js
+function getDB() {
+    return Promise.resolve({
+        get: async (sql, params = []) => {
+            // Handle fetch_logs queries
+            if (sql.includes('fetch_logs')) {
+                const logs = readJSON('fetch-log.json', []);
+                const sorted = [...logs].sort((a, b) => new Date(b.ts) - new Date(a.ts));
+                const successful = sorted.filter(l => l.success);
+                return successful[0] || null;
+            }
+            // Handle flows query (latest record)
+            if (sql.includes('flows')) {
+                const history = readJSON('history.json', []);
+                if (!history.length) return null;
+                const sorted = [...history].sort((a, b) => compareDates(b.date, a.date));
+                return sorted[0];
+            }
+            return null;
+        },
+        all: async (sql, params = []) => {
+            if (sql.includes('fetch_logs')) {
+                const logs = readJSON('fetch-log.json', []);
+                return [...logs].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 5);
+            }
+            if (sql.includes('flows')) {
+                const history = readJSON('history.json', []);
+                return [...history].sort((a, b) => compareDates(b.date, a.date));
+            }
+            return [];
+        },
+        run: async () => {},
+        close: async () => {}
     });
+}
+
+function compareDates(a, b) {
+    const M = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    const p1 = (a || '').split('-');
+    const p2 = (b || '').split('-');
+    if (p1.length !== 3 || p2.length !== 3) return 0;
+    const d1 = new Date(parseInt(p1[2]), M[p1[1]] ?? 0, parseInt(p1[0]));
+    const d2 = new Date(parseInt(p2[2]), M[p2[1]] ?? 0, parseInt(p2[0]));
+    return d1 - d2;
+}
+
+// ── Log fetch ──────────────────────────────────────────────────────────────
+function logFetch(entry) {
+    try {
+        const logs = readJSON('fetch-log.json', []);
+        logs.unshift({ ts: new Date().toISOString(), ...entry });
+        writeJSON('fetch-log.json', logs.slice(0, 100)); // keep last 100 entries
+    } catch (err) {
+        console.error("  ❌ Failed to log fetch:", err.message);
+    }
 }
 
 // ── Retry helper ─────────────────────────────────────────────────────────────
@@ -69,27 +134,6 @@ async function refreshNSESession() {
     return false;
 }
 
-// ── Log Fetch Attempt to SQLite ──────────────────────────────────────────────
-async function logFetch(entry) {
-    try {
-        const db = await getDB();
-        await db.run(`
-            INSERT INTO fetch_logs (ts, success, date, action, error, reason)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `, [
-            new Date().toISOString(),
-            entry.success ? 1 : 0,
-            entry.date || null,
-            entry.action || null,
-            entry.error || null,
-            entry.reason || null
-        ]);
-        await db.close();
-    } catch (err) {
-        console.error("  ❌ Failed to log fetch to DB:", err.message);
-    }
-}
-
 // ── Fetch cash data from NSE API ─────────────────────────────────────────────
 async function fetchNSE() {
     if (!nseCookies) await refreshNSESession();
@@ -107,7 +151,7 @@ async function fetchNSE() {
         }
 
         // Fallback to proxy
-        const safeUrl = CONFIG.NSE_API.includes('?') ? `${CONFIG.NSE_API}&t=${Date.now()}` : `${CONFIG.NSE_API}?t=${Date.now()}`;
+        const safeUrl = `${CONFIG.NSE_API}?t=${Date.now()}`;
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(safeUrl)}`;
         const pRes = await axios.get(proxyUrl, { timeout: CONFIG.TIMEOUTS.cash });
         const parsed = pRes.data && pRes.data.contents ? JSON.parse(pRes.data.contents) : null;
@@ -117,7 +161,7 @@ async function fetchNSE() {
     }, "NSE cash API");
 }
 
-// ── Fetch F&O OI CSV with URL fallback ───────────────────────────────────────
+// ── Fetch F&O OI CSV ─────────────────────────────────────────────────────────
 async function fetchFaoOi(dateStr) {
     const MONTHS = { Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12' };
     const parts = dateStr.split('-');
@@ -211,7 +255,7 @@ async function transformData(rawCash, rawFaoCsv) {
         fii_idx_call_long: 0, fii_idx_call_short: 0, fii_idx_call_net: 0,
         fii_idx_put_long: 0, fii_idx_put_short: 0, fii_idx_put_net: 0,
         pcr: 0,
-        sentiment_score: 50, // Default neutral
+        sentiment_score: 50,
     };
 
     for (const row of rawCash) {
@@ -235,29 +279,19 @@ async function transformData(rawCash, rawFaoCsv) {
             out.fii_idx_fut_long = f.idx_fut_long; out.fii_idx_fut_short = f.idx_fut_short; out.fii_idx_fut_net = f.idx_fut_long - f.idx_fut_short;
             out.fii_stk_fut_long = f.stk_fut_long; out.fii_stk_fut_short = f.stk_fut_short; out.fii_stk_fut_net = f.stk_fut_long - f.stk_fut_short;
             out.fii_idx_call_long = f.idx_call_long; out.fii_idx_call_short = f.idx_call_short; out.fii_idx_call_net = f.idx_call_long - f.idx_call_short;
-            out.fii_idx_put_long = f.fii_idx_put_long; out.fii_idx_put_short = f.fii_idx_put_short; out.fii_idx_put_net = f.fii_idx_put_net;
+            out.fii_idx_put_long = f.idx_put_long; out.fii_idx_put_short = f.idx_put_short; out.fii_idx_put_net = f.idx_put_long - f.idx_put_short;
             
-            // --- PCR Calculation ---
             if (f.idx_call_short > 0) {
                 out.pcr = parseFloat((f.idx_put_short / f.idx_call_short).toFixed(2));
             } else {
                 out.pcr = 1.0;
             }
 
-            // --- Sentiment Score (0-100) ---
-            // Simple logic: Base 50. 
-            // + Cash Net (1000Cr = +5 pts)
-            // + Index Future Net (10000 contracts = +2 pts)
-            // - Put/Call ratio high (>1.2 = Bearish, <0.8 = Bullish for short sellers/writers)
-            // NSE PCR is usually calculated on OI. Here we use Participant OI.
             let sentiment = 50;
-            sentiment += (out.fii_net / 200); // 1000Cr net buy = +5
-            sentiment += (out.fii_idx_fut_net / 5000); // 10000 contracts = +2
-            
-            // PCR Sentiment (contrarian)
+            sentiment += (out.fii_net / 200);
+            sentiment += (out.fii_idx_fut_net / 5000);
             if (out.pcr > 1.3) sentiment -= 10;
             if (out.pcr < 0.7) sentiment += 10;
-
             out.sentiment_score = Math.min(100, Math.max(0, parseFloat(sentiment.toFixed(1))));
         }
         if (fao["DII"]) {
@@ -272,40 +306,18 @@ async function transformData(rawCash, rawFaoCsv) {
     return out;
 }
 
-// ── Save to SQLite ──────────────────────────────────────────────────────────
-async function saveToDB(data) {
-    const db = await getDB();
-    await db.run(`
-        INSERT OR REPLACE INTO flows (
-            date, fii_buy, fii_sell, fii_net, dii_buy, dii_sell, dii_net,
-            fii_idx_fut_long, fii_idx_fut_short, fii_idx_fut_net,
-            dii_idx_fut_long, dii_idx_fut_short, dii_idx_fut_net,
-            fii_stk_fut_long, fii_stk_fut_short, fii_stk_fut_net,
-            dii_stk_fut_long, dii_stk_fut_short, dii_stk_fut_net,
-            fii_idx_call_long, fii_idx_call_short, fii_idx_call_net,
-            fii_idx_put_long, fii_idx_put_short, fii_idx_put_net,
-            pcr, sentiment_score,
-            _updated_at, _source
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-        data.date, data.fii_buy, data.fii_sell, data.fii_net, data.dii_buy, data.dii_sell, data.dii_net,
-        data.fii_idx_fut_long, data.fii_idx_fut_short, data.fii_idx_fut_net,
-        data.dii_idx_fut_long, data.dii_idx_fut_short, data.dii_idx_fut_net,
-        data.fii_stk_fut_long, data.fii_stk_fut_short, data.fii_stk_fut_net,
-        data.dii_stk_fut_long, data.dii_stk_fut_short, data.dii_stk_fut_net,
-        data.fii_idx_call_long, data.fii_idx_call_short, data.fii_idx_call_net,
-        data.fii_idx_put_long, data.fii_idx_put_short, data.fii_idx_put_net,
-        data.pcr, data.sentiment_score,
-        data._updated_at, data._source
-    ]);
-    await db.close();
-}
-
-// ── Atomic file write (Legacy Fallback) ──────────────────────────────────────
-function writeFileAtomic(filePath, content) {
-    const tmp = filePath + '.tmp';
-    fs.writeFileSync(tmp, content, 'utf8');
-    fs.renameSync(tmp, filePath);
+// ── Save to JSON history ─────────────────────────────────────────────────────
+function saveToHistory(data) {
+    const history = readJSON('history.json', []);
+    const existingIdx = history.findIndex(r => r.date === data.date);
+    if (existingIdx >= 0) {
+        history[existingIdx] = data;
+    } else {
+        history.unshift(data);
+    }
+    // Sort descending and keep max entries
+    history.sort((a, b) => compareDates(b.date, a.date));
+    writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
 }
 
 // ── Pipeline ─────────────────────────────────────────────────────────────────
@@ -318,20 +330,17 @@ async function fetchAndProcessData() {
         let targetDate = (rawCash.find(r => /FII|FPI|DII/i.test(r.category)) || {}).date;
         if (!targetDate) {
             console.log("ℹ️ No target date found in NSE response.");
-            await logFetch({ success: true, action: "idle", reason: "no_data_date" });
+            logFetch({ success: true, action: "idle", reason: "no_data_date" });
             return null;
         }
 
-        // Smart skip: check if we already have this exact data in DB
-        const db = await getDB();
-        const existing = await db.get(`SELECT * FROM flows WHERE date = ?`, [targetDate]);
-        await db.close();
-
+        // Smart skip: check if we already have this exact data
+        const history = readJSON('history.json', []);
+        const existing = history.find(r => r.date === targetDate);
         if (existing && existing.fii_net !== 0) {
-            console.log(`ℹ️ Data for ${targetDate} already exists in DB. Skipping store.`);
-            await logFetch({ success: true, date: targetDate, action: "skipped" });
-            // Update latest.json for legacy frontend compatibility
-            writeFileAtomic(path.join(CONFIG.DATA_DIR, 'latest.json'), JSON.stringify(existing, null, 2));
+            console.log(`ℹ️ Data for ${targetDate} already exists. Skipping store.`);
+            logFetch({ success: true, date: targetDate, action: "skipped" });
+            writeJSON('latest.json', existing);
             return { ...existing, _skipped: true };
         }
 
@@ -340,18 +349,16 @@ async function fetchAndProcessData() {
 
         if (!validateData(data)) throw new Error(`Validation failed for ${data.date}`);
 
-        await saveToDB(data);
-        
-        // Legacy file updates for backwards compatibility
-        writeFileAtomic(path.join(CONFIG.DATA_DIR, 'latest.json'), JSON.stringify(data, null, 2));
+        saveToHistory(data);
+        writeJSON('latest.json', data);
 
         console.log(`✅ Updated: ${data.date} (FII Net: ${data.fii_net})`);
-        await logFetch({ success: true, date: data.date, action: "updated" });
+        logFetch({ success: true, date: data.date, action: "updated" });
         return data;
 
     } catch (err) {
         console.error("❌ Pipeline error:", err.message);
-        await logFetch({ success: false, error: err.message });
+        logFetch({ success: false, error: err.message });
         throw err;
     }
 }

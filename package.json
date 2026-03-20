@@ -1,7 +1,7 @@
 {
   "name": "fii-dii-dashboard",
   "version": "1.0.0",
-  "description": "FII & DII Data Dashboard with Live Analytics — hosted on Hostinger",
+  "description": "FII & DII Data Dashboard - Institutional Flow Tracker",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,14 +10,11 @@
   },
   "dependencies": {
     "axios": "^1.6.8",
-    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "csv-parse": "^5.5.5",
     "express": "^4.19.2",
     "node-cron": "^4.2.1",
-    "socket.io": "^4.8.3",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^6.0.1"
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
