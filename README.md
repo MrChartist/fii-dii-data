@@ -27,6 +27,7 @@
 | 📷 **Full-Page Export** | html2canvas-powered screenshot & Post to 𝕏 |
 | 📱 **PWA Installable** | Progressive Web App with offline support |
 | 🔍 **SEO Optimized** | JSON-LD structured data, Open Graph, Twitter Cards, canonical URL |
+| 📑 **Data Source Citations** | Every tab has clickable source badges linking to official NSE/NSDL/SEBI pages with detailed tooltips |
 
 ---
 

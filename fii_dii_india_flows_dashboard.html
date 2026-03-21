@@ -144,6 +144,11 @@
   --card-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.04);
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
+/* ── Source Citation Badge ── */
+.src-badges { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:14px; }
+.src-badge { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--t3); background:var(--l2); border:1px solid var(--sep2); padding:5px 12px; border-radius:20px; cursor:pointer; text-decoration:none; transition:all 0.2s; }
+.src-badge:hover { color:var(--primary); border-color:var(--primary); background:var(--l3); transform:translateY(-1px); }
+.src-badge .src-icon { font-size:12px; }
 [data-theme="dark"] {
   /* ── OLED DEEP DARK THEME ── */
   --bg: #000000;
@@ -880,6 +885,9 @@ tr:last-child td { border-bottom: none; }
         </div>
         <div class="mom-badge mb-bear" id="heroBadge">Aggressive Selling</div>
       </div>
+      <div class="src-badges" style="justify-content:flex-start; margin-top:10px;">
+        <a class="src-badge" href="https://www.nseindia.com/report-detail/display-reports" target="_blank" title="NSE publishes daily FII/DII cash market buy, sell, and net values from the TRDREQ settlement system after market hours."><span class="src-icon">📡</span> Source: NSE TRDREQ Daily Reports</a>
+      </div>
       
       <div class="hero-nums" style="display:flex; justify-content:space-between; margin-top:32px; align-items:flex-end;">
         <div>
@@ -1042,6 +1050,9 @@ tr:last-child td { border-bottom: none; }
       <div style="font-size:36px; margin-bottom:12px;">🗄️</div>
       <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Historical Flow Databases & Matrices</div>
       <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Complete institutional flow archive spanning daily sessions to calendar years. Filter, sort, and export raw FII/DII buy-sell data with visual magnitude bars.</div>
+      <div class="src-badges">
+        <a class="src-badge" href="https://www.nseindia.com/report-detail/display-reports" target="_blank" title="All daily, weekly, monthly, and annual data is derived from NSE's official TRDREQ settlement reports, published each trading day after market close."><span class="src-icon">🏛️</span> Source: NSE Cash Market Reports</a>
+      </div>
     </div>
 
     <!-- Summary Stats Row -->
@@ -1145,6 +1156,11 @@ tr:last-child td { border-bottom: none; }
       <div style="font-size:36px; margin-bottom:12px;">📈</div>
       <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Historical Flow Trends & FPI Macro</div>
       <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:600px; margin:0 auto;">Visualize FII & DII institutional flow trajectories, daily FPI trends, and long-term liquidity injections.</div>
+      <div class="src-badges">
+        <a class="src-badge" href="https://www.fpi.nsdl.co.in/web/Reports/Latest.aspx" target="_blank" title="Daily FPI investment data (equity, debt, hybrid) is scraped from the NSDL FPI Monitor's Latest Reports page, published each trading day."><span class="src-icon">📊</span> NSDL FPI Daily Reports</a>
+        <a class="src-badge" href="https://www.fpi.nsdl.co.in/web/Reports/Yearwise.aspx" target="_blank" title="Monthly and yearly FPI investment aggregates spanning 2005–present, sourced from the NSDL FPI Yearwise Reports portal."><span class="src-icon">📅</span> NSDL Yearly/Monthly</a>
+        <a class="src-badge" href="https://www.nseindia.com/report-detail/display-reports" target="_blank" title="Institutional flow canvas uses NSE TRDREQ data for the FII vs DII charting comparisons."><span class="src-icon">📡</span> NSE TRDREQ</a>
+      </div>
     </div>
 
 <!-- ── FPI Daily Trends Card ── -->
@@ -1316,6 +1332,10 @@ tr:last-child td { border-bottom: none; }
           <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🌐 Sector-Wise FII / FPI Allocation</h2>
           <div style="font-size:12px; color:var(--t4); margin-top:4px;">Source: NSDL Fortnightly FPI Reports · BSE 24-Sector Classification · Updated twice a month</div>
           <div id="nsdl-period-badge" style="display:inline-block; margin-top:6px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--l3); color:var(--t3); border:1px solid var(--sep2);">Loading live data…</div>
+          <div class="src-badges" style="justify-content:flex-start; margin-top:8px;">
+            <a class="src-badge" href="https://www.fpi.nsdl.co.in/web/Reports/Fortnightly.aspx" target="_blank" title="Fortnightly sector-wise FPI allocation data is published by NSDL/CDSL depositories as mandated by SEBI. Shows Assets Under Custody (AUC) for each BSE sector classification."><span class="src-icon">📑</span> NSDL Fortnightly Reports</a>
+            <a class="src-badge" href="https://www.bseindia.com/corporates/Ede_Comp.aspx" target="_blank" title="Sectors are classified using BSE's Common Industry Classification system. Each of the 22 sectors maps to the Bombay Stock Exchange taxonomy."><span class="src-icon">🏛️</span> BSE Sector Classification</a>
+          </div>
         </div>
         <!-- Sort Buttons -->
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
@@ -1435,6 +1455,11 @@ tr:last-child td { border-bottom: none; }
       <div style="font-size:36px; margin-bottom:12px;">🔬</div>
       <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Deep Dive Analytics</div>
       <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Granular trade-wise executions, geographical AUM origins, derivative notional values, and bond limit utilisations.</div>
+      <div class="src-badges">
+        <a class="src-badge" href="https://www.fpi.nsdl.co.in/web/Reports/Latest.aspx" target="_blank" title="Trade-wise equity flow data is extracted from NSDL's monthly ZIP archives containing millions of raw ISIN-level FPI transactions, cross-referenced with NSE's Nifty 500 ISIN map."><span class="src-icon">🏦</span> NSDL Trade-wise ZIPs</a>
+        <a class="src-badge" href="https://www.fpi.nsdl.co.in/web/Reports/Latest.aspx" target="_blank" title="Country-wise Assets Under Custody data shows which countries hold the most FPI capital in India. Published monthly by NSDL's FPI Monitor."><span class="src-icon">🌍</span> NSDL Country AUC</a>
+        <a class="src-badge" href="https://www.sebi.gov.in/sebiweb/other/OtherAction.do?doRecognisedFpi=yes&intmId=18" target="_blank" title="Offshore Derivative Instrument (ODI/PN) notional values and debt utilisation limits are regulated and reported by SEBI."><span class="src-icon">⚖️</span> SEBI ODI/Debt</a>
+      </div>
     </div>
 
 <!-- ── Trade-Wise Flow Card ── -->
@@ -1583,6 +1608,9 @@ tr:last-child td { border-bottom: none; }
       <div style="font-size:36px; margin-bottom:12px;">🎲</div>
       <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Derivatives Positioning (F&O)</div>
       <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Participant-wise Open Interest analysis across Index Futures, Stock Futures, Index Calls & Puts. Decode the institutional sentiment through long/short ratios.</div>
+      <div class="src-badges">
+        <a class="src-badge" href="https://www.nseindia.com/report-detail/fo_participant" target="_blank" title="Participant-wise Open Interest is published daily by NSE after market close. It breaks down futuresand options positions by client type: FII/FPI, DII, Pro, and Client. Data is fetched live via the NSE /api/participant-wise-open-interest endpoint."><span class="src-icon">🎯</span> NSE Participant-wise OI</a>
+      </div>
     </div>
 
     <!-- F&O DERIVATIVES SECTION -->
