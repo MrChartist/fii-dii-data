@@ -673,7 +673,48 @@
       </div>
     </div>
   </div>
+ <!-- ── Sector Rotation Card ── -->
+  <div class="section-label">
+    <span>// Sector Rotation</span>
+  </div>
 
+  <div class="fiidii-section">
+    <div class="fiidii-card" onclick="window.location.href='sector_heatmap.html'">
+      <div class="fiidii-header">
+        <div class="fiidii-title">
+          <div class="fiidii-icon">🔥</div>
+          <div>
+            <h2>Sector Rotation Matrix</h2>
+            <p>NSE SECTORS · TODAY | 1W | 1M | 3M · CLICK TO EXPLORE</p>
+          </div>
+        </div>
+        <div class="fiidii-cta">View Heatmap →</div>
+      </div>
+      <div class="fiidii-metrics">
+        <div class="fiidii-metric">
+          <div class="fiidii-metric-label">Today's Leader</div>
+          <div class="fiidii-metric-value pos" id="sLeader">—</div>
+          <div class="fiidii-metric-sub">Best sector today</div>
+        </div>
+        <div class="fiidii-metric">
+          <div class="fiidii-metric-label">Today's Laggard</div>
+          <div class="fiidii-metric-value neg" id="sLagger">—</div>
+          <div class="fiidii-metric-sub">Worst sector today</div>
+        </div>
+        <div class="fiidii-metric">
+          <div class="fiidii-metric-label">Advancing</div>
+          <div class="fiidii-metric-value pos" id="sAdv">—</div>
+          <div class="fiidii-metric-sub">Out of 26 sectors</div>
+        </div>
+      </div>
+      <div class="fiidii-footer">
+        <span>📡</span>
+        <span>26 NSE sectors · Auto-updated after market close</span>
+        <span>→</span>
+      </div>
+    </div>
+  </div>
+  
 </main>
 
 <script>
@@ -801,6 +842,25 @@
   // Refresh every 5 minutes
   setInterval(fetchMarket, 5 * 60 * 1000);
   setInterval(fetchFiiDii, 5 * 60 * 1000);
+    // Sector preview on homepage
+  async function loadSectorPreview() {
+    try {
+      const r = await fetch('data/sector-returns.json');
+      if (!r.ok) return;
+      const d = await r.json();
+      const s = d.sectors || [];
+      if (!s.length) return;
+      const sorted = [...s].sort((a,b) => (b.r1d||-999)-(a.r1d||-999));
+      const fmt = v => (v>=0?'+':'')+v.toFixed(1)+'%';
+      document.getElementById('sLeader').textContent =
+        sorted[0]?.name + ' ' + fmt(sorted[0]?.r1d);
+      document.getElementById('sLagger').textContent =
+        sorted[sorted.length-1]?.name + ' ' + fmt(sorted[sorted.length-1]?.r1d);
+      document.getElementById('sAdv').textContent =
+        s.filter(x=>(x.r1d||0)>0).length + ' / 26';
+    } catch(e) {}
+  }
+  loadSectorPreview();
 </script>
 </body>
 </html>
