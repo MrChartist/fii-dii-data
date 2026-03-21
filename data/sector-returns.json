@@ -1,5 +1,194 @@
 {
-  "_updated_at": "2026-03-21T22:49:12.183Z",
-  "_source": "NSE India allIndices API",
-  "sectors": []
+  "_updated_at": "2026-03-21T23:54:18.961Z",
+  "_source": "Yahoo Finance — NSE Indices",
+  "_note": "Returns calculated same as Pine Script: (close - prev_close) / prev_close * 100",
+  "sectors": [
+    {
+      "name": "Auto",
+      "last": 24715.900390625,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.84,
+      "r1w": 2.15,
+      "r1m": -11.24,
+      "r3m": -10.25
+    },
+    {
+      "name": "Commodities",
+      "last": 9390.5,
+      "lastDate": "20 Mar 2026",
+      "r1d": 1.28,
+      "r1w": 0.53,
+      "r1m": -5.04,
+      "r3m": 2.38
+    },
+    {
+      "name": "Cons Durables",
+      "last": 34740.3515625,
+      "lastDate": "20 Mar 2026",
+      "r1d": null,
+      "r1w": null,
+      "r1m": 0,
+      "r3m": 0
+    },
+    {
+      "name": "Consumption",
+      "lastDate": "—",
+      "r1d": null,
+      "r1w": null,
+      "r1m": null,
+      "r3m": null
+    },
+    {
+      "name": "Defence",
+      "last": 7735.5,
+      "lastDate": "20 Mar 2026",
+      "r1d": null,
+      "r1w": null,
+      "r1m": 0,
+      "r3m": 0
+    },
+    {
+      "name": "Energy",
+      "last": 35908.30078125,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.75,
+      "r1w": -0.45,
+      "r1m": -1.84,
+      "r3m": 0.16
+    },
+    {
+      "name": "Finance",
+      "last": 27131.849609375,
+      "lastDate": "20 Mar 2026",
+      "r1d": null,
+      "r1w": null,
+      "r1m": 0,
+      "r3m": 0
+    },
+    {
+      "name": "FMCG",
+      "last": 47007.55078125,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.31,
+      "r1w": -1.91,
+      "r1m": -9.2,
+      "r3m": -15.31
+    },
+    {
+      "name": "Healthcare",
+      "last": 14383.4501953125,
+      "lastDate": "20 Mar 2026",
+      "r1d": null,
+      "r1w": null,
+      "r1m": 0,
+      "r3m": 0
+    },
+    {
+      "name": "Infra",
+      "last": 8800.150390625,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.96,
+      "r1w": 0.36,
+      "r1m": -8.64,
+      "r3m": -8.91
+    },
+    {
+      "name": "IT",
+      "last": 29199.599609375,
+      "lastDate": "20 Mar 2026",
+      "r1d": 2.17,
+      "r1w": 0.44,
+      "r1m": -8.76,
+      "r3m": -20.84
+    },
+    {
+      "name": "Media",
+      "last": 1305.0999755859375,
+      "lastDate": "20 Mar 2026",
+      "r1d": -0.48,
+      "r1w": 0.31,
+      "r1m": -8.53,
+      "r3m": -9.63
+    },
+    {
+      "name": "Metal",
+      "last": 11412.75,
+      "lastDate": "20 Mar 2026",
+      "r1d": 1.45,
+      "r1w": 1.06,
+      "r1m": -4.81,
+      "r3m": 12.52
+    },
+    {
+      "name": "OilGas",
+      "last": 11034.9501953125,
+      "lastDate": "20 Mar 2026",
+      "r1d": null,
+      "r1w": null,
+      "r1m": 0,
+      "r3m": 0
+    },
+    {
+      "name": "Pharma",
+      "last": 22540.69921875,
+      "lastDate": "20 Mar 2026",
+      "r1d": 1.99,
+      "r1w": -1.28,
+      "r1m": 0.39,
+      "r3m": -0.18
+    },
+    {
+      "name": "Power",
+      "last": 35908.30078125,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.75,
+      "r1w": -0.45,
+      "r1m": -1.84,
+      "r3m": 0.16
+    },
+    {
+      "name": "PSE",
+      "last": 9882,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0.61,
+      "r1w": -1.88,
+      "r1m": -4.68,
+      "r3m": 0.15
+    },
+    {
+      "name": "PSUBank",
+      "last": 8584.599609375,
+      "lastDate": "20 Mar 2026",
+      "r1d": 2.07,
+      "r1w": 0.8,
+      "r1m": -11.19,
+      "r3m": 2.46
+    },
+    {
+      "name": "PVTBank",
+      "lastDate": "—",
+      "r1d": null,
+      "r1w": null,
+      "r1m": null,
+      "r3m": null
+    },
+    {
+      "name": "Realty",
+      "last": 696.4000244140625,
+      "lastDate": "20 Mar 2026",
+      "r1d": -0.93,
+      "r1w": -1.89,
+      "r1m": -15.15,
+      "r3m": -23.1
+    },
+    {
+      "name": "Service",
+      "last": 29475.650390625,
+      "lastDate": "20 Mar 2026",
+      "r1d": 0,
+      "r1w": -0.8,
+      "r1m": -10.63,
+      "r3m": -12.82
+    }
+  ]
 }
