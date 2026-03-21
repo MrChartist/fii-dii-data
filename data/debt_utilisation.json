@@ -1,0 +1,36 @@
+{
+  "fetched_at": "2026-03-21T09:40:00.000Z",
+  "as_of": "March 20, 2026",
+  "categories": [
+    {
+      "name": "Corporate Bonds (All Categories)",
+      "limit_cr": 880835,
+      "investment_cr": 128602,
+      "utilisation_pct": 14.60
+    },
+    {
+      "name": "Central Govt Securities (General)",
+      "limit_cr": 289488.00,
+      "investment_cr": 51756.41,
+      "utilisation_pct": 17.88
+    },
+    {
+      "name": "Central Govt Securities (Long Term)",
+      "limit_cr": 158488.00,
+      "investment_cr": 2447.03,
+      "utilisation_pct": 1.54
+    },
+    {
+      "name": "State Govt Securities (General)",
+      "limit_cr": 134744.00,
+      "investment_cr": 621.80,
+      "utilisation_pct": 0.46
+    },
+    {
+      "name": "State Govt Securities (Long Term)",
+      "limit_cr": 7100.00,
+      "investment_cr": 0.00,
+      "utilisation_pct": 0.00
+    }
+  ]
+}

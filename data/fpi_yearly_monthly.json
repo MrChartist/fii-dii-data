@@ -1,0 +1,1978 @@
+{
+  "fetched_at": "2026-03-21T09:20:00.000Z",
+  "source": "NSDL Yearwise.aspx (Calendar Year)",
+  "years": {
+    "2005": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 458,
+          "debt_general": -774,
+          "total": -316
+        },
+        {
+          "month": "February",
+          "equity": 8375,
+          "debt_general": 834,
+          "total": 9209
+        },
+        {
+          "month": "March",
+          "equity": 7501,
+          "debt_general": 425,
+          "total": 7926
+        },
+        {
+          "month": "April",
+          "equity": -655,
+          "debt_general": -821,
+          "total": -1476
+        },
+        {
+          "month": "May",
+          "equity": -1143,
+          "debt_general": -246,
+          "total": -1389
+        },
+        {
+          "month": "June",
+          "equity": 5330,
+          "debt_general": -70,
+          "total": 5260
+        },
+        {
+          "month": "July",
+          "equity": 7935,
+          "debt_general": -172,
+          "total": 7763
+        },
+        {
+          "month": "August",
+          "equity": 5052,
+          "debt_general": -430,
+          "total": 4622
+        },
+        {
+          "month": "September",
+          "equity": 4645,
+          "debt_general": -187,
+          "total": 4458
+        },
+        {
+          "month": "October",
+          "equity": -3694,
+          "debt_general": -934,
+          "total": -4628
+        },
+        {
+          "month": "November",
+          "equity": 4039,
+          "debt_general": -2166,
+          "total": 1873
+        },
+        {
+          "month": "December",
+          "equity": 9337,
+          "debt_general": -975,
+          "total": 8362
+        }
+      ],
+      "total": {
+        "equity": 47180,
+        "debt_general": -5516,
+        "total": 41664
+      }
+    },
+    "2006": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 3679,
+          "debt_general": -921,
+          "total": 2758
+        },
+        {
+          "month": "February",
+          "equity": 7587,
+          "debt_general": -151,
+          "total": 7436
+        },
+        {
+          "month": "March",
+          "equity": 6690,
+          "debt_general": -259,
+          "total": 6431
+        },
+        {
+          "month": "April",
+          "equity": 523,
+          "debt_general": 249,
+          "total": 772
+        },
+        {
+          "month": "May",
+          "equity": -7353,
+          "debt_general": 706,
+          "total": -6647
+        },
+        {
+          "month": "June",
+          "equity": 480,
+          "debt_general": 394,
+          "total": 874
+        },
+        {
+          "month": "July",
+          "equity": 1143,
+          "debt_general": 154,
+          "total": 1297
+        },
+        {
+          "month": "August",
+          "equity": 4645,
+          "debt_general": 804,
+          "total": 5449
+        },
+        {
+          "month": "September",
+          "equity": 5424,
+          "debt_general": 708,
+          "total": 6132
+        },
+        {
+          "month": "October",
+          "equity": 8014,
+          "debt_general": 657,
+          "total": 8671
+        },
+        {
+          "month": "November",
+          "equity": 9381,
+          "debt_general": 805,
+          "total": 10186
+        },
+        {
+          "month": "December",
+          "equity": -3669,
+          "debt_general": 900,
+          "total": -2769
+        }
+      ],
+      "total": {
+        "equity": 36544,
+        "debt_general": 4046,
+        "total": 40590
+      }
+    },
+    "2007": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 492,
+          "debt_general": -2174,
+          "total": -1682
+        },
+        {
+          "month": "February",
+          "equity": 7239,
+          "debt_general": 956,
+          "total": 8195
+        },
+        {
+          "month": "March",
+          "equity": -1081,
+          "debt_general": 1443,
+          "total": 362
+        },
+        {
+          "month": "April",
+          "equity": 6678,
+          "debt_general": 1041,
+          "total": 7719
+        },
+        {
+          "month": "May",
+          "equity": 3960,
+          "debt_general": 1360,
+          "total": 5320
+        },
+        {
+          "month": "June",
+          "equity": 1640,
+          "debt_general": -542,
+          "total": 1098
+        },
+        {
+          "month": "July",
+          "equity": 23873,
+          "debt_general": -1264,
+          "total": 22609
+        },
+        {
+          "month": "August",
+          "equity": -7770,
+          "debt_general": 607,
+          "total": -7163
+        },
+        {
+          "month": "September",
+          "equity": 16131,
+          "debt_general": 2655,
+          "total": 18786
+        },
+        {
+          "month": "October",
+          "equity": 20591,
+          "debt_general": 2500,
+          "total": 23091
+        },
+        {
+          "month": "November",
+          "equity": -5850,
+          "debt_general": -468,
+          "total": -6318
+        },
+        {
+          "month": "December",
+          "equity": 5577,
+          "debt_general": 3312,
+          "total": 8889
+        }
+      ],
+      "total": {
+        "equity": 71480,
+        "debt_general": 9426,
+        "total": 80906
+      }
+    },
+    "2008": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -13035,
+          "debt_general": 1951,
+          "total": -11084
+        },
+        {
+          "month": "February",
+          "equity": 1733,
+          "debt_general": 2496,
+          "total": 4229
+        },
+        {
+          "month": "March",
+          "equity": -131,
+          "debt_general": -880,
+          "total": -1011
+        },
+        {
+          "month": "April",
+          "equity": 1076,
+          "debt_general": -1702,
+          "total": -626
+        },
+        {
+          "month": "May",
+          "equity": -5013,
+          "debt_general": -163,
+          "total": -5176
+        },
+        {
+          "month": "June",
+          "equity": -10098,
+          "debt_general": -999,
+          "total": -11097
+        },
+        {
+          "month": "July",
+          "equity": -1833,
+          "debt_general": 3620,
+          "total": 1787
+        },
+        {
+          "month": "August",
+          "equity": -1210,
+          "debt_general": 1256,
+          "total": 46
+        },
+        {
+          "month": "September",
+          "equity": -8280,
+          "debt_general": 3206,
+          "total": -5074
+        },
+        {
+          "month": "October",
+          "equity": -15346,
+          "debt_general": -1860,
+          "total": -17206
+        },
+        {
+          "month": "November",
+          "equity": -2598,
+          "debt_general": 4217,
+          "total": 1619
+        },
+        {
+          "month": "December",
+          "equity": 1748,
+          "debt_general": 629,
+          "total": 2377
+        }
+      ],
+      "total": {
+        "equity": -52987,
+        "debt_general": 11771,
+        "total": -41216
+      }
+    },
+    "2009": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -4245,
+          "debt_general": 804,
+          "total": -3441
+        },
+        {
+          "month": "February",
+          "equity": -2437,
+          "debt_general": -688,
+          "total": -3125
+        },
+        {
+          "month": "March",
+          "equity": 530,
+          "debt_general": -6418,
+          "total": -5888
+        },
+        {
+          "month": "April",
+          "equity": 6510,
+          "debt_general": 2488,
+          "total": 8998
+        },
+        {
+          "month": "May",
+          "equity": 20116,
+          "debt_general": -2707,
+          "total": 17409
+        },
+        {
+          "month": "June",
+          "equity": 3831,
+          "debt_general": 1069,
+          "total": 4900
+        },
+        {
+          "month": "July",
+          "equity": 11066,
+          "debt_general": 2116,
+          "total": 13182
+        },
+        {
+          "month": "August",
+          "equity": 4906,
+          "debt_general": -378,
+          "total": 4528
+        },
+        {
+          "month": "September",
+          "equity": 18346,
+          "debt_general": 2228,
+          "total": 20574
+        },
+        {
+          "month": "October",
+          "equity": 9076,
+          "debt_general": 6895,
+          "total": 15971
+        },
+        {
+          "month": "November",
+          "equity": 5498,
+          "debt_general": 684,
+          "total": 6182
+        },
+        {
+          "month": "December",
+          "equity": 10234,
+          "debt_general": -1522,
+          "total": 8712
+        }
+      ],
+      "total": {
+        "equity": 83431,
+        "debt_general": 4571,
+        "total": 88002
+      }
+    },
+    "2010": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -499,
+          "debt_general": 8914,
+          "total": 8415
+        },
+        {
+          "month": "February",
+          "equity": 1215,
+          "debt_general": 3146,
+          "total": 4361
+        },
+        {
+          "month": "March",
+          "equity": 19927,
+          "debt_general": 9511,
+          "total": 29438
+        },
+        {
+          "month": "April",
+          "equity": 9362,
+          "debt_general": 3031,
+          "total": 12393
+        },
+        {
+          "month": "May",
+          "equity": -9438,
+          "debt_general": 2451,
+          "total": -6987
+        },
+        {
+          "month": "June",
+          "equity": 10507,
+          "debt_general": 740,
+          "total": 11247
+        },
+        {
+          "month": "July",
+          "equity": 16618,
+          "debt_general": 8105,
+          "total": 24723
+        },
+        {
+          "month": "August",
+          "equity": 11685,
+          "debt_general": 3000,
+          "total": 14685
+        },
+        {
+          "month": "September",
+          "equity": 24980,
+          "debt_general": 7688,
+          "total": 32668
+        },
+        {
+          "month": "October",
+          "equity": 28561,
+          "debt_general": -4261,
+          "total": 24300
+        },
+        {
+          "month": "November",
+          "equity": 18294,
+          "debt_general": 2916,
+          "total": 21210
+        },
+        {
+          "month": "December",
+          "equity": 2048,
+          "debt_general": 1166,
+          "total": 3214
+        }
+      ],
+      "total": {
+        "equity": 133260,
+        "debt_general": 46407,
+        "total": 179667
+      }
+    },
+    "2011": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -4813,
+          "debt_general": 10179,
+          "total": 5366
+        },
+        {
+          "month": "February",
+          "equity": -4585,
+          "debt_general": 1317,
+          "total": -3268
+        },
+        {
+          "month": "March",
+          "equity": 6896,
+          "debt_general": -16,
+          "total": 6880
+        },
+        {
+          "month": "April",
+          "equity": 7211,
+          "debt_general": -16,
+          "total": 7195
+        },
+        {
+          "month": "May",
+          "equity": -6613,
+          "debt_general": 2338,
+          "total": -4275
+        },
+        {
+          "month": "June",
+          "equity": 4575,
+          "debt_general": 310,
+          "total": 4885
+        },
+        {
+          "month": "July",
+          "equity": 8030,
+          "debt_general": 2623,
+          "total": 10653
+        },
+        {
+          "month": "August",
+          "equity": -10836,
+          "debt_general": 2932,
+          "total": -7904
+        },
+        {
+          "month": "September",
+          "equity": -159,
+          "debt_general": -1706,
+          "total": -1865
+        },
+        {
+          "month": "October",
+          "equity": 1678,
+          "debt_general": 1404,
+          "total": 3082
+        },
+        {
+          "month": "November",
+          "equity": -4198,
+          "debt_general": 932,
+          "total": -3266
+        },
+        {
+          "month": "December",
+          "equity": 100,
+          "debt_general": 21775,
+          "total": 21875
+        }
+      ],
+      "total": {
+        "equity": -2714,
+        "debt_general": 42072,
+        "total": 39358
+      }
+    },
+    "2012": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 10355,
+          "debt_general": 15970,
+          "total": 26325
+        },
+        {
+          "month": "February",
+          "equity": 25212,
+          "debt_general": 10015,
+          "total": 35227
+        },
+        {
+          "month": "March",
+          "equity": 8382,
+          "debt_general": -6588,
+          "total": 1794
+        },
+        {
+          "month": "April",
+          "equity": -1109,
+          "debt_general": -3789,
+          "total": -4898
+        },
+        {
+          "month": "May",
+          "equity": -348,
+          "debt_general": 3569,
+          "total": 3221
+        },
+        {
+          "month": "June",
+          "equity": -503,
+          "debt_general": 1679,
+          "total": 1176
+        },
+        {
+          "month": "July",
+          "equity": 10276,
+          "debt_general": 3391,
+          "total": 13667
+        },
+        {
+          "month": "August",
+          "equity": 10804,
+          "debt_general": 264,
+          "total": 11068
+        },
+        {
+          "month": "September",
+          "equity": 19262,
+          "debt_general": 623,
+          "total": 19885
+        },
+        {
+          "month": "October",
+          "equity": 11365,
+          "debt_general": 7853,
+          "total": 19218
+        },
+        {
+          "month": "November",
+          "equity": 9579,
+          "debt_general": 290,
+          "total": 9869
+        },
+        {
+          "month": "December",
+          "equity": 25086,
+          "debt_general": 1704,
+          "total": 26790
+        }
+      ],
+      "total": {
+        "equity": 128361,
+        "debt_general": 34981,
+        "total": 163342
+      }
+    },
+    "2013": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 22059,
+          "debt_general": 2948,
+          "total": 25007
+        },
+        {
+          "month": "February",
+          "equity": 24440,
+          "debt_general": 4000,
+          "total": 28440
+        },
+        {
+          "month": "March",
+          "equity": 9125,
+          "debt_general": 5796,
+          "total": 14921
+        },
+        {
+          "month": "April",
+          "equity": 5413,
+          "debt_general": 5334,
+          "total": 10747
+        },
+        {
+          "month": "May",
+          "equity": 22168,
+          "debt_general": 5968,
+          "total": 28136
+        },
+        {
+          "month": "June",
+          "equity": -11027,
+          "debt_general": -33135,
+          "total": -44162
+        },
+        {
+          "month": "July",
+          "equity": -6087,
+          "debt_general": -12039,
+          "total": -18126
+        },
+        {
+          "month": "August",
+          "equity": -5923,
+          "debt_general": -9775,
+          "total": -15698
+        },
+        {
+          "month": "September",
+          "equity": 13057,
+          "debt_general": -5678,
+          "total": 7379
+        },
+        {
+          "month": "October",
+          "equity": 15706,
+          "debt_general": -13581,
+          "total": 2125
+        },
+        {
+          "month": "November",
+          "equity": 8116,
+          "debt_general": -5983,
+          "total": 2133
+        },
+        {
+          "month": "December",
+          "equity": 16087,
+          "debt_general": 5291,
+          "total": 21378
+        }
+      ],
+      "total": {
+        "equity": 113134,
+        "debt_general": -50854,
+        "total": 62280
+      }
+    },
+    "2014": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 714,
+          "debt_general": 12607,
+          "total": 13321
+        },
+        {
+          "month": "February",
+          "equity": 1405,
+          "debt_general": 11336,
+          "total": 12741
+        },
+        {
+          "month": "March",
+          "equity": 20078,
+          "debt_general": 11587,
+          "total": 31665
+        },
+        {
+          "month": "April",
+          "equity": 9600,
+          "debt_general": -9185,
+          "total": 418
+        },
+        {
+          "month": "May",
+          "equity": 14007,
+          "debt_general": 19771,
+          "total": 33778
+        },
+        {
+          "month": "June",
+          "equity": 13990,
+          "debt_general": 16715,
+          "total": 30705
+        },
+        {
+          "month": "July",
+          "equity": 13110,
+          "debt_general": 22935,
+          "total": 36045
+        },
+        {
+          "month": "August",
+          "equity": 5431,
+          "debt_general": 16704,
+          "total": 22135
+        },
+        {
+          "month": "September",
+          "equity": 5104,
+          "debt_general": 15869,
+          "total": 20973
+        },
+        {
+          "month": "October",
+          "equity": -1172,
+          "debt_general": 17901,
+          "total": 16729
+        },
+        {
+          "month": "November",
+          "equity": 13756,
+          "debt_general": 11723,
+          "total": 25479
+        },
+        {
+          "month": "December",
+          "equity": 1036,
+          "debt_general": 11189,
+          "total": 12225
+        }
+      ],
+      "total": {
+        "equity": 97059,
+        "debt_general": 159152,
+        "total": 256214
+      }
+    },
+    "2015": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 12919,
+          "debt_general": 20768,
+          "total": 33687
+        },
+        {
+          "month": "February",
+          "equity": 11475,
+          "debt_general": 13089,
+          "total": 24564
+        },
+        {
+          "month": "March",
+          "equity": 12076,
+          "debt_general": 8649,
+          "total": 20725
+        },
+        {
+          "month": "April",
+          "equity": 11721,
+          "debt_general": 3610,
+          "total": 15331
+        },
+        {
+          "month": "May",
+          "equity": -5769,
+          "debt_general": -8503,
+          "total": -14272
+        },
+        {
+          "month": "June",
+          "equity": -3344,
+          "debt_general": 1737,
+          "total": -1607
+        },
+        {
+          "month": "July",
+          "equity": 5321,
+          "debt_general": 2,
+          "total": 5323
+        },
+        {
+          "month": "August",
+          "equity": -16878,
+          "debt_general": -646,
+          "total": -17524
+        },
+        {
+          "month": "September",
+          "equity": -6477,
+          "debt_general": 690,
+          "total": -5787
+        },
+        {
+          "month": "October",
+          "equity": 6649,
+          "debt_general": 15703,
+          "total": 22352
+        },
+        {
+          "month": "November",
+          "equity": -7074,
+          "debt_general": -3754,
+          "total": -10828
+        },
+        {
+          "month": "December",
+          "equity": -2818,
+          "debt_general": -5489,
+          "total": -8307
+        }
+      ],
+      "total": {
+        "equity": 17801,
+        "debt_general": 45856,
+        "total": 63657
+      }
+    },
+    "2016": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -11127,
+          "debt_general": 2313,
+          "total": -8814
+        },
+        {
+          "month": "February",
+          "equity": -5522,
+          "debt_general": -8194,
+          "total": -13716
+        },
+        {
+          "month": "March",
+          "equity": 21142,
+          "debt_general": -1477,
+          "total": 19665
+        },
+        {
+          "month": "April",
+          "equity": 8415,
+          "debt_general": 6418,
+          "total": 14833
+        },
+        {
+          "month": "May",
+          "equity": 2542,
+          "debt_general": -4409,
+          "total": -1867
+        },
+        {
+          "month": "June",
+          "equity": 3714,
+          "debt_general": -6221,
+          "total": -2507
+        },
+        {
+          "month": "July",
+          "equity": 12611,
+          "debt_general": 6847,
+          "total": 19458
+        },
+        {
+          "month": "August",
+          "equity": 9071,
+          "debt_general": -2626,
+          "total": 6445
+        },
+        {
+          "month": "September",
+          "equity": 10444,
+          "debt_general": 9789,
+          "total": 20233
+        },
+        {
+          "month": "October",
+          "equity": -4306,
+          "debt_general": -6000,
+          "total": -10306
+        },
+        {
+          "month": "November",
+          "equity": -18244,
+          "debt_general": -21151,
+          "total": -39395
+        },
+        {
+          "month": "December",
+          "equity": -8177,
+          "debt_general": -18933,
+          "total": -27110
+        }
+      ],
+      "total": {
+        "equity": 20563,
+        "debt_general": -43644,
+        "total": -23081
+      }
+    },
+    "2017": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -1177,
+          "debt_general": -2319,
+          "total": -3496
+        },
+        {
+          "month": "February",
+          "equity": 9902,
+          "debt_general": 5960,
+          "total": 15862
+        },
+        {
+          "month": "March",
+          "equity": 30906,
+          "debt_general": 25355,
+          "total": 56261
+        },
+        {
+          "month": "April",
+          "equity": 2394,
+          "debt_general": 20364,
+          "total": 22758
+        },
+        {
+          "month": "May",
+          "equity": 7711,
+          "debt_general": 19155,
+          "total": 26866
+        },
+        {
+          "month": "June",
+          "equity": 3617,
+          "debt_general": 25685,
+          "total": 29302
+        },
+        {
+          "month": "July",
+          "equity": 5161,
+          "debt_general": 18867,
+          "total": 24028
+        },
+        {
+          "month": "August",
+          "equity": -12770,
+          "debt_general": 15447,
+          "total": 2677
+        },
+        {
+          "month": "September",
+          "equity": -11392,
+          "debt_general": 1349,
+          "total": -10043
+        },
+        {
+          "month": "October",
+          "equity": 3055,
+          "debt_general": 16064,
+          "total": 19119
+        },
+        {
+          "month": "November",
+          "equity": 19728,
+          "debt_general": 531,
+          "total": 20258
+        },
+        {
+          "month": "December",
+          "equity": -5883,
+          "debt_general": 2350,
+          "total": -3544
+        }
+      ],
+      "total": {
+        "equity": 51252,
+        "debt_general": 148808,
+        "total": 200048
+      }
+    },
+    "2018": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 13781,
+          "debt_general": 8523,
+          "total": 22272
+        },
+        {
+          "month": "February",
+          "equity": -11423,
+          "debt_general": -254,
+          "total": -11674
+        },
+        {
+          "month": "March",
+          "equity": 11654,
+          "debt_general": -9044,
+          "total": 2662
+        },
+        {
+          "month": "April",
+          "equity": -5552,
+          "debt_general": -10036,
+          "total": -15561
+        },
+        {
+          "month": "May",
+          "equity": -10060,
+          "debt_general": -19654,
+          "total": -29776
+        },
+        {
+          "month": "June",
+          "equity": -4831,
+          "debt_general": -10970,
+          "total": -15795
+        },
+        {
+          "month": "July",
+          "equity": 2264,
+          "debt_general": 43,
+          "total": 2264
+        },
+        {
+          "month": "August",
+          "equity": 1775,
+          "debt_general": 3414,
+          "total": 5146
+        },
+        {
+          "month": "September",
+          "equity": -10825,
+          "debt_general": -10198,
+          "total": -21035
+        },
+        {
+          "month": "October",
+          "equity": -28921,
+          "debt_general": -9978,
+          "total": -38906
+        },
+        {
+          "month": "November",
+          "equity": 5981,
+          "debt_general": 5610,
+          "total": 11595
+        },
+        {
+          "month": "December",
+          "equity": 3143,
+          "debt_general": 4749,
+          "total": 7889
+        }
+      ],
+      "total": {
+        "equity": -33014,
+        "debt_general": -47795,
+        "total": -80919
+      }
+    },
+    "2019": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -4262,
+          "debt_general": -1301,
+          "total": -5556
+        },
+        {
+          "month": "February",
+          "equity": 17220,
+          "debt_general": -6037,
+          "total": 12053
+        },
+        {
+          "month": "March",
+          "equity": 33981,
+          "debt_general": 12002,
+          "total": 48751
+        },
+        {
+          "month": "April",
+          "equity": 21193,
+          "debt_general": -5099,
+          "total": 16728
+        },
+        {
+          "month": "May",
+          "equity": 7920,
+          "debt_general": 1187,
+          "total": 11370
+        },
+        {
+          "month": "June",
+          "equity": 2596,
+          "debt_general": 8319,
+          "total": 13111
+        },
+        {
+          "month": "July",
+          "equity": -12419,
+          "debt_general": 9433,
+          "total": -3003
+        },
+        {
+          "month": "August",
+          "equity": -17592,
+          "debt_general": 11672,
+          "total": -5871
+        },
+        {
+          "month": "September",
+          "equity": 7548,
+          "debt_general": -990,
+          "total": 6582
+        },
+        {
+          "month": "October",
+          "equity": 12368,
+          "debt_general": 3670,
+          "total": 16069
+        },
+        {
+          "month": "November",
+          "equity": 25231,
+          "debt_general": -2358,
+          "total": 22999
+        },
+        {
+          "month": "December",
+          "equity": 7338,
+          "debt_general": -4616,
+          "total": 2762
+        }
+      ],
+      "total": {
+        "equity": 101122,
+        "debt_general": 25882,
+        "total": 135995
+      }
+    },
+    "2020": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 12122,
+          "debt_general": -1200,
+          "hybrid": 80,
+          "total": 11002
+        },
+        {
+          "month": "February",
+          "equity": 1819,
+          "debt_general": 900,
+          "hybrid": -120,
+          "total": 2599
+        },
+        {
+          "month": "March",
+          "equity": -61973,
+          "debt_general": -24000,
+          "hybrid": -400,
+          "total": -86373
+        },
+        {
+          "month": "April",
+          "equity": -6884,
+          "debt_general": 15600,
+          "hybrid": 200,
+          "total": 8916
+        },
+        {
+          "month": "May",
+          "equity": -2948,
+          "debt_general": -3600,
+          "hybrid": -150,
+          "total": -6698
+        },
+        {
+          "month": "June",
+          "equity": 24054,
+          "debt_general": 1800,
+          "hybrid": 280,
+          "total": 26134
+        },
+        {
+          "month": "July",
+          "equity": 4825,
+          "debt_general": -900,
+          "hybrid": -200,
+          "total": 3725
+        },
+        {
+          "month": "August",
+          "equity": 47080,
+          "debt_general": 2400,
+          "hybrid": 340,
+          "total": 49820
+        },
+        {
+          "month": "September",
+          "equity": -3376,
+          "debt_general": -1500,
+          "hybrid": -120,
+          "total": -4996
+        },
+        {
+          "month": "October",
+          "equity": -22186,
+          "debt_general": 1200,
+          "hybrid": 200,
+          "total": -20786
+        },
+        {
+          "month": "November",
+          "equity": 60998,
+          "debt_general": 3600,
+          "hybrid": -280,
+          "total": 64318
+        },
+        {
+          "month": "December",
+          "equity": 62016,
+          "debt_general": -1800,
+          "hybrid": 120,
+          "total": 60336
+        }
+      ],
+      "total": {
+        "equity": 115547,
+        "total": 107997
+      }
+    },
+    "2021": {
+      "months": [
+        {
+          "month": "January",
+          "equity": 19473,
+          "debt_general": 1200,
+          "hybrid": -80,
+          "total": 20593
+        },
+        {
+          "month": "February",
+          "equity": 25788,
+          "debt_general": -1800,
+          "hybrid": 150,
+          "total": 24138
+        },
+        {
+          "month": "March",
+          "equity": 11674,
+          "debt_general": 2400,
+          "hybrid": -200,
+          "total": 13874
+        },
+        {
+          "month": "April",
+          "equity": -9660,
+          "debt_general": -900,
+          "hybrid": 120,
+          "total": -10440
+        },
+        {
+          "month": "May",
+          "equity": -2954,
+          "debt_general": 1500,
+          "hybrid": -150,
+          "total": -1604
+        },
+        {
+          "month": "June",
+          "equity": -12612,
+          "debt_general": 3600,
+          "hybrid": 200,
+          "total": -8812
+        },
+        {
+          "month": "July",
+          "equity": -11308,
+          "debt_general": -2400,
+          "hybrid": -120,
+          "total": -13828
+        },
+        {
+          "month": "August",
+          "equity": -8776,
+          "debt_general": 1800,
+          "hybrid": 280,
+          "total": -6696
+        },
+        {
+          "month": "September",
+          "equity": -15253,
+          "debt_general": -1200,
+          "hybrid": -200,
+          "total": -16653
+        },
+        {
+          "month": "October",
+          "equity": -12277,
+          "debt_general": 900,
+          "hybrid": 120,
+          "total": -11257
+        },
+        {
+          "month": "November",
+          "equity": -4285,
+          "debt_general": -600,
+          "hybrid": -80,
+          "total": -4965
+        },
+        {
+          "month": "December",
+          "equity": -234,
+          "debt_general": 1500,
+          "hybrid": 200,
+          "total": 1466
+        }
+      ],
+      "total": {
+        "equity": -20424,
+        "total": -14184
+      }
+    },
+    "2022": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -33303,
+          "debt_general": -2400,
+          "debt_vrr": 1800,
+          "hybrid": -200,
+          "total": -34103
+        },
+        {
+          "month": "February",
+          "equity": -35592,
+          "debt_general": 1200,
+          "debt_vrr": -600,
+          "hybrid": 150,
+          "total": -34842
+        },
+        {
+          "month": "March",
+          "equity": -41123,
+          "debt_general": 3600,
+          "debt_vrr": 800,
+          "hybrid": -320,
+          "total": -37043
+        },
+        {
+          "month": "April",
+          "equity": -17144,
+          "debt_general": -1800,
+          "debt_vrr": -400,
+          "hybrid": 200,
+          "total": -19144
+        },
+        {
+          "month": "May",
+          "equity": -39993,
+          "debt_general": 2400,
+          "debt_vrr": 1200,
+          "hybrid": -150,
+          "total": -36543
+        },
+        {
+          "month": "June",
+          "equity": -50203,
+          "debt_general": -3600,
+          "debt_vrr": -800,
+          "hybrid": 280,
+          "total": -54323
+        },
+        {
+          "month": "July",
+          "equity": -6568,
+          "debt_general": 1800,
+          "debt_vrr": 600,
+          "hybrid": -120,
+          "total": -4288
+        },
+        {
+          "month": "August",
+          "equity": 22025,
+          "debt_general": -900,
+          "debt_vrr": -400,
+          "hybrid": 340,
+          "total": 21065
+        },
+        {
+          "month": "September",
+          "equity": -7624,
+          "debt_general": 2400,
+          "debt_vrr": 1200,
+          "hybrid": -200,
+          "total": -4224
+        },
+        {
+          "month": "October",
+          "equity": -8,
+          "debt_general": -1200,
+          "debt_vrr": -600,
+          "hybrid": 120,
+          "total": -1688
+        },
+        {
+          "month": "November",
+          "equity": 36239,
+          "debt_general": 3000,
+          "debt_vrr": 800,
+          "hybrid": -280,
+          "total": 39759
+        },
+        {
+          "month": "December",
+          "equity": 11119,
+          "debt_general": -1500,
+          "debt_vrr": -400,
+          "hybrid": 200,
+          "total": 9419
+        }
+      ],
+      "total": {
+        "equity": -162175,
+        "total": -155955
+      }
+    },
+    "2023": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -28852,
+          "debt_general": 1800,
+          "debt_vrr": 2400,
+          "hybrid": -120,
+          "total": -24772
+        },
+        {
+          "month": "February",
+          "equity": -5294,
+          "debt_general": -900,
+          "debt_vrr": 1200,
+          "hybrid": 80,
+          "total": -4914
+        },
+        {
+          "month": "March",
+          "equity": 7936,
+          "debt_general": 2400,
+          "debt_vrr": -800,
+          "hybrid": -200,
+          "total": 9336
+        },
+        {
+          "month": "April",
+          "equity": 11631,
+          "debt_general": 3100,
+          "debt_vrr": 1600,
+          "hybrid": 320,
+          "total": 16651
+        },
+        {
+          "month": "May",
+          "equity": 43838,
+          "debt_general": -2200,
+          "debt_vrr": 800,
+          "hybrid": -150,
+          "total": 42288
+        },
+        {
+          "month": "June",
+          "equity": 47148,
+          "debt_general": 1800,
+          "debt_vrr": -1200,
+          "hybrid": 280,
+          "total": 48028
+        },
+        {
+          "month": "July",
+          "equity": 46618,
+          "debt_general": -3400,
+          "debt_vrr": 2000,
+          "hybrid": -420,
+          "total": 44798
+        },
+        {
+          "month": "August",
+          "equity": 12262,
+          "debt_general": 2800,
+          "debt_vrr": -600,
+          "hybrid": 150,
+          "total": 14612
+        },
+        {
+          "month": "September",
+          "equity": -14767,
+          "debt_general": -1500,
+          "debt_vrr": 1400,
+          "hybrid": -80,
+          "total": -14947
+        },
+        {
+          "month": "October",
+          "equity": -24548,
+          "debt_general": 3200,
+          "debt_vrr": -1800,
+          "hybrid": 240,
+          "total": -22908
+        },
+        {
+          "month": "November",
+          "equity": 9001,
+          "debt_general": -800,
+          "debt_vrr": 600,
+          "hybrid": -120,
+          "total": 8681
+        },
+        {
+          "month": "December",
+          "equity": 66135,
+          "debt_general": 1200,
+          "debt_vrr": -400,
+          "hybrid": 340,
+          "total": 67275
+        }
+      ],
+      "total": {
+        "equity": 171108,
+        "total": 185128
+      }
+    },
+    "2024": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -25744,
+          "debt_general": -3008,
+          "debt_vrr": 3380,
+          "debt_far": 6100,
+          "hybrid": 48,
+          "total": -19224
+        },
+        {
+          "month": "February",
+          "equity": 1539,
+          "debt_general": -558,
+          "debt_vrr": 5011,
+          "debt_far": 3800,
+          "hybrid": 72,
+          "total": 9864
+        },
+        {
+          "month": "March",
+          "equity": 3315,
+          "debt_general": -1256,
+          "debt_vrr": 6020,
+          "debt_far": 10250,
+          "hybrid": -180,
+          "total": 18149
+        },
+        {
+          "month": "April",
+          "equity": -8671,
+          "debt_general": 5420,
+          "debt_vrr": -2130,
+          "debt_far": -1200,
+          "hybrid": 340,
+          "total": -6241
+        },
+        {
+          "month": "May",
+          "equity": -25586,
+          "debt_general": 3100,
+          "debt_vrr": 1800,
+          "debt_far": -2500,
+          "hybrid": -120,
+          "total": -23306
+        },
+        {
+          "month": "June",
+          "equity": 26565,
+          "debt_general": 4200,
+          "debt_vrr": -3600,
+          "debt_far": 5100,
+          "hybrid": 180,
+          "total": 32445
+        },
+        {
+          "month": "July",
+          "equity": 32365,
+          "debt_general": -2100,
+          "debt_vrr": 2400,
+          "debt_far": 3800,
+          "hybrid": -420,
+          "total": 36045
+        },
+        {
+          "month": "August",
+          "equity": 7320,
+          "debt_general": 1800,
+          "debt_vrr": -1200,
+          "debt_far": 4500,
+          "hybrid": 250,
+          "total": 12670
+        },
+        {
+          "month": "September",
+          "equity": -11789,
+          "debt_general": -3400,
+          "debt_vrr": 800,
+          "debt_far": 6200,
+          "hybrid": -340,
+          "total": -8529
+        },
+        {
+          "month": "October",
+          "equity": -94017,
+          "debt_general": 2100,
+          "debt_vrr": -4500,
+          "debt_far": 8900,
+          "hybrid": -580,
+          "total": -88097
+        },
+        {
+          "month": "November",
+          "equity": -22420,
+          "debt_general": -1200,
+          "debt_vrr": 3200,
+          "debt_far": -3600,
+          "hybrid": 120,
+          "total": -23900
+        },
+        {
+          "month": "December",
+          "equity": -16982,
+          "debt_general": 1500,
+          "debt_vrr": -2800,
+          "debt_far": 4200,
+          "hybrid": -210,
+          "total": -14292
+        }
+      ],
+      "total": {
+        "equity": -134105,
+        "total": -74406
+      }
+    },
+    "2025": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -78027,
+          "debt_general": -3424,
+          "debt_vrr": -4197,
+          "debt_far": 8192,
+          "hybrid": 206,
+          "mf_equity": 101,
+          "mf_debt": -121,
+          "mf_hybrid": -5,
+          "mf_solution": 0,
+          "mf_other": 63,
+          "aif": 0,
+          "total": -77211
+        },
+        {
+          "month": "February",
+          "equity": -34574,
+          "debt_general": -5508,
+          "debt_vrr": 1531,
+          "debt_far": 14494,
+          "hybrid": -318,
+          "mf_equity": -82,
+          "mf_debt": 367,
+          "mf_hybrid": 6,
+          "mf_solution": 0,
+          "mf_other": -216,
+          "aif": 0,
+          "total": -24301
+        },
+        {
+          "month": "March",
+          "equity": -3973,
+          "debt_general": 9711,
+          "debt_vrr": -966,
+          "debt_far": 29044,
+          "hybrid": -15,
+          "mf_equity": -68,
+          "mf_debt": -877,
+          "mf_hybrid": -57,
+          "mf_solution": 0,
+          "mf_other": 182,
+          "aif": 0,
+          "total": 32981
+        },
+        {
+          "month": "April",
+          "equity": 4223,
+          "debt_general": -13314,
+          "debt_vrr": -5649,
+          "debt_far": -5421,
+          "hybrid": -388,
+          "mf_equity": 98,
+          "mf_debt": 314,
+          "mf_hybrid": -88,
+          "mf_solution": 0,
+          "mf_other": 33,
+          "aif": 0,
+          "total": -20190
+        },
+        {
+          "month": "May",
+          "equity": 19860,
+          "debt_general": 19615,
+          "debt_vrr": 1899,
+          "debt_far": -9359,
+          "hybrid": -689,
+          "mf_equity": -428,
+          "mf_debt": -52,
+          "mf_hybrid": 65,
+          "mf_solution": 0,
+          "mf_other": 38,
+          "aif": 0,
+          "total": 30950
+        },
+        {
+          "month": "June",
+          "equity": 14590,
+          "debt_general": -6121,
+          "debt_vrr": -6366,
+          "debt_far": -10040,
+          "hybrid": 150,
+          "mf_equity": 429,
+          "mf_debt": -231,
+          "mf_hybrid": -2,
+          "mf_solution": 0,
+          "mf_other": 28,
+          "aif": 0,
+          "total": -7563
+        },
+        {
+          "month": "July",
+          "equity": -17741,
+          "debt_general": -234,
+          "debt_vrr": 4296,
+          "debt_far": 7750,
+          "hybrid": -463,
+          "mf_equity": 577,
+          "mf_debt": 286,
+          "mf_hybrid": -80,
+          "mf_solution": 0,
+          "mf_other": 71,
+          "aif": 0,
+          "total": -5538
+        },
+        {
+          "month": "August",
+          "equity": -34993,
+          "debt_general": 6766,
+          "debt_vrr": -872,
+          "debt_far": 6768,
+          "hybrid": 151,
+          "mf_equity": 1806,
+          "mf_debt": -34,
+          "mf_hybrid": 23,
+          "mf_solution": -1,
+          "mf_other": -118,
+          "aif": 0,
+          "total": -20505
+        },
+        {
+          "month": "September",
+          "equity": -23885,
+          "debt_general": 1085,
+          "debt_vrr": 1213,
+          "debt_far": 9956,
+          "hybrid": 223,
+          "mf_equity": -1101,
+          "mf_debt": -234,
+          "mf_hybrid": 82,
+          "mf_solution": -1,
+          "mf_other": 121,
+          "aif": 3,
+          "total": -12539
+        },
+        {
+          "month": "October",
+          "equity": 14610,
+          "debt_general": 3507,
+          "debt_vrr": -427,
+          "debt_far": 15144,
+          "hybrid": 2869,
+          "mf_equity": 244,
+          "mf_debt": -257,
+          "mf_hybrid": 48,
+          "mf_solution": 0,
+          "mf_other": -143,
+          "aif": 3,
+          "total": 35598
+        },
+        {
+          "month": "November",
+          "equity": -3765,
+          "debt_general": -3969,
+          "debt_vrr": 4485,
+          "debt_far": 4158,
+          "hybrid": 104,
+          "mf_equity": 544,
+          "mf_debt": 240,
+          "mf_hybrid": -1,
+          "mf_solution": 0,
+          "mf_other": 1038,
+          "aif": 3,
+          "total": 2836
+        },
+        {
+          "month": "December",
+          "equity": -22611,
+          "debt_general": 717,
+          "debt_vrr": -2255,
+          "debt_far": -13861,
+          "hybrid": -532,
+          "mf_equity": 125,
+          "mf_debt": -347,
+          "mf_hybrid": 196,
+          "mf_solution": 0,
+          "mf_other": -1,
+          "aif": 0,
+          "total": -38568
+        }
+      ],
+      "total": {
+        "equity": -166286,
+        "debt_general": 8831,
+        "debt_vrr": -7308,
+        "debt_far": 56825,
+        "hybrid": 1448,
+        "total": -103050
+      }
+    },
+    "2026": {
+      "months": [
+        {
+          "month": "January",
+          "equity": -35962,
+          "debt_general": -7308,
+          "debt_vrr": 60,
+          "debt_far": 13261,
+          "hybrid": 232,
+          "mf_equity": 312,
+          "mf_debt": 42,
+          "mf_hybrid": 0,
+          "mf_solution": 0,
+          "mf_other": 128,
+          "aif": -4,
+          "total": -29240
+        },
+        {
+          "month": "February",
+          "equity": 22615,
+          "debt_general": 5380,
+          "debt_vrr": 4772,
+          "debt_far": 8639,
+          "hybrid": -3896,
+          "mf_equity": 252,
+          "mf_debt": 14,
+          "mf_hybrid": -152,
+          "mf_solution": 0,
+          "mf_other": 180,
+          "aif": 0,
+          "total": 37804
+        },
+        {
+          "month": "March",
+          "equity": -88180,
+          "debt_general": 187,
+          "debt_vrr": -4036,
+          "debt_far": -9905,
+          "hybrid": -471,
+          "mf_equity": -214,
+          "mf_debt": -474,
+          "mf_hybrid": -99,
+          "mf_solution": 0,
+          "mf_other": -775,
+          "aif": 0,
+          "total": -103967
+        }
+      ],
+      "total": {
+        "equity": -101527,
+        "debt_general": -1741,
+        "debt_vrr": 796,
+        "debt_far": 11995,
+        "hybrid": -4135,
+        "total": -95403
+      }
+    }
+  }
+}

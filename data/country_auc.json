@@ -1,0 +1,29 @@
+{
+  "fetched_at": "2026-03-21T09:30:00.000Z",
+  "source": "NSDL FPI AUC Country-wise (Top 10)",
+  "as_of": "February 2026",
+  "currency": "INR Crores",
+  "countries": [
+    { "rank": 1, "country": "United States", "flag": "🇺🇸", "equity_auc": 3152835, "debt_gen_auc": 31289, "debt_vrr_auc": 11272, "debt_far_auc": 25413, "hybrid_auc": 12565, "mf_auc": 9, "aif_auc": 0, "total_auc": 3233383 },
+    { "rank": 2, "country": "Singapore", "flag": "🇸🇬", "equity_auc": 470023, "debt_gen_auc": 43022, "debt_vrr_auc": 67581, "debt_far_auc": 34966, "hybrid_auc": 17571, "mf_auc": 1449, "aif_auc": 0, "total_auc": 634611 },
+    { "rank": 3, "country": "Luxembourg", "flag": "🇱🇺", "equity_auc": 527495, "debt_gen_auc": 15535, "debt_vrr_auc": 4864, "debt_far_auc": 32391, "hybrid_auc": 2561, "mf_auc": 0, "aif_auc": 0, "total_auc": 582846 },
+    { "rank": 4, "country": "Ireland", "flag": "🇮🇪", "equity_auc": 477946, "debt_gen_auc": 5935, "debt_vrr_auc": 2962, "debt_far_auc": 28569, "hybrid_auc": 1777, "mf_auc": 0, "aif_auc": 0, "total_auc": 517188 },
+    { "rank": 5, "country": "Mauritius", "flag": "🇲🇺", "equity_auc": 285680, "debt_gen_auc": 8644, "debt_vrr_auc": 28910, "debt_far_auc": 19862, "hybrid_auc": 3075, "mf_auc": 8490, "aif_auc": 23, "total_auc": 354684 },
+    { "rank": 6, "country": "United Kingdom", "flag": "🇬🇧", "equity_auc": 314714, "debt_gen_auc": 3431, "debt_vrr_auc": 5890, "debt_far_auc": 4781, "hybrid_auc": 1971, "mf_auc": 0, "aif_auc": 0, "total_auc": 330787 },
+    { "rank": 7, "country": "Norway", "flag": "🇳🇴", "equity_auc": 278865, "debt_gen_auc": 13, "debt_vrr_auc": 95, "debt_far_auc": 540, "hybrid_auc": 1757, "mf_auc": 0, "aif_auc": 0, "total_auc": 281271 },
+    { "rank": 8, "country": "Japan", "flag": "🇯🇵", "equity_auc": 211763, "debt_gen_auc": 9994, "debt_vrr_auc": 9799, "debt_far_auc": 4236, "hybrid_auc": 647, "mf_auc": 0, "aif_auc": 0, "total_auc": 236439 },
+    { "rank": 9, "country": "Canada", "flag": "🇨🇦", "equity_auc": 185397, "debt_gen_auc": 7799, "debt_vrr_auc": 1947, "debt_far_auc": 15880, "hybrid_auc": 4830, "mf_auc": 285, "aif_auc": 0, "total_auc": 216138 },
+    { "rank": 10, "country": "France", "flag": "🇫🇷", "equity_auc": 188142, "debt_gen_auc": 1363, "debt_vrr_auc": 2918, "debt_far_auc": 9213, "hybrid_auc": 928, "mf_auc": 584, "aif_auc": 0, "total_auc": 203148 },
+    { "rank": 11, "country": "Other", "flag": "🌍", "equity_auc": 1084959, "debt_gen_auc": 57814, "debt_vrr_auc": 35791, "debt_far_auc": 118850, "hybrid_auc": 10028, "mf_auc": 14303, "aif_auc": 5, "total_auc": 1311750 }
+  ],
+  "grand_total": {
+    "equity_auc": 7177819,
+    "debt_gen_auc": 184838,
+    "debt_vrr_auc": 172030,
+    "debt_far_auc": 294702,
+    "hybrid_auc": 57709,
+    "mf_auc": 15116,
+    "aif_auc": 28,
+    "total_auc": 7902243
+  }
+}

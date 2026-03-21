@@ -1,11 +1,21 @@
 # Dependencies — never commit these
 node_modules/
+node_modules_old/
 npm-debug.log*
 yarn-debug.log*
 
-# Scratch files
+# Scratch / temporary files
 test.js
 *.tmp
+diff.txt
+apply.py
+apply_changes.py
+recover.py
+rebuild_dashboard.py
+test_html.py
+test_quarterly.js
+test_render_sectors.js
+trade_wise_html.txt
 
 # OS files
 .DS_Store

@@ -1,0 +1,20 @@
+{
+  "fetched_at": "2026-03-21T10:00:07.489Z",
+  "source": "latest",
+  "rows": [
+    {
+      "date": "20-Mar-2026",
+      "equity_net": 23627.01,
+      "debt_net": 4057.25,
+      "hybrid_net": 131.78,
+      "total_net": 27816.04
+    }
+  ],
+  "latest": {
+    "date": "20-Mar-2026",
+    "equity_net": 23627.01,
+    "debt_net": 4057.25,
+    "hybrid_net": 131.78,
+    "total_net": 27816.04
+  }
+}

@@ -56,6 +56,9 @@
     "ratingCount": "1200"
   }
 }
+
+
+
 </script>
 <!-- FAQ Structured Data for Google Rich Snippets -->
 <script type="application/ld+json">
@@ -138,7 +141,7 @@
   --orange: #D97706;
   --purple: #7C3AED;
   --teal: #0D9488;
-  --card-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 10px 25px -5px rgba(0,0,0,0.02);
+  --card-shadow: 0 4px 12px rgba(0,0,0,0.03), 0 1px 3px rgba(0,0,0,0.04);
   font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 [data-theme="dark"] {
@@ -167,10 +170,12 @@ html { background: var(--bg); scroll-behavior: smooth; transition: background 0.
 body { background: var(--bg); color: var(--t1); min-height: 100vh; font-size: 14px; transition: color 0.3s; }
 
 /* ── SLEEK CUSTOM SCROLLBARS ── */
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--l4); border-radius: 10px; border: 2px solid var(--bg); }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--l4); border-radius: 10px; border: 1px solid var(--bg); }
 ::-webkit-scrollbar-thumb:hover { background: var(--t4); }
+.hide-scroll::-webkit-scrollbar { display: none; }
+.hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
 .wrap { max-width: 1240px; margin: 0 auto; padding: 32px 20px 120px; }
 
@@ -386,21 +391,32 @@ tr:last-child td { border-bottom: none; }
   /* ─── FLOATING NAVBAR (CRITICAL MOBILE FIX) ─── */
   .tabs-wrap {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
     transform: none;
-    border-radius: 16px 16px 0 0;
-    width: 100%;
+    border-radius: 20px;
+    width: auto;
     display: flex !important;
     justify-content: stretch;
-    padding: 8px 6px;
+    padding: 8px;
     padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
-    gap: 2px;
+    gap: 4px;
     overflow: visible;
     white-space: nowrap;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+    background: var(--l1) !important;
+    border: 1px solid var(--sep) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 10px rgba(0,0,0,0.05);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     z-index: 9999;
+  }
+  [data-theme="dark"] .tabs-wrap {
+    background: rgba(18, 18, 18, 0.75) !important;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  [data-theme="light"] .tabs-wrap {
+    background: rgba(255, 255, 255, 0.85) !important;
   }
   .tab {
     flex: 1;
@@ -508,8 +524,8 @@ tr:last-child td { border-bottom: none; }
   .wrap { padding: 14px 10px 90px; }
 
   /* ─ Navbar: compact emoji mode ─ */
-  .tabs-wrap { padding: 6px 4px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); border-radius: 14px 14px 0 0; }
-  .tab { padding: 8px 2px; min-height: 44px; border-radius: 10px; }
+  .tabs-wrap { bottom: 12px; left: 12px; right: 12px; padding: 6px; padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px)); border-radius: 18px; }
+  .tab { padding: 8px 2px; min-height: 44px; border-radius: 12px; }
   .tab span:first-child { font-size: 20px; }
 
   /* ─ Header ─ */
@@ -658,6 +674,54 @@ tr:last-child td { border-bottom: none; }
 .sc-fortnight.bull { color: var(--blue); } /* Screener uses blue for positive */
 .sc-fortnight.bear { color: var(--red); }
 
+/* ── NSDL Quick Link Cards ── */
+.nsdl-link-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--l2);
+  border: 1px solid var(--sep2);
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--t2);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.nsdl-link-card:hover {
+  border-color: var(--primary);
+  background: var(--l3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  color: var(--t1);
+}
+.nlc-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  width: 32px;
+  text-align: center;
+  margin-top: 2px;
+}
+.nlc-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--t1);
+  margin-bottom: 3px;
+  letter-spacing: -0.2px;
+}
+.nlc-desc {
+  font-size: 11px;
+  color: var(--t4);
+  line-height: 1.4;
+}
+
+/* ── FPI Daily table ── */
+.fpi-daily-tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+.fpi-daily-tbl th { padding: 8px 12px; background: var(--l3); color: var(--t4); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; font-weight: 700; text-align: right; white-space: nowrap; }
+.fpi-daily-tbl th:first-child { text-align: left; }
+.fpi-daily-tbl td { padding: 8px 12px; border-bottom: 1px solid var(--sep2); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.fpi-daily-tbl td:first-child { text-align: left; color: var(--t3); }
+
 .sc-aum-pct {
   font-size: 11px;
   font-weight: 500;
@@ -801,7 +865,6 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
   </header>
-
 
   <!-- TAB: FII/DII DATE (HERO & HEATMAPS) -->
   <div id="t-hero" class="panel active">
@@ -972,28 +1035,6 @@ tr:last-child td { border-bottom: none; }
   </div>
   </div> <!-- /t-hero -->
 
-  <!-- TABS (FLOATING ISLAND NAV) -->
-  <div class="tabs-wrap">
-    <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
-      <span style="font-size:16px;">🔥</span> <span class="tab-txt">FII/DII Date</span>
-    </div>
-    <div class="tab" data-tab="t-fno" onclick="switchMainTab('t-fno')">
-      <span style="font-size:16px;">🎲</span> <span class="tab-txt">F&O Positions</span>
-    </div>
-    <div class="tab" data-tab="t-matrix" onclick="switchMainTab('t-matrix')">
-      <span style="font-size:16px;">🗄️</span> <span class="tab-txt">Databases & Matrices</span>
-    </div>
-    <div class="tab" data-tab="t-charts" onclick="switchMainTab('t-charts')">
-      <span style="font-size:16px;">📈</span> <span class="tab-txt">History</span>
-    </div>
-    <div class="tab" data-tab="t-sector" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart();">
-      <span style="font-size:16px;">🌐</span> <span class="tab-txt">Sectors</span>
-    </div>
-    <div class="tab" data-tab="t-docs" onclick="switchMainTab('t-docs')">
-      <span style="font-size:16px;">📖</span> <span class="tab-txt">Docs</span>
-    </div>
-  </div>
-
   <!-- TAB: DATA MATRIX -->
   <div id="t-matrix" class="panel">
     <!-- Hero Banner -->
@@ -1097,15 +1138,61 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-  <!-- TAB: CHARTS -->
-  <div id="t-charts" class="panel">
+  <!-- TAB: FPI MACRO -->
+  <div id="t-macro" class="panel">
     <!-- Hero Banner -->
     <div class="card hero-banner" style="margin-bottom:20px; text-align:center; padding:36px 32px; position:relative; overflow:hidden; border-left:4px solid var(--blue);">
       <div style="font-size:36px; margin-bottom:12px;">📈</div>
-      <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Historical Flow Trends</div>
-      <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:600px; margin:0 auto;">Visualize FII & DII institutional flow trajectories across daily, weekly, monthly, and annual timeframes. Bars represent net capital movement in ₹ Crores.</div>
+      <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Historical Flow Trends & FPI Macro</div>
+      <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:600px; margin:0 auto;">Visualize FII & DII institutional flow trajectories, daily FPI trends, and long-term liquidity injections.</div>
     </div>
 
+<!-- ── FPI Daily Trends Card ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">📈 FPI Daily Trends <span style="font-size:12px; font-weight:500; color:var(--t4);">via NSDL Latest.aspx</span></h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Latest registered FPI equity, debt & hybrid investment snapshot</div>
+        </div>
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/Latest.aspx" target="_blank" rel="noopener" class="filter-btn" style="text-decoration:none;">↗ View on NSDL</a>
+      </div>
+
+      <!-- Summary KPI row -->
+      <div id="fpi-daily-kpis" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:20px;">
+        <div style="background:var(--l2); border:1px solid var(--sep2); border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t4); margin-bottom:6px;">Equity Net</div>
+          <div id="fpi-d-eq-net" style="font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;">—</div>
+          <div style="font-size:10px; color:var(--t4); margin-top:2px;">₹ Crore</div>
+        </div>
+        <div style="background:var(--l2); border:1px solid var(--sep2); border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t4); margin-bottom:6px;">Debt Net</div>
+          <div id="fpi-d-debt-net" style="font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;">—</div>
+          <div style="font-size:10px; color:var(--t4); margin-top:2px;">₹ Crore</div>
+        </div>
+        <div style="background:var(--l2); border:1px solid var(--sep2); border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t4); margin-bottom:6px;">Hybrid Net</div>
+          <div id="fpi-d-hyb-net" style="font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;">—</div>
+          <div style="font-size:10px; color:var(--t4); margin-top:2px;">₹ Crore</div>
+        </div>
+        <div style="background:var(--l2); border:1px solid var(--sep2); border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t4); margin-bottom:6px;">Total Net</div>
+          <div id="fpi-d-total-net" style="font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;">—</div>
+          <div style="font-size:10px; color:var(--t4); margin-top:2px;">₹ Crore</div>
+        </div>
+        <div style="background:var(--l2); border:1px solid var(--sep2); border-radius:10px; padding:14px; text-align:center;">
+          <div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--t4); margin-bottom:6px;">Date</div>
+          <div id="fpi-d-date" style="font-size:14px; font-weight:800;">—</div>
+          <div style="font-size:10px; color:var(--t4); margin-top:2px;">Latest session</div>
+        </div>
+      </div>
+
+      <!-- Recent rows mini-table -->
+      <div id="fpi-daily-table-wrap" style="overflow-x:auto;">
+        <div style="font-size:11px; color:var(--t4); text-align:center; padding:12px;">Loading FPI daily trends…</div>
+      </div>
+    </div>
+
+    
     <!-- Quick Stats Row -->
     <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:20px;" id="hist-stats-row">
       <div class="card" style="padding:16px; text-align:center;">
@@ -1169,6 +1256,54 @@ tr:last-child td { border-bottom: none; }
         <span id="hist-insight-text">Switch timeframes to see how institutional flows evolve from micro-sessions to macro-annual trends.</span>
       </div>
     </div>
+
+    <!-- ── FPI Multi-Year Flow (from NSDL Yearwise) ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">📊 FPI Multi-Year Monthly Flows <span style="font-size:12px; font-weight:500; color:var(--t4);">NSDL Historical</span></h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Monthly FPI equity & debt net flows — NSDL Yearwise.aspx (Calendar Year)</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="filter-btn active" id="yfpi-3y" onclick="renderYearlyFPIChart(3)">3Y</button>
+          <button class="filter-btn" id="yfpi-5y" onclick="renderYearlyFPIChart(5)">5Y</button>
+          <button class="filter-btn" id="yfpi-all" onclick="renderYearlyFPIChart(0)">All</button>
+        </div>
+      </div>
+      <div id="yearly-fpi-chart-wrap" style="position:relative; height:400px;">
+        <canvas id="chYearlyFPI"></canvas>
+      </div>
+      <div id="yearly-fpi-summary" style="margin-top:12px; font-size:12px; color:var(--t3);"></div>
+    </div>
+
+    <!-- ── FPI Quarterly Flow ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">📉 FPI Quarterly Flows <span style="font-size:12px; font-weight:500; color:var(--t4);">Historical Trends</span></h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Quarterly FPI equity & debt net flows aggregating monthly data</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="filter-btn active" id="qfpi-12q" onclick="renderQuarterlyFPIChart(12)">Last 12Q</button>
+          <button class="filter-btn" id="qfpi-24q" onclick="renderQuarterlyFPIChart(24)">Last 24Q</button>
+          <button class="filter-btn" id="qfpi-all" onclick="renderQuarterlyFPIChart(0)">All</button>
+        </div>
+      </div>
+      <div id="quarterly-fpi-chart-wrap" style="position:relative; height:400px;">
+        <canvas id="chQuarterlyFPI"></canvas>
+      </div>
+    </div>
+
+    <!-- ── Year-on-Year Comparison Cards ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:18px;">
+        <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">📅 Year-on-Year Comparison <span style="font-size:12px; font-weight:500; color:var(--t4);">Equity Flows</span></h2>
+        <div style="font-size:12px; color:var(--t4); margin-top:4px;">Annual equity net flow with monthly breakdown sparklines</div>
+      </div>
+      <div id="yoy-comparison-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px;">
+        <div style="text-align:center; color:var(--t4); font-size:12px; padding:40px;">Loading…</div>
+      </div>
+    </div>
   </div>
 
   <!-- TAB: SECTOR FLOW (NSDL Fortnightly FPI Data) -->
@@ -1179,14 +1314,16 @@ tr:last-child td { border-bottom: none; }
       <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
         <div>
           <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🌐 Sector-Wise FII / FPI Allocation</h2>
-          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Source: NSDL Fortnightly FPI Reports · BSE 22-Sector Classification · via Screener.in (C-MOTS) · Updated twice a month</div>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Source: NSDL Fortnightly FPI Reports · BSE 24-Sector Classification · Updated twice a month</div>
+          <div id="nsdl-period-badge" style="display:inline-block; margin-top:6px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:var(--l3); color:var(--t3); border:1px solid var(--sep2);">Loading live data…</div>
         </div>
         <!-- Sort Buttons -->
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <button class="filter-btn active" id="sec-sort-aum"   onclick="sortSectors('aum')">Total AUM</button>
           <button class="filter-btn"        id="sec-sort-fort"  onclick="sortSectors('fort')">Fortnight Δ</button>
           <button class="filter-btn"        id="sec-sort-1y"    onclick="sortSectors('1y')">1Y Net Flow</button>
           <button class="filter-btn"        id="sec-sort-alpha" onclick="sortSectors('alpha')">A–Z</button>
+          <button class="filter-btn" id="btnNsdlRefresh" onclick="refreshNSDLData()" style="margin-left:8px; border-color:var(--primary); color:var(--primary);">🔄 Refresh NSDL</button>
         </div>
       </div>
 
@@ -1250,7 +1387,193 @@ tr:last-child td { border-bottom: none; }
         <span style="margin-left:auto; font-style:italic; font-weight:400; text-transform:none; font-size:11px;">Data updates every ~15 days. Last update date shown in card header.</span>
       </div>
     </div>
-  </div><!-- /t-sector -->
+
+    <!-- ── FPI Sector Flow Heatmap ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🔥 FPI Sector Flow Trend <span style="font-size:12px; font-weight:500; color:var(--t4);">Fortnightly Snapshots</span></h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Equity net flows per sector across fortnightly periods — NSDL sector reports</div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <select id="sectorFlowMetric" onchange="renderSectorFlowTrend()" style="padding:6px 10px; border-radius:6px; border:1px solid var(--sep2); background:var(--l2); color:var(--t1); font-size:12px; cursor:pointer;">
+            <option value="equity_net_inr">Equity Net Flow</option>
+            <option value="equity_auc_inr">Equity AUC</option>
+            <option value="total_net_inr">Total Net Flow</option>
+          </select>
+          <select id="sectorFlowTop" onchange="renderSectorFlowTrend()" style="padding:6px 10px; border-radius:6px; border:1px solid var(--sep2); background:var(--l2); color:var(--t1); font-size:12px; cursor:pointer;">
+            <option value="8">Top 8 Sectors</option>
+            <option value="12">Top 12</option>
+            <option value="24">All Sectors</option>
+          </select>
+        </div>
+      </div>
+      <div id="sector-flow-chart-wrap" style="position:relative; height:380px;">
+        <canvas id="chSectorFlow"></canvas>
+      </div>
+      <div id="sector-flow-summary" style="margin-top:12px; font-size:12px; color:var(--t3);"></div>
+    </div>
+
+    <!-- ── Top Movers Scoreboard ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:18px;">
+        <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🏆 FPI Sector Scoreboard <span style="font-size:12px; font-weight:500; color:var(--t4);">12-Month Cumulative</span></h2>
+        <div style="font-size:12px; color:var(--t4); margin-top:4px;">Biggest inflows & outflows — based on fortnightly net equity investment data</div>
+      </div>
+      <div id="sector-scoreboard" style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="text-align:center; color:var(--t4); font-size:12px; padding:40px;">Loading…</div>
+      </div>
+    </div>
+
+      </div><!-- /t-sector -->
+
+
+  <!-- TAB: DEEP DIVE (Analytics & Constituents) -->
+  <div id="t-deepdive" class="panel">
+    <!-- Hero Banner -->
+    <div class="card hero-banner" style="margin-bottom:20px; text-align:center; padding:36px 32px; position:relative; overflow:hidden; border-left:4px solid var(--purple);">
+      <div style="font-size:36px; margin-bottom:12px;">🔬</div>
+      <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Deep Dive Analytics</div>
+      <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Granular trade-wise executions, geographical AUM origins, derivative notional values, and bond limit utilisations.</div>
+    </div>
+
+<!-- ── Trade-Wise Flow Card ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🏦 Trade-Wise Equity Flow Details <span style="font-size:12px; font-weight:500; color:var(--t4);">NSDL Monthly ZIPs</span></h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Granular buy/sell data aggregated from millions of raw ISIN transactions</div>
+        </div>
+        <div id="tw-meta" style="text-align:right; font-size:11px; color:var(--t3);">
+           Loading…
+        </div>
+      </div>
+      <div id="tw-table-container" style="overflow-x:auto;">
+         <div style="text-align:center; color:var(--t4); font-size:12px; padding:40px;">Fetching big dataset…</div>
+      </div>
+    </div>
+
+    <!-- ── Country-wise FPI AUC ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:20px;">
+        <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🌍 FPI Sources by Country <span style="font-size:12px; font-weight:500; color:var(--t4);">Assets Under Custody</span></h2>
+        <div style="font-size:12px; color:var(--t4); margin-top:4px;">Top 10 FPI investor countries by total AUC — NSDL monthly data</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;" id="country-auc-container">
+        <div style="position:relative; height:300px;"><canvas id="chCountryAUC"></canvas></div>
+        <div id="country-auc-list" style="font-size:12px; color:var(--t3);">Loading…</div>
+      </div>
+    </div>
+    <!-- ── ODI/PN & Debt Utilisation Monitors ── -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+      
+      <!-- ODI/PN Monitor -->
+      <div class="card" style="padding:24px;">
+        <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:20px;">
+          <h2 style="font-size:16px; color:var(--t1); letter-spacing:-0.5px;">📉 Offshore Derivative Instruments (ODI/PN)</h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Notional value of derivative exposure vs total FPI AUC</div>
+        </div>
+        <div id="odi-pn-container" style="text-align:center; padding:10px 0;">
+           <div style="font-size:12px; color:var(--t4);">Loading ODI data…</div>
+        </div>
+      </div>
+
+      <!-- Debt Utilisation Monitor -->
+      <div class="card" style="padding:24px;">
+        <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:20px;">
+          <h2 style="font-size:16px; color:var(--t1); letter-spacing:-0.5px;">📊 FPI Debt Limit Utilisation</h2>
+          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Current quota usage for corporate and government bonds</div>
+        </div>
+        <div id="debt-util-container" style="padding:10px 0;">
+           <div style="font-size:12px; color:var(--t4); text-align:center;">Loading Debt Utilisation data…</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── NSDL Quick Links & Reports ── -->
+    <div class="card" style="padding:24px; margin-bottom:16px;">
+      <div style="border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:18px;">
+        <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">🔗 NSDL FPI Report Quick Links</h2>
+        <div style="font-size:12px; color:var(--t4); margin-top:4px;">Direct access to all official NSDL FPI reports — opens in new tab</div>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px;">
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/Latest.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">📅</div>
+          <div>
+            <div class="nlc-title">Daily FPI Trends (Latest)</div>
+            <div class="nlc-desc">Today's FPI flows — equity, debt &amp; hybrid</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/Monthly.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">📆</div>
+          <div>
+            <div class="nlc-title">Monthly FPI Trends</div>
+            <div class="nlc-desc">Month-by-month FPI investment summary</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/FPI_Fortnightly_Selection.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">🌐</div>
+          <div>
+            <div class="nlc-title">Sector-wise (Select Date)</div>
+            <div class="nlc-desc">Interactive fortnightly sector allocation picker</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/Yearwise.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">📈</div>
+          <div>
+            <div class="nlc-title">Yearly FPI Data</div>
+            <div class="nlc-desc">Calendar &amp; financial year FPI summary</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/QuarterlyWise.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">📊</div>
+          <div>
+            <div class="nlc-title">Quarterly FPI Data</div>
+            <div class="nlc-desc">Quarter-by-quarter net investment breakdown</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/ReportDetail.aspx?RepID=1" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">💼</div>
+          <div>
+            <div class="nlc-title">Debt Utilisation Status</div>
+            <div class="nlc-desc">FPI debt limit headroom &amp; utilisation %</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/ReportDetail.aspx?RepID=28" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">🎭</div>
+          <div>
+            <div class="nlc-title">ODI / Participatory Notes</div>
+            <div class="nlc-desc">Offshore derivative instruments value</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/RegisteredFIISAFPI.aspx" target="_blank" rel="noopener" class="nsdl-link-card">
+          <div class="nlc-icon">🏛️</div>
+          <div>
+            <div class="nlc-title">Registered FPIs List</div>
+            <div class="nlc-desc">Full list of SEBI-registered foreign investors</div>
+          </div>
+        </a>
+
+        <a href="https://www.fpi.nsdl.co.in/web/Reports/ReportsListing.aspx" target="_blank" rel="noopener" class="nsdl-link-card" style="border-style:dashed;">
+          <div class="nlc-icon">↗</div>
+          <div>
+            <div class="nlc-title">All NSDL Reports</div>
+            <div class="nlc-desc">Full report listing on fpi.nsdl.co.in</div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </div><!-- /t-deepdive -->
 
   <!-- TAB: DATA MATRIX & DERIVATIVES -->
   <!-- TAB: F&O DERIVATIVES -->
@@ -1493,11 +1816,9 @@ tr:last-child td { border-bottom: none; }
 <!-- PANEL INIT: synchronously hide all non-home panels before page renders -->
 <script>
 (function() {
-  var panels = ['t-fno','t-sector','t-matrix','t-charts','t-docs'];
-  for (var i = 0; i < panels.length; i++) {
-    var el = document.getElementById(panels[i]);
-    if (el) el.style.display = 'none';
-  }
+  document.querySelectorAll('.panel').forEach(function(el) {
+    if (el.id !== 't-hero') el.style.display = 'none';
+  });
 })();
 </script>
 
@@ -1567,8 +1888,6 @@ async function exportDOM(element, namePrefix) {
 }
 
 /* ── MAIN TAB LOGIC ── */
-const ALL_PANELS = ['t-hero', 't-fno', 't-matrix', 't-charts', 't-sector', 't-docs'];
-
 let isSwitchingTab = false;
 function switchMainTab(id) {
   if (isSwitchingTab) return;
@@ -1578,15 +1897,20 @@ function switchMainTab(id) {
   
   isSwitchingTab = true;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
   
   // Activate matching tab button immediately for snappy feel
   const matchingTab = document.querySelector(`.tab[data-tab="${id}"]`);
   if (matchingTab) matchingTab.classList.add('active');
+  
+  // Also activate matching floating nav button
+  const matchingNavBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') && b.getAttribute('onclick').includes(`switchMainTab('${id}')`));
+  if (matchingNavBtn) matchingNavBtn.classList.add('active');
 
   const showTarget = () => {
-    ALL_PANELS.forEach(pid => {
-      const el = document.getElementById(pid);
-      if (el) { el.style.display = 'none'; el.classList.remove('active', 'exiting'); }
+    document.querySelectorAll('.panel').forEach(el => {
+      el.style.display = 'none';
+      el.classList.remove('active', 'exiting');
     });
     
     if (targetPanel) {
@@ -1596,14 +1920,28 @@ function switchMainTab(id) {
       targetPanel.classList.add('active');
     }
     
-    // Trigger chart re-renders
-    if (id === 't-charts') {
+    // Trigger chart re-renders for the activated tab
+    if (id === 't-macro') {
       const activeHist = document.querySelector('.s-tab[id^="hc-m-"].active');
       const mode = activeHist ? activeHist.id.replace('hc-m-', '') : 'daily';
       if (typeof renderHistoryChart === 'function') setTimeout(() => renderHistoryChart(mode), 50);
+      // Also render FPI Multi-Year and Quarterly charts
+      if (typeof renderYearlyFPIChart === 'function' && _yearlyFPIData) setTimeout(() => { renderYearlyFPIChart(3); renderYoYComparison(); }, 80);
+      if (typeof renderQuarterlyFPIChart === 'function' && _quarterlyFPIData) setTimeout(() => renderQuarterlyFPIChart(12), 80);
+      if (typeof renderFPIDailyTrends === 'function' && _dailyData) setTimeout(() => renderFPIDailyTrends(_dailyData), 50);
     }
     if (id === 't-fno') {
       if (typeof renderFnoHistoryChart === 'function') setTimeout(() => renderFnoHistoryChart('fii-fut'), 50);
+    }
+    if (id === 't-sector') {
+      if (typeof renderSectors === 'function') setTimeout(() => renderSectors(), 50);
+      if (typeof renderSectorFlowTrend === 'function' && _sectorHistoryData) setTimeout(() => renderSectorFlowTrend(), 80);
+      if (typeof renderSectorScoreboard === 'function' && _sectorHistoryData) setTimeout(() => renderSectorScoreboard(), 80);
+    }
+    if (id === 't-deepdive') {
+      if (typeof renderCountryAUC === 'function' && _countryData) setTimeout(() => renderCountryAUC(_countryData), 50);
+      if (typeof renderODIPN === 'function' && _odiData) setTimeout(() => renderODIPN(_odiData), 50);
+      if (typeof renderDebtUtil === 'function' && _debtData) setTimeout(() => renderDebtUtil(_debtData), 50);
     }
     isSwitchingTab = false;
   };
@@ -2656,12 +2994,23 @@ let _historyChartMode = 'monthly';
 
 function initCharts() {
   switchHistoryChart('monthly');
+  fetchYearlyFPI();
+  fetchQuarterlyFPI();
+  fetchTradeWise();
+
+  // Eager load JSON to memory but defer DOM mapping
+  fetchNSDLSectors();
+  fetchNSDLDaily();
+  fetchSectorHistory();
+  fetchCountryAUC();
+  fetchODIPN();
+  fetchDebtUtilisation();
 }
 
 function switchHistoryChart(mode) {
   _historyChartMode = mode;
   // Update UI toggles if on the history tab
-  const tabs = document.querySelectorAll('#t-charts .s-tab');
+  const tabs = document.querySelectorAll('#t-macro .s-tab');
   if (tabs.length) {
     tabs.forEach(t => t.classList.remove('active'));
     const activeTab = document.getElementById('hc-m-' + mode);
@@ -2822,6 +3171,963 @@ const SECTOR_DATA = [
   { name: 'Others',                 emoji: '📦', aumPct:  6.9, fortnightCr:   -650, oneYearCr:  -5100, lastDate: '15 May 2025', fiiOwn: 8.9, alpha: -0.8 },
 ];
 
+/* ═══════════════════════════════════════════════════════════════════
+   NSDL LIVE DATA LAYER
+   Overrides SECTOR_DATA with live /api/nsdl/sectors when available
+   ═══════════════════════════════════════════════════════════════════ */
+
+let _liveSectorData = null; // null = use static fallback
+let _nsdlPeriod = null;
+
+const SECTOR_EMOJI_MAP = {
+  'Financial Services':              '🏦',
+  'Information Technology':          '💻',
+  'Oil, Gas & Consumable Fuels':     '⛽',
+  'Healthcare':                      '💊',
+  'Automobile and Auto Components':  '🚗',
+  'Capital Goods':                   '🏗️',
+  'Consumer Durables':               '📱',
+  'Fast Moving Consumer Goods':      '🧴',
+  'Metals & Mining':                 '⛏️',
+  'Power':                           '⚡',
+  'Construction':                    '🏗️',
+  'Chemicals':                       '🧪',
+  'Consumer Services':               '🛍️',
+  'Realty':                          '🏘️',
+  'Telecommunication':               '📡',
+  'Services':                        '🛠️',
+  'Construction Materials':          '🏢',
+  'Diversified':                     '🔀',
+  'Utilities':                       '🔌',
+  'Media, Entertainment & Publication': '🎬',
+  'Forest Materials':                '🌲',
+  'Textiles':                        '🧵',
+  'Sovereign':                       '🏛️',
+  'Others':                          '📦',
+};
+
+function _nsdlSectorsToDisplay(apiData) {
+  // apiData.sectors is array with equity_auc_inr, equity_net_inr etc.
+  const sectors = apiData.sectors || [];
+  if (!sectors.length) return null;
+
+  // Calculate total equity AUC for AUM %
+  const totalAUC = sectors.reduce((s, r) => s + (r.equity_auc_inr || 0), 0) || 1;
+
+  return sectors.map(s => {
+    const staticRef = SECTOR_DATA.find(x => x.name.toLowerCase() === s.sector.toLowerCase()) || {};
+    return {
+      name: s.sector,
+      emoji: SECTOR_EMOJI_MAP[s.sector] || '📊',
+      aumPct: +((s.equity_auc_inr / totalAUC) * 100).toFixed(2),
+      fortnightCr: s.equity_net_inr || 0,
+      oneYearCr: staticRef.oneYearCr || (s.equity_net_inr || 0),
+      lastDate: apiData.period || apiData.date_code || '',
+      fiiOwn: staticRef.fiiOwn || 0,
+      alpha: staticRef.alpha || 0,
+      is_live: true,
+      auc_inr: s.equity_auc_inr || 0,
+      net_inr: s.equity_net_inr || 0,
+      total_auc_inr: s.total_auc_inr || 0,
+    };
+  });
+}
+
+async function fetchNSDLSectors() {
+  try {
+    let res = await fetch('/api/nsdl/sectors', { signal: AbortSignal.timeout(8000) }).catch(() => null);
+    if (!res || !res.ok) {
+      console.log('[SYNC] Falling back to local sector data...');
+      res = await fetch('./data/sector_latest.json', { signal: AbortSignal.timeout(5000) });
+    }
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    
+    const data = await res.json();
+    if (!data || !data.sectors || !data.sectors.length) return;
+
+    _liveSectorData = _nsdlSectorsToDisplay(data);
+    _nsdlPeriod = data.period || data.date_code;
+
+    // Update period badge
+    const badge = document.getElementById('nsdl-period-badge');
+    if (badge) {
+      const isMock = data.is_mock;
+      badge.textContent = (isMock ? '⚠️ Demo: ' : '✅ ') + (_nsdlPeriod || 'Latest data');
+      badge.style.background = isMock ? 'rgba(234,179,8,0.15)' : 'rgba(16,185,129,0.12)';
+      badge.style.borderColor = isMock ? 'rgba(234,179,8,0.3)' : 'rgba(16,185,129,0.3)';
+      badge.style.color       = isMock ? 'var(--yellow, #eab308)' : 'var(--green)';
+    }
+
+    console.log('[NSDL] Sector data loaded:', _liveSectorData.length, 'sectors, period:', _nsdlPeriod);
+    renderSectors();
+    if (document.getElementById('t-sector').classList.contains('active')) {
+      if (document.getElementById('sec-chart-card').style.display !== 'none') {
+        renderSectorChart();
+      }
+    }
+  } catch (err) {
+    console.warn('[NSDL] Sector fetch failed:', err.message);
+    const badge = document.getElementById('nsdl-period-badge');
+    if (badge) { badge.textContent = '⚠️ Using offline data'; badge.style.color = 'var(--t4)'; }
+  }
+}
+
+async function fetchNSDLDaily() {
+  try {
+    let res = await fetch('/api/nsdl/daily', { signal: AbortSignal.timeout(8000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/fpi_daily.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    _dailyData = await res.json();
+    renderFPIDailyTrends(_dailyData);
+    console.log('[NSDL] Daily data loaded:', (_dailyData.rows || []).length, 'rows');
+  } catch (err) {
+    console.warn('[NSDL] Daily fetch failed:', err.message);
+  }
+}
+
+async function refreshNSDLData() {
+  const btn = document.getElementById('btnNsdlRefresh');
+  if (btn) { btn.innerHTML = '⏳ Fetching…'; btn.disabled = true; }
+  try {
+    // Trigger server-side fetch
+    const r = await fetch('/api/nsdl/refresh', { method: 'POST', signal: AbortSignal.timeout(60000) });
+    const json = await r.json();
+    console.log('[NSDL] Refresh result:', json);
+
+    // Re-fetch display data
+    await fetchNSDLSectors();
+    await fetchNSDLDaily();
+    renderSectors();
+    if (chartSector) renderSectorChart();
+  } catch (err) {
+    console.warn('[NSDL] Refresh failed:', err.message);
+  }
+  if (btn) { btn.innerHTML = '🔄 Refresh NSDL'; btn.disabled = false; }
+}
+
+// Patch tab switch to load NSDL data on first visit
+let _nsdlLoaded = true; // Set to true to disable lazy loading, as charts load instantly now
+const _origSwitchMainTab = window.switchMainTab;
+window.switchMainTab = function(tabId) {
+  if (typeof _origSwitchMainTab === 'function') _origSwitchMainTab(tabId);
+  
+  setTimeout(() => {
+    // Force lazily pre-fetched JSON into DOM when tab opens
+    if (tabId === 't-macro') {
+      if (typeof _dailyData !== 'undefined' && _dailyData) renderFPIDailyTrends(_dailyData);
+      if (typeof renderHistoryChart === 'function') renderHistoryChart();
+    } else if (tabId === 't-sector') {
+      if (typeof _liveSectorData !== 'undefined' && _liveSectorData) {
+         if (typeof renderSectors === 'function') renderSectors();
+         if (typeof renderSectorChart === 'function') renderSectorChart();
+      }
+      if (typeof renderSectorFlowTrend === 'function') renderSectorFlowTrend();
+    } else if (tabId === 't-deepdive') {
+      if (typeof _countryData !== 'undefined' && _countryData) {
+         if (typeof renderCountryAUCList === 'function') renderCountryAUCList(_countryData);
+         if (typeof renderCountryAUC === 'function') renderCountryAUC(_countryData);
+      }
+    } else if (tabId === 't-hero') {
+      if (typeof renderHeroChart === 'function') renderHeroChart();
+    } else if (tabId === 't-fno') {
+      if (typeof renderFnoHistoryChart === 'function') renderFnoHistoryChart();
+    }
+    
+    // Safety fallback for internal canvas 0px bug
+    if (typeof Chart !== 'undefined' && Chart.instances) {
+      Object.values(Chart.instances).forEach(chart => {
+        if (chart && typeof chart.resize === 'function') chart.resize();
+      });
+    }
+  }, 50);
+};
+
+// ── Sector Flow Trend (from sector_history.json) ──────────────────────────
+let _sectorHistoryData = null;
+let _sectorFlowChart = null;
+
+async function fetchSectorHistory() {
+  try {
+    let res = await fetch('/api/nsdl/sector-history', { signal: AbortSignal.timeout(10000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/sector_history.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    const data = await res.json();
+    _sectorHistoryData = data;
+    console.log('[NSDL] Sector history loaded:', Array.isArray(data) ? data.length : 0, 'snapshots');
+    renderSectorFlowTrend();
+    renderSectorScoreboard();
+  } catch (err) {
+    console.warn('[NSDL] Sector history fetch failed:', err.message);
+  }
+}
+
+const SECTOR_COLORS = [
+  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1',
+  '#a855f7', '#84cc16', '#fb7185', '#22d3ee', '#e879f9',
+  '#4ade80', '#fbbf24', '#f87171', '#818cf8', '#34d399',
+  '#facc15', '#fb923c', '#c084fc', '#2dd4bf',
+];
+
+function renderSectorFlowTrend() {
+  if (!_sectorHistoryData || !Array.isArray(_sectorHistoryData) || _sectorHistoryData.length < 2) {
+    const wrap = document.getElementById('sector-flow-chart-wrap');
+    if (wrap) wrap.innerHTML = '<div style="font-size:12px;color:var(--t4);text-align:center;padding:60px;">Sector history data needs at least 2 fortnightly snapshots. Run backfill script to populate.</div>';
+    return;
+  }
+
+  const metric = document.getElementById('sectorFlowMetric')?.value || 'equity_net_inr';
+  const topN = parseInt(document.getElementById('sectorFlowTop')?.value || '8');
+
+  // Sort snapshots chronologically (oldest first)
+  const snapshots = [..._sectorHistoryData].sort((a, b) => {
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parse = c => {
+      const m = c.date_code.match(/([A-Za-z]{3})(\d{2})(\d{4})/);
+      if (!m) return 0;
+      return new Date(+m[3], MON.indexOf(m[1]), +m[2]).getTime();
+    };
+    return parse(a) - parse(b);
+  });
+
+  // Build labels from date codes (e.g., "Mar152026" → "Mar 15")
+  const labels = snapshots.map(s => {
+    const m = s.date_code.match(/([A-Za-z]{3})(\d{2})(\d{4})/);
+    return m ? `${m[1]} ${+m[2]}` : s.date_code;
+  });
+
+  // Collect all sectors and their values over time
+  const sectorMap = new Map(); // sector → [values per snapshot]
+  for (let i = 0; i < snapshots.length; i++) {
+    for (const sec of (snapshots[i].sectors || [])) {
+      if (!sectorMap.has(sec.sector)) sectorMap.set(sec.sector, new Array(snapshots.length).fill(null));
+      sectorMap.get(sec.sector)[i] = sec[metric] || 0;
+    }
+  }
+
+  // Rank sectors by absolute cumulative value
+  const ranked = [...sectorMap.entries()]
+    .filter(([name]) => !['Sovereign','Diversified','Forest Materials'].includes(name))
+    .map(([name, vals]) => ({ name, vals, cumAbs: vals.reduce((s, v) => s + Math.abs(v || 0), 0) }))
+    .sort((a, b) => b.cumAbs - a.cumAbs);
+
+  const display = topN > 0 ? ranked.slice(0, topN) : ranked;
+
+  const canvas = document.getElementById('chSectorFlow');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (_sectorFlowChart) _sectorFlowChart.destroy();
+
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const isNet = metric.includes('net');
+
+  const datasets = display.map((s, i) => ({
+    label: s.name.length > 25 ? s.name.substring(0, 22) + '…' : s.name,
+    data: s.vals,
+    borderColor: SECTOR_COLORS[i % SECTOR_COLORS.length],
+    backgroundColor: SECTOR_COLORS[i % SECTOR_COLORS.length] + '18',
+    borderWidth: 2.5,
+    pointRadius: 3,
+    pointHoverRadius: 6,
+    tension: 0.3,
+    fill: false,
+  }));
+
+  _sectorFlowChart = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 500, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: { size: 10, weight: '600', family: 'Inter,system-ui,sans-serif' },
+            usePointStyle: true, pointStyleWidth: 10, padding: 10, boxHeight: 6,
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleFont: { size: 12, weight: '700' },
+          bodyFont: { size: 11 },
+          padding: 12,
+          cornerRadius: 8,
+          callbacks: {
+            label: ctx2 => {
+              const v = ctx2.raw || 0;
+              const prefix = isNet ? (v >= 0 ? '+' : '') : '';
+              return ` ${ctx2.dataset.label}: ${prefix}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+            }
+          }
+        } // ends tooltip
+      }, // ends plugins
+      onHover: (e, activeElements, chart) => {
+        if (activeElements.length) {
+          const hoveredIndex = activeElements[0].datasetIndex;
+          chart.data.datasets.forEach((dataset, i) => {
+            dataset.borderColor = i === hoveredIndex ? SECTOR_COLORS[i % SECTOR_COLORS.length] : SECTOR_COLORS[i % SECTOR_COLORS.length] + '33'; // 20% opacity
+            dataset.borderWidth = i === hoveredIndex ? 3.5 : 1.5;
+          });
+          chart.update();
+        }
+      },
+      onLeave: (e, chart) => {
+        chart.data.datasets.forEach((dataset, i) => {
+          dataset.borderColor = SECTOR_COLORS[i % SECTOR_COLORS.length];
+          dataset.borderWidth = 2.5;
+        });
+        chart.update();
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 9, weight: '500' }, maxRotation: 45 }
+        },
+        y: {
+          grid: { color: cssVar('--sep2') || 'rgba(0,0,0,0.06)', lineWidth: 0.8 },
+          border: { display: false },
+          ticks: {
+            font: { size: 10 },
+            padding: 6,
+            callback: v => {
+              const abs = Math.abs(v);
+              const sign = v >= 0 ? (isNet ? '+' : '') : '-';
+              if (abs >= 100000) return sign + '₹' + (abs/100000).toFixed(1) + 'L';
+              if (abs >= 1000) return sign + '₹' + (abs/1000).toFixed(0) + 'K';
+              return sign + '₹' + abs;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Summary
+  const sumEl = document.getElementById('sector-flow-summary');
+  if (sumEl) {
+    const metricLabels = { equity_net_inr: 'Equity Net Flow', equity_auc_inr: 'Equity AUC', total_net_inr: 'Total Net Flow' };
+    sumEl.innerHTML = `Metric: <strong>${metricLabels[metric] || metric}</strong> · <strong>${snapshots.length}</strong> fortnightly snapshots · <strong>${display.length}</strong> sectors shown · Period: ${labels[0]} → ${labels[labels.length - 1]}`;
+  }
+}
+
+function renderSectorScoreboard() {
+  if (!_sectorHistoryData || !Array.isArray(_sectorHistoryData) || _sectorHistoryData.length < 2) return;
+
+  // Compute cumulative equity_net_inr per sector across all periods
+  const cumMap = new Map();
+  for (const snap of _sectorHistoryData) {
+    for (const sec of (snap.sectors || [])) {
+      cumMap.set(sec.sector, (cumMap.get(sec.sector) || 0) + (sec.equity_net_inr || 0));
+    }
+  }
+
+  const sorted = [...cumMap.entries()]
+    .filter(([name]) => !['Sovereign','Diversified','Forest Materials'].includes(name))
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total);
+
+  const topInflows = sorted.filter(s => s.total > 0).slice(0, 8);
+  const topOutflows = sorted.filter(s => s.total < 0).sort((a, b) => a.total - b.total).slice(0, 8);
+
+  const maxAbs = Math.max(
+    topInflows.length ? topInflows[0].total : 0,
+    topOutflows.length ? Math.abs(topOutflows[0].total) : 0,
+    1
+  );
+
+  const fmtCr = v => {
+    const abs = Math.abs(v);
+    return abs >= 100000 ? `₹${(abs/100000).toFixed(1)}L Cr` : `₹${abs.toLocaleString('en-IN')} Cr`;
+  };
+
+  const buildColumn = (items, isInflow) => {
+    const title = isInflow ? '🟢 Top Inflows' : '🔴 Top Outflows';
+    const color = isInflow ? '#10b981' : '#ef4444';
+    const bgColor = isInflow ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+
+    let html = `<div><h3 style="font-size:14px; font-weight:700; margin-bottom:16px; color:var(--t1);">${title}</h3>`;
+    for (const item of items) {
+      const pct = (Math.abs(item.total) / maxAbs * 100).toFixed(0);
+      html += `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+            <span style="font-size:12px; font-weight:600; color:var(--t2);">${item.name}</span>
+            <span style="font-size:12px; font-weight:700; color:${color};">${isInflow ? '+' : '-'}${fmtCr(item.total)}</span>
+          </div>
+          <div style="height:8px; background:${bgColor}; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:${color}; border-radius:4px; transition:width 0.5s ease;"></div>
+          </div>
+        </div>`;
+    }
+    html += '</div>';
+    return html;
+  };
+
+  const el = document.getElementById('sector-scoreboard');
+  if (el) {
+    el.innerHTML = buildColumn(topInflows, true) + buildColumn(topOutflows, false);
+  }
+}
+
+// ── Country-wise AUC (Donut Chart) ───────────────────────────────────────
+let _countryAUCChart = null;
+
+async function fetchCountryAUC() {
+  try {
+    let res = await fetch('/api/nsdl/country-auc', { signal: AbortSignal.timeout(10000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/country_auc.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    _countryData = await res.json();
+    renderCountryAUCList(_countryData);
+    if (document.getElementById('t-deepdive').classList.contains('active')) renderCountryAUC(_countryData);
+  } catch (err) {
+    console.warn('[NSDL] Country AUC fetch failed:', err.message);
+  }
+}
+
+function renderCountryAUC(data) {
+  if (!data || !data.countries) return;
+
+  const countries = data.countries;
+  const grandTotal = data.grand_total?.total_auc || countries.reduce((s, c) => s + c.total_auc, 0);
+
+  const COUNTRY_COLORS = [
+    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+    '#ec4899', '#06b6d4', '#f97316', '#14b8a6', '#6366f1',
+    '#94a3b8',
+  ];
+
+  // Donut chart
+  const canvas = document.getElementById('chCountryAUC');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (_countryAUCChart) _countryAUCChart.destroy();
+
+  _countryAUCChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: countries.map(c => c.country),
+      datasets: [{
+        data: countries.map(c => c.total_auc),
+        backgroundColor: COUNTRY_COLORS,
+        hoverBackgroundColor: COUNTRY_COLORS.map(c => c + 'dd'),
+        borderWidth: 2,
+        borderColor: 'rgba(255,255,255,0.8)',
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleFont: { size: 13, weight: '700' },
+          bodyFont: { size: 12 },
+          padding: 14,
+          cornerRadius: 8,
+          callbacks: {
+            label: ctx2 => {
+              const v = ctx2.raw;
+              const pct = ((v / grandTotal) * 100).toFixed(1);
+              const lakh = (v / 100000).toFixed(1);
+              return ` ₹${lakh}L Cr (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Ranked list
+  const listEl = document.getElementById('country-auc-list');
+  if (!listEl) return;
+
+  const fmtAUC = v => {
+    if (v >= 100000) return `₹${(v / 100000).toFixed(1)}L Cr`;
+    if (v >= 1000) return `₹${(v / 1000).toFixed(0)}K Cr`;
+    return `₹${v.toLocaleString('en-IN')} Cr`;
+  };
+
+  let html = `<div style="font-size:11px; color:var(--t4); margin-bottom:10px;">Grand Total AUC: <strong style="color:var(--t1);">${fmtAUC(grandTotal)}</strong> · As of: <strong>${data.as_of || ''}</strong></div>`;
+
+  for (let i = 0; i < countries.length; i++) {
+    const c = countries[i];
+    const pct = ((c.total_auc / grandTotal) * 100).toFixed(1);
+    const col = COUNTRY_COLORS[i];
+    html += `
+      <div style="margin-bottom:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
+          <span style="font-weight:600; color:var(--t1);">${c.flag || ''} ${c.country}</span>
+          <span style="font-weight:700; color:${col};">${fmtAUC(c.total_auc)} <span style="font-weight:500; color:var(--t4); font-size:10px;">(${pct}%)</span></span>
+        </div>
+        <div style="height:5px; background:var(--l3); border-radius:3px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:${col}; border-radius:3px; transition:width 0.5s ease;"></div>
+        </div>
+      </div>`;
+  }
+  listEl.innerHTML = html;
+}
+
+// ── ODI/PN Data ───────────────────────────────────────────────────────────
+async function fetchODIPN() {
+  try {
+    let res = await fetch('/api/nsdl/odi-pn', { signal: AbortSignal.timeout(5000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/odi_pn.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    _odiData = await res.json();
+    renderODIPN(_odiData);
+  } catch (err) {
+    console.warn('[NSDL] ODI/PN fetch failed:', err.message);
+  }
+}
+
+function renderODIPN(data) {
+  const container = document.getElementById('odi-pn-container');
+  if (!container || !data) return;
+
+  const odiCr = data.total_odi_value_cr;
+  const aucCr = data.fpi_auc_cr;
+  const pct = data.odi_to_auc_pct;
+
+  const fmt = v => `₹${(v / 100000).toFixed(2)}L Cr`;
+
+  container.innerHTML = `
+    <div style="font-size:24px; font-weight:700; color:var(--b2); margin-top:20px;">
+      ${pct}% <span style="font-size:12px; font-weight:500; color:var(--t4);">of Total AUC</span>
+    </div>
+    <div style="margin:20px 0; padding:12px; background:var(--l3); border-radius:8px; display:inline-block; text-align:left;">
+      <div style="font-size:12px; color:var(--t3); margin-bottom:4px;">Notional Value (ODIs/PNs): <strong style="color:var(--t1);">${fmt(odiCr)}</strong></div>
+      <div style="font-size:12px; color:var(--t3);">Total FPI AUC: <strong style="color:var(--t1);">${fmt(aucCr)}</strong></div>
+    </div>
+    <div style="font-size:11px; color:var(--t4);">As of: ${data.as_of}</div>
+  `;
+}
+
+// ── Debt Utilisation Data ──────────────────────────────────────────────────
+let _debtData = null;
+
+async function fetchDebtUtilisation() {
+  try {
+    let res = await fetch('/api/nsdl/debt-utilisation', { signal: AbortSignal.timeout(5000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/debt_utilisation.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    _debtData = await res.json();
+    renderDebtUtil(_debtData);
+  } catch (err) {
+    console.warn('[NSDL] Debt Utilisation fetch failed:', err.message);
+  }
+}
+
+function renderDebtUtilisation(data) {
+  const container = document.getElementById('debt-util-container');
+  if (!container || !data || !data.categories) return;
+
+  const fmt = v => `₹${(v / 1000).toFixed(0)}K Cr`;
+  
+  // Custom colors for bars based on utilisation
+  const getCol = pct => {
+    if (pct > 80) return '#ef4444'; // Red if high
+    if (pct > 50) return '#f59e0b'; // Orange if medium
+    return '#10b981'; // Green if low
+  };
+
+  let html = `<div style="font-size:11px; color:var(--t4); margin-bottom:10px; text-align:right;">As of: <strong>${data.as_of}</strong></div>`;
+
+  data.categories.forEach(c => {
+    // Only show the 3 main ones to save space, hide State Govt for now unless >0
+    if (c.name.includes("State Govt") && c.utilisation_pct === 0) return;
+    
+    // Simplify names
+    let name = c.name;
+    if (name.includes("Corporate Bonds")) name = "Corporate Bonds";
+    if (name.includes("Central Govt Securities (General)")) name = "Central Govt (General)";
+    if (name.includes("Central Govt Securities (Long Term)")) name = "Central Govt (Long Term)";
+
+    const col = getCol(c.utilisation_pct);
+
+    html += `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:12px; font-weight:600; color:var(--t1);">${name}</span>
+          <span style="font-size:12px; font-weight:700; color:${col};">${c.utilisation_pct}%</span>
+        </div>
+        <div style="height:6px; background:var(--l3); border-radius:3px; overflow:hidden; margin-bottom:4px;">
+          <div style="height:100%; width:${c.utilisation_pct}%; background:${col}; border-radius:3px; transition:width 0.5s ease;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--t4);">
+          <span>Used: ${fmt(c.investment_cr)}</span>
+          <span>Limit: ${fmt(c.limit_cr)}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+// ── Trade-Wise Data ──────────────────────────────────────────────────────────
+async function fetchTradeWise() {
+  try {
+    let res = await fetch('/api/nsdl/tradewise', { signal: AbortSignal.timeout(10000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/tradewise_sector_monthly.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error("Could not load from API or fallback");
+    const data = await res.json();
+    renderTradeWise(data);
+  } catch (err) {
+    console.warn('[NSDL] Trade-Wise fetch failed:', err.message);
+  }
+}
+
+function renderTradeWise(data) {
+  const meta = document.getElementById('tw-meta');
+  const container = document.getElementById('tw-table-container');
+  if (!container || !data || !data.sectors) return;
+
+  const fmt = v => `₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+
+  meta.innerHTML = `
+    <div><strong>${(data.total_equity_trades || 0).toLocaleString()}</strong> trades mapped</div>
+    <div>Over <strong>${data.months_processed || 0}</strong> month(s)</div>
+  `;
+
+  let html = `
+    <table style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--sep2); color:var(--t4); font-size:10px; text-transform:uppercase; letter-spacing:0.5px;">
+          <th style="padding:10px; text-align:left;">Sector</th>
+          <th style="padding:10px;">Buy Value</th>
+          <th style="padding:10px;">Sell Value</th>
+          <th style="padding:10px;">Net Flow</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  data.sectors.forEach(s => {
+    const netCol = s.net_cr >= 0 ? 'var(--green)' : 'var(--red)';
+    const sign = s.net_cr >= 0 ? '+' : '-';
+    html += `
+      <tr style="border-bottom:1px solid var(--sep2);">
+        <td style="padding:10px; text-align:left; font-weight:600; color:var(--t1);">${s.sector}</td>
+        <td style="padding:10px; color:var(--t3);">${fmt(s.buy_cr)}</td>
+        <td style="padding:10px; color:var(--t3);">${fmt(s.sell_cr)}</td>
+        <td style="padding:10px; font-weight:700; color:${netCol};">${sign}${fmt(s.net_cr)}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+// ── Quarterly FPI Chart ────────────────────────────────────────────────────
+let _quarterlyFPIData = null;
+let _quarterlyFPIChart = null;
+
+async function fetchQuarterlyFPI() {
+  try {
+    let res = await fetch('/api/nsdl/quarterly', { signal: AbortSignal.timeout(10000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/fpi_quarterly.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('Could not load quarterly data');
+    const data = await res.json();
+    _quarterlyFPIData = data;
+    console.log('[NSDL] Quarterly FPI data loaded:', (data.quarters || []).length, 'quarters');
+    renderQuarterlyFPIChart(12);
+  } catch (err) {
+    console.warn('[NSDL] Quarterly FPI fetch failed:', err.message);
+  }
+}
+
+function renderQuarterlyFPIChart(quartersBack) {
+  if (!_quarterlyFPIData || !_quarterlyFPIData.quarters) return;
+
+  // Update button states
+  ['12q','24q','all'].forEach(id => {
+    const b = document.getElementById('qfpi-' + id);
+    if (b) b.classList.toggle('active', (quartersBack === 12 && id === '12q') || (quartersBack === 24 && id === '24q') || (quartersBack === 0 && id === 'all'));
+  });
+
+  const allQuarters = _quarterlyFPIData.quarters;
+  const displayQtrs = quartersBack > 0 ? allQuarters.slice(-quartersBack) : allQuarters;
+
+  const labels = displayQtrs.map(q => q.quarter);
+  const equityData = displayQtrs.map(q => q.equity_net);
+  const debtData = displayQtrs.map(q => q.debt_net);
+
+  const canvas = document.getElementById('chQuarterlyFPI');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (_quarterlyFPIChart) _quarterlyFPIChart.destroy();
+
+  _quarterlyFPIChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Equity Net (₹ Cr)',
+          data: equityData,
+          backgroundColor: equityData.map(v => v >= 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)'),
+          hoverBackgroundColor: equityData.map(v => v >= 0 ? 'rgba(16,185,129,1)' : 'rgba(239,68,68,1)'),
+          borderRadius: 3,
+          barPercentage: 0.7,
+          categoryPercentage: 0.85,
+          order: 2,
+        },
+        {
+          label: 'Debt Net (₹ Cr)',
+          type: 'line',
+          data: debtData,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99,102,241,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: true,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { size: 11, weight: '600', family: 'Inter,system-ui,sans-serif' }, usePointStyle: true, pointStyleWidth: 12, padding: 16 }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleFont: { size: 13, weight: '700' },
+          bodyFont: { size: 12 },
+          padding: 14,
+          cornerRadius: 8,
+          callbacks: {
+            label: ctx2 => {
+              const v = ctx2.raw;
+              return ` ${ctx2.dataset.label}: ${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+            },
+            afterBody: items => {
+              const eq = items[0]?.raw || 0;
+              const dt = items[1]?.raw || 0;
+              return `\n Combined: ${(eq+dt) >= 0 ? '+' : ''}₹${Math.abs(eq+dt).toLocaleString('en-IN')} Cr`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid: { display: false, drawBorder: false }, ticks: { font: { size: 11 }, color: 'rgba(148,163,184,0.8)' } },
+        y: { 
+          grid: { color: 'rgba(148,163,184,0.1)', drawBorder: false }, 
+          ticks: { 
+            font: { size: 11 }, 
+            color: 'rgba(148,163,184,0.8)',
+            callback: v => (v >= 0 ? '+' : '') + (v / 1000) + 'k'
+          } 
+        }
+      }
+    }
+  });
+}
+
+// ── Yearly FPI Multi-Year Chart (from fpi_yearly_monthly.json) ────────────
+let _yearlyFPIData = null;
+let _yearlyFPIChart = null;
+
+async function fetchYearlyFPI() {
+  try {
+    let res = await fetch('/api/nsdl/yearly', { signal: AbortSignal.timeout(10000) }).catch(() => null);
+    if (!res || !res.ok) res = await fetch('./data/fpi_yearly_monthly.json', { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error('Could not load yearly data');
+    const data = await res.json();
+    _yearlyFPIData = data;
+    console.log('[NSDL] Yearly FPI data loaded:', Object.keys(data.years || {}).length, 'years');
+    renderYearlyFPIChart(3);
+    renderYoYComparison();
+  } catch (err) {
+    console.warn('[NSDL] Yearly FPI fetch failed:', err.message);
+  }
+}
+
+function renderYearlyFPIChart(yearsBack) {
+  if (!_yearlyFPIData || !_yearlyFPIData.years) return;
+
+  // Update button states
+  ['3y','5y','all'].forEach(id => {
+    const b = document.getElementById('yfpi-' + id);
+    if (b) b.classList.toggle('active', (yearsBack === 3 && id === '3y') || (yearsBack === 5 && id === '5y') || (yearsBack === 0 && id === 'all'));
+  });
+
+  // Flatten years → monthly data points
+  const MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const allYears = Object.keys(_yearlyFPIData.years).sort();
+  const displayYears = yearsBack > 0 ? allYears.slice(-yearsBack) : allYears;
+
+  const labels = [];
+  const equityData = [];
+  const debtData = []; // debt_general + debt_vrr + debt_far
+
+  for (const yr of displayYears) {
+    const months = _yearlyFPIData.years[yr].months || [];
+    for (const m of months) {
+      const mi = MON_SHORT.findIndex(ms => m.month.startsWith(ms));
+      labels.push(`${MON_SHORT[mi >= 0 ? mi : 0]} '${yr.slice(2)}`);
+      equityData.push(m.equity || 0);
+      const debt = (m.debt_general || 0) + (m.debt_vrr || 0) + (m.debt_far || 0);
+      debtData.push(debt);
+    }
+  }
+
+  const canvas = document.getElementById('chYearlyFPI');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (_yearlyFPIChart) _yearlyFPIChart.destroy();
+
+  const cssVar = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+  _yearlyFPIChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Equity Net (₹ Cr)',
+          data: equityData,
+          backgroundColor: equityData.map(v => v >= 0 ? 'rgba(16,185,129,0.7)' : 'rgba(239,68,68,0.7)'),
+          hoverBackgroundColor: equityData.map(v => v >= 0 ? 'rgba(16,185,129,1)' : 'rgba(239,68,68,1)'),
+          borderRadius: 3,
+          barPercentage: 0.7,
+          categoryPercentage: 0.85,
+          order: 2,
+        },
+        {
+          label: 'Debt Net (₹ Cr)',
+          type: 'line',
+          data: debtData,
+          borderColor: '#6366f1',
+          backgroundColor: 'rgba(99,102,241,0.08)',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.3,
+          fill: true,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeOutQuart' },
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { size: 11, weight: '600', family: 'Inter,system-ui,sans-serif' }, usePointStyle: true, pointStyleWidth: 12, padding: 16, boxHeight: 8 }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(15,23,42,0.92)',
+          titleFont: { size: 13, weight: '700' },
+          bodyFont: { size: 12 },
+          padding: 14,
+          cornerRadius: 8,
+          callbacks: {
+            label: ctx2 => {
+              const v = ctx2.raw;
+              return ` ${ctx2.dataset.label}: ${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+            },
+            afterBody: items => {
+              const eq = items[0]?.raw || 0;
+              const dt = items[1]?.raw || 0;
+              return `\n Combined: ${(eq+dt) >= 0 ? '+' : ''}₹${Math.abs(eq+dt).toLocaleString('en-IN')} Cr`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 9, weight: '500' }, maxRotation: 60, autoSkip: true, maxTicksLimit: 30 }
+        },
+        y: {
+          grid: { color: cssVar('--sep2') || 'rgba(0,0,0,0.06)', lineWidth: 0.8 },
+          border: { display: false },
+          ticks: {
+            font: { size: 10 }, padding: 8,
+            callback: v => {
+              const abs = Math.abs(v);
+              const sign = v >= 0 ? '+' : '-';
+              if (abs >= 100000) return sign + '₹' + (abs/100000).toFixed(0) + 'L Cr';
+              if (abs >= 1000) return sign + '₹' + (abs/1000).toFixed(0) + 'K Cr';
+              return sign + '₹' + abs + ' Cr';
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Summary
+  const totalEq = equityData.reduce((s, v) => s + v, 0);
+  const totalDebt = debtData.reduce((s, v) => s + v, 0);
+  const fmtV = v => { const abs = Math.abs(v); const sign = v >= 0 ? '+' : '-'; const col = v >= 0 ? 'var(--green)' : 'var(--red)'; const fmt = abs >= 100000 ? `₹${(abs/1000).toFixed(0)}K Cr` : `₹${abs.toLocaleString('en-IN')} Cr`; return `<strong style="color:${col};">${sign}${fmt}</strong>`; };
+  const sumEl = document.getElementById('yearly-fpi-summary');
+  if (sumEl) sumEl.innerHTML = `<div style="display:flex; flex-wrap:wrap; gap:16px; align-items:center;"><span>📅 <strong>${displayYears.length}</strong> years · <strong>${labels.length}</strong> months</span><span style="border-left:1px solid var(--sep2); padding-left:16px;">Equity: ${fmtV(totalEq)}</span><span style="border-left:1px solid var(--sep2); padding-left:16px;">Debt: ${fmtV(totalDebt)}</span><span style="border-left:1px solid var(--sep2); padding-left:16px;">Combined: ${fmtV(totalEq + totalDebt)}</span></div>`;
+}
+
+function renderYoYComparison() {
+  if (!_yearlyFPIData || !_yearlyFPIData.years) return;
+
+  const grid = document.getElementById('yoy-comparison-grid');
+  if (!grid) return;
+
+  const years = Object.keys(_yearlyFPIData.years).sort().reverse();
+  const fmtCr = v => { const abs = Math.abs(v); return abs >= 100000 ? `₹${(abs/1000).toFixed(0)}K` : `₹${abs.toLocaleString('en-IN')}`; };
+
+  let html = '';
+  for (const yr of years) {
+    const months = _yearlyFPIData.years[yr].months || [];
+    const eqValues = months.map(m => m.equity || 0);
+    const totalEq = eqValues.reduce((s, v) => s + v, 0);
+    const totalDebt = months.reduce((s, m) => s + (m.debt_general || 0) + (m.debt_vrr || 0) + (m.debt_far || 0), 0);
+    const isPos = totalEq >= 0;
+    const col = isPos ? '#10b981' : '#ef4444';
+    const bgCol = isPos ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)';
+
+    // Mini bar sparkline
+    const maxAbs = Math.max(...eqValues.map(Math.abs), 1);
+    const sparkBars = eqValues.map(v => {
+      const h = Math.max(3, Math.abs(v) / maxAbs * 30);
+      const c = v >= 0 ? '#10b981' : '#ef4444';
+      return `<div style="flex:1;display:flex;align-items:flex-end;justify-content:center;height:35px;"><div style="width:100%;height:${h}px;background:${c};border-radius:1px;"></div></div>`;
+    }).join('');
+
+    html += `
+      <div style="padding:16px; border-radius:10px; background:${bgCol}; border:1px solid var(--sep2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <span style="font-size:16px; font-weight:800; color:var(--t1);">${yr}</span>
+          <span style="font-size:10px; font-weight:600; color:var(--t4);">${months.length} months</span>
+        </div>
+        <div style="font-size:20px; font-weight:800; color:${col}; margin-bottom:4px;">${isPos ? '+' : '-'}${fmtCr(totalEq)} Cr</div>
+        <div style="font-size:11px; color:var(--t4); margin-bottom:10px;">Equity Net</div>
+        <div style="display:flex; gap:1px; margin-bottom:8px;">${sparkBars}</div>
+        <div style="font-size:11px; color:var(--t3);">Debt: <strong style="color: ${totalDebt >= 0 ? '#10b981' : '#ef4444'};">${totalDebt >= 0 ? '+' : '-'}${fmtCr(totalDebt)} Cr</strong></div>
+      </div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+
 let _sectorSortKey = 'aum';
 
 function _fmtCr(v) {
@@ -2833,7 +4139,7 @@ function _fmtCr(v) {
 function renderSectors() {
   const grid = document.getElementById('sector-grid');
   if (!grid) return;
-  const data = [...SECTOR_DATA];
+  const data = [...(_liveSectorData || SECTOR_DATA)];
   if (_sectorSortKey === 'aum')   data.sort((a, b) => b.aumPct - a.aumPct);
   if (_sectorSortKey === 'fort')  data.sort((a, b) => b.fortnightCr - a.fortnightCr);
   if (_sectorSortKey === '1y')    data.sort((a, b) => b.oneYearCr - a.oneYearCr);
@@ -2848,28 +4154,32 @@ function renderSectors() {
     const alphaStr = s.alpha > 0 ? `<span class="t-green">outperforming (${s.alpha}%)</span>` : `<span class="t-red">underperforming (${s.alpha}%)</span>`;
 
     return `<div class="sector-card" onclick="document.getElementById('sec-chart-card').scrollIntoView({behavior: 'smooth', block: 'center'})">
-      <div class="sc-head">
-        <div class="sc-name" title="${s.name}">${s.emoji} ${s.name}</div>
-        <div class="sc-fortnight ${fortClass}">${fortStr}</div>
+      <div class="sc-head" style="flex-wrap: wrap; gap: 8px;">
+        <div class="sc-name" title="${s.name}" style="flex: 1 1 100%; min-width: 0; font-size: 16px;">${s.emoji} ${s.name}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <div class="sc-fortnight ${fortClass}" style="font-size: 13px;">${fortStr}</div>
+          <div style="background: hsla(210, 100%, 50%, 0.1); color: var(--blue); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid hsla(210, 100%, 50%, 0.2);">
+            FII OWN: ${s.fiiOwn}%
+          </div>
+        </div>
       </div>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-        <div class="sc-aum-pct">${s.aumPct.toFixed(1)}% of AUM</div>
-        <div style="font-size:11px; color:var(--t4); font-weight:600;">FII Own: <span style="color:var(--t1);">${s.fiiOwn}%</span></div>
+      <div style="margin-top: 10px; font-size: 12px; color: var(--t4); font-weight: 600;">
+        ${s.aumPct.toFixed(1)}% of Indian AUM
       </div>
       
-      <div class="sc-chart-wrapper" style="margin: 16px 0;">
+      <div class="sc-chart-wrapper" style="margin: 20px 0;">
         <canvas id="sc-chart-${idx}" width="100%" height="45"></canvas>
       </div>
 
-      <div style="margin-top:auto; padding-top:12px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
+      <div style="margin-top:auto; padding-top:14px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
         <div>
           <div style="font-size:10px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">1Y Structural Flow</div>
-          <div style="font-size:14px; font-weight:800; color:var(--t1); margin-top:2px;">${net1yStr.replace('+', '')}</div>
+          <div style="font-size:15px; font-weight:800; color:var(--t1); margin-top:4px;">${net1yStr.replace('+', '')}</div>
         </div>
         <div style="text-align:right;">
           <div style="font-size:10px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Momentum Alpha</div>
-          <div style="font-size:12px; font-weight:700; margin-top:2px;">${alphaStr}</div>
+          <div style="font-size:12px; font-weight:700; margin-top:4px;">${alphaStr}</div>
         </div>
       </div>
     </div>`;
@@ -2914,11 +4224,11 @@ function drawSectorSparkline(canvasId, sectorObj) {
   
   let gradient = ctx.createLinearGradient(0, 0, 0, 80);
   if (isPositive) {
-      gradient.addColorStop(0, mainColor + '40'); 
+      gradient.addColorStop(0, mainColor + '60'); 
       gradient.addColorStop(1, mainColor + '00');
   } else {
       gradient.addColorStop(0, mainColor + '00'); 
-      gradient.addColorStop(1, mainColor + '40');
+      gradient.addColorStop(1, mainColor + '60');
   }
 
   sectorSparklines[canvasId] = new Chart(ctx, {
@@ -2928,7 +4238,7 @@ function drawSectorSparkline(canvasId, sectorObj) {
       datasets: [{
         data: chartData,
         borderColor: mainColor,
-        borderWidth: 1.5,
+        borderWidth: 2.2,
         backgroundColor: gradient,
         fill: true,
         pointRadius: 0,
@@ -3002,7 +4312,7 @@ function renderSectorChart() {
   const ctype   = _secChartType;
 
   // Build sorted dataset — top 15 by absolute magnitude of selected metric
-  let data = [...SECTOR_DATA];
+  let data = [...(_liveSectorData || SECTOR_DATA)];
   if (metric === 'aum')  data.sort((a, b) => b.aumPct - a.aumPct);
   if (metric === 'fort') data.sort((a, b) => Math.abs(b.fortnightCr) - Math.abs(a.fortnightCr));
   if (metric === '1y')   data.sort((a, b) => Math.abs(b.oneYearCr)   - Math.abs(a.oneYearCr));
@@ -3373,6 +4683,155 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   });
 }
 
+// --- RESTORED DELETED FUNCTIONS ---
+function renderFPIDailyTrends(data) {
+  const wrap = document.getElementById('fpi-daily-table-wrap');
+  if (!wrap || !data || !data.rows) return;
+  const fmt = v => v ? Math.round(v).toLocaleString('en-IN') : '0';
+
+  // Populate the summary stat cards at top
+  const latest = data.latest || data.rows[0];
+  if (latest) {
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const v = val || 0;
+      const color = v >= 0 ? 'var(--green)' : 'var(--red)';
+      const sign = v >= 0 ? '+' : '';
+      el.innerHTML = `<span style="color:${color}">${sign}${fmt(v)}</span>`;
+    };
+    setVal('fpi-d-eq-net', latest.equity_net);
+    setVal('fpi-d-debt-net', latest.debt_net);
+    setVal('fpi-d-hyb-net', latest.hybrid_net);
+    setVal('fpi-d-total-net', latest.total_net);
+    const dateEl = document.getElementById('fpi-d-date');
+    if (dateEl) dateEl.textContent = latest.date || '—';
+  }
+  const fmtCr = v => {
+    if (!v) return '0';
+    const c = v >= 0 ? 'var(--green)' : 'var(--red)';
+    const s = v >= 0 ? '+' : '';
+    return `<strong style="color:${c}">${s}${fmt(v)}</strong>`;
+  };
+  
+  const rows = data.rows.slice(0, 15);
+  wrap.innerHTML = `<table class="fpi-daily-tbl" style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
+    <thead>
+      <tr style="border-bottom:1px solid var(--sep2); color:var(--t4);">
+        <th style="padding:10px 8px; text-align:left;">Date</th>
+        <th style="padding:10px 8px;">Equity Net</th>
+        <th style="padding:10px 8px;">Debt Net</th>
+        <th style="padding:10px 8px;">Hybrid Net</th>
+        <th style="padding:10px 8px; background:var(--l3); font-weight:700;">Total Net (₹Cr)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(r => `
+      <tr style="border-bottom:1px solid var(--sep2);">
+        <td style="padding:10px 8px; text-align:left; font-weight:600;">${r.date}</td>
+        <td style="padding:10px 8px;">${fmt(r.equity_net)}</td>
+        <td style="padding:10px 8px;">${fmt(r.debt_net)}</td>
+        <td style="padding:10px 8px;">${fmt(r.hybrid_net)}</td>
+        <td style="padding:10px 8px; background:var(--l3);">${fmtCr(r.total_net)}</td>
+      </tr>
+      `).join('')}
+    </tbody>
+  </table>`;
+}
+
+function renderCountryAUCList(data) {
+  const cl = document.getElementById('country-auc-list');
+  if (!cl || !data || !data.countries) return;
+  const fmt = v => Math.round(v).toLocaleString('en-IN');
+  const dList = data.countries.slice(0, 10);
+  
+  cl.innerHTML = `<table style="width:100%; border-collapse:collapse; font-size:12px; text-align:right;">
+    <thead>
+      <tr style="border-bottom:1px solid var(--sep2); color:var(--t4);">
+        <th style="padding:8px 4px; text-align:left;">Country</th>
+        <th style="padding:8px 4px;">Equity AUC</th>
+        <th style="padding:8px 4px; border-left:1px solid var(--sep2);">Total AUC (₹Cr)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${dList.map(c => `
+      <tr style="border-bottom:1px dashed var(--sep2);">
+        <td style="padding:8px 4px; text-align:left; font-size:13px;"><span style="margin-right:6px;">${c.flag||'🌍'}</span> <strong style="color:var(--t2);">${c.country}</strong></td>
+        <td style="padding:8px 4px;">${fmt(c.equity_auc/1000)}K</td>
+        <td style="padding:8px 4px; font-weight:700; font-size:13px; border-left:1px solid var(--sep2); color:var(--t1);">${fmt(c.total_auc/1000)}K</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+  <div style="font-size:11px; color:var(--t4); text-align:right; margin-top:10px;">As of: ${data.as_of}</div>`;
+}
+
+function renderCountryAUC(data) {
+  if (!data || !data.countries) return;
+  const ctx = document.getElementById('chCountryAUC');
+  if (!ctx) return;
+  
+  const top = data.countries.slice(0, 9);
+  const labels = top.map(c => c.country);
+  const vals = top.map(c => c.total_auc);
+  
+  if (window._chartCountryAUC) window._chartCountryAUC.destroy();
+  window._chartCountryAUC = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: ['#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0'],
+        borderWidth: 0,
+        hoverOffset: 10
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position: 'right', labels: { boxWidth: 10, font: {size: 11, family:'Inter'} } },
+        tooltip: { backgroundColor: 'rgba(15,23,42,0.92)', padding: 12, callbacks: { label: ctx2 => ` ${ctx2.label}: ₹${Math.round(ctx2.raw/1000).toLocaleString('en-IN')}K Cr` } }
+      }
+    }
+  });
+}
+
+function renderODIPN(data) {
+  const container = document.getElementById('odi-pn-container');
+  if (!container || !data) return;
+  const v = Math.round(data.total_odi_value_cr).toLocaleString('en-IN');
+  const pct = data.odi_to_auc_pct.toFixed(2);
+  container.innerHTML = `
+    <div style="font-size:28px; font-weight:800; color:var(--t1); margin-top:20px;">₹${v} <span style="font-size:14px; font-weight:600; color:var(--t4);">Cr</span></div>
+    <div style="font-size:14px; font-weight:600; color:var(--t3); margin-top:8px;">${pct}% <span style="font-weight:400; font-size:12px;">of Total FPI AUC</span></div>
+    <div style="margin-top:16px; font-size:11px; color:var(--t4);">As of: ${data.as_of}</div>
+  `;
+}
+
+function renderDebtUtil(data) {
+  const container = document.getElementById('debt-util-container');
+  if (!container || !data || !data.categories) return;
+  const cats = data.categories.slice(0, 3);
+  
+  container.innerHTML = cats.map(c => {
+    const pct = c.utilisation_pct.toFixed(1);
+    const col = pct > 80 ? 'var(--red)' : (pct > 50 ? 'var(--yellow, #eab308)' : 'var(--green)');
+    return `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; font-weight:600;">
+          <span style="color:var(--t2);">${c.name}</span>
+          <span style="color:${col};">${pct}% Full</span>
+        </div>
+        <div style="width:100%; height:6px; background:var(--l3); border-radius:4px; overflow:hidden;">
+          <div style="width:${pct}%; height:100%; background:${col}; border-radius:4px;"></div>
+        </div>
+      </div>
+    `;
+  }).join('') + `<div style="margin-top:16px; font-size:11px; color:var(--t4); text-align:right;">As of: ${data.as_of}</div>`;
+}
+
 </script>
 
 <!-- PWA Service Worker Registration -->
@@ -3385,5 +4844,30 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     });
   }
 </script>
+  <!-- TABS (FLOATING ISLAND NAV) -->
+  <div class="tabs-wrap">
+    <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
+      <span style="font-size:16px;">⚡</span> <span class="tab-txt">Live NSE</span>
+    </div>
+    <div class="tab" data-tab="t-macro" onclick="switchMainTab('t-macro')">
+      <span style="font-size:16px;">📊</span> <span class="tab-txt">FPI Macro</span>
+    </div>
+    <div class="tab" data-tab="t-sector" onclick="switchMainTab('t-sector')">
+      <span style="font-size:16px;">🌐</span> <span class="tab-txt">Sectors</span>
+    </div>
+    <div class="tab" data-tab="t-deepdive" onclick="switchMainTab('t-deepdive')">
+      <span style="font-size:16px;">🔬</span> <span class="tab-txt">Deep Dive</span>
+    </div>
+    <div class="tab" data-tab="t-matrix" onclick="switchMainTab('t-matrix')">
+      <span style="font-size:16px;">📅</span> <span class="tab-txt">Databases</span>
+    </div>
+    <div class="tab" data-tab="t-fno" onclick="switchMainTab('t-fno')">
+      <span style="font-size:16px;">🎲</span> <span class="tab-txt">F&O</span>
+    </div>
+    <div class="tab" data-tab="t-docs" onclick="switchMainTab('t-docs')">
+      <span style="font-size:16px;">📖</span> <span class="tab-txt">Docs</span>
+    </div>
+  </div>
+
 </body>
 </html>
