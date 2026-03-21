@@ -2,17 +2,16 @@ name: 📊 Auto-Update FII & DII Data
 
 on:
   schedule:
-    # 12:30 UTC = 6:00 PM IST — NSE publishes data after market close (3:30 PM IST)
-    - cron: '15 10 * * 1-5'   # 3:45 PM IST (Right after market close)
-    - cron: '30 12 * * 1-5'   # 6:00 PM IST (Primary publish window)
-    - cron: '00 13 * * 1-5'   # 6:30 PM IST (Secondary publish window fallback)
-  workflow_dispatch:            # Allow manual trigger from GitHub Actions tab
+    - cron: '15 10 * * 1-5'   # 3:45 PM IST
+    - cron: '30 12 * * 1-5'   # 6:00 PM IST
+    - cron: '00 13 * * 1-5'   # 6:30 PM IST
+  workflow_dispatch:
 
 jobs:
   update-fii-dii-data:
     runs-on: ubuntu-latest
     permissions:
-      contents: write           # needed to commit data files back to repo
+      contents: write
 
     steps:
       - name: ⬇️ Checkout repo
@@ -21,7 +20,7 @@ jobs:
       - name: 🟢 Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: 📦 Install dependencies
@@ -31,12 +30,10 @@ jobs:
         id: fetch
         run: npm run fetch
 
-        - name: 📊 Fetch NSE Market Statistics
+      - name: 📊 Fetch NSE Market Statistics
         id: fetchstats
         run: node -e "require('./scripts/fetch_data').fetchMarketStats()"
         continue-on-error: true
-        # Script exits with code 1 on critical failure — this step will fail
-        # and prevent corrupt data from being committed.
 
       - name: 💾 Commit updated data
         if: steps.fetch.outcome == 'success'
