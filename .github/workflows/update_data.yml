@@ -2,13 +2,29 @@ name: 📊 Auto-Update FII & DII Data
 
 on:
   schedule:
-    - cron: '15 10 * * 1-5'   # 3:45 PM IST (Right after market close)
-    - cron: '30 12 * * 1-5'   # 6:00 PM IST (Primary publish window)
-    - cron: '00 13 * * 1-5'   # 6:30 PM IST (Secondary publish window fallback)
-  workflow_dispatch:            # Allow manual trigger from GitHub Actions tab
+    # FII/DII Data — after market close
+    - cron: '15 10 * * 1-5'   # 3:45 PM IST
+    - cron: '30 12 * * 1-5'   # 6:00 PM IST
+    - cron: '00 13 * * 1-5'   # 6:30 PM IST
+    # Sector Rotation — every 30 min during market hours (9:00 AM - 4:00 PM IST)
+    - cron: '30 3 * * 1-5'    # 9:00 AM IST
+    - cron: '0 4 * * 1-5'     # 9:30 AM IST
+    - cron: '30 4 * * 1-5'    # 10:00 AM IST
+    - cron: '0 5 * * 1-5'     # 10:30 AM IST
+    - cron: '30 5 * * 1-5'    # 11:00 AM IST
+    - cron: '0 6 * * 1-5'     # 11:30 AM IST
+    - cron: '30 6 * * 1-5'    # 12:00 PM IST
+    - cron: '0 7 * * 1-5'     # 12:30 PM IST
+    - cron: '30 7 * * 1-5'    # 1:00 PM IST
+    - cron: '0 8 * * 1-5'     # 1:30 PM IST
+    - cron: '30 8 * * 1-5'    # 2:00 PM IST
+    - cron: '0 9 * * 1-5'     # 2:30 PM IST
+    - cron: '30 9 * * 1-5'    # 3:00 PM IST
+    - cron: '0 10 * * 1-5'    # 3:30 PM IST
+  workflow_dispatch:
 
 jobs:
-  update-fii-dii-data:
+  update-data:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -29,6 +45,7 @@ jobs:
       - name: 📡 Fetch FII & DII Data
         id: fetch
         run: npm run fetch
+        continue-on-error: true
 
       - name: 📊 Fetch NSE Market Statistics
         id: fetchstats
@@ -41,7 +58,6 @@ jobs:
         continue-on-error: true
 
       - name: 💾 Commit updated data
-        if: steps.fetch.outcome == 'success'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"

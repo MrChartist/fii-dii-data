@@ -1,5 +1,5 @@
 {
-  "_updated_at": "2026-03-22T12:55:08.393717+00:00",
+  "_updated_at": "2026-03-22T12:36:34.427906+00:00",
   "_source": "NSE allIndices (1D/1W/1M/1Y) + yfinance ETF (3M)",
   "_note": "1D=(last-prevClose)/prevClose | 1W=(last-1wkAgo)/1wkAgo | 1M=NSE perChange30d | 3M=yfinance 4mo weekly",
   "sectors": [

@@ -185,6 +185,11 @@ app.get('/api/sector-returns', (req, res) => {
     }
 });
 
+// Sector Rotation Dashboard
+app.get('/sector-rotation', (req, res) => {
+    res.sendFile(path.join(__dirname, 'sector_rotation.html'));
+});
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', ts: new Date().toISOString() });

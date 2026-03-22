@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sector Rotation · Akshay's Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #070b0f;
+  --card:    #0f1923;
+  --card2:   #141f2b;
+  --border:  #1a2d3f;
+  --border2: #243a50;
+  --accent:  #f0b429;
+  --green:   #00d4aa;
+  --red:     #ff4d6d;
+  --blue:    #38bdf8;
+  --purple:  #a78bfa;
+  --orange:  #fb923c;
+  --text:    #dde4ed;
+  --muted:   #4a6278;
+  --muted2:  #637a8f;
+  --mono:    'IBM Plex Mono', monospace;
+  --display: 'Bebas Neue', sans-serif;
+  --body:    'DM Sans', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--body);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(240,180,41,0.015) 1px,transparent 1px),linear-gradient(90deg,rgba(240,180,41,0.015) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0;}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(7,11,15,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;padding:0 28px;gap:20px;}
+.tb-back{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--muted2);text-decoration:none;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:none;cursor:pointer;transition:all 0.15s;}
+.tb-back:hover{color:var(--text);border-color:var(--border2);}
+.tb-title{font-family:var(--display);font-size:22px;letter-spacing:2px;color:var(--text);}
+.tb-badge{display:flex;align-items:center;gap:6px;padding:4px 10px;background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);border-radius:100px;font-family:var(--mono);font-size:9px;color:var(--green);letter-spacing:1px;text-transform:uppercase;}
+.tb-dot{width:5px;height:5px;background:var(--green);border-radius:50%;animation:blink 2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.tb-updated{font-family:var(--mono);font-size:9px;color:var(--muted);margin-left:auto;}
+.tb-source{font-family:var(--mono);font-size:9px;color:var(--muted);padding:3px 8px;border:1px solid var(--border);border-radius:4px;}
+
+/* MAIN */
+.main{position:relative;z-index:1;padding:28px 28px 80px;max-width:1500px;margin:0 auto;}
+
+/* HERO STATS */
+.hero-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+.hstat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;}
+.hstat::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.hstat.g::after{background:linear-gradient(90deg,var(--green),transparent);}
+.hstat.r::after{background:linear-gradient(90deg,var(--red),transparent);}
+.hstat.b::after{background:linear-gradient(90deg,var(--blue),transparent);}
+.hstat.a::after{background:linear-gradient(90deg,var(--accent),transparent);}
+.hstat.p::after{background:linear-gradient(90deg,var(--purple),transparent);}
+.hstat-label{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.hstat-val{font-family:var(--mono);font-size:24px;font-weight:600;color:var(--text);}
+.hstat-sub{font-family:var(--mono);font-size:9px;color:var(--muted);margin-top:4px;}
+
+/* TOP/BOTTOM CARDS */
+.cards-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;}
+.signal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+.signal-card-title{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.signal-item{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(26,45,63,0.4);}
+.signal-item:last-child{border-bottom:none;}
+.signal-name{font-family:var(--mono);font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.signal-vals{display:flex;align-items:center;gap:12px;}
+.signal-ret{font-family:var(--mono);font-size:11px;}
+
+/* CONTROLS */
+.controls{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.ctrl-btn{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-family:var(--mono);font-size:9px;color:var(--muted2);letter-spacing:0.5px;text-transform:uppercase;transition:all 0.15s;user-select:none;}
+.ctrl-btn:hover{border-color:var(--border2);color:var(--text);}
+.ctrl-btn.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600;}
+.ctrl-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.ctrl-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.sort-label{font-family:var(--mono);font-size:9px;color:var(--muted);}
+
+/* SECTION HEAD */
+.sec-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.sec-tag{font-family:var(--mono);font-size:9px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+.sec-line{flex:1;height:1px;background:var(--border);}
+
+/* TABLE */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:40px;}
+.sector-table{width:100%;border-collapse:collapse;}
+.sector-table thead tr{border-bottom:1px solid var(--border);}
+.sector-table th{padding:11px 14px;font-family:var(--mono);font-size:8px;font-weight:600;color:var(--muted);letter-spacing:2px;text-transform:uppercase;text-align:right;background:var(--card2);cursor:pointer;user-select:none;transition:color 0.15s;white-space:nowrap;}
+.sector-table th:first-child{text-align:left;width:180px;}
+.sector-table th:hover{color:var(--text);}
+.sector-table th.sort-active{color:var(--accent);}
+.sector-table td{padding:10px 14px;font-family:var(--mono);font-size:12px;text-align:right;border-bottom:1px solid rgba(26,45,63,0.5);transition:background 0.1s;white-space:nowrap;position:relative;}
+.sector-table td:first-child{text-align:left;}
+.sector-table tr:last-child td{border-bottom:none;}
+.sector-table tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* RETURN CELL */
+.pos{color:var(--green);}
+.neg{color:var(--red);}
+.neu{color:var(--muted2);}
+.ret-bar-pos{position:absolute;top:0;bottom:0;right:0;background:var(--green);opacity:0.06;pointer-events:none;}
+.ret-bar-neg{position:absolute;top:0;bottom:0;left:0;background:var(--red);opacity:0.06;pointer-events:none;}
+
+/* RANK */
+.rank{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:9px;font-weight:700;margin-right:8px;flex-shrink:0;}
+.rank-top{background:rgba(0,212,170,0.15);color:var(--green);}
+.rank-mid{background:rgba(255,255,255,0.05);color:var(--muted);}
+.rank-bot{background:rgba(255,77,109,0.15);color:var(--red);}
+.rank-na{background:rgba(255,255,255,0.03);color:var(--muted);}
+
+/* SIGNAL BADGE */
+.sig{display:inline-block;padding:3px 8px;border-radius:4px;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.5px;border:1px solid;}
+.sig-ow{background:rgba(0,212,170,0.12);color:var(--green);border-color:rgba(0,212,170,0.25);}
+.sig-ac{background:rgba(56,189,248,0.10);color:var(--blue);border-color:rgba(56,189,248,0.25);}
+.sig-hd{background:rgba(240,180,41,0.10);color:var(--accent);border-color:rgba(240,180,41,0.25);}
+.sig-rd{background:rgba(251,146,60,0.10);color:var(--orange);border-color:rgba(251,146,60,0.25);}
+.sig-ex{background:rgba(255,77,109,0.12);color:var(--red);border-color:rgba(255,77,109,0.25);}
+.sig-na{background:rgba(255,255,255,0.04);color:var(--muted);border-color:var(--border);}
+
+/* RRG BADGE */
+.rrg{display:inline-block;padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:8px;}
+.rrg-lead{background:rgba(0,212,170,0.08);color:var(--green);}
+.rrg-impr{background:rgba(56,189,248,0.08);color:var(--blue);}
+.rrg-weak{background:rgba(251,146,60,0.08);color:var(--orange);}
+.rrg-lagg{background:rgba(255,77,109,0.08);color:var(--red);}
+.rrg-neut{background:rgba(240,180,41,0.08);color:var(--accent);}
+.rrg-na{background:rgba(255,255,255,0.03);color:var(--muted);}
+
+/* SKELETON */
+.skel{display:inline-block;background:linear-gradient(90deg,var(--card2) 25%,var(--border) 50%,var(--card2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+@media(max-width:900px){
+  .hero-stats{grid-template-columns:repeat(2,1fr);}
+  .cards-row{grid-template-columns:1fr;}
+  .sector-table th:nth-child(6),.sector-table td:nth-child(6),
+  .sector-table th:nth-child(9),.sector-table td:nth-child(9){display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <button class="tb-back" onclick="window.parent.postMessage('showHome','*');if(window===window.parent)history.back();">← Back</button>
+  <div class="tb-title">SECTOR ROTATION</div>
+  <div class="tb-badge"><div class="tb-dot"></div>NSE Live</div>
+  <span class="tb-source">NSE allIndices + yfinance</span>
+  <div class="tb-updated" id="lastUpdated">—</div>
+</header>
+
+<div class="main">
+
+  <!-- HERO STATS -->
+  <div class="hero-stats">
+    <div class="hstat g"><div class="hstat-label">Leading</div><div class="hstat-val" id="statLeading">—</div><div class="hstat-sub">OVERWEIGHT</div></div>
+    <div class="hstat b"><div class="hstat-label">Improving</div><div class="hstat-val" id="statImproving">—</div><div class="hstat-sub">ACCUMULATE</div></div>
+    <div class="hstat a"><div class="hstat-label">Neutral</div><div class="hstat-val" id="statNeutral">—</div><div class="hstat-sub">HOLD</div></div>
+    <div class="hstat r"><div class="hstat-label">Weakening / Exit</div><div class="hstat-val" id="statWeak">—</div><div class="hstat-sub">REDUCE / EXIT</div></div>
+    <div class="hstat p"><div class="hstat-label">Best Today</div><div class="hstat-val" id="statBest" style="font-size:14px">—</div><div class="hstat-sub" id="statBestPct">—</div></div>
+  </div>
+
+  <!-- TOP / BOTTOM CARDS -->
+  <div class="cards-row">
+    <div class="signal-card">
+      <div class="signal-card-title"><span style="color:var(--green)">▲</span> Top Sectors · RS Rank</div>
+      <div id="topSectors"><span class="skel" style="width:100%;height:180px;display:block;border-radius:8px">&nbsp;</span></div>
+    </div>
+    <div class="signal-card">
+      <div class="signal-card-title"><span style="color:var(--red)">▼</span> Bottom Sectors · RS Rank</div>
+      <div id="botSectors"><span class="skel" style="width:100%;height:180px;display:block;border-radius:8px">&nbsp;</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN TABLE -->
+  <div class="sec-head">
+    <div class="sec-tag">// all sectors · nse india</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn active" data-f="all"  onclick="filterSectors('all',this)">All Sectors</button>
+    <button class="ctrl-btn" data-f="lead"        onclick="filterSectors('lead',this)">🟢 Leading</button>
+    <button class="ctrl-btn" data-f="impr"        onclick="filterSectors('impr',this)">🔵 Improving</button>
+    <button class="ctrl-btn" data-f="neut"        onclick="filterSectors('neut',this)">🟡 Neutral</button>
+    <button class="ctrl-btn" data-f="weak"        onclick="filterSectors('weak',this)">🔴 Weak/Exit</button>
+    <div class="ctrl-sep"></div>
+    <button class="ctrl-btn" data-f="top5"        onclick="filterSectors('top5',this)">Top 5 Today</button>
+    <button class="ctrl-btn" data-f="bot5"        onclick="filterSectors('bot5',this)">Bottom 5 Today</button>
+    <div class="ctrl-right">
+      <span class="sort-label">Sort:</span>
+      <button class="ctrl-btn active" id="sortBtn" onclick="cycleSortCol()">Today ↓</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="sector-table">
+      <thead>
+        <tr>
+          <th onclick="setSortCol('name')"    id="th-name">Sector</th>
+          <th onclick="setSortCol('r1d')"     id="th-r1d" class="sort-active">Today ↓</th>
+          <th onclick="setSortCol('r1w')"     id="th-r1w">1 Week</th>
+          <th onclick="setSortCol('r1m')"     id="th-r1m">1 Month</th>
+          <th onclick="setSortCol('r3m')"     id="th-r3m">3 Month</th>
+          <th onclick="setSortCol('r1y')"     id="th-r1y">1 Year</th>
+          <th onclick="setSortCol('rsRank')"  id="th-rsRank">RS Rank</th>
+          <th>RRG</th>
+          <th>Signal</th>
+        </tr>
+      </thead>
+      <tbody id="sectorTbody">
+        <tr><td colspan="9" style="text-align:center;padding:48px;color:var(--muted);font-family:var(--mono);font-size:11px">
+          <span class="skel" style="width:240px;height:12px;display:inline-block">&nbsp;</span>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+let _data   = [];
+let _filter = 'all';
+let _sortCol = 'r1d';
+let _sortDir = -1;
+const LABELS = { r1d:'Today', r1w:'1 Week', r1m:'1 Month', r3m:'3 Month', r1y:'1 Year', rsRank:'RS Rank', name:'Name' };
+
+function fmtRet(v, maxAbs) {
+  if (v === null || v === undefined) return '<span class="neu">—</span>';
+  const cls = v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
+  const barW = maxAbs > 0 ? Math.min(Math.abs(v) / maxAbs * 100, 100) : 0;
+  const bar = v > 0
+    ? `<div class="ret-bar-pos" style="width:${barW}%"></div>`
+    : v < 0 ? `<div class="ret-bar-neg" style="width:${barW}%"></div>` : '';
+  return `${bar}<span class="${cls}">${v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
+}
+
+function sigBadge(s) {
+  if (!s) return '<span class="sig sig-na">—</span>';
+  const map = { 'OVERWEIGHT':'sig-ow','ACCUMULATE':'sig-ac','HOLD':'sig-hd','REDUCE':'sig-rd','EXIT':'sig-ex' };
+  const cls = Object.keys(map).find(k => s.includes(k));
+  return `<span class="sig ${map[cls]||'sig-na'}">${s}</span>`;
+}
+
+function rrgBadge(r) {
+  if (!r) return '<span class="rrg rrg-na">—</span>';
+  const map = { 'Leading':'rrg-lead','Improving':'rrg-impr','Weakening':'rrg-weak','Lagging':'rrg-lagg','Neutral':'rrg-neut' };
+  return `<span class="rrg ${map[r]||'rrg-na'}">${r}</span>`;
+}
+
+function rankBadge(rank, total) {
+  if (!rank) return `<span class="rank rank-na">—</span>`;
+  const p = rank / total;
+  const cls = p <= 0.25 ? 'rank-top' : p > 0.75 ? 'rank-bot' : 'rank-mid';
+  return `<span class="rank ${cls}">${rank}</span>`;
+}
+
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+function renderTable() {
+  const tbody = document.getElementById('sectorTbody');
+  if (!tbody || !_data.length) return;
+
+  let data = [..._data];
+  if (_filter === 'top5') data = [...data].filter(s=>s.r1d!==null).sort((a,b)=>(b.r1d||0)-(a.r1d||0)).slice(0,5);
+  else if (_filter === 'bot5') data = [...data].filter(s=>s.r1d!==null).sort((a,b)=>(a.r1d||0)-(b.r1d||0)).slice(0,5);
+  else if (_filter === 'lead') data = data.filter(s=>s.rrg==='Leading');
+  else if (_filter === 'impr') data = data.filter(s=>s.rrg==='Improving');
+  else if (_filter === 'neut') data = data.filter(s=>s.rrg==='Neutral');
+  else if (_filter === 'weak') data = data.filter(s=>s.rrg==='Weakening'||s.rrg==='Lagging');
+
+  data.sort((a, b) => {
+    if (_sortCol === 'name') return _sortDir * a.name.localeCompare(b.name);
+    if (_sortCol === 'rsRank') { if (a.rsRank===null) return 1; if (b.rsRank===null) return -1; return _sortDir===-1 ? a.rsRank-b.rsRank : b.rsRank-a.rsRank; }
+    const av = a[_sortCol] ?? -9999;
+    const bv = b[_sortCol] ?? -9999;
+    return _sortDir * (bv - av);
+  });
+
+  const maxAbs = Math.max(...data.map(s=>Math.max(Math.abs(s.r1d||0),Math.abs(s.r1w||0),Math.abs(s.r1m||0),Math.abs(s.r3m||0),Math.abs(s.r1y||0))),1);
+  const total = _data.filter(s=>s.rsRank!==null).length;
+
+  tbody.innerHTML = data.map(s => `
+    <tr>
+      <td>${rankBadge(s.rsRank,total)}${s.name}</td>
+      <td>${fmtRet(s.r1d,maxAbs)}</td>
+      <td>${fmtRet(s.r1w,maxAbs)}</td>
+      <td>${fmtRet(s.r1m,maxAbs)}</td>
+      <td>${fmtRet(s.r3m,maxAbs)}</td>
+      <td>${fmtRet(s.r1y,maxAbs)}</td>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--muted2)">${s.rsRank||'—'}</span></td>
+      <td>${rrgBadge(s.rrg)}</td>
+      <td>${sigBadge(s.signal)}</td>
+    </tr>`).join('');
+
+  ['name','r1d','r1w','r1m','r3m','r1y','rsRank'].forEach(col => {
+    const th = document.getElementById('th-'+col);
+    if (!th) return;
+    const label = LABELS[col]||col;
+    th.textContent = col===_sortCol ? label+(_sortDir===-1?' ↓':' ↑') : label;
+    th.classList.toggle('sort-active', col===_sortCol);
+  });
+}
+
+function renderHero() {
+  const leading   = _data.filter(s=>s.rrg==='Leading').length;
+  const improving = _data.filter(s=>s.rrg==='Improving').length;
+  const neutral   = _data.filter(s=>s.rrg==='Neutral').length;
+  const weak      = _data.filter(s=>s.rrg==='Weakening'||s.rrg==='Lagging').length;
+  setText('statLeading',   leading);
+  setText('statImproving', improving);
+  setText('statNeutral',   neutral);
+  setText('statWeak',      weak);
+
+  const sorted1d = [..._data].filter(s=>s.r1d!==null).sort((a,b)=>(b.r1d||0)-(a.r1d||0));
+  if (sorted1d.length > 0) {
+    const best = sorted1d[0];
+    setText('statBest', best.name);
+    const el = document.getElementById('statBestPct');
+    if (el) { el.textContent = (best.r1d>0?'+':'')+best.r1d?.toFixed(1)+'% today'; el.style.color = best.r1d>=0?'var(--green)':'var(--red)'; }
+  }
+
+  const ranked = [..._data].filter(s=>s.rsRank!==null).sort((a,b)=>a.rsRank-b.rsRank);
+  const fmt1d = s => `<span class="${(s.r1d||0)>=0?'pos':'neg'}" style="font-family:var(--mono);font-size:11px">${(s.r1d||0)>=0?'+':''}${(s.r1d||0).toFixed(1)}%</span>`;
+  const fmt1m = s => `<span class="${(s.r1m||0)>=0?'pos':'neg'}" style="font-family:var(--mono);font-size:11px">${(s.r1m||0)>=0?'+':''}${(s.r1m||0).toFixed(1)}%</span>`;
+
+  const topEl = document.getElementById('topSectors');
+  if (topEl) topEl.innerHTML = ranked.slice(0,5).map(s=>`
+    <div class="signal-item">
+      <div class="signal-name">${rankBadge(s.rsRank,_data.length)} ${s.name}</div>
+      <div class="signal-vals">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1D</span>${fmt1d(s)}
+        <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1M</span>${fmt1m(s)}
+        ${sigBadge(s.signal)}
+      </div>
+    </div>`).join('');
+
+  const botEl = document.getElementById('botSectors');
+  if (botEl) botEl.innerHTML = ranked.slice(-5).reverse().map(s=>`
+    <div class="signal-item">
+      <div class="signal-name">${rankBadge(s.rsRank,_data.length)} ${s.name}</div>
+      <div class="signal-vals">
+        <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1D</span>${fmt1d(s)}
+        <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1M</span>${fmt1m(s)}
+        ${sigBadge(s.signal)}
+      </div>
+    </div>`).join('');
+}
+
+function setSortCol(col) {
+  if (_sortCol === col) { _sortDir *= -1; }
+  else { _sortCol = col; _sortDir = col==='rsRank' ? 1 : -1; }
+  const btn = document.getElementById('sortBtn');
+  if (btn) btn.textContent = 'Sort: '+(LABELS[col]||col)+(_sortDir===-1?' ↓':' ↑');
+  renderTable();
+}
+
+function cycleSortCol() {
+  const cols = ['r1d','r1w','r1m','r3m','r1y','rsRank','name'];
+  setSortCol(cols[(cols.indexOf(_sortCol)+1)%cols.length]);
+}
+
+function filterSectors(f, btn) {
+  _filter = f;
+  document.querySelectorAll('.ctrl-btn[data-f]').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderTable();
+}
+
+async function loadData() {
+  try {
+    let res = await fetch('/api/sector-returns');
+    if (!res.ok) throw new Error('API not available');
+    const json = await res.json();
+    if (!json.sectors?.length) throw new Error('No sectors');
+    _data = json.sectors;
+    const updated = json._updated_at
+      ? new Date(json._updated_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+      : '—';
+    setText('lastUpdated','Updated: '+updated);
+    renderHero();
+    renderTable();
+  } catch(e) {
+    try {
+      const res = await fetch('/data/sector-returns.json?t='+Date.now());
+      if (!res.ok) throw new Error('File not found');
+      const json = await res.json();
+      _data = json.sectors || [];
+      const updated = json._updated_at
+        ? new Date(json._updated_at).toLocaleString('en-IN',{timeZone:'Asia/Kolkata',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+        : '—';
+      setText('lastUpdated','Updated: '+updated);
+      renderHero();
+      renderTable();
+    } catch(e2) {
+      document.getElementById('sectorTbody').innerHTML = `
+        <tr><td colspan="9" style="text-align:center;padding:48px;color:var(--muted);font-family:var(--mono);font-size:11px">
+          Sector data will appear here — server fetches from NSE every 30 min during market hours
+        </td></tr>`;
+    }
+  }
+}
+
+loadData();
+setInterval(loadData, 5*60*1000);
+</script>
+</body>
+</html>

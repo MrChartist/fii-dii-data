@@ -1,226 +1,305 @@
 // scripts/fetch_sectors.js
-// Fetches NSE sector index returns (1D, 1W, 1M, 3M) via Yahoo Finance
-// Matches exact same sectors as Pine Script "Market Monitor" indicator
-// Called by GitHub Actions daily — saves to data/sector-returns.json
-//
-// LOGIC (same as Pine Script):
-//   1D = last trading day close vs previous trading day close
-//   1W = last trading day close vs close 1 week ago
-//   1M = last trading day close vs close ~1 month ago
-//   3M = last trading day close vs close ~3 months ago
-//
-// Works on weekdays, weekends AND holidays — Yahoo Finance always
-// returns the last available trading day data automatically.
+// Fetches NSE sector returns combining Yahoo Finance ETFs + Google Sheets
+// Yahoo Finance → 1D, 1W, 1M, 3M for ETF-based sectors
+// Google Sheets → fills in missing sectors (Cons Durables, Consumption, Defence, Finance, Healthcare, OilGas, PVTBank)
+// Auto-calculates RS Rank, RRG Quadrant, Signal
+// Saves to: data/sector-returns.json
 
 const https = require('https');
 const fs    = require('fs');
 const path  = require('path');
 
-// ── All 21 sectors — verified working symbols ─────────────────────────────
-// Matches Pine Script "Market Monitor" indicator exactly
-const SECTORS = [
-  { name: 'Auto',          yahoo: '%5ECNXAUTO'           },  // NSE:CNXAUTO
-  { name: 'Commodities',   yahoo: '%5ECNXCMDT'           },  // NSE:CNXCOMMODITIES
-  { name: 'Cons Durables', yahoo: 'NIFTY_CONSR_DURBL.NS' },  // NSE:NIFTY_CONSR_DURBL
-  { name: 'Consumption',   yahoo: 'NIFTY_CONSUMPTION.NS' },  // NSE:CNXCONSUMPTION
-  { name: 'Defence',       yahoo: 'NIFTY_IND_DEFENCE.NS' },  // NSE:NIFTY_IND_DEFENCE
-  { name: 'Energy',        yahoo: '%5ECNXENERGY'         },  // NSE:CNXENERGY
-  { name: 'Finance',       yahoo: '%5ECNXFIN'            },  // NSE:CNXFINANCE
-  { name: 'FMCG',          yahoo: '%5ECNXFMCG'           },  // NSE:CNXFMCG
-  { name: 'Healthcare',    yahoo: 'NIFTY_HEALTHCARE.NS'  },  // NSE:NIFTY_HEALTHCARE
-  { name: 'Infra',         yahoo: '%5ECNXINFRA'          },  // NSE:CNXINFRA
-  { name: 'IT',            yahoo: '%5ECNXIT'             },  // NSE:CNXIT
-  { name: 'Media',         yahoo: '%5ECNXMEDIA'          },  // NSE:CNXMEDIA
-  { name: 'Metal',         yahoo: '%5ECNXMETAL'          },  // NSE:CNXMETAL
-  { name: 'OilGas',        yahoo: 'NIFTY_OIL_AND_GAS.NS' }, // NSE:OILGAS (Pine uses BSE but we use NSE)
-  { name: 'Pharma',        yahoo: '%5ECNXPHARMA'         },  // NSE:CNXPHARMA
-  { name: 'Power',         yahoo: '%5ECNXENERGY'         },  // BSE:POWER (Pine) → NSE Energy equivalent
-  { name: 'PSE',           yahoo: '%5ECNXPSE'            },  // NSE:CNXPSE
-  { name: 'PSUBank',       yahoo: '%5ECNXPSUBANK'        },  // NSE:CNXPSUBANK
-  { name: 'PVTBank',       yahoo: 'NIFTYPVTBANK.NS'      },  // NSE:NIFTYPVTBANK
-  { name: 'Realty',        yahoo: '%5ECNXREALTY'         },  // NSE:CNXREALTY
-  { name: 'Service',       yahoo: '%5ECNXSERVICE'        },  // NSE:CNXSERVICE
+// ── Google Sheet published CSV URL ────────────────────────────────────────
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR0yEZhzDaD4R-mRaczoSUOb0Q6nYXdXOySjSawcY-wtMPiJBUZh2q1m1u6Ak6eP-knoSdx1odwbHF7/pub?output=csv';
+
+// ── Verified Yahoo Finance symbols ───────────────────────────────────────
+// ETF symbols with full history (price + 1D + 1W + 1M + 3M)
+const YAHOO_SECTORS = [
+  { name: 'Auto',          yahoo: 'AUTOBEES.NS'   },
+  { name: 'Banking',       yahoo: 'BANKBEES.NS'   },
+  { name: 'Commodities',   yahoo: '%5ECNXCMDT'    },
+  { name: 'Consumption',   yahoo: 'CONSUMBEES.NS' },
+  { name: 'Energy',        yahoo: '%5ECNXENERGY'  },
+  { name: 'FMCG',          yahoo: 'FMCGIETF.NS'   },
+  { name: 'Infra',         yahoo: 'INFRABEES.NS'  },
+  { name: 'IT',            yahoo: 'ITBEES.NS'     },
+  { name: 'Media',         yahoo: 'MOGSEC.NS'     },
+  { name: 'Metal',         yahoo: 'METALIETF.NS'  },
+  { name: 'OilGas',        yahoo: 'OILIETF.NS'    },
+  { name: 'Pharma',        yahoo: 'PHARMABEES.NS' },
+  { name: 'PSE',           yahoo: '%5ECNXPSE'     },
+  { name: 'PSUBank',       yahoo: 'PSUBNKBEES.NS' },
+  { name: 'Realty',        yahoo: 'MOREALTY.NS'   },
+  { name: 'Service',       yahoo: '%5ECNXSERVICE' },
+  { name: 'CPSE',          yahoo: 'CPSEETF.NS'    },
 ];
 
-// ── HTTP fetch helper ─────────────────────────────────────────────────────
-function fetchJSON(url) {
+// ── Sectors to get from Google Sheets (Yahoo doesn't have history) ────────
+const SHEET_SECTORS = ['Cons Durables', 'Defence', 'Finance', 'Healthcare', 'PVTBank', 'Power'];
+
+// ── HTTP fetch with redirect following ───────────────────────────────────
+function fetchURL(url, redirects = 0) {
   return new Promise((resolve, reject) => {
+    if (redirects > 5) return reject(new Error('Too many redirects'));
     const req = https.get(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'Accept':     'application/json'
-      }
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
     }, res => {
+      if ([301,302,307,308].includes(res.statusCode)) {
+        res.resume();
+        return fetchURL(res.headers.location, redirects + 1).then(resolve).catch(reject);
+      }
+      if (res.statusCode !== 200) return reject(new Error(`HTTP ${res.statusCode}`));
       let data = '';
       res.on('data', c => data += c);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch(e) { reject(new Error('JSON parse error')); }
-      });
+      res.on('end', () => resolve(data));
     });
     req.on('error', reject);
-    req.setTimeout(15000, () => { req.destroy(); reject(new Error('Timeout')); });
+    req.setTimeout(20000, () => { req.destroy(); reject(new Error('Timeout')); });
   });
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// % change calculation — same as Pine Script
-// (close - prev_close) / prev_close * 100
-function pct(current, prev) {
-  if (!prev || prev === 0 || !current) return null;
-  return +((current - prev) / prev * 100).toFixed(2);
-}
-
-function fmt(v) {
-  return v === null ? 'N/A  ' : (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
-}
-
-// Remove duplicate trailing entries Yahoo sometimes adds
-// (happens when market is closed — last close repeats)
+// ── Clean closes array ────────────────────────────────────────────────────
 function cleanCloses(closes) {
   const c = (closes || []).filter(v => v !== null && v !== undefined);
-  while (c.length > 1 && c[c.length - 1] === c[c.length - 2]) c.pop();
+  while (c.length > 1 && c[c.length-1] === c[c.length-2]) c.pop();
   return c;
 }
 
-// Get last trading date as readable string
-function lastTradingDate(timestamps) {
-  if (!timestamps?.length) return '—';
-  const t = timestamps[timestamps.length - 1];
-  return new Date(t * 1000).toLocaleDateString('en-IN', {
-    day: '2-digit', month: 'short', year: 'numeric',
-    timeZone: 'Asia/Kolkata'
-  });
+// ── % change calculation ──────────────────────────────────────────────────
+function pct(a, b) {
+  if (!a || !b || b === 0) return null;
+  return Math.round(((a - b) / b) * 1000) / 10;
 }
 
-// ── Fetch all 4 timeframes for one sector ─────────────────────────────────
-// Same logic as Pine Script:
-//   close[0] = last trading day
-//   close[1] = one period back
-async function getSectorReturns(sector) {
+function fmt(v) { return v === null ? 'N/A' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+
+// ── Fetch one sector from Yahoo Finance ───────────────────────────────────
+async function fetchYahoo(sector) {
   const base = `https://query1.finance.yahoo.com/v8/finance/chart/${sector.yahoo}`;
-
   try {
-    // ── 1D: Use daily range ──────────────────────────────────────────────
-    // close[0] = last trading day close
-    // close[1] = previous trading day close
-    const daily   = await fetchJSON(`${base}?interval=1d&range=10d`);
-    const dResult = daily?.chart?.result?.[0];
-    if (!dResult) throw new Error('No daily data');
-
-    const dCloses    = cleanCloses(dResult.indicators.quote[0].close);
-    const dTimestamp = dResult.timestamp || [];
-    const lastClose  = dCloses[dCloses.length - 1]; // close[0]
-    const prevClose  = dCloses[dCloses.length - 2]; // close[1]
-    const r1d        = pct(lastClose, prevClose);
-    const tradingDay = lastTradingDate(dTimestamp);
+    // Daily for 1D
+    const daily   = await fetchURL(`${base}?interval=1d&range=10d`);
+    const dResult = JSON.parse(daily)?.chart?.result?.[0];
+    if (!dResult) throw new Error('No daily result');
+    const dCloses  = cleanCloses(dResult.indicators.quote[0].close);
+    const lastClose = dCloses[dCloses.length - 1];
+    const prevClose = dCloses[dCloses.length - 2];
+    const r1d = pct(lastClose, prevClose);
+    const lastDate = new Date(dResult.timestamp[dResult.timestamp.length-1] * 1000)
+      .toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', timeZone:'Asia/Kolkata' });
 
     await delay(300);
 
-    // ── 1W, 1M, 3M: Use weekly range ────────────────────────────────────
-    // close[0] = this week  → close[1] = last week  → 1W
-    // close[0] = this month → close[4] = last month → 1M (~4 weeks)
-    // close[0] = now        → close[0 of 4mo range] → 3M
-    const weekly  = await fetchJSON(`${base}?interval=1wk&range=4mo`);
-    const wResult = weekly?.chart?.result?.[0];
-    if (!wResult) throw new Error('No weekly data');
-
+    // Weekly for 1W, 1M, 3M
+    const weekly  = await fetchURL(`${base}?interval=1wk&range=4mo`);
+    const wResult = JSON.parse(weekly)?.chart?.result?.[0];
+    if (!wResult) throw new Error('No weekly result');
     const wCloses = cleanCloses(wResult.indicators.quote[0].close);
     const wLen    = wCloses.length;
-
-    const close1w = wCloses[wLen - 2];               // 1 week ago
-    const close1m = wCloses[wLen - 5] || wCloses[0]; // ~1 month ago (4 weeks)
-    const close3m = wCloses[0];                       // ~3 months ago (start of range)
-
-    const r1w = pct(lastClose, close1w);
-    const r1m = pct(lastClose, close1m);
-    const r3m = pct(lastClose, close3m);
+    const r1w = pct(lastClose, wCloses[wLen - 2]);
+    const r1m = pct(lastClose, wCloses[wLen - 5] || wCloses[0]);
+    const r3m = pct(lastClose, wCloses[0]);
 
     console.log(
       `  ✅ ${sector.name.padEnd(16)}` +
-      `  1D: ${fmt(r1d).padStart(8)}` +
-      `  1W: ${fmt(r1w).padStart(8)}` +
-      `  1M: ${fmt(r1m).padStart(8)}` +
-      `  3M: ${fmt(r3m).padStart(8)}` +
-      `  [${tradingDay}]`
+      `  1D:${fmt(r1d).padStart(7)}` +
+      `  1W:${fmt(r1w).padStart(7)}` +
+      `  1M:${fmt(r1m).padStart(7)}` +
+      `  3M:${fmt(r3m).padStart(7)}` +
+      `  [${lastDate}]`
     );
 
-    return {
-      name:       sector.name,
-      last:       lastClose,
-      lastDate:   tradingDay,
-      r1d,
-      r1w,
-      r1m,
-      r3m
-    };
-
+    return { name: sector.name, source: 'yahoo', last: lastClose, lastDate, r1d, r1w, r1m, r3m };
   } catch(e) {
-    console.log(`  ⚠️  ${sector.name.padEnd(16)} Error: ${e.message}`);
-    return {
-      name: sector.name, last: null, lastDate: null,
-      r1d: null, r1w: null, r1m: null, r3m: null
-    };
+    console.log(`  ⚠️  ${sector.name.padEnd(16)} Yahoo error: ${e.message}`);
+    return { name: sector.name, source: 'yahoo_failed', last: null, lastDate: null, r1d: null, r1w: null, r1m: null, r3m: null };
   }
+}
+
+// ── Parse % from Google Sheet cell ───────────────────────────────────────
+function parseSheetNum(v) {
+  if (!v || v.trim() === '-' || v.trim() === '—' || v.trim() === '') return null;
+  const cleaned = v.replace(/%/g, '').replace(/[▲▼]/g, '').trim();
+  const n = parseFloat(cleaned);
+  if (isNaN(n)) return null;
+  // Google Sheets exports decimals (0.091) not percentages (9.1%)
+  if (Math.abs(n) < 1 && n !== 0 && !v.includes('%')) return Math.round(n * 1000) / 10;
+  return Math.round(n * 10) / 10;
+}
+
+// ── Fetch missing sectors from Google Sheets ──────────────────────────────
+async function fetchGoogleSheet() {
+  console.log('\n  📊 Fetching missing sectors from Google Sheets...');
+  try {
+    const csv = await fetchURL(SHEET_URL);
+    const lines = csv.split('\n');
+    const sheetSectors = {};
+
+    // Find data start (row with "Sector" header)
+    let dataStart = 4;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes('Sector') && lines[i].includes('1D')) {
+        dataStart = i + 1; break;
+      }
+    }
+
+    for (let i = dataStart; i < lines.length; i++) {
+      const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+      const name = cols[0]?.trim();
+      if (!name || name === '') continue;
+
+      // Check if this is one of our missing sectors
+      const match = SHEET_SECTORS.find(s =>
+        name.toLowerCase().includes(s.toLowerCase()) ||
+        s.toLowerCase().includes(name.toLowerCase())
+      );
+      if (!match) continue;
+
+      sheetSectors[match] = {
+        name:    match,
+        source:  'google_sheets',
+        last:    null,
+        lastDate: new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric', timeZone:'Asia/Kolkata' }),
+        r1d:     parseSheetNum(cols[3]),
+        r1w:     parseSheetNum(cols[4]),
+        r1m:     parseSheetNum(cols[5]),
+        r3m:     parseSheetNum(cols[6]),
+      };
+      console.log(
+        `  ✅ ${match.padEnd(16)} [sheets]` +
+        `  1D:${fmt(sheetSectors[match].r1d).padStart(7)}` +
+        `  1W:${fmt(sheetSectors[match].r1w).padStart(7)}` +
+        `  1M:${fmt(sheetSectors[match].r1m).padStart(7)}` +
+        `  3M:${fmt(sheetSectors[match].r3m).padStart(7)}`
+      );
+    }
+    return sheetSectors;
+  } catch(e) {
+    console.log(`  ⚠️  Google Sheets error: ${e.message}`);
+    return {};
+  }
+}
+
+// ── Auto-calculate RS Rank, RRG, Signal ──────────────────────────────────
+function calculateSignals(sectors) {
+  // Get Nifty 1M for relative strength calculation
+  // Using 0 as baseline if Nifty not available
+  const valid = sectors.filter(s => s.r1m !== null);
+
+  // Sort by 1M% to get RS Rank
+  const sorted = [...valid].sort((a, b) => (b.r1m || 0) - (a.r1m || 0));
+
+  sorted.forEach((s, i) => {
+    s.rsRank = i + 1;
+    const total = sorted.length;
+
+    // RRG Quadrant based on rank and momentum (1W trend)
+    const rankPct = s.rsRank / total;
+    const momentum = (s.r1w !== null && s.r1d !== null) ? (s.r1w > 0 ? 'rising' : s.r1w < -1 ? 'falling' : 'flat') : 'flat';
+
+    if (rankPct <= 0.25 && momentum !== 'falling') {
+      s.rrg = 'Leading';
+      s.signal = 'OVERWEIGHT';
+    } else if (rankPct <= 0.25 && momentum === 'falling') {
+      s.rrg = 'Weakening';
+      s.signal = 'REDUCE';
+    } else if (rankPct <= 0.55 && momentum === 'rising') {
+      s.rrg = 'Improving';
+      s.signal = 'ACCUMULATE';
+    } else if (rankPct <= 0.55) {
+      s.rrg = 'Neutral';
+      s.signal = 'HOLD';
+    } else if (momentum === 'rising') {
+      s.rrg = 'Improving';
+      s.signal = 'ACCUMULATE';
+    } else if (rankPct > 0.80) {
+      s.rrg = 'Lagging';
+      s.signal = 'EXIT';
+    } else {
+      s.rrg = 'Weakening';
+      s.signal = 'REDUCE';
+    }
+  });
+
+  // Sectors with no data
+  sectors.filter(s => s.r1m === null).forEach(s => {
+    s.rsRank = null;
+    s.rrg = null;
+    s.signal = null;
+  });
+
+  return sectors;
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────
 async function fetchSectors() {
   const istNow  = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
   const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][istNow.getUTCDay()];
-  const isWeekend = istNow.getUTCDay() === 0 || istNow.getUTCDay() === 6;
 
-  console.log('━'.repeat(60));
-  console.log(`📡 NSE Sector Rotation Fetch — ${dayName} ${istNow.toISOString().slice(0,10)}`);
-  if (isWeekend) {
-    console.log('   📅 Weekend — fetching last available trading day data');
-  }
-  console.log('   Source: Yahoo Finance (same data as NSE)');
-  console.log('   Logic:  Pine Script "Market Monitor" equivalent');
-  console.log('━'.repeat(60) + '\n');
+  console.log('━'.repeat(65));
+  console.log(`🔄 Sector Rotation Fetch — ${dayName} ${istNow.toISOString().slice(0,16)} IST`);
+  console.log('   Source 1: Yahoo Finance ETFs (1D + 1W + 1M + 3M)');
+  console.log('   Source 2: Google Sheets CSV (missing sectors)');
+  console.log('━'.repeat(65));
 
+  // Step 1: Fetch from Yahoo Finance
+  console.log('\n📡 Fetching from Yahoo Finance...\n');
   const sectors = [];
-  for (const sector of SECTORS) {
-    const result = await getSectorReturns(sector);
+  for (const s of YAHOO_SECTORS) {
+    const result = await fetchYahoo(s);
     sectors.push(result);
-    await delay(500); // avoid rate limiting
+    await delay(500);
   }
 
-  // ── Summary ──────────────────────────────────────────────────────────
-  const valid = sectors.filter(s => s.r1d !== null);
-  console.log('\n' + '━'.repeat(60));
-  console.log(`📊 Fetched: ${valid.length}/${sectors.length} sectors`);
+  // Step 2: Fetch missing sectors from Google Sheets
+  const sheetData = await fetchGoogleSheet();
 
-  if (valid.length > 0) {
-    console.log(`📅 Data as of: ${valid[0].lastDate}`);
-    const sorted = [...valid].sort((a,b) => (b.r1d||0) - (a.r1d||0));
-    console.log('\n🏆 Top 5 (Today):');
-    sorted.slice(0, 5).forEach((s,i) => console.log(`   ${i+1}. ${s.name.padEnd(16)} ${fmt(s.r1d)}`));
-    console.log('\n📉 Bottom 5 (Today):');
-    sorted.slice(-5).reverse().forEach((s,i) => console.log(`   ${i+1}. ${s.name.padEnd(16)} ${fmt(s.r1d)}`));
+  // Step 3: Add sheet sectors
+  for (const sName of SHEET_SECTORS) {
+    if (sheetData[sName]) {
+      sectors.push(sheetData[sName]);
+    } else {
+      sectors.push({ name: sName, source: 'missing', last: null, lastDate: null, r1d: null, r1w: null, r1m: null, r3m: null });
+      console.log(`  ⚠️  ${sName.padEnd(16)} not found in sheet`);
+    }
   }
 
-  writeOutput(sectors);
+  // Step 4: Auto-calculate RS Rank, RRG, Signal
+  const final = calculateSignals(sectors);
+
+  // Summary
+  const valid = final.filter(s => s.r1d !== null);
+  console.log('\n' + '━'.repeat(65));
+  console.log(`📊 Total: ${final.length} sectors | With data: ${valid.length}`);
+
+  const ranked = final.filter(s => s.rsRank !== null).sort((a,b) => a.rsRank - b.rsRank);
+  if (ranked.length > 0) {
+    console.log('\n🏆 Top 5 by RS Rank:');
+    ranked.slice(0, 5).forEach(s => console.log(`   #${s.rsRank} ${s.name.padEnd(16)} ${fmt(s.r1m)} 1M | ${s.rrg} | ${s.signal}`));
+    console.log('\n📉 Bottom 5 by RS Rank:');
+    ranked.slice(-5).forEach(s => console.log(`   #${s.rsRank} ${s.name.padEnd(16)} ${fmt(s.r1m)} 1M | ${s.rrg} | ${s.signal}`));
+  }
+
+  writeOutput(final);
 }
 
 function writeOutput(sectors) {
   const out = {
     _updated_at: new Date().toISOString(),
-    _source:     'Yahoo Finance — NSE Indices',
-    _note:       'Returns calculated same as Pine Script: (close - prev_close) / prev_close * 100',
+    _source: 'Yahoo Finance ETFs + Google Sheets CSV',
     sectors
   };
   const outDir  = path.join(__dirname, '..', 'data');
   const outPath = path.join(outDir, 'sector-returns.json');
   if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
   fs.writeFileSync(outPath, JSON.stringify(out, null, 2));
-  console.log(`\n✅ Saved → data/sector-returns.json`);
-  console.log('━'.repeat(60));
+  console.log(`\n✅ Saved ${sectors.length} sectors → data/sector-returns.json`);
+  console.log('━'.repeat(65));
 }
 
-// ── Run ───────────────────────────────────────────────────────────────────
 fetchSectors().catch(err => {
   console.error('\n❌ Fatal:', err.message);
-  process.exit(0); // exit 0 so GitHub Actions never fails
+  process.exit(0);
 });
