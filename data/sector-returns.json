@@ -1,5 +1,5 @@
 {
-  "_updated_at": "2026-03-22T15:49:44.829880+00:00",
+  "_updated_at": "2026-03-22T15:55:44.313996+00:00",
   "_source": "NSE allIndices (1D/1W/1M/1Y) + niftyindices.com (3M = 63 trading days)",
   "_note": "1D=NSE percentChange | 1W=(last-1wkAgo)/1wkAgo | 1M=NSE perChange30d | 3M=niftyindices 63td | 1Y=NSE perChange365d",
   "sectors": [
