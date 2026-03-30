@@ -1004,6 +1004,139 @@ tr:last-child td { border-bottom: none; }
 .sz-stat-label { font-size: 10px; font-weight: 700; color: var(--t4); text-transform: uppercase; letter-spacing: 0.5px; }
 .sz-stat-value { font-size: 16px; font-weight: 800; color: var(--t1); font-family: var(--font-display); }
 
+/* ── ALERT SETTINGS MODAL ── */
+#alert-settings-modal {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  z-index: 10000;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#alert-settings-modal.active { opacity: 1; visibility: visible; pointer-events: auto; }
+.alert-settings-content {
+  background: var(--l1); width: 94%; max-width: 520px; padding: 0;
+  border-radius: 24px; border: 1px solid var(--sep2);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.05);
+  transform: scale(0.92) translateY(24px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+#alert-settings-modal.active .alert-settings-content { transform: scale(1) translateY(0); }
+
+.alert-modal-header {
+  padding: 28px 28px 0; display: flex; justify-content: space-between; align-items: flex-start;
+}
+.alert-modal-title {
+  font-family: var(--font-display); font-size: 22px; font-weight: 800;
+  color: var(--t1); letter-spacing: -0.5px;
+}
+.alert-modal-sub {
+  font-size: 13px; color: var(--t3); margin-top: 4px; font-weight: 500; line-height: 1.5;
+}
+.alert-modal-close {
+  background: var(--l2); border: 1px solid var(--sep2); color: var(--t2);
+  width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: 0.2s;
+  flex-shrink: 0;
+}
+.alert-modal-close:hover { background: var(--red); color: #fff; border-color: var(--red); transform: scale(1.05); }
+
+.alert-categories { padding: 20px 28px; display: flex; flex-direction: column; gap: 12px; }
+
+.alert-cat-card {
+  background: var(--l2); border: 1px solid var(--sep2); border-radius: 16px;
+  padding: 18px 20px; display: flex; align-items: center; gap: 16px;
+  transition: all 0.2s ease; cursor: pointer; position: relative; overflow: hidden;
+}
+.alert-cat-card:hover { border-color: var(--sep); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+.alert-cat-card.active { border-color: var(--primary); background: hsl(24 90% 52% / 0.04); }
+[data-theme="dark"] .alert-cat-card.active { background: hsl(24 82% 58% / 0.06); }
+
+.alert-cat-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; font-size: 22px; flex-shrink: 0;
+}
+.alert-cat-icon.cash { background: linear-gradient(135deg, hsl(152 62% 38% / 0.15), hsl(152 62% 38% / 0.05)); }
+.alert-cat-icon.fao { background: linear-gradient(135deg, hsl(24 90% 52% / 0.15), hsl(24 90% 52% / 0.05)); }
+.alert-cat-icon.sectors { background: linear-gradient(135deg, hsl(252 36% 54% / 0.15), hsl(252 36% 54% / 0.05)); }
+
+.alert-cat-info { flex: 1; min-width: 0; }
+.alert-cat-name {
+  font-family: var(--font-body); font-size: 14px; font-weight: 700; color: var(--t1);
+  letter-spacing: -0.02em;
+}
+.alert-cat-desc { font-size: 11px; color: var(--t4); margin-top: 2px; font-weight: 500; line-height: 1.4; }
+.alert-cat-freq {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--t4); margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;
+  background: var(--l1); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--sep2);
+}
+
+/* iOS-style toggle */
+.alert-toggle {
+  position: relative; width: 48px; height: 28px; flex-shrink: 0;
+}
+.alert-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+.alert-toggle-track {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--l3); border: 1px solid var(--sep); border-radius: 28px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.alert-toggle-track::before {
+  content: ''; position: absolute; height: 22px; width: 22px; left: 2px; bottom: 2px;
+  background: #fff; border-radius: 50%; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+.alert-toggle input:checked + .alert-toggle-track {
+  background: var(--primary); border-color: var(--primary);
+}
+.alert-toggle input:checked + .alert-toggle-track::before { transform: translateX(20px); }
+
+.alert-modal-footer {
+  padding: 16px 28px 24px; display: flex; justify-content: space-between; align-items: center;
+  border-top: 1px solid var(--sep2);
+}
+.alert-count-pill {
+  font-size: 12px; font-weight: 700; color: var(--t3); display: flex; align-items: center; gap: 6px;
+}
+.alert-count-num {
+  background: var(--primary); color: #fff; padding: 2px 8px; border-radius: 8px;
+  font-size: 11px; font-weight: 800; font-family: var(--font-mono);
+}
+.alert-save-btn {
+  background: var(--primary); color: #fff; border: none; padding: 10px 24px; border-radius: 12px;
+  font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+  font-family: var(--font-body); display: flex; align-items: center; gap: 6px;
+}
+.alert-save-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px hsl(24 90% 52% / 0.35); }
+.alert-disable-btn {
+  background: none; border: 1px solid var(--sep2); color: var(--t3); padding: 10px 16px;
+  border-radius: 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s;
+  font-family: var(--font-body);
+}
+.alert-disable-btn:hover { border-color: var(--red); color: var(--red); }
+
+/* First-time subscribe view inside modal */
+.alert-subscribe-prompt {
+  padding: 24px 28px; text-align: center;
+}
+.alert-subscribe-prompt p { font-size: 13px; color: var(--t3); margin-bottom: 20px; line-height: 1.6; }
+.alert-enable-btn {
+  background: var(--primary); color: #fff; border: none; padding: 14px 32px; border-radius: 14px;
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%;
+  font-family: var(--font-body); display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.alert-enable-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px hsl(24 90% 52% / 0.3); }
+
+@media (max-width: 600px) {
+  .alert-settings-content { width: 100%; max-width: 100%; border-radius: 20px 20px 0 0; margin-top: auto; }
+  #alert-settings-modal { align-items: flex-end; }
+  .alert-categories { padding: 16px 20px; }
+  .alert-modal-header { padding: 24px 20px 0; }
+  .alert-modal-footer { padding: 14px 20px 20px; }
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -1085,6 +1218,100 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
   </header>
+
+  <!-- ALERT SETTINGS MODAL -->
+  <div id="alert-settings-modal">
+    <div class="alert-settings-content">
+      <div class="alert-modal-header">
+        <div>
+          <div class="alert-modal-title">🔔 Alert Settings</div>
+          <div class="alert-modal-sub">Choose which data feeds you want push notifications for</div>
+        </div>
+        <button class="alert-modal-close" onclick="closeAlertModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <!-- Subscribed view: category toggles -->
+      <div id="alert-subscribed-view">
+        <div class="alert-categories">
+          <div class="alert-cat-card active" onclick="toggleAlertCard('cash')">
+            <div class="alert-cat-icon cash">📊</div>
+            <div class="alert-cat-info">
+              <div class="alert-cat-name">Institutional Cash Flows</div>
+              <div class="alert-cat-desc">Daily FII/DII net buy/sell & combined liquidity drain</div>
+              <div class="alert-cat-freq">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                Mon–Fri · ~6:30 PM IST
+              </div>
+            </div>
+            <label class="alert-toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="alert-toggle-cash" checked onchange="updateAlertCount()">
+              <span class="alert-toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="alert-cat-card active" onclick="toggleAlertCard('fao')">
+            <div class="alert-cat-icon fao">📈</div>
+            <div class="alert-cat-info">
+              <div class="alert-cat-name">F&O Sentiment Matrix</div>
+              <div class="alert-cat-desc">Daily derivatives positioning, PCR & sentiment score</div>
+              <div class="alert-cat-freq">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                Mon–Fri · ~6:30 PM IST
+              </div>
+            </div>
+            <label class="alert-toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="alert-toggle-fao" checked onchange="updateAlertCount()">
+              <span class="alert-toggle-track"></span>
+            </label>
+          </div>
+
+          <div class="alert-cat-card active" onclick="toggleAlertCard('sectors')">
+            <div class="alert-cat-icon sectors">🏦</div>
+            <div class="alert-cat-info">
+              <div class="alert-cat-name">Sector Rotation Index</div>
+              <div class="alert-cat-desc">Fortnightly NSDL FPI sector-wise allocation updates</div>
+              <div class="alert-cat-freq">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                Fortnightly · ~10:00 AM IST
+              </div>
+            </div>
+            <label class="alert-toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="alert-toggle-sectors" checked onchange="updateAlertCount()">
+              <span class="alert-toggle-track"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="alert-modal-footer">
+          <div class="alert-count-pill">
+            <span>Active alerts:</span>
+            <span class="alert-count-num" id="alert-count-display">3/3</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="alert-disable-btn" onclick="disableAllAlerts()">Disable All</button>
+            <button class="alert-save-btn" onclick="saveAlertPreferences()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- First-time subscribe view -->
+      <div id="alert-subscribe-view" style="display:none;">
+        <div class="alert-subscribe-prompt">
+          <p>Enable push notifications to receive real-time updates when new FII/DII data, F&O positions, or sector rotations are published by NSE and NSDL.</p>
+          <button class="alert-enable-btn" onclick="enableAlertsFirstTime()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            Enable Push Notifications
+          </button>
+          <div style="margin-top:12px; font-size:11px; color:var(--t4);">You can customize which alerts you receive after enabling</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 
   <!-- TAB: FII/DII DATE (HERO & HEATMAPS) -->
@@ -4187,7 +4414,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     if (btnInstall) btnInstall.style.display = 'none';
   }
 
-  // ── Push Notifications ─────────────────────────────────────────────────────
+  // ── Push Notifications (Category-Based) ──────────────────────────────────────
   function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -4199,13 +4426,16 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     return outputArray;
   }
 
+  // Track current alert categories locally
+  let _alertCategories = ['cash', 'fao', 'sectors'];
+
   async function updateNotifyButton() {
     const label = document.getElementById('notifyLabel');
     const btn = document.getElementById('btnNotify');
     if (!label || !btn) return;
 
     if (!('PushManager' in window)) {
-      btn.style.display = 'none'; // Hide on browsers that don't support push
+      btn.style.display = 'none';
       return;
     }
 
@@ -4213,9 +4443,23 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
 
     const sub = await swRegistration.pushManager.getSubscription();
     if (sub) {
-      label.textContent = 'Alerts On';
-      btn.style.color = 'var(--green)';
-      btn.title = 'Push notifications enabled — click to disable';
+      // Fetch current preferences from server
+      try {
+        const res = await fetch('/api/subscribe-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: sub.endpoint })
+        });
+        const data = await res.json();
+        if (data.subscribed && data.categories) {
+          _alertCategories = data.categories;
+        }
+      } catch (e) { console.warn('[PUSH] Could not fetch preferences:', e); }
+
+      const count = _alertCategories.length;
+      label.textContent = `Alerts: ${count}/3`;
+      btn.style.color = count > 0 ? 'var(--green)' : 'var(--orange)';
+      btn.title = `${count} alert categories active — click to manage`;
     } else {
       label.textContent = 'Get Alerts';
       btn.style.color = '';
@@ -4223,59 +4467,162 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     }
   }
 
+  // ── Alert Settings Modal ─────────────────────────────────────────────────
   async function togglePushNotifications() {
     if (!swRegistration) {
       alert('Service Worker not ready yet. Please refresh and try again.');
       return;
     }
-
     if (!('PushManager' in window)) {
       alert('Push notifications are not supported in this browser.');
       return;
     }
 
+    const modal = document.getElementById('alert-settings-modal');
+    const subscribedView = document.getElementById('alert-subscribed-view');
+    const subscribeView = document.getElementById('alert-subscribe-view');
     const existingSub = await swRegistration.pushManager.getSubscription();
 
     if (existingSub) {
-      // Unsubscribe
-      try {
+      // Already subscribed — show settings modal with toggle cards
+      subscribedView.style.display = '';
+      subscribeView.style.display = 'none';
+      // Set toggle states from current categories
+      ['cash', 'fao', 'sectors'].forEach(cat => {
+        const toggle = document.getElementById(`alert-toggle-${cat}`);
+        if (toggle) {
+          toggle.checked = _alertCategories.includes(cat);
+        }
+        // Update card active state
+        const card = toggle?.closest('.alert-cat-card');
+        if (card) card.classList.toggle('active', toggle.checked);
+      });
+      updateAlertCount();
+    } else {
+      // Not subscribed — show first-time subscribe prompt
+      subscribedView.style.display = 'none';
+      subscribeView.style.display = '';
+    }
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeAlertModal() {
+    const modal = document.getElementById('alert-settings-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Close modal on Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeAlertModal();
+  });
+
+  function toggleAlertCard(category) {
+    const toggle = document.getElementById(`alert-toggle-${category}`);
+    if (toggle) {
+      toggle.checked = !toggle.checked;
+      const card = toggle.closest('.alert-cat-card');
+      if (card) card.classList.toggle('active', toggle.checked);
+      updateAlertCount();
+    }
+  }
+
+  function updateAlertCount() {
+    const cats = ['cash', 'fao', 'sectors'];
+    const active = cats.filter(c => document.getElementById(`alert-toggle-${c}`)?.checked);
+    const display = document.getElementById('alert-count-display');
+    if (display) display.textContent = `${active.length}/3`;
+    // Update card active states
+    cats.forEach(c => {
+      const toggle = document.getElementById(`alert-toggle-${c}`);
+      const card = toggle?.closest('.alert-cat-card');
+      if (card) card.classList.toggle('active', toggle?.checked);
+    });
+  }
+
+  async function saveAlertPreferences() {
+    const cats = ['cash', 'fao', 'sectors'].filter(c => document.getElementById(`alert-toggle-${c}`)?.checked);
+    
+    try {
+      const sub = await swRegistration.pushManager.getSubscription();
+      if (!sub) return;
+
+      await fetch('/api/subscribe-preferences', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint, categories: cats })
+      });
+
+      _alertCategories = cats;
+      console.log('[PUSH] Preferences saved:', cats);
+      updateNotifyButton();
+      closeAlertModal();
+    } catch (err) {
+      console.error('[PUSH] Save preferences failed:', err);
+      alert('Failed to save preferences. Please try again.');
+    }
+  }
+
+  async function disableAllAlerts() {
+    try {
+      const sub = await swRegistration.pushManager.getSubscription();
+      if (sub) {
         await fetch('/api/unsubscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: existingSub.endpoint })
+          body: JSON.stringify({ endpoint: sub.endpoint })
         });
-        await existingSub.unsubscribe();
-        console.log('[PUSH] Unsubscribed successfully');
-      } catch (err) {
-        console.error('[PUSH] Unsubscribe error:', err);
+        await sub.unsubscribe();
       }
-    } else {
-      // Subscribe
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        alert('Notification permission denied. Please enable notifications in your browser settings.');
-        return;
-      }
+      _alertCategories = [];
+      console.log('[PUSH] All alerts disabled');
+      updateNotifyButton();
+      closeAlertModal();
+    } catch (err) {
+      console.error('[PUSH] Disable error:', err);
+    }
+  }
 
-      try {
-        const sub = await swRegistration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-        });
-
-        await fetch('/api/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(sub.toJSON())
-        });
-        console.log('[PUSH] Subscribed successfully');
-      } catch (err) {
-        console.error('[PUSH] Subscribe error:', err);
-        alert('Failed to enable notifications. Please try again.');
-      }
+  async function enableAlertsFirstTime() {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') {
+      alert('Notification permission denied. Please enable notifications in your browser settings.');
+      return;
     }
 
-    updateNotifyButton();
+    try {
+      const sub = await swRegistration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+
+      const categories = ['cash', 'fao', 'sectors']; // Enable all by default
+      await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub.toJSON(), categories })
+      });
+
+      _alertCategories = categories;
+      console.log('[PUSH] Subscribed with all categories');
+      updateNotifyButton();
+
+      // Switch to the settings view so user can customize
+      document.getElementById('alert-subscribe-view').style.display = 'none';
+      document.getElementById('alert-subscribed-view').style.display = '';
+      ['cash', 'fao', 'sectors'].forEach(cat => {
+        const toggle = document.getElementById(`alert-toggle-${cat}`);
+        if (toggle) toggle.checked = true;
+        const card = toggle?.closest('.alert-cat-card');
+        if (card) card.classList.add('active');
+      });
+      updateAlertCount();
+    } catch (err) {
+      console.error('[PUSH] Subscribe error:', err);
+      alert('Failed to enable notifications. Please try again.');
+    }
   }
 </script>
 </body>

@@ -336,17 +336,30 @@ async function fetchAndProcessData() {
         // Smart skip: check if we already have this exact data
         const history = readJSON('history.json', []);
         const existing = history.find(r => r.date === targetDate);
-        if (existing && existing.fii_net !== 0) {
-            console.log(`ℹ️ Data for ${targetDate} already exists. Skipping store.`);
+        const hasFaoData = existing && (existing.fii_idx_fut_long > 0 || existing.fii_idx_fut_short > 0);
+        if (existing && existing.fii_net !== 0 && hasFaoData) {
+            console.log(`ℹ️ Data for ${targetDate} already exists (cash+F&O). Skipping store.`);
             logFetch({ success: true, date: targetDate, action: "skipped" });
             writeJSON('latest.json', existing);
             return { ...existing, _skipped: true };
+        }
+        if (existing && existing.fii_net !== 0 && !hasFaoData) {
+            console.log(`⚡ Data for ${targetDate} has cash but missing F&O. Re-fetching F&O...`);
         }
 
         const rawFaoCsv = await fetchFaoOi(targetDate);
         const data = await transformData(rawCash, rawFaoCsv);
 
         if (!validateData(data)) throw new Error(`Validation failed for ${data.date}`);
+
+        // Enrich with F&O summary for notification payloads
+        data._fao_summary = {
+            sentiment: data.sentiment_score > 60 ? 'Bullish' : data.sentiment_score < 40 ? 'Bearish' : 'Neutral',
+            pcr: data.pcr,
+            fii_fut_net: data.fii_idx_fut_net,
+            fii_call_net: data.fii_idx_call_net,
+            fii_put_net: data.fii_idx_put_net
+        };
 
         saveToHistory(data);
         writeJSON('latest.json', data);

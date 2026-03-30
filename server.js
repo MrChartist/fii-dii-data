@@ -27,11 +27,22 @@ try {
 }
 
 const SUBS_PATH = path.join(process.cwd(), 'data', 'subscriptions.json');
+const ALL_ALERT_CATEGORIES = ['cash', 'fao', 'sectors'];
 
 function loadSubscriptions() {
     try {
         if (!fs.existsSync(SUBS_PATH)) return [];
-        return JSON.parse(fs.readFileSync(SUBS_PATH, 'utf8'));
+        const subs = JSON.parse(fs.readFileSync(SUBS_PATH, 'utf8'));
+        // Auto-migrate: existing entries without categories get all categories
+        let migrated = false;
+        subs.forEach(sub => {
+            if (!sub.categories || !Array.isArray(sub.categories)) {
+                sub.categories = [...ALL_ALERT_CATEGORIES];
+                migrated = true;
+            }
+        });
+        if (migrated) saveSubscriptions(subs);
+        return subs;
     } catch { return []; }
 }
 
@@ -41,29 +52,33 @@ function saveSubscriptions(subs) {
     fs.renameSync(tmp, SUBS_PATH);
 }
 
-async function broadcastNotification(payload) {
+async function broadcastNotification(payload, category = 'cash') {
     if (!webpush) return;
     const subs = loadSubscriptions();
-    if (!subs.length) return;
-    console.log(`[PUSH] Broadcasting to ${subs.length} subscriber(s)…`);
+    // Filter to only subscribers who opted into this category
+    const targets = subs.filter(s => s.categories && s.categories.includes(category));
+    if (!targets.length) return;
+    console.log(`[PUSH] Broadcasting '${category}' to ${targets.length}/${subs.length} subscriber(s)…`);
     const dead = [];
-    const body = JSON.stringify(payload);
-    await Promise.allSettled(subs.map(async (sub, idx) => {
+    const body = JSON.stringify({ ...payload, category });
+    await Promise.allSettled(targets.map(async (sub) => {
         try {
-            await webpush.sendNotification(sub, body);
+            const pushSub = { endpoint: sub.endpoint, keys: sub.keys, expirationTime: sub.expirationTime || null };
+            await webpush.sendNotification(pushSub, body);
         } catch (err) {
-            if (err.statusCode === 404 || err.statusCode === 410) dead.push(idx);
+            if (err.statusCode === 404 || err.statusCode === 410) dead.push(sub.endpoint);
             else console.warn('[PUSH] Send error:', err.statusCode || err.message);
         }
     }));
     if (dead.length) {
-        const cleaned = subs.filter((_, i) => !dead.includes(i));
+        const cleaned = subs.filter(s => !dead.includes(s.endpoint));
         saveSubscriptions(cleaned);
         console.log(`[PUSH] Cleaned ${dead.length} expired subscription(s)`);
     }
 }
 
 let axios, cron, fetchAndProcessData, getLatestData, getHistoryData, getFetchLogs, getSectorData;
+let fetchAllNSDL;
 
 try {
     axios = require('axios');
@@ -89,12 +104,20 @@ try {
     console.log('[BOOT] fetch_data loaded ✓');
 } catch (e) {
     console.error('[BOOT] fetch_data failed:', e.message);
-    // Provide fallback so server still starts
     getLatestData = () => null;
     getHistoryData = () => [];
     getFetchLogs = () => [];
     getSectorData = () => [];
     fetchAndProcessData = async () => null;
+}
+
+try {
+    const nsdlModule = require('./scripts/fetch_nsdl');
+    fetchAllNSDL = nsdlModule.fetchAllNSDL;
+    console.log('[BOOT] fetch_nsdl loaded ✓');
+} catch (e) {
+    console.warn('[BOOT] fetch_nsdl not available:', e.message);
+    fetchAllNSDL = async () => null;
 }
 
 const app = express();
@@ -204,19 +227,60 @@ app.get('/api/history-full', async (req, res) => {
     }
 });
 
-// Push notification subscription
+// Push notification subscription (with categories)
 app.post('/api/subscribe', (req, res) => {
     try {
-        const sub = req.body;
+        const { subscription, categories } = req.body;
+        // Support both new format { subscription, categories } and legacy format (flat sub object)
+        const sub = subscription || req.body;
         if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
+        const cats = Array.isArray(categories) ? categories.filter(c => ALL_ALERT_CATEGORIES.includes(c)) : [...ALL_ALERT_CATEGORIES];
         const subs = loadSubscriptions();
-        // Avoid duplicates
-        if (!subs.find(s => s.endpoint === sub.endpoint)) {
-            subs.push(sub);
+        const existingIdx = subs.findIndex(s => s.endpoint === sub.endpoint);
+        if (existingIdx >= 0) {
+            // Update categories for existing subscriber
+            subs[existingIdx].categories = cats;
             saveSubscriptions(subs);
-            console.log(`[PUSH] New subscriber (total: ${subs.length})`);
+            console.log(`[PUSH] Updated subscriber categories: [${cats.join(', ')}]`);
+        } else {
+            subs.push({ endpoint: sub.endpoint, expirationTime: sub.expirationTime || null, keys: sub.keys, categories: cats });
+            saveSubscriptions(subs);
+            console.log(`[PUSH] New subscriber (total: ${subs.length}), categories: [${cats.join(', ')}]`);
         }
-        res.json({ success: true, message: 'Subscribed to push notifications' });
+        res.json({ success: true, message: 'Subscribed to push notifications', categories: cats });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Update alert preferences for existing subscriber
+app.post('/api/subscribe-preferences', (req, res) => {
+    try {
+        const { endpoint, categories } = req.body;
+        if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+        if (!Array.isArray(categories)) return res.status(400).json({ error: 'Categories must be an array' });
+        const cats = categories.filter(c => ALL_ALERT_CATEGORIES.includes(c));
+        const subs = loadSubscriptions();
+        const sub = subs.find(s => s.endpoint === endpoint);
+        if (!sub) return res.status(404).json({ error: 'Subscription not found' });
+        sub.categories = cats;
+        saveSubscriptions(subs);
+        console.log(`[PUSH] Updated preferences for subscriber: [${cats.join(', ')}]`);
+        res.json({ success: true, categories: cats });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get alert preferences for a subscriber
+app.post('/api/subscribe-status', (req, res) => {
+    try {
+        const { endpoint } = req.body;
+        if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+        const subs = loadSubscriptions();
+        const sub = subs.find(s => s.endpoint === endpoint);
+        if (!sub) return res.json({ subscribed: false, categories: [] });
+        res.json({ subscribed: true, categories: sub.categories || [...ALL_ALERT_CATEGORIES] });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -239,21 +303,43 @@ app.post('/api/unsubscribe', (req, res) => {
 app.post('/api/refresh', async (req, res) => {
     try {
         const data = await fetchAndProcessData();
-        // Send push notification if new data arrived
+        // Send category-specific push notifications if new data arrived
         if (data && !data._skipped) {
-            const fiiSign = data.fii_net >= 0 ? '+' : '';
-            const diiSign = data.dii_net >= 0 ? '+' : '';
-            broadcastNotification({
-                title: '📊 FII/DII Data Updated',
-                body: `${data.date} — FII: ${fiiSign}₹${Math.abs(data.fii_net).toLocaleString('en-IN')} Cr | DII: ${diiSign}₹${Math.abs(data.dii_net).toLocaleString('en-IN')} Cr`,
-                url: '/'
-            });
+            sendDataNotifications(data);
         }
         res.json({ success: true, data });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+
+// ── Category-specific notification builder ───────────────────────────────────
+function sendDataNotifications(data) {
+    const fiiSign = data.fii_net >= 0 ? '+' : '';
+    const diiSign = data.dii_net >= 0 ? '+' : '';
+    const fmtCr = (v) => `${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+    const fmtContracts = (v) => `${v >= 0 ? '+' : ''}${(v / 1000).toFixed(0)}K`;
+
+    // 1. Cash flow notification
+    broadcastNotification({
+        title: '📊 Institutional Cash Flows',
+        body: `${data.date} — FII: ${fiiSign}₹${Math.abs(data.fii_net).toLocaleString('en-IN')} Cr | DII: ${diiSign}₹${Math.abs(data.dii_net).toLocaleString('en-IN')} Cr`,
+        url: '/#t-hero'
+    }, 'cash');
+
+    // 2. F&O sentiment notification
+    if (data._fao_summary || data.pcr) {
+        const summary = data._fao_summary || {};
+        const sentiment = summary.sentiment || (data.sentiment_score > 60 ? 'Bullish' : data.sentiment_score < 40 ? 'Bearish' : 'Neutral');
+        const pcr = summary.pcr || data.pcr || 0;
+        const futNet = summary.fii_fut_net || data.fii_idx_fut_net || 0;
+        broadcastNotification({
+            title: `📈 F&O Sentiment: ${sentiment}`,
+            body: `PCR: ${pcr} | FII Index Futures Net: ${fmtContracts(futNet)} contracts | ${data.date}`,
+            url: '/#t-fno'
+        }, 'fao');
+    }
+}
 
 // Status
 app.get('/api/status', async (req, res) => {
@@ -301,26 +387,56 @@ app.listen(PORT, '0.0.0.0', () => {
                 try {
                     const data = await fetchAndProcessData();
                     console.log(`[${new Date().toISOString()}] ${label} fetch completed.`);
-                    // Auto-broadcast push notification on successful new data
+                    // Auto-broadcast category-specific notifications on new data
                     if (data && !data._skipped) {
-                        const fiiSign = data.fii_net >= 0 ? '+' : '';
-                        const diiSign = data.dii_net >= 0 ? '+' : '';
-                        broadcastNotification({
-                            title: '📊 FII/DII Data Updated',
-                            body: `${data.date} — FII: ${fiiSign}₹${Math.abs(data.fii_net).toLocaleString('en-IN')} Cr | DII: ${diiSign}₹${Math.abs(data.dii_net).toLocaleString('en-IN')} Cr`,
-                            url: '/'
-                        });
+                        sendDataNotifications(data);
                     }
                 } catch (err) {
                     console.error(`[${new Date().toISOString()}] ${label} fetch failed:`, err.message);
                 }
             }
+
+            // ── NSDL Sector Data Fetch ────────────────────────────────────
+            async function runNSDLFetch() {
+                console.log(`[${new Date().toISOString()}] NSDL sector fetch starting…`);
+                try {
+                    // Read existing date_code before fetch
+                    const oldSector = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'sector_latest.json'), 'utf8') || '{}');
+                    const oldCode = oldSector.date_code || '';
+
+                    const result = await fetchAllNSDL();
+                    console.log(`[${new Date().toISOString()}] NSDL sector fetch completed.`);
+
+                    // Check if new sector data arrived
+                    if (result && result.sectorData && result.sectorData.date_code !== oldCode) {
+                        const sectors = result.sectorData.sectors || [];
+                        // Find top inflow and outflow sectors
+                        const sorted = [...sectors].sort((a, b) => b.equity_net_inr - a.equity_net_inr);
+                        const topIn = sorted[0];
+                        const topOut = sorted[sorted.length - 1];
+                        const fmtCr = (v) => `${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+
+                        broadcastNotification({
+                            title: '🏦 Sector Rotation Update',
+                            body: `Top Inflow: ${topIn?.sector} (${fmtCr(topIn?.equity_net_inr || 0)}) | Top Outflow: ${topOut?.sector} (${fmtCr(topOut?.equity_net_inr || 0)}) | ${sectors.length} sectors updated`,
+                            url: '/#t-sectors'
+                        }, 'sectors');
+                    }
+                } catch (err) {
+                    console.error(`[${new Date().toISOString()}] NSDL fetch failed:`, err.message);
+                }
+            }
+
             // NSE FII/DII data publishes after market close (~6-7 PM IST)
             // Run 3 targeted fetches during the publish window (IST = UTC+5:30)
             cron.schedule('30 12 * * 1-5', () => runFetchTask('Post-market-1'));  // 6:00 PM IST
             cron.schedule('0 13 * * 1-5',  () => runFetchTask('Post-market-2'));  // 6:30 PM IST
             cron.schedule('30 13 * * 1-5', () => runFetchTask('Post-market-3'));  // 7:00 PM IST
-            console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri)');
+
+            // NSDL sector data — check daily at 10:00 AM IST (smart skip if unchanged)
+            cron.schedule('30 4 * * 1-5', () => runNSDLFetch());  // 10:00 AM IST
+
+            console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
         } catch (e) {
             console.error('[BOOT] Cron scheduling failed:', e.message);
         }
