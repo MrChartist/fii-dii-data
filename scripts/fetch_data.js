@@ -10,7 +10,7 @@ const CONFIG = {
     FAO_BASE: "https://nsearchives.nseindia.com/content/nsccl",
     TIMEOUTS: { cash: 25000, fao: 15000 },
     RETRY: { attempts: 3, baseDelayMs: 2000 },
-    HISTORY_MAX: 60,
+    HISTORY_MAX: 500,
     DATA_DIR: path.join(process.cwd(), 'data'),
 };
 
@@ -44,40 +44,25 @@ function writeJSON(filename, data) {
     fs.renameSync(tmp, p);
 }
 
-// Fake getDB() compatible API – returns object matching sqlite API used by server.js
-function getDB() {
-    return Promise.resolve({
-        get: async (sql, params = []) => {
-            // Handle fetch_logs queries
-            if (sql.includes('fetch_logs')) {
-                const logs = readJSON('fetch-log.json', []);
-                const sorted = [...logs].sort((a, b) => new Date(b.ts) - new Date(a.ts));
-                const successful = sorted.filter(l => l.success);
-                return successful[0] || null;
-            }
-            // Handle flows query (latest record)
-            if (sql.includes('flows')) {
-                const history = readJSON('history.json', []);
-                if (!history.length) return null;
-                const sorted = [...history].sort((a, b) => compareDates(b.date, a.date));
-                return sorted[0];
-            }
-            return null;
-        },
-        all: async (sql, params = []) => {
-            if (sql.includes('fetch_logs')) {
-                const logs = readJSON('fetch-log.json', []);
-                return [...logs].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, 5);
-            }
-            if (sql.includes('flows')) {
-                const history = readJSON('history.json', []);
-                return [...history].sort((a, b) => compareDates(b.date, a.date));
-            }
-            return [];
-        },
-        run: async () => {},
-        close: async () => {}
-    });
+// ── JSON Accessors (replaces SQLite API) ──────────────────────────────────
+function getLatestData() {
+    const history = readJSON('history.json', []);
+    if (!history.length) return null;
+    return [...history].sort((a, b) => compareDates(b.date, a.date))[0];
+}
+
+function getHistoryData(limit = 100) {
+    const history = readJSON('history.json', []);
+    return [...history].sort((a, b) => compareDates(b.date, a.date)).slice(0, limit);
+}
+
+function getFetchLogs(limit = 5) {
+    const logs = readJSON('fetch-log.json', []);
+    return [...logs].sort((a, b) => new Date(b.ts) - new Date(a.ts)).slice(0, limit);
+}
+
+function getSectorData() {
+    return readJSON('sectors.json', []);
 }
 
 function compareDates(a, b) {
@@ -306,7 +291,21 @@ async function transformData(rawCash, rawFaoCsv) {
     return out;
 }
 
-// ── Save to JSON history ─────────────────────────────────────────────────────
+// ── Save to JSON history & Sitemap ───────────────────────────────────────────
+function updateSitemap() {
+    try {
+        const sitemapPath = path.join(process.cwd(), 'public', 'sitemap.xml');
+        if (fs.existsSync(sitemapPath)) {
+            let content = fs.readFileSync(sitemapPath, 'utf8');
+            const today = new Date().toISOString().split('T')[0];
+            content = content.replace(/<lastmod>.*?<\/lastmod>/, `<lastmod>${today}</lastmod>`);
+            fs.writeFileSync(sitemapPath, content, 'utf8');
+        }
+    } catch (err) {
+        console.error("  ❌ Failed to update sitemap:", err.message);
+    }
+}
+
 function saveToHistory(data) {
     const history = readJSON('history.json', []);
     const existingIdx = history.findIndex(r => r.date === data.date);
@@ -351,6 +350,7 @@ async function fetchAndProcessData() {
 
         saveToHistory(data);
         writeJSON('latest.json', data);
+        updateSitemap();
 
         console.log(`✅ Updated: ${data.date} (FII Net: ${data.fii_net})`);
         logFetch({ success: true, date: data.date, action: "updated" });
@@ -367,4 +367,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { fetchAndProcessData, getDB };
+module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs };

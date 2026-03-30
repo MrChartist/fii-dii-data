@@ -4,9 +4,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /data/
 Disallow: /node_modules/
-Disallow: /scripts/
 
 # Sitemap
 Sitemap: https://fii-diidata.mrchartist.com/sitemap.xml

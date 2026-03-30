@@ -1,17 +1,13 @@
 {
   "name": "fii-dii-dashboard",
   "version": "2.0.0",
-  "description": "FII & DII Data Dashboard - Live Institutional Flow Tracker",
+  "description": "FII & DII Data India — Live Institutional Flow Tracker by Mr. Chartist",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "production": "NODE_ENV=production node server.js",
-    "pm2": "pm2 start ecosystem.config.js",
-    "pm2:stop": "pm2 stop fii-dii-dashboard",
-    "pm2:restart": "pm2 restart fii-dii-dashboard",
-    "pm2:logs": "pm2 logs fii-dii-dashboard",
-    "fetch": "node scripts/fetch_data.js"
+    "fetch": "node scripts/fetch_data.js",
+    "build": "echo 'No build step required'"
   },
   "engines": {
     "node": ">=18.0.0"

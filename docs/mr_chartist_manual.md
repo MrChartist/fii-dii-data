@@ -1,53 +1,122 @@
-# 📈 Mr. Chartist: India Flow Intelligence
-**Elite Institutional Money Tracker & Flow Dashboard (V2 Node.js Architecture)**
+# 📈 Mr. Chartist: FII & DII Data — Technical Manual
+**Elite Institutional Money Tracker & Flow Dashboard (V3 — Node.js + Express)**
 
-Welcome to the ultimate FII/DII tracking dashboard. This tool is designed to provide crystal-clear insights into institutional liquidity flows within the Indian equity markets. It combines automated data extraction with visually stunning matrices, heatmaps, and momentum indicators.
+Welcome to the ultimate FII/DII tracking dashboard. This tool provides crystal-clear insights into institutional liquidity flows within the Indian equity markets — combining automated data extraction with visually stunning matrices, heatmaps, sector analytics, and momentum indicators.
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+┌──────────────────────────────────────────────┐
+│                  Browser (PWA)               │
+│    public/index.html (Single-File SPA)       │
+│    • Chart.js charts & sparklines            │
+│    • 5 tabs: FII/DII, F&O, Analytics,        │
+│      Sectors, Docs                           │
+│    • Zoom modal for sector deep-dives        │
+└────────────────────┬─────────────────────────┘
+                     │ fetch() API calls
+┌────────────────────▼─────────────────────────┐
+│              server.js (Express)             │
+│    • /api/data — Latest FII/DII snapshot     │
+│    • /api/history-full — 800-record history  │
+│    • /api/sectors — 24 sectors + trends      │
+│    • /api/market — Nifty/VIX proxy           │
+│    • /api/refresh — Manual NSE fetch         │
+│    • node-cron: 18:00, 18:30, 19:00 IST      │
+│    • Security headers on all responses       │
+└────────────────────┬─────────────────────────┘
+                     │ read/write JSON
+┌────────────────────▼─────────────────────────┐
+│                 data/ (JSON Store)           │
+│    • history.json — Daily FII/DII records    │
+│    • sectors.json — 24 sectors + historyCr   │
+│    • fetch-log.json — Audit trail            │
+└──────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🌟 Core Features
 
 ### 1. Fully Autonomous Data Synchronization
-The dashboard features a robust Node.js backend (`server.js`) equipped with an automated `node-cron` scheduler.
-*   **Auto-Sync**: The server automatically hits the NSE FII/DII APIs and parses the F&O CSVs natively at 18:30 IST every weekday. A fallback mechanism runs at 19:30 IST in case of NSE delays.
-*   **Live Indices**: The frontend continuously streams live NIFTY 50 and INDIA VIX data using a robust, CORS-safe Yahoo Finance fetcher, updating every 5 minutes in your browser.
+- **Auto-Sync**: `node-cron` fetches NSE FII/DII APIs & F&O CSVs at 6:00, 6:30, 7:00 PM IST (Mon-Fri)
+- **Live Indices**: Frontend fetches NIFTY 50 and INDIA VIX via server-side Yahoo Finance proxy (`/api/market`)
+- **Manual Refresh**: Click "Force Sync" or `POST /api/refresh` to trigger an immediate fetch
 
-### 2. Deep Derivatives Positioning (F&O) & Stock Futures
-V2 aggressively expanded into the F&O segment.
-*   **4-Column Matrices**: Instantly analyze Index Futures, Index Calls, Index Puts, and the newly added **Stock Futures** for both FII and DII.
-*   **Granular Visuals**: The Long vs. Short positioning for every instrument is elegantly visualized with custom red/green ratio bars.
+### 2. Deep Derivatives Positioning (F&O)
+- **4-Column Matrices**: Index Futures, Index Calls, Index Puts, Stock Futures — for both FII and DII
+- **Long vs Short Ratio Bars**: Visual positioning indicators for each instrument
+- **Historical Positioning Chart**: 20-period trajectory with mode toggles (FII Futures, Calls, Puts, DII Futures)
 
-### 3. The Flow Strength Meter
-Located right in the Hero Section, under the net cash liquidity numbers.
-*   **What it does:** Calculates the total absolute flow (FII Volume + DII Volume) and visually maps the percentage of aggression.
-*   **Why it matters:** If FIIs sell ₹10,000 Cr and DIIs buy ₹9,000 Cr, the meter will show FIIs dominating the liquidity pool at ~52%. It helps you understand *who is pushing the market harder* today.
+### 3. Sector Allocation & Zoom Modal
+- **24 Sector Cards**: Data served from `/api/sectors` backend endpoint
+- **Sparkline Trends**: Each card shows a mini 24-fortnight trend chart
+- **Zoom Modal**: Click any card for an interactive Chart.js deep-dive with:
+  - Sector title + Alpha performance badge
+  - 4 stat pills: 1Y Flow, AUM Weight, FII Ownership, Fortnight Flow  
+  - Large interactive chart with hover tooltips
+  - Close via X button, Escape key, or backdrop click
 
-### 4. Light & Dark Themes (Matte UI)
-The entire dashboard is built on a custom "Matte" design system that eliminates overly-glassy distractions in favor of clean, professional data visualization.
-*   **Dark Mode (Default)**: Uses the `Night` background, `Cyprus` green cards, and high-visibility `Sand` text. Best for low-light trading environments.
-*   **Light Mode**: Click the **Light Mode** button to instantly invert the theme. The cards turn crisp white, maintaining perfect contrast ratios for daytime analysis. Chart grids and fonts adapt automatically.
+### 4. Flow Analytics
+- **Interactive Bar Chart**: 8-month FII vs DII flow history
+- **Expandable Row Details**: Click any daily row for a breakdown chart + buy/sell ratios
+- **Smart Filters**: FII Bloodbath (< -₹5k Cr), DII Absorption (> +₹5k Cr), Extreme Divergence
+- **Date Range Filter**: Custom FROM/TO date filtering
+- **CSV Export**: Download filtered data
 
-### 5. 𝕏 (Twitter) Integration & Snappable Components
-This dashboard is highly shareable. 
-*   **Snapshot Full Page**: Exports the entire visible screen into a high-DPI `.png` image.
-*   **Micro-Exports (📷)**: Hover over *any* specific widget (like the Momentum card or the Heatmaps). A small camera icon will appear. Clicking this exports ONLY that specific widget, beautifully watermarked with `"by Mr. Chartist"` for sharing on social media. 
-*   **Post to 𝕏**: Generates a pre-filled tweet containing the latest Net Flow numbers, ready for you to attach your exported snapshot.
+### 5. The Flow Strength Meter
+- Calculates total absolute flow (FII + DII volume) and visually maps aggression percentage
+- Shows *who is pushing the market harder* today
+
+### 6. Light & Dark Themes
+- **Dark Mode**: OLED-black navy with high-contrast text, ambient background orbs
+- **Light Mode**: Warm off-white with professional data visualization
+- All charts, grids, tooltips, and sparklines adapt automatically
+
+### 7. Social Sharing & Export
+- **Snapshot Full Page**: html2canvas exports the entire screen as high-DPI PNG
+- **Micro-Exports (📷)**: Hover any widget for a camera icon — exports that specific widget watermarked with "by Mr. Chartist"
+- **Post to 𝕏**: Pre-filled tweet with latest Net Flow numbers
 
 ---
 
-## 🔍 Analytical Views
+## 🔐 Production Security
 
-### 🗄️ Databases & Matrices Tab
-*   **Daily Flow Ledger**: A clean table showing the exact Buy/Sell/Net numbers for the last 15 sessions. Includes visual proportion bars so you can see the scale of the flows instantly. Filters allow you to isolate heavily FII Sold days or Divergence days (FII selling while DII buys).
-*   **Weekly & Monthly Rollups**: Aggregated data to help you spot medium-to-long term trends in accumulation or distribution.
+All responses include hardened security headers:
+| Header | Value |
+|--------|-------|
+| `X-Content-Type-Options` | `nosniff` |
+| `X-Frame-Options` | `SAMEORIGIN` |
+| `X-XSS-Protection` | `1; mode=block` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
 
-### 🌡️ Visual Flow Heatmaps Tab
-*   **45-Day Concentration**: A visual "GitHub style" contribution graph. Dark Red means extreme selling pressure, Bright Green means heavy accumulation.
-*   Allows you to scan 1.5 months of data in 2 seconds to see the *density* of sell-offs or buying streaks without looking at a single number.
+---
 
-### 📊 Historical Charts Tab
-*   **Monthly Trajectory**: A 12-month bar chart comparing FII (Red) and DII (Green) forces side-by-side.
-*   **Long-Term Year-over-Year (YoY)**: A line chart showing the brutal, multi-year divergence spanning all the way back to 2013.
+## 🔍 SEO & PWA
 
-Enjoy the Elite Institutional Money Tracker!
-*- Engine by Antigravity*
+- **Structured Data**: WebApplication, FAQPage, BreadcrumbList (JSON-LD)
+- **Open Graph**: Full OG tags for Facebook/LinkedIn sharing
+- **Twitter Card**: `summary_large_image` with custom imagery
+- **Canonical URL**: Points to production domain
+- **Robots.txt**: Allows crawling, blocks `/api/` paths
+- **Sitemap**: `sitemap.xml` with daily changefreq
+- **PWA**: Service Worker v5 (network-first, API bypass), manifest with icons
+- **Performance**: Font preloading (no render-blocking @import), ETag caching
+
+---
+
+## 📊 Data Sources
+
+| Source | Data | Frequency |
+|--------|------|-----------|
+| NSE `fiidiiTradeReact` API | FII/DII daily cash flows | Every trading day |
+| NSE F&O CSV (`fao_participant_oi_*.csv`) | Participant-wise OI | Every trading day |
+| NSDL FPI Reports | Sector-wise FPI allocation | Every fortnight |
+| Yahoo Finance | Nifty 50 & India VIX | Real-time proxy |
+
+---
+
+*Engine by Antigravity — Mr. Chartist Ecosystem*

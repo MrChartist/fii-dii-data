@@ -38,7 +38,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/latest.json data/history.json
+          git add data/latest.json data/history.json public/sitemap.xml
           if git diff --staged --quiet; then
             echo "ℹ️ No new data today (market likely closed)."
           else

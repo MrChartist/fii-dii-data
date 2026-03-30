@@ -5,9 +5,10 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v1';
+const CACHE_NAME = 'mrchartist-v5';
 const STATIC_ASSETS = [
-  '/fii_dii_india_flows_dashboard.html',
+  '/',
+  '/index.html',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
@@ -33,8 +34,9 @@ self.addEventListener('activate', event => {
 
 // Fetch: Network-first strategy
 self.addEventListener('fetch', event => {
-  // Skip non-GET requests
+  // Skip non-GET requests and API calls (always fresh)
   if (event.request.method !== 'GET') return;
+  if (event.request.url.includes('/api/')) return;
 
   event.respondWith(
     fetch(event.request)

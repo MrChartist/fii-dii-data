@@ -13,9 +13,7 @@ const cors = require('cors');
 const path = require('path');
 const http = require('http');
 
-let axios, cron, fetchAndProcessData, getDB;
-let fetchAllNSDL, buildMockSectorData;
-let runTradeWiseBackfill;
+let axios, cron, fetchAndProcessData, getLatestData, getHistoryData, getFetchLogs, getSectorData;
 
 try {
     axios = require('axios');
@@ -34,38 +32,19 @@ try {
 try {
     const fetchModule = require('./scripts/fetch_data');
     fetchAndProcessData = fetchModule.fetchAndProcessData;
-    getDB = fetchModule.getDB;
+    getLatestData = fetchModule.getLatestData;
+    getHistoryData = fetchModule.getHistoryData;
+    getFetchLogs = fetchModule.getFetchLogs;
+    getSectorData = fetchModule.getSectorData;
     console.log('[BOOT] fetch_data loaded ✓');
 } catch (e) {
     console.error('[BOOT] fetch_data failed:', e.message);
     // Provide fallback so server still starts
-    getDB = () => Promise.resolve({
-        get: async () => null,
-        all: async () => [],
-        run: async () => {},
-        close: async () => {}
-    });
+    getLatestData = () => null;
+    getHistoryData = () => [];
+    getFetchLogs = () => [];
+    getSectorData = () => [];
     fetchAndProcessData = async () => null;
-}
-
-try {
-    const nsdlModule = require('./scripts/fetch_nsdl');
-    fetchAllNSDL = nsdlModule.fetchAllNSDL;
-    buildMockSectorData = nsdlModule.buildMockSectorData;
-    console.log('[BOOT] fetch_nsdl loaded ✓');
-} catch (e) {
-    console.error('[BOOT] fetch_nsdl failed:', e.message);
-    fetchAllNSDL = async () => null;
-    buildMockSectorData = () => ({ sectors: [], is_mock: true });
-}
-
-try {
-    const tradeWiseModule = require('./scripts/fetch_tradewise_backfill');
-    runTradeWiseBackfill = tradeWiseModule.runTradeWiseBackfill;
-    console.log('[BOOT] fetch_tradewise_backfill loaded ✓');
-} catch (e) {
-    console.error('[BOOT] fetch_tradewise_backfill failed:', e.message);
-    runTradeWiseBackfill = async () => null;
 }
 
 const app = express();
@@ -75,12 +54,28 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Static files
-app.use(express.static(path.join(__dirname, '.'), {
-    maxAge: '1h',
+// Security headers (production-grade)
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+});
+
+// Static files (production caching strategy)
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d',           // Cache static assets for 1 day
+    etag: true,             // Enable ETag for conditional requests
     setHeaders: (res, filePath) => {
+        // Never cache SW or manifest (must always be fresh for PWA updates)
         if (filePath.endsWith('sw.js') || filePath.endsWith('manifest.json')) {
-            res.setHeader('Cache-Control', 'no-cache');
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        }
+        // HTML should revalidate on every request (stale-while-revalidate)
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
         }
     }
 }));
@@ -89,23 +84,15 @@ app.use(express.static(path.join(__dirname, '.'), {
 
 // Dashboard
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'fii_dii_india_flows_dashboard.html'));
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Latest FII/DII snapshot
 app.get('/api/data', async (req, res) => {
     try {
-        const db = await getDB();
-        const data = await db.all('SELECT * FROM flows ORDER BY rowid DESC LIMIT 10');
-        await db.close();
-        if (!data || data.length === 0) return res.status(404).json({ error: 'No data found.' });
-        const M = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-        data.sort((a,b) => {
-            const pa = (a.date||'').split('-'), pb = (b.date||'').split('-');
-            if(pa.length<3||pb.length<3) return 0;
-            return new Date(pb[2],M[pb[1]],pb[0]) - new Date(pa[2],M[pa[1]],pa[0]);
-        });
-        res.json(data[0]);
+        const data = getLatestData();
+        if (!data) return res.status(404).json({ error: 'No data found.' });
+        res.json(data);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -114,16 +101,54 @@ app.get('/api/data', async (req, res) => {
 // Rolling history
 app.get('/api/history', async (req, res) => {
     try {
-        const db = await getDB();
-        const history = await db.all('SELECT * FROM flows ORDER BY rowid DESC LIMIT 100');
-        await db.close();
-        const M = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-        history.sort((a,b) => {
-            const pa = (a.date||'').split('-'), pb = (b.date||'').split('-');
-            if(pa.length<3||pb.length<3) return 0;
-            return new Date(pb[2],M[pb[1]],pb[0]) - new Date(pa[2],M[pa[1]],pa[0]);
-        });
-        res.json(history.slice(0,60));
+        const history = getHistoryData(60);
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Sectors Data
+app.get('/api/sectors', async (req, res) => {
+    try {
+        const sectors = getSectorData();
+        res.json(sectors);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Full History (For Frontend Initial Load)
+app.get('/api/history-full', async (req, res) => {
+    try {
+        const history = getHistoryData(800); // Plenty for the dashboard charts
+        
+        // Map to the concise format the frontend expects
+        const formatted = history.map(h => ({
+            d: h.date,
+            fb: h.fii_buy || 0,
+            fs: h.fii_sell || 0,
+            fn: h.fii_net || 0,
+            db: h.dii_buy || 0,
+            ds: h.dii_sell || 0,
+            dn: h.dii_net || 0,
+            fii_idx_fut_long: h.fii_idx_fut_long,
+            fii_idx_fut_short: h.fii_idx_fut_short,
+            fii_idx_call_long: h.fii_idx_call_long,
+            fii_idx_call_short: h.fii_idx_call_short,
+            fii_idx_put_long: h.fii_idx_put_long,
+            fii_idx_put_short: h.fii_idx_put_short,
+            fii_stk_fut_long: h.fii_stk_fut_long,
+            fii_stk_fut_short: h.fii_stk_fut_short,
+            dii_idx_fut_long: h.dii_idx_fut_long,
+            dii_idx_fut_short: h.dii_idx_fut_short,
+            dii_stk_fut_long: h.dii_stk_fut_long,
+            dii_stk_fut_short: h.dii_stk_fut_short,
+            pcr: h.pcr,
+            sentiment_score: h.sentiment_score
+        }));
+        
+        res.json(formatted);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -142,9 +167,7 @@ app.post('/api/refresh', async (req, res) => {
 // Status
 app.get('/api/status', async (req, res) => {
     try {
-        const db = await getDB();
-        const logs = await db.all('SELECT * FROM fetch_logs ORDER BY id DESC LIMIT 5');
-        await db.close();
+        const logs = getFetchLogs(5);
         res.json({ status: 'ok', serverTime: new Date().toISOString(), recentLogs: logs });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -166,161 +189,6 @@ app.get('/api/market', async (req, res) => {
         res.json({ nifty, vix });
     } catch (err) {
         res.status(500).json({ error: err.message });
-    }
-});
-
-// ── F&O Participant-wise OI Proxy ────────────────────────────────────────────
-app.get('/api/fno', async (req, res) => {
-    try {
-        const nseUrl = 'https://www.nseindia.com/api/participant-wise-open-interest';
-        const { data } = await axios.get(nseUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json',
-                'Referer': 'https://www.nseindia.com/report-detail/fo_participant',
-                'Accept-Language': 'en-US,en;q=0.9',
-            },
-            timeout: 10000,
-        });
-
-        // Persist F&O data into latest.json so fallback works
-        try {
-            const latestPath = require('path').join(DATA_DIR, 'latest.json');
-            if (fs.existsSync(latestPath) && Array.isArray(data) && data.length > 0) {
-                const latest = JSON.parse(fs.readFileSync(latestPath, 'utf8'));
-                for (const row of data) {
-                    const cat = (row.clientType || row.category || '').toUpperCase().trim();
-                    if (cat.includes('FII') || cat === 'FPI') {
-                        latest.fii_idx_fut_long  = parseFloat(row.futIndexLong  || 0);
-                        latest.fii_idx_fut_short = parseFloat(row.futIndexShort || 0);
-                        latest.fii_stk_fut_long  = parseFloat(row.futStockLong  || 0);
-                        latest.fii_stk_fut_short = parseFloat(row.futStockShort || 0);
-                        latest.fii_idx_call_long  = parseFloat(row.optIdxCallLong  || 0);
-                        latest.fii_idx_call_short = parseFloat(row.optIdxCallShort || 0);
-                        latest.fii_idx_put_long   = parseFloat(row.optIdxPutLong   || 0);
-                        latest.fii_idx_put_short  = parseFloat(row.optIdxPutShort  || 0);
-                    } else if (cat.includes('DII')) {
-                        latest.dii_idx_fut_long  = parseFloat(row.futIndexLong  || 0);
-                        latest.dii_idx_fut_short = parseFloat(row.futIndexShort || 0);
-                        latest.dii_stk_fut_long  = parseFloat(row.futStockLong  || 0);
-                        latest.dii_stk_fut_short = parseFloat(row.futStockShort || 0);
-                    }
-                }
-                latest._fno_updated_at = new Date().toISOString();
-                fs.writeFileSync(latestPath, JSON.stringify(latest, null, 2));
-                console.log('[API] F&O data saved to latest.json');
-            }
-        } catch (writeErr) {
-            console.error('[API] Failed to persist F&O data:', writeErr.message);
-        }
-
-        res.json(data);
-    } catch (err) {
-        console.error('[API] /api/fno error:', err.message);
-        res.status(502).json({ error: 'NSE F&O API unavailable', detail: err.message });
-    }
-});
-
-// ── NSDL FPI Routes ──────────────────────────────────────────────────────────
-const fs = require('fs');
-const DATA_DIR = require('path').join(__dirname, 'data');
-
-function readDataFile(filename, defaultVal = null) {
-    try {
-        const p = require('path').join(DATA_DIR, filename);
-        if (!fs.existsSync(p)) return defaultVal;
-        return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch { return defaultVal; }
-}
-
-// Latest fortnightly sector data
-app.get('/api/nsdl/sectors', (req, res) => {
-    let data = readDataFile('sector_latest.json');
-    if (!data || !data.sectors || data.sectors.length === 0) {
-        // Return mock data so UI always has something
-        data = buildMockSectorData ? buildMockSectorData() : { sectors: [], is_mock: true };
-    }
-    res.json(data);
-});
-
-// Historical fortnightly sector snapshots
-app.get('/api/nsdl/sector-history', (req, res) => {
-    const data = readDataFile('sector_history.json', []);
-    res.json(data);
-});
-
-// FPI daily trends
-app.get('/api/nsdl/daily', (req, res) => {
-    const data = readDataFile('fpi_daily.json');
-    if (!data) return res.status(404).json({ error: 'No FPI daily data yet. Trigger /api/nsdl/refresh to fetch.' });
-    res.json(data);
-});
-
-// FPI yearly data (monthly breakdown per calendar year)
-app.get('/api/nsdl/yearly', (req, res) => {
-    const data = readDataFile('fpi_yearly_monthly.json');
-    if (!data) return res.status(404).json({ error: 'No FPI yearly data yet. Run yearly backfill.' });
-    res.json(data);
-});
-
-// FPI quarterly data
-app.get('/api/nsdl/quarterly', (req, res) => {
-    const data = readDataFile('fpi_quarterly.json');
-    if (!data) return res.status(404).json({ error: 'No FPI quarterly data yet.' });
-    res.json(data);
-});
-
-app.get('/api/nsdl/monthly-history', (req, res) => {
-    const data = readDataFile('fpi_monthly_history.json');
-    if (!data) return res.status(404).json({ error: 'No FPI monthly history yet. Run scripts/fetch_nsdl_daily_backfill.js to populate.' });
-    res.json(data);
-});
-
-// Country-wise AUC
-app.get('/api/nsdl/country-auc', (req, res) => {
-    const data = readDataFile('country_auc.json');
-    if (!data) return res.status(404).json({ error: 'No country AUC data yet.' });
-    res.json(data);
-});
-
-// ODI/PN
-app.get('/api/nsdl/odi-pn', (req, res) => {
-    const data = readDataFile('odi_pn.json');
-    if (!data) return res.status(404).json({ error: 'No ODI/PN data yet.' });
-    res.json(data);
-});
-
-// Debt Utilisation
-app.get('/api/nsdl/debt-utilisation', (req, res) => {
-    const data = readDataFile('debt_utilisation.json');
-    if (!data) return res.status(404).json({ error: 'No Debt Utilisation data yet.' });
-    res.json(data);
-});
-
-// Trade-Wise Data
-app.get('/api/nsdl/tradewise', (req, res) => {
-    const data = readDataFile('tradewise_sector_monthly.json');
-    if (!data) return res.status(404).json({ error: 'No Trade-Wise data yet. Run backfill.' });
-    res.json(data);
-});
-
-// Manual Trade-Wise Trigger
-app.post('/api/nsdl/tradewise-trigger', async (req, res) => {
-    try {
-        await runTradeWiseBackfill(1); // Fetch just 1 month to seed the file
-        res.json({ success: true, message: 'Trade-Wise backfill completed for 1 month.' });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
-// Manual NSDL refresh
-app.post('/api/nsdl/refresh', async (req, res) => {
-    try {
-        const result = await fetchAllNSDL();
-        res.json({ success: true, result });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -352,30 +220,6 @@ app.listen(PORT, '0.0.0.0', () => {
             cron.schedule('0 13 * * 1-5',  () => runFetchTask('Post-market-2'));  // 6:30 PM IST
             cron.schedule('30 13 * * 1-5', () => runFetchTask('Post-market-3'));  // 7:00 PM IST
             console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri)');
-
-            // NSDL FPI fortnightly fetch — Mon & Fri at 8 PM IST (UTC 14:30)
-            cron.schedule('0 14 * * 1,5', async () => {
-                console.log(`[${new Date().toISOString()}] NSDL fortnightly fetch starting…`);
-                try {
-                    await fetchAllNSDL();
-                    console.log(`[${new Date().toISOString()}] NSDL fortnightly fetch completed.`);
-                } catch (err) {
-                    console.error(`[${new Date().toISOString()}] NSDL fetch failed:`, err.message);
-                }
-            });
-            console.log('[BOOT] ✅ NSDL cron scheduled (Mon & Fri 8 PM IST)');
-
-            // NSDL Trade-Wise Backfill — Monthly on the 10th at 8 PM IST (UTC 14:30)
-            cron.schedule('30 14 10 * *', async () => {
-                console.log(`[${new Date().toISOString()}] NSDL Trade-Wise monthly backfill starting…`);
-                try {
-                    await runTradeWiseBackfill(2); // Fetch last 2 months to ensure completeness
-                    console.log(`[${new Date().toISOString()}] NSDL Trade-Wise backfill completed.`);
-                } catch (err) {
-                    console.error(`[${new Date().toISOString()}] NSDL Trade-Wise backfill failed:`, err.message);
-                }
-            });
-            console.log('[BOOT] ✅ NSDL Trade-Wise cron scheduled (10th of every month 8 PM IST)');
         } catch (e) {
             console.error('[BOOT] Cron scheduling failed:', e.message);
         }
