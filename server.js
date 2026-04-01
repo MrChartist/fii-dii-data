@@ -8,6 +8,8 @@ process.on('unhandledRejection', (reason) => {
 
 console.log('[BOOT] Starting server.js…');
 
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -385,6 +387,59 @@ app.get('/health', (req, res) => {
 });
 
 // ── Agent API Endpoints ──────────────────────────────────────────────────────
+
+// Real-Time LLM Synthesis (Groq AI Agent)
+app.get('/api/agents/synthesis', async (req, res) => {
+    try {
+        const groqKey = process.env.GROQ_API_KEY;
+        if (!groqKey) return res.status(503).json({ error: 'Groq API key not configured' });
+        
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getAllStates } = require('./agents/agent-utils');
+        
+        // Gather full ecosystem context
+        const states = getAllStates();
+        const latestData = getLatestData();
+        const sectorData = getSectorData();
+        
+        const systemPrompt = `You are the Lead Financial Analyst AI for 'Mr. Chartist'. Your job is to read the exact, unvarnished data state of the Indian Institutional Market (FII & DII data) and write a punchy, professional, and bold 2-3 paragraph markdown analysis. 
+        Focus strictly on what the 'Agents' have detected. 
+        Tone: Professional hedge fund manager, sharp, analytical, cutting through the noise.
+        Format: Use markdown. Do NOT use fake greetings or disclaimers. 
+        Data Context:
+        - Current Regime: ${states['regime-classifier']?.regime} (Volatility: ${states['regime-classifier']?.vix})
+        - FII Sell Streak: ${states['fii-streak']?.current_sell_streak} days, Buy Streak: ${states['fii-streak']?.current_buy_streak} days
+        - Most Recent Market Flow: FII Net: ${latestData?.fii_net} Cr, DII Net: ${latestData?.dii_net} Cr
+        - Sector Rotation Detected: ${states['sector-rotation']?.last_alert_summary || 'No recent rotation'}
+        - Contrarian Signal: ${states['flow-divergence']?.divergence_type || 'None'}
+        `;
+
+        const payload = {
+            model: "llama3-8b-8192",
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: "Write the live market synthesis right now based on our agent data." }
+            ],
+            temperature: 0.5,
+            max_tokens: 500
+        };
+
+        const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', payload, {
+            headers: {
+                'Authorization': `Bearer ${groqKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const synthesis = response.data.choices[0].message.content;
+        res.json({ success: true, synthesis });
+
+    } catch (err) {
+        console.error('[GROQ] Synthesis failed:', err.response?.data || err.message);
+        res.status(500).json({ error: 'Failed to generate synthesis' });
+    }
+});
+
 
 // Current regime classification (consumed by all ecosystem agents)
 app.get('/api/agents/regime', (req, res) => {

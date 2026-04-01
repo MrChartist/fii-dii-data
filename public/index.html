@@ -1506,6 +1506,9 @@ tr:last-child td { border-bottom: none; }
     <div class="tab" data-tab="t-docs" onclick="switchMainTab('t-docs')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> <span class="tab-txt">Docs</span>
     </div>
+    <div class="tab" data-tab="t-ai" onclick="switchMainTab('t-ai'); renderAgentData();">
+      <span style="font-size:16px;">🤖</span> <span class="tab-txt">AI Insights</span>
+    </div>
   </div>
 
   <!-- TAB: DATA MATRIX -->
@@ -1997,12 +2000,62 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
+  <!-- TAB: AI INSIGHTS (GROQ INTEGRATION) -->
+  <div id="t-ai" class="panel">
+    <div class="grid-hero">
+      
+      <!-- Left side: Groq Synthesis Terminal -->
+      <div class="card-glass" style="position:relative; overflow:hidden;">
+        <div class="c-head" style="margin-bottom:24px;">
+          <div>
+            <div class="c-title" style="color:var(--t1); font-size:18px;">Executive AI Synthesis</div>
+            <div class="c-sub">Generated in real-time by Groq & Llama3-8B based on active agent states.</div>
+          </div>
+          <button onclick="synthesizeMarket()" id="btnSynth" class="btn-primary" style="height:36px; padding:0 20px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Generate Sync
+          </button>
+        </div>
+        
+        <div id="synth-terminal" style="background:var(--l2); border:1px solid var(--sep2); border-radius:12px; padding:24px; min-height:280px; position:relative;">
+          <div id="synth-loader" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
+             <div class="status-dot" style="animation:spin 1s linear infinite; margin:0 auto 12px; width:20px; height:20px; border-radius:50%; border:2px solid var(--primary); border-top-color:transparent;"></div>
+             <div style="font-size:11px; font-weight:700; color:var(--primary); letter-spacing:1px; text-transform:uppercase;">Agent Thinking...</div>
+          </div>
+          <div id="synth-content" style="font-size:14px; line-height:1.8; color:var(--t2);">
+             <div style="opacity:0.6; text-align:center; padding-top:60px; font-family:var(--font-mono);">
+               > Awaiting synthesis trigger.<br>
+               > Press "Generate Sync" to unleash the LLM.
+             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Agent Health Array -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="card" style="padding:20px;">
+          <div class="c-sub" style="margin-top:0; margin-bottom:16px;">Active Artificial Intelligence Nodes</div>
+          <div id="agent-array-status" style="display:flex; flex-direction:column; gap:12px;">
+            <!-- Rendered by JS -->
+            <div style="opacity:0.6; font-family:var(--font-mono); font-size:11px;">Loading node states...</div>
+          </div>
+        </div>
+        
+        <div class="card" style="flex:1;">
+          <div class="c-sub" style="margin-top:0; margin-bottom:12px;">Active Institutional Regime</div>
+          <div class="num-l t-purple" id="ai-active-regime" style="margin-bottom:8px;">—</div>
+          <div id="ai-regime-desc" style="font-size:11px; color:var(--t3); line-height:1.5;">Waiting for server…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div><!-- /wrap -->
 
 <!-- PANEL INIT: synchronously hide all non-home panels before page renders -->
 <script>
 (function() {
-  var panels = ['t-fno','t-sector','t-matrix','t-charts','t-docs'];
+  var panels = ['t-ai','t-fno','t-sector','t-matrix','t-charts','t-docs'];
   for (var i = 0; i < panels.length; i++) {
     var el = document.getElementById(panels[i]);
     if (el) el.style.display = 'none';
@@ -2075,7 +2128,7 @@ async function exportDOM(element, namePrefix) {
 }
 
 /* ── MAIN TAB LOGIC ── */
-const ALL_PANELS = ['t-hero', 't-fno', 't-matrix', 't-charts', 't-sector', 't-docs'];
+const ALL_PANELS = ['t-hero', 't-fno', 't-matrix', 't-charts', 't-sector', 't-docs', 't-ai'];
 
 let isSwitchingTab = false;
 function switchMainTab(id) {
@@ -4624,6 +4677,86 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
       alert('Failed to enable notifications. Please try again.');
     }
   }
+
+  /* ── AI AGENTS & GROQ LOGIC ── */
+  let agentDataLoaded = false;
+  async function renderAgentData() {
+    if(agentDataLoaded) return;
+    try {
+      const res = await fetch('/api/agents/status');
+      const data = await res.json();
+      
+      let html = '';
+      data.agents.forEach(a => {
+        const isRunning = a.name === 'fii-streak' || a.name === 'regime-classifier' || a.state?.last_run_date || Object.keys(a.state).length > 0;
+        const color = isRunning ? 'var(--green)' : 'var(--orange)';
+        const statTxt = isRunning ? 'Active & Watching' : 'Standby';
+        
+        let infoStr = '';
+        if(a.name === 'fii-streak') infoStr = `FII Streak: ${a.state.current_sell_streak > 0 ? a.state.current_sell_streak + ' Days Sell' : a.state.current_buy_streak + ' Days Buy'}`;
+        if(a.name === 'regime-classifier') infoStr = `Regime: ${a.state.regime || 'Neutral'}`;
+        
+        html += `
+          <div style="background:var(--l1); padding:10px 14px; border-radius:8px; border:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
+             <div>
+               <div style="font-weight:700; font-size:12px; color:var(--t2);">${a.name.toUpperCase()}</div>
+               <div style="font-size:10px; color:var(--t4); margin-top:2px;">${infoStr || 'Monitoring...'}</div>
+             </div>
+             <div style="display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; color:${color};">
+               <div style="width:6px; height:6px; border-radius:50%; background:${color}; box-shadow:0 0 6px ${color};"></div> ${statTxt}
+             </div>
+          </div>
+        `;
+      });
+      document.getElementById('agent-array-status').innerHTML = html;
+      
+      const rRes = await fetch('/api/agents/regime');
+      const rData = await rRes.json();
+      if(rData && rData.regime) {
+        document.getElementById('ai-active-regime').innerText = rData.regime;
+        document.getElementById('ai-regime-desc').innerText = `VIX: ${rData.vix} | Score Context: ${rData.recommendation}`;
+      }
+      
+      agentDataLoaded = true;
+    } catch(e) {
+      document.getElementById('agent-array-status').innerHTML = '<div style="color:var(--red); font-size:11px;">Agent array unreachable locally.</div>';
+    }
+  }
+
+  async function synthesizeMarket() {
+    const btn = document.getElementById('btnSynth');
+    const loader = document.getElementById('synth-loader');
+    const content = document.getElementById('synth-content');
+    
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    content.style.display = 'none';
+    loader.style.display = 'block';
+    
+    try {
+      const res = await fetch('/api/agents/synthesis');
+      const data = await res.json();
+      
+      if(data.success) {
+        // Convert Markdown bold to strong tags
+        let txt = data.synthesis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Convert Markdown newlines to br
+        txt = txt.replace(/\n/g, '<br>');
+        
+        content.innerHTML = txt;
+      } else {
+        content.innerHTML = `<div style="color:var(--red);">Error: ${data.error}</div>`;
+      }
+    } catch(e) {
+      content.innerHTML = `<div style="color:var(--red);">Failed to connect to LLM: ${e.message}</div>`;
+    }
+    
+    loader.style.display = 'none';
+    content.style.display = 'block';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+
 </script>
 </body>
 </html>
