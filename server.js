@@ -120,6 +120,16 @@ try {
     fetchAllNSDL = async () => null;
 }
 
+// ── Agent System ─────────────────────────────────────────────────────────────
+let agentRunner;
+try {
+    agentRunner = require('./agent-runner');
+    console.log('[BOOT] agent-runner loaded ✓ (agents: ' + Object.keys(agentRunner.AGENTS).join(', ') + ')');
+} catch (e) {
+    console.warn('[BOOT] agent-runner not available:', e.message);
+    agentRunner = null;
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -374,6 +384,110 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', ts: new Date().toISOString() });
 });
 
+// ── Agent API Endpoints ──────────────────────────────────────────────────────
+
+// Current regime classification (consumed by all ecosystem agents)
+app.get('/api/agents/regime', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('regime-classifier');
+        if (!state.regime) {
+            return res.json({
+                regime: 'NEUTRAL',
+                since: null,
+                fii_streak: 0,
+                dii_absorption_pct: 0,
+                vix: 0,
+                recommendation: 'No regime data yet — agents have not run'
+            });
+        }
+        res.json({
+            regime: state.regime,
+            since: state.since || null,
+            fii_streak: state.fii_streak || 0,
+            dii_absorption_pct: state.dii_absorption_pct || 0,
+            vix: state.vix || 0,
+            recommendation: state.recommendation || '',
+            fii_cumulative_10d: state.fii_cumulative_10d || 0,
+            dii_cumulative_10d: state.dii_cumulative_10d || 0,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Active FII/DII streaks
+app.get('/api/agents/streaks', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('fii-streak');
+        res.json({
+            fii_sell_streak: state.current_sell_streak || 0,
+            fii_buy_streak: state.current_buy_streak || 0,
+            sell_cumulative: state.sell_cumulative || 0,
+            buy_cumulative: state.buy_cumulative || 0,
+            sell_absorption_pct: state.sell_absorption_pct || 0,
+            buy_absorption_pct: state.buy_absorption_pct || 0,
+            last_run_date: state.last_run_date || null,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// All agent statuses
+app.get('/api/agents/status', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getAllStates, getRunHistory } = require('./agents/agent-utils');
+        const states = getAllStates();
+        const recentRuns = getRunHistory(20);
+
+        // Build agent summary
+        const agents = Object.entries(agentRunner.AGENTS).map(([name, def]) => {
+            const state = states[name] || {};
+            const lastRun = recentRuns.find(r => r.agent === name);
+            return {
+                name,
+                group: def.group,
+                state,
+                last_run: lastRun ? {
+                    run_at: lastRun.run_at,
+                    status: lastRun.status,
+                    alerts_sent: lastRun.alerts_sent,
+                    duration_ms: lastRun.duration_ms
+                } : null
+            };
+        });
+
+        res.json({
+            agents,
+            total_agents: agents.length,
+            server_time: new Date().toISOString()
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Agent execution history
+app.get('/api/agents/runs', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getRunHistory } = require('./agents/agent-utils');
+        const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+        const agent = req.query.agent || null;
+        const runs = getRunHistory(limit, agent);
+        res.json({ runs, count: runs.length });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // ── Start server FIRST (before anything else) ───────────────────────────────
 console.log(`[BOOT] Attempting to listen on 0.0.0.0:${PORT}…`);
 app.listen(PORT, '0.0.0.0', () => {
@@ -390,6 +504,12 @@ app.listen(PORT, '0.0.0.0', () => {
                     // Auto-broadcast category-specific notifications on new data
                     if (data && !data._skipped) {
                         sendDataNotifications(data);
+                        // Run post-market agents after successful data fetch
+                        if (agentRunner) {
+                            agentRunner.runAllPostMarket().catch(err =>
+                                console.error(`[${new Date().toISOString()}] Agent run failed:`, err.message)
+                            );
+                        }
                     }
                 } catch (err) {
                     console.error(`[${new Date().toISOString()}] ${label} fetch failed:`, err.message);
@@ -421,6 +541,13 @@ app.listen(PORT, '0.0.0.0', () => {
                             body: `Top Inflow: ${topIn?.sector} (${fmtCr(topIn?.equity_net_inr || 0)}) | Top Outflow: ${topOut?.sector} (${fmtCr(topOut?.equity_net_inr || 0)}) | ${sectors.length} sectors updated`,
                             url: '/#t-sectors'
                         }, 'sectors');
+
+                        // Run sector agents after successful NSDL fetch
+                        if (agentRunner) {
+                            agentRunner.runSectorAgents().catch(err =>
+                                console.error(`[${new Date().toISOString()}] Sector agent run failed:`, err.message)
+                            );
+                        }
                     }
                 } catch (err) {
                     console.error(`[${new Date().toISOString()}] NSDL fetch failed:`, err.message);
@@ -436,7 +563,18 @@ app.listen(PORT, '0.0.0.0', () => {
             // NSDL sector data — check daily at 10:00 AM IST (smart skip if unchanged)
             cron.schedule('30 4 * * 1-5', () => runNSDLFetch());  // 10:00 AM IST
 
-            console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
+            // Weekly institutional digest — Friday 8:00 PM IST
+            if (agentRunner) {
+                cron.schedule('30 14 * * 5', () => {
+                    console.log(`[${new Date().toISOString()}] Weekly digest starting…`);
+                    agentRunner.runWeeklyDigest().catch(err =>
+                        console.error(`[${new Date().toISOString()}] Weekly digest failed:`, err.message)
+                    );
+                });
+                console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL + 8:00 PM Fri digest)');
+            } else {
+                console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
+            }
         } catch (e) {
             console.error('[BOOT] Cron scheduling failed:', e.message);
         }

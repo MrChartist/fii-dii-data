@@ -221,6 +221,17 @@ All responses include:
 
 ---
 
+## 🤖 Agentic AI Road Map (2026)
+
+**FII & DII Data** serves as our **Regime Detection Feed**. It identifies the institutional context for all other agents.
+
+### Key Agent Integrations:
+- **Regime Trigger Agent:** Switches TradeBook's risk parameters to 'Conservative' when institutional sell-off streaks are detected.
+- **Sector Rotation Monitor:** Proactively alerts when FPI allocation rotates away from top watchlist sectors.
+- **Flow Divergence Alert:** Autonomous signals when FII/DII divergence reaches historical extremes.
+
+---
+
 <p align="center">
   <b>Made with ❤️ by Mr. Chartist</b><br>
   <i>Institutional Money Matrix — Where the smart money flows</i>

@@ -1,0 +1,183 @@
+[
+  {
+    "agent": "weekly-digest",
+    "run_at": "2026-04-01T19:02:59.202Z",
+    "status": "ok",
+    "items_found": 5,
+    "alerts_sent": 1,
+    "duration_ms": 18,
+    "error": null,
+    "result": {
+      "items_found": 5,
+      "alerts_sent": 1,
+      "summary": {
+        "weekly_fii": "₹21,135 Cr",
+        "weekly_dii": "+₹30,637 Cr",
+        "regime": "MILD_BEARISH",
+        "streak": "🔴 FII sell streak: 3 days (₹23,244 Cr)"
+      }
+    }
+  },
+  {
+    "agent": "sector-rotation",
+    "run_at": "2026-04-01T19:02:35.684Z",
+    "status": "ok",
+    "items_found": 7,
+    "alerts_sent": 1,
+    "duration_ms": 22,
+    "error": null,
+    "result": {
+      "items_found": 7,
+      "alerts_sent": 1,
+      "rotations_detected": 7,
+      "top_inflows": [
+        "Healthcare",
+        "Telecom",
+        "Others"
+      ],
+      "top_outflows": [
+        "Financial Services",
+        "Information Technology",
+        "Infrastructure"
+      ]
+    }
+  },
+  {
+    "agent": "flow-divergence",
+    "run_at": "2026-04-01T19:02:09.912Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 0,
+    "duration_ms": 5,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 0,
+      "signal": "CONTRARIAN_BULLISH",
+      "divergence_value": 15502.95,
+      "percentile": 97
+    }
+  },
+  {
+    "agent": "flow-strength",
+    "run_at": "2026-04-01T19:02:09.907Z",
+    "status": "ok",
+    "items_found": 3,
+    "alerts_sent": 0,
+    "duration_ms": 5,
+    "error": null,
+    "result": {
+      "items_found": 3,
+      "alerts_sent": 0,
+      "events_detected": [
+        "FII_BLOODBATH",
+        "DII_MASSIVE_ABSORB",
+        "EXTREME_DIVERGENCE"
+      ]
+    }
+  },
+  {
+    "agent": "regime-classifier",
+    "run_at": "2026-04-01T19:02:09.900Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 0,
+    "duration_ms": 2808,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 0,
+      "regime": "MILD_BEARISH",
+      "previous_regime": "MILD_BEARISH",
+      "transitioned": false,
+      "recommendation": "Defensive posture. Tighten stops, reduce new entries, hedge existing positions."
+    }
+  },
+  {
+    "agent": "fii-streak",
+    "run_at": "2026-04-01T19:02:07.091Z",
+    "status": "ok",
+    "items_found": 3,
+    "alerts_sent": 0,
+    "duration_ms": 5,
+    "error": null,
+    "result": {
+      "items_found": 3,
+      "alerts_sent": 0,
+      "fii_sell_streak": 3,
+      "fii_buy_streak": 0,
+      "cumulative_sell": -23244.21,
+      "cumulative_buy": 0,
+      "dii_absorption_pct": 111
+    }
+  },
+  {
+    "agent": "flow-divergence",
+    "run_at": "2026-04-01T18:58:12.909Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 3,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "signal": "CONTRARIAN_BULLISH",
+      "divergence_value": 15502.95,
+      "percentile": 97
+    }
+  },
+  {
+    "agent": "flow-strength",
+    "run_at": "2026-04-01T18:58:12.905Z",
+    "status": "ok",
+    "items_found": 3,
+    "alerts_sent": 1,
+    "duration_ms": 3,
+    "error": null,
+    "result": {
+      "items_found": 3,
+      "alerts_sent": 1,
+      "events_detected": [
+        "FII_BLOODBATH",
+        "DII_MASSIVE_ABSORB",
+        "EXTREME_DIVERGENCE"
+      ]
+    }
+  },
+  {
+    "agent": "regime-classifier",
+    "run_at": "2026-04-01T18:58:12.901Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 411,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "regime": "MILD_BEARISH",
+      "previous_regime": "NEUTRAL",
+      "transitioned": true,
+      "recommendation": "Defensive posture. Tighten stops, reduce new entries, hedge existing positions."
+    }
+  },
+  {
+    "agent": "fii-streak",
+    "run_at": "2026-04-01T18:58:12.489Z",
+    "status": "ok",
+    "items_found": 3,
+    "alerts_sent": 0,
+    "duration_ms": 4,
+    "error": null,
+    "result": {
+      "items_found": 3,
+      "alerts_sent": 0,
+      "fii_sell_streak": 3,
+      "fii_buy_streak": 0,
+      "cumulative_sell": -23244.21,
+      "cumulative_buy": 0,
+      "dii_absorption_pct": 111
+    }
+  }
+]

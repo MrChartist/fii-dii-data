@@ -1,0 +1,100 @@
+{
+  "fii-streak": {
+    "last_alerted_sell_streak": 3,
+    "last_alerted_buy_streak": 0,
+    "current_sell_streak": 3,
+    "current_buy_streak": 0,
+    "sell_cumulative": -23244.21,
+    "buy_cumulative": 0,
+    "sell_absorption_pct": 111,
+    "buy_absorption_pct": 0,
+    "last_run_date": "01-Apr-2026",
+    "_updated_at": "2026-04-01T19:02:07.089Z"
+  },
+  "regime-classifier": {
+    "regime": "MILD_BEARISH",
+    "since": "01-Apr-2026",
+    "previous_regime": "MILD_BEARISH",
+    "fii_streak": -3,
+    "dii_absorption_pct": 131,
+    "vix": 25.01,
+    "recommendation": "Defensive posture. Tighten stops, reduce new entries, hedge existing positions.",
+    "fii_cumulative_10d": -43264.21,
+    "dii_cumulative_10d": 56848.52,
+    "last_run_date": "01-Apr-2026",
+    "_updated_at": "2026-04-01T19:02:09.899Z"
+  },
+  "flow-strength": {
+    "last_alerted_date": "01-Apr-2026",
+    "last_alerted_events": [
+      "FII_BLOODBATH",
+      "DII_MASSIVE_ABSORB",
+      "EXTREME_DIVERGENCE"
+    ],
+    "last_run_date": "01-Apr-2026",
+    "events_checked": 4,
+    "events_triggered": 3,
+    "latest_fii_net": -8331.15,
+    "latest_dii_net": 7171.8,
+    "_updated_at": "2026-04-01T19:02:09.905Z"
+  },
+  "flow-divergence": {
+    "last_signal": "CONTRARIAN_BULLISH",
+    "last_signal_date": "01-Apr-2026",
+    "today_divergence": 15502.95,
+    "divergence_percentile": 97,
+    "absorption_pct": 131,
+    "avg_fii_30d": -3407.54,
+    "avg_dii_30d": 3034.38,
+    "last_run_date": "01-Apr-2026",
+    "_updated_at": "2026-04-01T19:02:09.911Z"
+  },
+  "sector-rotation": {
+    "last_sector_lengths": {
+      "Financial Services": 24,
+      "Information Technology": 24,
+      "Oil & Gas": 24,
+      "Consumer Goods": 24,
+      "Healthcare": 24,
+      "Automobile": 24,
+      "Capital Goods": 24,
+      "Metals & Mining": 24,
+      "Power": 24,
+      "Telecom": 24,
+      "Infrastructure": 24,
+      "Cement & Construction": 24,
+      "Chemicals": 24,
+      "Real Estate": 24,
+      "Textiles": 24,
+      "Media & Entertainment": 24,
+      "FMCG": 24,
+      "Agri & Fertilisers": 24,
+      "Services": 24,
+      "Logistics": 24,
+      "Diversified": 24,
+      "Defence": 24,
+      "Tourism & Hospitality": 24,
+      "Others": 24
+    },
+    "total_sectors": 24,
+    "significant_moves": 7,
+    "sustained_exits": [
+      "Automobile"
+    ],
+    "sustained_entries": [
+      "Telecom"
+    ],
+    "top_inflow": "Healthcare",
+    "top_outflow": "Financial Services",
+    "last_run_date": "2026-04-01T19:02:35.681Z",
+    "_updated_at": "2026-04-01T19:02:35.682Z"
+  },
+  "weekly-digest": {
+    "last_digest_date": "2026-04-01T19:02:59.200Z",
+    "weekly_fii": -21135.21,
+    "weekly_dii": 30636.52,
+    "trading_days": 5,
+    "date_range": "25 Mar 2026 — 1 Apr 2026",
+    "_updated_at": "2026-04-01T19:02:59.201Z"
+  }
+}

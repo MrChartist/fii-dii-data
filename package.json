@@ -7,6 +7,14 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "fetch": "node scripts/fetch_data.js",
+    "agents": "node agent-runner.js",
+    "agent:streak": "node agent-runner.js --agent=fii-streak",
+    "agent:regime": "node agent-runner.js --agent=regime-classifier",
+    "agent:flow": "node agent-runner.js --agent=flow-strength",
+    "agent:sectors": "node agent-runner.js --agent=sector-rotation",
+    "agent:diverge": "node agent-runner.js --agent=flow-divergence",
+    "agent:digest": "node agent-runner.js --agent=weekly-digest",
+    "agent:all": "node agent-runner.js --agent=all",
     "build": "echo 'No build step required'"
   },
   "engines": {
