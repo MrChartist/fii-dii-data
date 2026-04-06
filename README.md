@@ -1,14 +1,18 @@
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:6366f1&height=180&section=header&text=FII%20%26%20DII%20Data&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Institutional%20Money%20Matrix&descSize=16&descAlignY=55&descColor=8b5cf6" width="100%" />
+
 <p align="center">
   <img src="docs/dashboard_hero.png" alt="FII & DII Data Dashboard Hero" width="100%">
 </p>
 
-# 📊 FII & DII Data — Institutional Money Matrix
-
 > **Live Dashboard** for tracking Foreign Institutional Investor (FII/FPI) and Domestic Institutional Investor (DII) flows in Indian equity markets.
 >
-> 🌐 **Live at:** [fii-diidata.mrchartist.com](https://fii-diidata.mrchartist.com/)
->
-> Built by [@mr_chartist](https://twitter.com/mr_chartist)
+> Built by [**Mr. Chartist**](https://github.com/MrChartist) | Part of the [Mr. Chartist Ecosystem](https://mrchartist.com)
+
+<p align="center">
+  <a href="https://fii-diidata.mrchartist.com/"><img src="https://img.shields.io/badge/Live_Dashboard-fii--diidata.mrchartist.com-6366f1?style=for-the-badge" alt="Live Dashboard"></a>
+  <a href="https://twitter.com/mr_chartist"><img src="https://img.shields.io/badge/Follow-@mr__chartist-0d1117?style=for-the-badge&logo=x&logoColor=white" alt="Twitter"></a>
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
+</p>
 
 ---
 
@@ -233,6 +237,10 @@ All responses include:
 ---
 
 <p align="center">
-  <b>Made with ❤️ by Mr. Chartist</b><br>
-  <i>Institutional Money Matrix — Where the smart money flows</i>
+  <b>Made with care by <a href="https://github.com/MrChartist">Mr. Chartist</a></b><br>
+  <i>Institutional Money Matrix -- Where the smart money flows</i><br><br>
+  <a href="https://mrchartist.com"><img src="https://img.shields.io/badge/mrchartist.com-6366f1?style=flat-square&logo=safari&logoColor=white" alt="Website"/></a>
+  <a href="https://github.com/MrChartist"><img src="https://img.shields.io/badge/More_Projects-0d1117?style=flat-square&logo=github&logoColor=white" alt="GitHub"/></a>
 </p>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:6366f1&height=100&section=footer" width="100%" />
