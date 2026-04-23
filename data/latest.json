@@ -25,8 +25,8 @@
   "fii_idx_put_short": 481179,
   "fii_idx_put_net": 260691,
   "pcr": 0.56,
-  "sentiment_score": 5.5,
-  "_updated_at": "23 Apr 2026, 7:46 pm IST",
+  "sentiment_score": 36.5,
+  "_updated_at": "23 Apr 2026, 9:48 pm IST",
   "_source": "fetch-pipeline",
   "_fao_summary": {
     "sentiment": "Bearish",

@@ -25,9 +25,10 @@
 <meta property="og:site_name" content="FII & DII Data by Mr. Chartist">
 <meta property="og:title" content="FII & DII Data India | Live Institutional Flow Tracker">
 <meta property="og:description" content="India's most comprehensive FII & DII flow tracker. Live institutional money data, F&O positioning, sector analytics, and visual flow heatmaps. Updated daily.">
-<meta property="og:image" content="https://fii-diidata.mrchartist.com/assets/og-image-flow.jpg">
+<meta property="og:image" content="https://fii-diidata.mrchartist.com/assets/og-image-flow.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="FII and DII Data India Dashboard - Real-time institutional money flow tracker showing daily FII selling and DII buying data">
 <meta property="og:locale" content="en_IN">
 
 <!-- Twitter / X -->
@@ -35,7 +36,8 @@
 <meta name="twitter:site" content="@mr_chartist">
 <meta name="twitter:title" content="FII & DII Data India | Live Institutional Flow Tracker">
 <meta name="twitter:description" content="Track real-time FII/DII flows, F&O positioning, and sector-wise FPI allocation in the Indian stock market. Built for professional traders and analysts.">
-<meta name="twitter:image" content="https://fii-diidata.mrchartist.com/assets/tw-image-flow.jpg">
+<meta name="twitter:image" content="https://fii-diidata.mrchartist.com/assets/og-image-flow.png">
+<meta name="twitter:image:alt" content="FII and DII Data India - Live institutional flow analytics dashboard">
 <meta name="twitter:creator" content="@mr_chartist">
 
 <!-- Structured Data (JSON-LD) for Google Rich Results -->
@@ -58,11 +60,9 @@
     "price": "0",
     "priceCurrency": "INR"
   },
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "ratingCount": "1200"
-  }
+  "featureList": "Live FII/DII Cash Flows, F&O Derivatives Positioning, 24-Sector FPI Allocation, 45-Day Heatmaps, Daily/Weekly/Monthly Flow Matrices, AI Agent Synthesis",
+  "screenshot": "https://fii-diidata.mrchartist.com/screenshots/01_home_fii_dii_date.png",
+  "softwareVersion": "2.0.0"
 }
 </script>
 <!-- DataFeed Structured Data for AI/LLM recognition -->
@@ -73,7 +73,7 @@
   "name": "FII & DII Daily Institutional Flow Data",
   "description": "Daily FII (Foreign Institutional Investor) and DII (Domestic Institutional Investor) net buy/sell data for Indian equity markets, sourced from NSE India.",
   "url": "https://fii-diidata.mrchartist.com/",
-  "dateModified": "2026-03-30",
+  "dateModified": "2026-04-02",
   "provider": {
     "@type": "Organization",
     "name": "Mr. Chartist",
@@ -85,6 +85,25 @@
     "name": "India"
   },
   "license": "https://creativecommons.org/licenses/by-nc/4.0/"
+}
+</script>
+<!-- Organization Schema for Google Knowledge Panel -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Mr. Chartist",
+  "url": "https://mrchartist.com",
+  "logo": "https://fii-diidata.mrchartist.com/icons/icon-512.png",
+  "sameAs": [
+    "https://twitter.com/mr_chartist",
+    "https://github.com/MrChartist"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "url": "https://twitter.com/mr_chartist"
+  }
 }
 </script>
 <!-- FAQ Structured Data for Google Rich Snippets -->
@@ -164,8 +183,10 @@
 </script>
 
 <!-- Last Updated (for search engines) -->
-<meta name="revised" content="2026-03-30">
-<meta name="date" content="2026-03-30">
+<meta name="revised" content="2026-04-02">
+<meta name="date" content="2026-04-02">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-192.png">
 
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
@@ -233,7 +254,7 @@ body { background: var(--bg); color: var(--t1); min-height: 100vh; font-size: 14
 ::-webkit-scrollbar-thumb { background: hsla(20, 10%, 40%, 0.15); border-radius: 999px; }
 ::-webkit-scrollbar-thumb:hover { background: hsla(20, 10%, 40%, 0.3); }
 
-.wrap { max-width: 1240px; margin: 0 auto; padding: 32px 20px 120px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 100px 20px 120px; }
 
 /* ── HEADER ── */
 header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--sep); }
@@ -307,14 +328,15 @@ header { display: flex; justify-content: space-between; align-items: flex-start;
 /* ── FLOATING ISLAND NAVBAR ── */
 .tabs-wrap {
   position: fixed;
-  bottom: 32px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   background: var(--l1);
   border: 1px solid var(--sep);
   border-radius: 100px;
   display: inline-flex;
-  padding: 6px;
+  align-items: center;
+  padding: 5px 6px;
   gap: 4px;
   box-shadow: 0 16px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.05); /* Premium shadow */
   z-index: 1000;
@@ -352,6 +374,57 @@ header { display: flex; justify-content: space-between; align-items: flex-start;
   background: var(--primary);
   box-shadow: 0 4px 12px hsl(24 90% 52% / 0.35);
   animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* ── NAV BRAND & ACTIONS ── */
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--t1); padding: 0 10px 0 12px; flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.nav-brand:hover { opacity: 0.8; }
+.nav-logo-mark { width: 26px; height: 26px; flex-shrink: 0; }
+.nav-logo-text {
+  font-family: var(--font-display); font-size: 14px; font-weight: 800;
+  letter-spacing: 0.08em; color: var(--t1); white-space: nowrap;
+}
+.nav-divider {
+  width: 1px; height: 20px; background: var(--sep); flex-shrink: 0; opacity: 0.5;
+}
+.nav-actions {
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding: 0 6px 0 2px;
+}
+.nav-icon-btn {
+  width: 34px; height: 34px; border-radius: 50%; border: none;
+  background: transparent; color: var(--t3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.nav-icon-btn:hover { background: var(--l3); color: var(--t1); }
+.nav-tg-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px;
+  background: linear-gradient(135deg, #0088cc, #0077b5);
+  color: #fff; font-size: 11px; font-weight: 700; font-family: var(--font-body);
+  text-decoration: none; transition: all 0.25s; white-space: nowrap;
+}
+.nav-tg-btn:hover {
+  transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0, 136, 204, 0.4);
+}
+.nav-tg-btn svg { flex-shrink: 0; }
+.nav-channel-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 100px;
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  color: #fff; font-size: 11px; font-weight: 700; font-family: var(--font-body);
+  text-decoration: none; transition: all 0.25s; white-space: nowrap;
+}
+.nav-channel-btn:hover {
+  transform: translateY(-1px); box-shadow: 0 4px 14px rgba(108, 92, 231, 0.4);
+}
+.nav-channel-btn svg { flex-shrink: 0; }
+@media (max-width: 1100px) {
+  .tab .tab-txt { display: none; }
+  .nav-logo-text { display: none; }
 }
 
 /* Panels: JS controls visibility via fade transitions */
@@ -627,6 +700,7 @@ tr:last-child td { border-bottom: none; }
   }
   .tab .tab-txt { display: none; }
   .tab span:first-child { font-size: 18px; display: block; }
+  .nav-brand, .nav-divider, .nav-actions { display: none !important; }
 
   /* ─ Hero Card FII/DII Layout ─ */
   .hero-nums { flex-direction: column !important; gap: 16px !important; align-items: flex-start !important; }
@@ -1137,6 +1211,10 @@ tr:last-child td { border-bottom: none; }
   .alert-modal-footer { padding: 14px 20px 20px; }
 }
 
+/* AI Agent Share Button Hover */
+.agent-row .agent-share-btn { opacity: 0; transition: all 0.2s; }
+.agent-row:hover .agent-share-btn { opacity: 1 !important; }
+.agent-share-btn:hover { color: var(--purple) !important; transform: scale(1.1); }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
@@ -1157,9 +1235,9 @@ tr:last-child td { border-bottom: none; }
 <div class="ambient-orb ambient-orb-2"></div>
 
 <div class="logo-glow"></div>
-<div class="wrap panel-container">
+<div class="wrap panel-container" role="main">
 
-  <header>
+  <header role="banner">
     <div class="header-left">
       <div class="header-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg></div>
       <div>
@@ -1490,26 +1568,52 @@ tr:last-child td { border-bottom: none; }
   </div> <!-- /t-hero -->
 
   <!-- TABS (FLOATING ISLAND NAV) -->
-  <div class="tabs-wrap">
+  <nav class="tabs-wrap" role="navigation" aria-label="Dashboard sections">
+    <!-- Brand -->
+    <a href="/" class="nav-brand" title="FlowMatrix — Institutional Analytics">
+      <svg class="nav-logo-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="ngld" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="hsl(45,80%,68%)"/><stop offset="100%" stop-color="hsl(35,72%,48%)"/></linearGradient></defs>
+        <rect x="3" y="10" width="5" height="18" rx="1.5" fill="url(#ngld)"/>
+        <rect x="13" y="6" width="5" height="22" rx="1.5" fill="url(#ngld)"/>
+        <rect x="23" y="2" width="5" height="26" rx="1.5" fill="url(#ngld)"/>
+        <path d="M5 26L27 6" stroke="hsl(40,75%,58%)" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <span class="nav-logo-text">FLOWMATRIX</span>
+    </a>
+    <div class="nav-divider"></div>
+    <!-- Tabs -->
     <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-indian-rupee"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> <span class="tab-txt">FII/DII Data</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> <span class="tab-txt">FII/DII</span>
     </div>
     <div class="tab" data-tab="t-fno" onclick="switchMainTab('t-fno')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-boxes"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg> <span class="tab-txt">F&O Positions</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg> <span class="tab-txt">F&amp;O</span>
     </div>
     <div class="tab" data-tab="t-matrix" onclick="switchMainTab('t-matrix')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> <span class="tab-txt">Flow Analytics</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> <span class="tab-txt">Analytics</span>
     </div>
     <div class="tab" data-tab="t-sector" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart();">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pie-chart"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> <span class="tab-txt">Sectors</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> <span class="tab-txt">Sectors</span>
     </div>
     <div class="tab" data-tab="t-docs" onclick="switchMainTab('t-docs')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book-open"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> <span class="tab-txt">Docs</span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg> <span class="tab-txt">Docs</span>
     </div>
-    <div class="tab" data-tab="t-ai" onclick="switchMainTab('t-ai'); renderAgentData();">
-      <span style="font-size:16px;">🤖</span> <span class="tab-txt">AI Insights</span>
+
+    <div class="nav-divider"></div>
+    <!-- Actions -->
+    <div class="nav-actions">
+      <button onclick="toggleTheme()" class="nav-icon-btn" title="Toggle theme">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+      </button>
+      <a href="https://t.me/fiidiidatalivebot" target="_blank" class="nav-tg-btn" id="navTgBtn" title="Get Telegram Alerts">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
+        Alerts
+      </a>
+      <a href="https://t.me/official_mrchartist" target="_blank" class="nav-channel-btn" id="navChannelBtn" title="Join our Telegram Channel for market updates">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
+        Channel
+      </a>
     </div>
-  </div>
+  </nav>
 
   <!-- TAB: DATA MATRIX -->
   <div id="t-matrix" class="panel">
@@ -2050,12 +2154,56 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
+<!-- SEO FOOTER -->
+<footer style="margin-top:40px; padding:32px 0 24px; border-top:1px solid var(--sep2);">
+  <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:32px; margin-bottom:24px;">
+    <div style="min-width:200px;">
+      <div style="font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--t1); margin-bottom:12px;">FII & DII Data India</div>
+      <p style="font-size:12px; color:var(--t4); line-height:1.7; max-width:300px;">India's most comprehensive real-time tracker for FII and DII institutional money flows. Updated daily with data from NSE, NSDL, and F&O derivatives archives.</p>
+    </div>
+    <div style="min-width:140px;">
+      <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">Data Sources</div>
+      <ul style="list-style:none; font-size:12px; color:var(--t4); line-height:2;">
+        <li><a href="https://www.nseindia.com/reports-indices-fii-dii-trading-activity" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">NSE India — Cash Market</a></li>
+        <li><a href="https://www.nseindia.com/all-reports" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">NSE F&O Archives</a></li>
+        <li><a href="https://www.fpi.nsdl.co.in" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">NSDL FPI Monitor</a></li>
+      </ul>
+    </div>
+    <div style="min-width:140px;">
+      <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">Mr. Chartist</div>
+      <ul style="list-style:none; font-size:12px; color:var(--t4); line-height:2;">
+        <li><a href="https://mrchartist.com" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">Website</a></li>
+        <li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">𝕏 (Twitter)</a></li>
+        <li><a href="https://github.com/MrChartist" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none;">GitHub</a></li>
+      </ul>
+    </div>
+    <div style="min-width:140px;">
+      <div style="font-size:11px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">Quick Links</div>
+      <ul style="list-style:none; font-size:12px; color:var(--t4); line-height:2;">
+        <li><a href="#" onclick="switchMainTab('t-hero'); return false;" style="color:var(--t3); text-decoration:none;">FII/DII Cash Flows</a></li>
+        <li><a href="#" onclick="switchMainTab('t-fno'); return false;" style="color:var(--t3); text-decoration:none;">F&O Positions</a></li>
+        <li><a href="#" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart(); return false;" style="color:var(--t3); text-decoration:none;">Sector Analysis</a></li>
+        <li><a href="#" onclick="switchMainTab('t-docs'); return false;" style="color:var(--t3); text-decoration:none;">Documentation</a></li>
+        <li><a href="/api/agents/docs" target="_blank" style="color:var(--t3); text-decoration:none;">Agent API Docs</a></li>
+      </ul>
+    </div>
+  </div>
+  <div style="border-top:1px solid var(--sep2); padding-top:16px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:8px;">
+    <div style="font-size:11px; color:var(--t4);">&copy; 2024–2026 Mr. Chartist. Data sourced from NSE & NSDL. For informational purposes only — not investment advice.</div>
+    <div style="font-size:10px; color:var(--t4); font-family:var(--font-mono);">
+      <a href="/sitemap.xml" style="color:var(--t4); text-decoration:none; margin-right:12px;">Sitemap</a>
+      <a href="/robots.txt" style="color:var(--t4); text-decoration:none; margin-right:12px;">Robots</a>
+      <a href="/llms.txt" style="color:var(--t4); text-decoration:none;">LLMs.txt</a>
+    </div>
+  </div>
+</footer>
+
 </div><!-- /wrap -->
 
 <!-- PANEL INIT: synchronously hide all non-home panels before page renders -->
 <script>
 (function() {
-  var panels = ['t-ai','t-fno','t-sector','t-matrix','t-charts','t-docs'];
+  var panels = ['t-ai','t-fno','t-sector','t-matrix','t-docs'];
   for (var i = 0; i < panels.length; i++) {
     var el = document.getElementById(panels[i]);
     if (el) el.style.display = 'none';
@@ -2128,7 +2276,7 @@ async function exportDOM(element, namePrefix) {
 }
 
 /* ── MAIN TAB LOGIC ── */
-const ALL_PANELS = ['t-hero', 't-fno', 't-matrix', 't-charts', 't-sector', 't-docs', 't-ai'];
+const ALL_PANELS = ['t-hero', 't-fno', 't-matrix', 't-sector', 't-docs', 't-ai'];
 
 let isSwitchingTab = false;
 function switchMainTab(id) {
@@ -4679,31 +4827,73 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   }
 
   /* ── AI AGENTS & GROQ LOGIC ── */
-  let agentDataLoaded = false;
+  let agentDataLoadedAt = 0;
+  const AGENT_REFRESH_COOLDOWN = 30000; // 30s cooldown between refreshes
   async function renderAgentData() {
-    if(agentDataLoaded) return;
+    const now = Date.now();
+    if(agentDataLoadedAt > 0 && (now - agentDataLoadedAt) < AGENT_REFRESH_COOLDOWN) return;
     try {
       const res = await fetch('/api/agents/status');
       const data = await res.json();
       
       let html = '';
       data.agents.forEach(a => {
-        const isRunning = a.name === 'fii-streak' || a.name === 'regime-classifier' || a.state?.last_run_date || Object.keys(a.state).length > 0;
+        const isRunning = a.state?._updated_at || a.state?.last_run_date || Object.keys(a.state || {}).length > 0;
         const color = isRunning ? 'var(--green)' : 'var(--orange)';
-        const statTxt = isRunning ? 'Active & Watching' : 'Standby';
+        const statTxt = isRunning ? 'Active' : 'Standby';
         
+        // Rich info strings for ALL 6 agents
         let infoStr = '';
-        if(a.name === 'fii-streak') infoStr = `FII Streak: ${a.state.current_sell_streak > 0 ? a.state.current_sell_streak + ' Days Sell' : a.state.current_buy_streak + ' Days Buy'}`;
-        if(a.name === 'regime-classifier') infoStr = `Regime: ${a.state.regime || 'Neutral'}`;
+        switch(a.name) {
+          case 'fii-streak':
+            if(a.state.current_sell_streak > 0) infoStr = `🔴 ${a.state.current_sell_streak} Day Sell Streak | DII Absorb: ${a.state.sell_absorption_pct || 0}%`;
+            else if(a.state.current_buy_streak > 0) infoStr = `🟢 ${a.state.current_buy_streak} Day Buy Streak`;
+            else infoStr = 'No active streak';
+            break;
+          case 'regime-classifier':
+            const regimeEmoji = {'STRONG_BULLISH':'🟢','MILD_BULLISH':'🟡','NEUTRAL':'⚪','MILD_BEARISH':'🟠','STRONG_BEARISH':'🔴'};
+            infoStr = `${regimeEmoji[a.state.regime]||'⚪'} ${(a.state.regime||'NEUTRAL').replace(/_/g,' ')} | VIX: ${a.state.vix||'—'}`;
+            break;
+          case 'flow-strength':
+            const evts = a.state.last_alerted_events || [];
+            infoStr = evts.length ? `⚡ ${evts.length} event(s): ${evts.map(e=>e.replace(/_/g,' ')).join(', ')}` : 'No extreme events';
+            break;
+          case 'flow-divergence':
+            const sig = a.state.last_signal || 'NONE';
+            const sigEmoji = {'CONTRARIAN_BULLISH':'🟢','PANIC_MODE':'🔴','EUPHORIA_CHECK':'🟡','NONE':'⚪'};
+            infoStr = sig !== 'NONE' ? `${sigEmoji[sig]||'⚪'} ${sig.replace(/_/g,' ')} | P${a.state.divergence_percentile||0}th` : 'Normal flow pattern';
+            break;
+          case 'sector-rotation':
+            infoStr = a.state.top_inflow ? `📈 ${a.state.top_inflow} | 📉 ${a.state.top_outflow} | ${a.state.significant_moves||0} moves` : 'Awaiting NSDL data';
+            break;
+          case 'weekly-digest':
+            infoStr = a.state.date_range ? `📋 ${a.state.date_range} | ${a.state.trading_days||0} days` : 'No digest yet';
+            break;
+          default:
+            infoStr = 'Monitoring...';
+        }
         
+        let shareBtn = '';
+        // Only show share button if there's actual signal data
+        const genericStrs = ['Monitoring...', 'No active streak', 'No extreme events', 'Normal flow pattern', 'Awaiting NSDL data', 'No digest yet'];
+        if (!genericStrs.includes(infoStr)) {
+          const cleanStr = infoStr.replace(/<[^>]*>?/gm, ''); // strip HTML if any
+          const tweetText = encodeURIComponent(`${a.name.toUpperCase()} Signal 📊\n\n${cleanStr}\n\nTrack institutional flow live:\nhttps://fii-diidata.mrchartist.com`);
+          shareBtn = `<a href="https://twitter.com/intent/tweet?text=${tweetText}" target="_blank" title="Share on 𝕏" style="color:var(--t3); text-decoration:none; margin-right:10px; opacity:0; transition:opacity 0.2s;" class="agent-share-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>`;
+        }
+        
+        // Wrap the div to show the share button on hover
         html += `
-          <div style="background:var(--l1); padding:10px 14px; border-radius:8px; border:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
-             <div>
+          <div class="agent-row" style="background:var(--l1); padding:10px 14px; border-radius:8px; border:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
+             <div style="flex:1; min-width:0;">
                <div style="font-weight:700; font-size:12px; color:var(--t2);">${a.name.toUpperCase()}</div>
-               <div style="font-size:10px; color:var(--t4); margin-top:2px;">${infoStr || 'Monitoring...'}</div>
+               <div style="font-size:10px; color:var(--t4); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${infoStr}</div>
              </div>
-             <div style="display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; color:${color};">
-               <div style="width:6px; height:6px; border-radius:50%; background:${color}; box-shadow:0 0 6px ${color};"></div> ${statTxt}
+             <div style="display:flex; align-items:center; flex-shrink:0;">
+               ${shareBtn}
+               <div style="display:flex; align-items:center; gap:6px; font-size:10px; font-weight:700; color:${color};">
+                 <div style="width:6px; height:6px; border-radius:50%; background:${color}; box-shadow:0 0 6px ${color};"></div> ${statTxt}
+               </div>
              </div>
           </div>
         `;
@@ -4713,11 +4903,12 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
       const rRes = await fetch('/api/agents/regime');
       const rData = await rRes.json();
       if(rData && rData.regime) {
-        document.getElementById('ai-active-regime').innerText = rData.regime;
-        document.getElementById('ai-regime-desc').innerText = `VIX: ${rData.vix} | Score Context: ${rData.recommendation}`;
+        const regimeEmoji = {'STRONG_BULLISH':'🟢','MILD_BULLISH':'🟡','NEUTRAL':'⚪','MILD_BEARISH':'🟠','STRONG_BEARISH':'🔴'};
+        document.getElementById('ai-active-regime').innerText = `${regimeEmoji[rData.regime]||''} ${rData.regime.replace(/_/g,' ')}`;
+        document.getElementById('ai-regime-desc').innerText = `VIX: ${rData.vix} | ${rData.recommendation}`;
       }
       
-      agentDataLoaded = true;
+      agentDataLoadedAt = Date.now();
     } catch(e) {
       document.getElementById('agent-array-status').innerHTML = '<div style="color:var(--red); font-size:11px;">Agent array unreachable locally.</div>';
     }

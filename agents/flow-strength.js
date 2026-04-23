@@ -39,11 +39,11 @@ function buildFlowAlert(eventLabel, data, events) {
 
 📊 Today's Institutional Flows:
   FII Buy:  ${fmtCr(data.fii_buy)}
-  FII Sell: ${fmtCr(Math.abs(data.fii_sell) * -1)}
+  FII Sell: ${fmtCr(-data.fii_sell)}
   FII Net:  ${fmtCr(data.fii_net)}
 
   DII Buy:  ${fmtCr(data.dii_buy)}
-  DII Sell: ${fmtCr(Math.abs(data.dii_sell) * -1)}
+  DII Sell: ${fmtCr(-data.dii_sell)}
   DII Net:  ${fmtCr(data.dii_net)}
 
   Divergence: ₹${Math.round(divergence).toLocaleString('en-IN')} Cr

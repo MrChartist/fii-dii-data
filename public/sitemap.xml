@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://fii-diidata.mrchartist.com/</loc>
     <lastmod>2026-04-23</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://fii-diidata.mrchartist.com/assets/og-image-flow.png</image:loc>
+      <image:title>FII and DII Data India Dashboard</image:title>
+      <image:caption>Real-time institutional money flow tracker for Indian equity markets showing FII selling and DII buying data</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://fii-diidata.mrchartist.com/api/agents/docs</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://fii-diidata.mrchartist.com/llms.txt</loc>
+    <lastmod>2026-04-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>

@@ -27,6 +27,10 @@ const AGENTS = {
     'sector-rotation':   { module: './agents/sector-rotation',   group: 'sector' },
     'flow-divergence':   { module: './agents/flow-divergence',   group: 'post-market' },
     'weekly-digest':     { module: './agents/weekly-digest',     group: 'weekly' },
+    'morning-brief':     { module: './agents/morning-brief',     group: 'morning' },
+
+    // Phase 3: Meta Intelligence
+    'confluence-detector': { module: './agents/confluence-detector', group: 'meta' }
 };
 
 // ── Agent Executor ───────────────────────────────────────────────────────────
@@ -98,7 +102,12 @@ async function runAllPostMarket() {
     console.log(`[RUNNER] ═══════════════════════════════════════════════`);
     console.log(`[RUNNER] 📊 Post-Market Agent Run — ${new Date().toISOString()}`);
     console.log(`[RUNNER] ═══════════════════════════════════════════════`);
-    return runGroup('post-market');
+    await runGroup('post-market');
+    
+    console.log(`[RUNNER] ═══════════════════════════════════════════════`);
+    console.log(`[RUNNER] 🧠 Meta Agent Run — ${new Date().toISOString()}`);
+    console.log(`[RUNNER] ═══════════════════════════════════════════════`);
+    await runGroup('meta');
 }
 
 async function runSectorAgents() {

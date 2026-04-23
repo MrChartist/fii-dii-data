@@ -167,7 +167,7 @@ async function fetchVIX() {
 // ── Formatters ───────────────────────────────────────────────────────────────
 
 function fmtCr(value) {
-    const sign = value >= 0 ? '+' : '';
+    const sign = value >= 0 ? '+' : '-';
     return `${sign}₹${Math.abs(Math.round(value)).toLocaleString('en-IN')} Cr`;
 }
 
