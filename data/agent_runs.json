@@ -1,5 +1,55 @@
 [
   {
+    "agent": "morning-brief",
+    "run_at": "2026-04-02T04:23:42.060Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 21,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "data": {
+        "message_sent": true
+      }
+    }
+  },
+  {
+    "agent": "confluence-detector",
+    "run_at": "2026-04-02T04:23:39.823Z",
+    "status": "ok",
+    "items_found": 0,
+    "alerts_sent": 0,
+    "duration_ms": 4,
+    "error": null,
+    "result": {
+      "items_found": 0,
+      "alerts_sent": 0,
+      "data": {
+        "list": []
+      }
+    }
+  },
+  {
+    "agent": "fii-streak",
+    "run_at": "2026-04-02T02:29:26.373Z",
+    "status": "ok",
+    "items_found": 3,
+    "alerts_sent": 0,
+    "duration_ms": 4,
+    "error": null,
+    "result": {
+      "items_found": 3,
+      "alerts_sent": 0,
+      "fii_sell_streak": 3,
+      "fii_buy_streak": 0,
+      "cumulative_sell": -23244.21,
+      "cumulative_buy": 0,
+      "dii_absorption_pct": 111
+    }
+  },
+  {
     "agent": "weekly-digest",
     "run_at": "2026-04-01T19:02:59.202Z",
     "status": "ok",

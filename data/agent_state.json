@@ -9,7 +9,7 @@
     "sell_absorption_pct": 111,
     "buy_absorption_pct": 0,
     "last_run_date": "01-Apr-2026",
-    "_updated_at": "2026-04-01T19:02:07.089Z"
+    "_updated_at": "2026-04-02T02:29:26.372Z"
   },
   "regime-classifier": {
     "regime": "MILD_BEARISH",
@@ -96,5 +96,9 @@
     "trading_days": 5,
     "date_range": "25 Mar 2026 — 1 Apr 2026",
     "_updated_at": "2026-04-01T19:02:59.201Z"
+  },
+  "confluence-detector": {
+    "active_confluences": [],
+    "_updated_at": "2026-04-02T04:23:39.822Z"
   }
 }

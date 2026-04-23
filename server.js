@@ -21,9 +21,9 @@ let webpush;
 try {
     webpush = require('web-push');
     const VAPID_PUBLIC  = 'BDM4u63dFxAAA68MTP3W4mTxV3MZk7unyFQufGv6j3DhCFqf7T5lsp85zvQSSqX2sVrcLsrMhRvyiTZhS8BnsJw';
-    const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY || 'XPNYDfF9dwiUTJrZdnZQQ2LFOHlMjkBl5Y3dIDACH2o';
-    webpush.setVapidDetails('mailto:contact@mrchartist.com', VAPID_PUBLIC, VAPID_PRIVATE);
-    console.log('[BOOT] web-push loaded ✓');
+    const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
+    if (!VAPID_PRIVATE) { console.warn('[BOOT] VAPID_PRIVATE_KEY not set — push notifications disabled'); webpush = null; }
+    else { webpush.setVapidDetails('mailto:contact@mrchartist.com', VAPID_PUBLIC, VAPID_PRIVATE); console.log('[BOOT] web-push loaded ✓'); }
 } catch (e) {
     console.warn('[BOOT] web-push not available:', e.message);
 }
@@ -132,6 +132,24 @@ try {
     agentRunner = null;
 }
 
+// ── Telegram Bot ─────────────────────────────────────────────────────────────
+let telegram;
+const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TG_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'FlowMatrixBot';
+const TG_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || null;
+try {
+    telegram = require('./telegram');
+    if (TG_TOKEN) {
+        console.log(`[BOOT] telegram loaded ✓ (bot: @${TG_BOT_USERNAME}${TG_CHANNEL_ID ? ', channel: ' + TG_CHANNEL_ID : ''})`);
+    } else {
+        console.warn('[BOOT] TELEGRAM_BOT_TOKEN not set — Telegram alerts disabled');
+    }
+} catch (e) {
+    console.warn('[BOOT] telegram not available:', e.message);
+    telegram = null;
+}
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -147,6 +165,56 @@ app.use((req, res, next) => {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     next();
+});
+
+// Dynamic Root Route for OG Tags (MUST be before express.static)
+app.get('/', (req, res, next) => {
+    // If it's explicitly not a GET for root, pass it
+    if (req.path !== '/') return next();
+
+    try {
+        const indexPath = path.join(__dirname, 'public', 'index.html');
+        let html = fs.readFileSync(indexPath, 'utf8');
+
+        // Dynamically build the social sharing description
+        const { getState } = require('./agents/agent-utils');
+        const latest = getLatestData();
+        const regimeState = getState('regime-classifier');
+        const streakState = getState('fii-streak');
+
+        let dynamicDesc = "Live FII/DII flow tracker.";
+        if (latest && regimeState && streakState) {
+            const fmtCr = val => (val >= 0 ? '+' : '') + '₹' + Math.abs(val || 0).toLocaleString('en-IN') + ' Cr';
+            const fiiVal = fmtCr(latest.fii_net);
+            const regime = regimeState.regime ? regimeState.regime.replace(/_/g, ' ') : 'NEUTRAL';
+            
+            let streakStr = "";
+            if (streakState.current_sell_streak > 0) streakStr = ` | ${streakState.current_sell_streak}-Day FII Sell Streak 🔴`;
+            else if (streakState.current_buy_streak > 0) streakStr = ` | ${streakState.current_buy_streak}-Day FII Buy Streak 🟢`;
+
+            dynamicDesc = `Market Update: FII Net ${fiiVal} | Regime: ${regime}${streakStr}. Track live institutional money flow, F&O positioning, and sector data.`;
+            
+            // Limit length for meta tags just in case
+            if (dynamicDesc.length > 200) dynamicDesc = dynamicDesc.substring(0, 197) + '...';
+        }
+
+        // Inject into HTML
+        html = html.replace(
+            /<meta property="og:description" content="[^"]+">/,
+            `<meta property="og:description" content="${dynamicDesc}">`
+        );
+        html = html.replace(
+            /<meta name="twitter:description" content="[^"]+">/,
+            `<meta name="twitter:description" content="${dynamicDesc}">`
+        );
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate'); // Stale-while-revalidate strategy
+        res.send(html);
+    } catch (err) {
+        console.error('[SERVER] Dynamic index rendering failed:', err);
+        return next(); // Fallback to express.static passing serving error
+    }
 });
 
 // Static files (production caching strategy)
@@ -167,10 +235,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
-// Dashboard
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Dashboard handled dynamically above
 
 // Latest FII/DII snapshot
 app.get('/api/data', async (req, res) => {
@@ -325,11 +390,14 @@ app.post('/api/refresh', async (req, res) => {
     }
 });
 
+let tgMessages;
+try { tgMessages = require('./telegram-messages'); } catch (e) { console.warn('[BOOT] telegram-messages not loaded:', e.message); }
+
 // ── Category-specific notification builder ───────────────────────────────────
 function sendDataNotifications(data) {
     const fiiSign = data.fii_net >= 0 ? '+' : '';
     const diiSign = data.dii_net >= 0 ? '+' : '';
-    const fmtCr = (v) => `${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+    const fmtCr = (v) => `${v >= 0 ? '+' : '-'}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
     const fmtContracts = (v) => `${v >= 0 ? '+' : ''}${(v / 1000).toFixed(0)}K`;
 
     // 1. Cash flow notification
@@ -351,8 +419,46 @@ function sendDataNotifications(data) {
             url: '/#t-fno'
         }, 'fao');
     }
-}
 
+    // 3. Telegram: Detailed messages via telegram-messages module
+    if (telegram && TG_TOKEN && tgMessages) {
+        try {
+            const { getState } = require('./agents/agent-utils');
+            const regime = getState('regime-classifier');
+            const streak = getState('fii-streak');
+            const flowStrength = getState('flow-strength');
+            const flowDiv = getState('flow-divergence');
+
+            // A. Cash Flow Message (detailed breakdown)
+            const cashMsg = tgMessages.buildCashFlowMessage(data, regime, streak, flowStrength);
+            telegram.broadcastTelegram(cashMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                console.error('[TELEGRAM] Cash broadcast failed:', err.message)
+            );
+
+            // B. Derivatives Message (30s delay to avoid flooding)
+            if (data.fii_idx_fut_long || data.pcr) {
+                setTimeout(() => {
+                    const drvMsg = tgMessages.buildDerivativesMessage(data);
+                    telegram.broadcastTelegram(drvMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                        console.error('[TELEGRAM] Derivatives broadcast failed:', err.message)
+                    );
+                }, 30000);
+            }
+
+            // C. Divergence alert (if signal is active for today)
+            if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE' && flowDiv.last_signal_date === data.date) {
+                setTimeout(() => {
+                    const divMsg = tgMessages.buildDivergenceMessage(flowDiv, data);
+                    telegram.broadcastTelegram(divMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                        console.error('[TELEGRAM] Divergence broadcast failed:', err.message)
+                    );
+                }, 60000);
+            }
+        } catch (e) {
+            console.error('[TELEGRAM] Message build failed:', e.message);
+        }
+    }
+}
 // Status
 app.get('/api/status', async (req, res) => {
     try {
@@ -543,10 +649,255 @@ app.get('/api/agents/runs', (req, res) => {
     }
 });
 
+// Flow strength state (extreme event detection)
+app.get('/api/agents/flow-strength', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('flow-strength');
+        res.json({
+            last_alerted_date: state.last_alerted_date || null,
+            last_alerted_events: state.last_alerted_events || [],
+            events_checked: state.events_checked || 0,
+            events_triggered: state.events_triggered || 0,
+            latest_fii_net: state.latest_fii_net || 0,
+            latest_dii_net: state.latest_dii_net || 0,
+            last_run_date: state.last_run_date || null,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Flow divergence state (contrarian/panic/euphoria signals)
+app.get('/api/agents/flow-divergence', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('flow-divergence');
+        res.json({
+            signal: state.last_signal || 'NONE',
+            signal_date: state.last_signal_date || null,
+            today_divergence: state.today_divergence || 0,
+            divergence_percentile: state.divergence_percentile || 0,
+            absorption_pct: state.absorption_pct || 0,
+            avg_fii_30d: state.avg_fii_30d || 0,
+            avg_dii_30d: state.avg_dii_30d || 0,
+            last_run_date: state.last_run_date || null,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Sector rotation state
+app.get('/api/agents/sector-rotation', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('sector-rotation');
+        res.json({
+            total_sectors: state.total_sectors || 0,
+            significant_moves: state.significant_moves || 0,
+            sustained_exits: state.sustained_exits || [],
+            sustained_entries: state.sustained_entries || [],
+            top_inflow: state.top_inflow || null,
+            top_outflow: state.top_outflow || null,
+            last_run_date: state.last_run_date || null,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Weekly digest state
+app.get('/api/agents/weekly-digest', (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const { getState } = require('./agents/agent-utils');
+        const state = getState('weekly-digest');
+        res.json({
+            last_digest_date: state.last_digest_date || null,
+            weekly_fii: state.weekly_fii || 0,
+            weekly_dii: state.weekly_dii || 0,
+            trading_days: state.trading_days || 0,
+            date_range: state.date_range || null,
+            last_updated: state._updated_at || null
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Manual agent execution — trigger a single agent
+app.post('/api/agents/run/:agent', async (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        const agentName = req.params.agent;
+        if (!agentRunner.AGENTS[agentName]) {
+            return res.status(404).json({ error: `Unknown agent: ${agentName}`, available: Object.keys(agentRunner.AGENTS) });
+        }
+        // Return immediately, run in background
+        res.json({ accepted: true, agent: agentName, message: `Agent "${agentName}" triggered` });
+        agentRunner.runAgent(agentName).catch(err =>
+            console.error(`[API] Manual agent run failed (${agentName}):`, err.message)
+        );
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Manual execution — trigger all agents
+app.post('/api/agents/run-all', async (req, res) => {
+    try {
+        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
+        res.json({ accepted: true, message: 'All agent groups triggered', groups: ['post-market', 'sector', 'weekly'] });
+        // Run all groups in background
+        (async () => {
+            try {
+                await agentRunner.runAllPostMarket();
+                await agentRunner.runSectorAgents();
+                await agentRunner.runWeeklyDigest();
+            } catch (err) {
+                console.error('[API] Manual run-all failed:', err.message);
+            }
+        })();
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// API documentation — self-documenting manifest
+app.get('/api/agents/docs', (req, res) => {
+    const docs = {
+        title: 'FII & DII Data — Agent API',
+        version: '2.0.0',
+        description: 'Autonomous institutional flow intelligence agents by Mr. Chartist',
+        base_url: `${req.protocol}://${req.get('host')}`,
+        agents: Object.entries(agentRunner ? agentRunner.AGENTS : {}).map(([name, def]) => ({
+            name,
+            group: def.group,
+            state_endpoint: `/api/agents/${name === 'fii-streak' ? 'streaks' : name}`,
+            description: {
+                'fii-streak': 'Detects sustained FII selling/buying pressure (≥5 consecutive days)',
+                'regime-classifier': 'Classifies institutional environment into 5 regimes (Strong Bullish → Strong Bearish)',
+                'flow-strength': 'Real-time alerts when daily flows hit extreme thresholds (₹5k+ Cr)',
+                'sector-rotation': 'Detects FPI allocation rotation between 24 sectors via NSDL fortnightly data',
+                'flow-divergence': 'Contrarian signals when FII/DII diverge to historical extremes',
+                'weekly-digest': 'Automated end-of-week intelligence report summarizing institutional activity'
+            }[name] || ''
+        })),
+        endpoints: [
+            { method: 'GET', path: '/api/agents/status', description: 'All agent statuses and last run info' },
+            { method: 'GET', path: '/api/agents/regime', description: 'Current regime classification (consumed by ecosystem agents)' },
+            { method: 'GET', path: '/api/agents/streaks', description: 'Active FII/DII sell/buy streaks' },
+            { method: 'GET', path: '/api/agents/flow-strength', description: 'Flow extreme event detection state' },
+            { method: 'GET', path: '/api/agents/flow-divergence', description: 'Contrarian/panic/euphoria signal state' },
+            { method: 'GET', path: '/api/agents/sector-rotation', description: 'Sector rotation summary' },
+            { method: 'GET', path: '/api/agents/weekly-digest', description: 'Latest weekly digest state' },
+            { method: 'GET', path: '/api/agents/runs', description: 'Agent execution history (query: ?limit=50&agent=name)' },
+            { method: 'GET', path: '/api/agents/synthesis', description: 'Generate AI market synthesis via Groq LLM' },
+            { method: 'POST', path: '/api/agents/run/:agent', description: 'Manually trigger a single agent by name' },
+            { method: 'POST', path: '/api/agents/run-all', description: 'Trigger all agent groups (post-market + sector + weekly)' },
+            { method: 'GET', path: '/api/agents/docs', description: 'This documentation endpoint' }
+        ],
+        data_endpoints: [
+            { method: 'GET', path: '/api/data', description: 'Latest FII/DII snapshot' },
+            { method: 'GET', path: '/api/history', description: 'Last 60 days of history' },
+            { method: 'GET', path: '/api/history-full', description: 'Full 800-day history (compressed)' },
+            { method: 'GET', path: '/api/sectors', description: '24-sector FPI allocation with trend data' },
+            { method: 'GET', path: '/api/market', description: 'NIFTY50 & India VIX (Yahoo Finance proxy)' },
+            { method: 'POST', path: '/api/refresh', description: 'Trigger manual NSE data fetch' }
+        ]
+    };
+    res.json(docs);
+});
+
+// ── Telegram Bot API ─────────────────────────────────────────────────────────────
+
+// Telegram bot username (served to frontend for dynamic link)
+app.get('/api/telegram/info', (req, res) => {
+    res.json({
+        enabled: !!(telegram && TG_TOKEN),
+        bot_username: TG_BOT_USERNAME,
+        subscribers: telegram ? telegram.loadChatIds().length : 0
+    });
+});
+
+// Telegram webhook (alternative to polling)
+app.post('/api/telegram/webhook', async (req, res) => {
+    if (!telegram || !TG_TOKEN) return res.sendStatus(200);
+    try {
+        const result = telegram.processUpdate(req.body);
+        if (result) {
+            await telegram.sendMessage(result.chatId, result.reply, TG_TOKEN, axios);
+            if (result.followUp) {
+                await new Promise(r => setTimeout(r, 1500));
+                await telegram.sendMessage(result.chatId, result.followUp, TG_TOKEN, axios);
+            }
+        }
+    } catch (err) {
+        console.error('[TELEGRAM] Webhook error:', err.message);
+    }
+    res.sendStatus(200);
+});
+
+// Setup webhook (call once to register with Telegram)
+app.post('/api/telegram/setup-webhook', async (req, res) => {
+    if (!TG_TOKEN) return res.status(400).json({ error: 'TELEGRAM_BOT_TOKEN not set' });
+    try {
+        const baseUrl = req.body.url || `https://fii-diidata.mrchartist.com`;
+        const webhookUrl = `${baseUrl}/api/telegram/webhook`;
+        const resp = await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook`, {
+            url: webhookUrl,
+            allowed_updates: ['message']
+        });
+        res.json({ success: true, webhook_url: webhookUrl, telegram_response: resp.data });
+    } catch (err) {
+        res.status(500).json({ error: err.response?.data?.description || err.message });
+    }
+});
+
 // ── Start server FIRST (before anything else) ───────────────────────────────
 console.log(`[BOOT] Attempting to listen on 0.0.0.0:${PORT}…`);
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`[BOOT] ✅ Server running on port ${PORT}`);
+
+    // ── Telegram Polling (if no webhook configured) ────────────────────────
+    if (telegram && TG_TOKEN && axios) {
+        let lastUpdateId = 0;
+        async function pollTelegram() {
+            try {
+                const res = await axios.get(`https://api.telegram.org/bot${TG_TOKEN}/getUpdates`, {
+                    params: { offset: lastUpdateId + 1, timeout: 5 },
+                    timeout: 15000
+                });
+                const updates = res.data.result || [];
+                for (const update of updates) {
+                    lastUpdateId = update.update_id;
+                    const result = telegram.processUpdate(update);
+                    if (result) {
+                        await telegram.sendMessage(result.chatId, result.reply, TG_TOKEN, axios);
+                        // Send follow-up message if present (e.g., /latest sends cash + derivatives)
+                        if (result.followUp) {
+                            await new Promise(r => setTimeout(r, 1500));
+                            await telegram.sendMessage(result.chatId, result.followUp, TG_TOKEN, axios);
+                        }
+                    }
+                }
+            } catch (err) {
+                if (!err.message.includes('timeout')) {
+                    console.error('[TELEGRAM] Poll error:', err.message);
+                }
+            }
+        }
+        setInterval(pollTelegram, 10000);
+        pollTelegram(); // Initial poll
+        console.log(`[BOOT] ✅ Telegram polling active (@${TG_BOT_USERNAME})`);
+    }
 
     // ── Scheduler (deferred until server is listening) ─────────────────────
     if (cron) {
@@ -597,6 +948,18 @@ app.listen(PORT, '0.0.0.0', () => {
                             url: '/#t-sectors'
                         }, 'sectors');
 
+                        // Telegram: Detailed sector message
+                        if (telegram && TG_TOKEN && tgMessages) {
+                            const { getState } = require('./agents/agent-utils');
+                            const rotationState = getState('sector-rotation');
+                            const sectorMsg = tgMessages.buildSectorMessage(result.sectorData, rotationState);
+                            if (sectorMsg) {
+                                telegram.broadcastTelegram(sectorMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                                    console.error('[TELEGRAM] Sector broadcast failed:', err.message)
+                                );
+                            }
+                        }
+
                         // Run sector agents after successful NSDL fetch
                         if (agentRunner) {
                             agentRunner.runSectorAgents().catch(err =>
@@ -620,13 +983,36 @@ app.listen(PORT, '0.0.0.0', () => {
 
             // Weekly institutional digest — Friday 8:00 PM IST
             if (agentRunner) {
-                cron.schedule('30 14 * * 5', () => {
+                cron.schedule('30 14 * * 5', async () => {
                     console.log(`[${new Date().toISOString()}] Weekly digest starting…`);
-                    agentRunner.runWeeklyDigest().catch(err =>
-                        console.error(`[${new Date().toISOString()}] Weekly digest failed:`, err.message)
+                    try {
+                        await agentRunner.runWeeklyDigest();
+                        // Send weekly digest to Telegram
+                        if (telegram && TG_TOKEN && tgMessages) {
+                            const { getState } = require('./agents/agent-utils');
+                            const digestState = getState('weekly-digest');
+                            const regime = getState('regime-classifier');
+                            const streak = getState('fii-streak');
+                            const history = getHistoryData(5);
+                            const wMsg = tgMessages.buildWeeklyDigestMessage(digestState, regime, streak, history);
+                            telegram.broadcastTelegram(wMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                                console.error('[TELEGRAM] Weekly digest broadcast failed:', err.message)
+                            );
+                        }
+                    } catch (err) {
+                        console.error(`[${new Date().toISOString()}] Weekly digest failed:`, err.message);
+                    }
+                });
+
+                // Morning pre-market brief — 8:30 AM IST Mon-Fri (03:00 UTC)
+                cron.schedule('0 3 * * 1-5', () => {
+                    console.log(`[${new Date().toISOString()}] Morning brief starting…`);
+                    agentRunner.runAgent('morning-brief').catch(err =>
+                        console.error(`[${new Date().toISOString()}] Morning brief failed:`, err.message)
                     );
                 });
-                console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL + 8:00 PM Fri digest)');
+
+                console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6|6:30|7 PM post-market + 10 AM NSDL + 8 PM Fri digest)');
             } else {
                 console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
             }

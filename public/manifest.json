@@ -2,12 +2,15 @@
   "name": "Mr. Chartist — FII & DII Flow Terminal",
   "short_name": "FII DII Data",
   "description": "Institutional-grade FII & DII flow analytics for Indian equity markets. Live NSE data, derivatives tracking, heatmaps & more.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#faf9f7",
   "theme_color": "#f07020",
   "orientation": "any",
   "categories": ["finance", "business"],
+  "lang": "en-IN",
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -20,6 +23,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/01_home_fii_dii_date.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "FII DII Dashboard - Home View"
+    },
+    {
+      "src": "/screenshots/02_fno_positions.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "F&O Derivatives Positioning"
     }
   ]
 }

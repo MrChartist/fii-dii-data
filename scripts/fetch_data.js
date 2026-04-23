@@ -10,7 +10,7 @@ const CONFIG = {
     FAO_BASE: "https://nsearchives.nseindia.com/content/nsccl",
     TIMEOUTS: { cash: 25000, fao: 15000 },
     RETRY: { attempts: 3, baseDelayMs: 2000 },
-    HISTORY_MAX: 500,
+    HISTORY_MAX: 800,
     DATA_DIR: path.join(process.cwd(), 'data'),
 };
 
@@ -273,11 +273,14 @@ async function transformData(rawCash, rawFaoCsv) {
             }
 
             let sentiment = 50;
-            sentiment += (out.fii_net / 200);
-            sentiment += (out.fii_idx_fut_net / 5000);
-            if (out.pcr > 1.3) sentiment -= 10;
-            if (out.pcr < 0.7) sentiment += 10;
-            out.sentiment_score = Math.min(100, Math.max(0, parseFloat(sentiment.toFixed(1))));
+            // Clamp each factor to ±15 to prevent single-factor domination
+            sentiment += Math.max(-15, Math.min(15, out.fii_net / 500));
+            sentiment += Math.max(-15, Math.min(15, out.fii_idx_fut_net / 10000));
+            if (out.pcr > 1.3) sentiment -= 8;
+            else if (out.pcr > 1.1) sentiment -= 4;
+            if (out.pcr < 0.7) sentiment += 8;
+            else if (out.pcr < 0.9) sentiment += 4;
+            out.sentiment_score = Math.min(100, Math.max(5, parseFloat(sentiment.toFixed(1))));
         }
         if (fao["DII"]) {
             const d = fao["DII"];
