@@ -2,6 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 
+// Delivery tracking — lazy loaded to avoid circular deps
+let _tgHealth = null;
+function tgHealth() {
+    if (!_tgHealth) { try { _tgHealth = require('./telegram-health'); } catch { _tgHealth = { trackSuccess: () => {}, trackFailure: () => {} }; } }
+    return _tgHealth;
+}
+
 const SUBS_PATH = path.join(process.cwd(), 'data', 'telegram_subs.json');
 
 function loadChatIds() {
@@ -40,18 +47,25 @@ async function sendMessage(chatId, text, token, axios) {
             parse_mode: 'HTML',
             disable_web_page_preview: false
         });
+        tgHealth().trackSuccess('subscriber', chatId, text);
     } catch (err) {
         if (err.response?.data?.error_code === 403) {
             removeChatId(chatId);
             console.log(`[TELEGRAM] Removed blocked chat: ${chatId}`);
+            tgHealth().trackFailure('subscriber', chatId, 'blocked-403', text);
         } else {
-            console.error(`[TELEGRAM] Send failed for ${chatId}:`, err.response?.data?.description || err.message);
+            const errMsg = err.response?.data?.description || err.message;
+            console.error(`[TELEGRAM] Send failed for ${chatId}:`, errMsg);
+            tgHealth().trackFailure('subscriber', chatId, errMsg, text);
         }
     }
 }
 
 async function sendToChannel(channelId, text, token, axios) {
-    if (!channelId || !token) return;
+    if (!channelId || !token) {
+        tgHealth().trackFailure('channel', channelId || 'unknown', 'missing channelId or token', text);
+        return;
+    }
     try {
         await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
             chat_id: channelId,
@@ -60,8 +74,11 @@ async function sendToChannel(channelId, text, token, axios) {
             disable_web_page_preview: false
         });
         console.log(`[TELEGRAM] Posted to channel ${channelId}`);
+        tgHealth().trackSuccess('channel', channelId, text);
     } catch (err) {
-        console.error(`[TELEGRAM] Channel post failed:`, err.response?.data?.description || err.message);
+        const errMsg = err.response?.data?.description || err.message;
+        console.error(`[TELEGRAM] Channel post failed:`, errMsg);
+        tgHealth().trackFailure('channel', channelId, errMsg, text);
     }
 }
 
