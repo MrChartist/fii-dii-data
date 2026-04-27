@@ -869,7 +869,10 @@ app.listen(PORT, '0.0.0.0', () => {
     // ── Telegram Polling (if no webhook configured) ────────────────────────
     if (telegram && TG_TOKEN && axios) {
         let lastUpdateId = 0;
+        let isPolling = false;
         async function pollTelegram() {
+            if (isPolling) return;
+            isPolling = true;
             try {
                 const res = await axios.get(`https://api.telegram.org/bot${TG_TOKEN}/getUpdates`, {
                     params: { offset: lastUpdateId + 1, timeout: 5 },
@@ -889,12 +892,14 @@ app.listen(PORT, '0.0.0.0', () => {
                     }
                 }
             } catch (err) {
-                if (!err.message.includes('timeout')) {
+                if (!err.message.includes('timeout') && !err.message.includes('canceled')) {
                     console.error('[TELEGRAM] Poll error:', err.message);
                 }
+            } finally {
+                isPolling = false;
+                setTimeout(pollTelegram, 2000); // 2 second pause before next poll
             }
         }
-        setInterval(pollTelegram, 10000);
         pollTelegram(); // Initial poll
         console.log(`[BOOT] ✅ Telegram polling active (@${TG_BOT_USERNAME})`);
     }

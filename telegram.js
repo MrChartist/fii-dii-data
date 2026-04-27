@@ -83,7 +83,7 @@ function getOnDemandMessages() {
     let tgMessages, latest, regime, streak, flowStrength, flowDiv, sectorData, sectorRotation, weeklyDigest;
     try {
         tgMessages = require('./telegram-messages');
-        latest = require('./data/latest.json');
+        try { latest = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'latest.json'), 'utf8')); } catch { latest = null; }
         const { getState } = require('./agents/agent-utils');
         const { getHistoryData } = require('./scripts/fetch_data');
         regime = getState('regime-classifier');
