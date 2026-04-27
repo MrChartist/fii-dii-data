@@ -423,7 +423,7 @@ async function runWatchdog(axios) {
 
     // ── 🚨 DEAD MAN'S SWITCH — Send admin alert on CRITICAL issues ──────
     if (critical.length > 0 && axios) {
-        const alertMsg = `🚨 <b>FLOWMATRIX ALERT</b>\n\n` +
+        const alertMsg = `🚨 <b>FII & DII DATA — ALERT</b>\n\n` +
             `<b>Critical issues detected by watchdog:</b>\n\n` +
             critical.map((c, i) => `${i + 1}. ${c}`).join('\n') +
             (issues.length > 0 ? `\n\n<b>Warnings:</b>\n${issues.map(w => `⚠️ ${w}`).join('\n')}` : '') +
