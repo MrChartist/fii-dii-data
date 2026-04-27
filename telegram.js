@@ -1,4 +1,4 @@
-// ── Telegram Bot Integration for FlowMatrix Alerts ──────────────────────────
+// ── Telegram Bot Integration for FII & DII Data Alerts ──────────────────────────
 const fs = require('fs');
 const path = require('path');
 
@@ -130,7 +130,7 @@ function processUpdate(update) {
     if (text === '/start') {
         const isNew = addChatId(chatId);
         const welcome = isNew
-            ? `\u2728 <b>Welcome to FlowMatrix, ${userName}!</b>\n\nYou're now subscribed to institutional flow intelligence.\n\n<b>What you'll receive:</b>\n\ud83d\udcca Cash Flow Updates (FII/DII daily)\n\ud83d\udcc8 F&O Derivatives Positioning\n\ud83c\udfe6 Sector Rotation (NSDL data)\n\ud83e\udde0 AI Regime Classification\n\ud83d\udd25 Streak & Extreme Flow Alerts\n\u26a1 Contrarian Divergence Signals\n\ud83c\udf05 Morning Pre-Market Briefs\n\ud83d\udcc5 Weekly Institutional Digests\n\n<b>Commands:</b>\n/latest \u2014 Get today's full report\n/fno \u2014 F&O derivatives positioning\n/sector \u2014 Sector rotation data\n/regime \u2014 Current market regime\n/help \u2014 All commands\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>`
+            ? `\u2728 <b>Welcome to FII & DII Data, ${userName}!</b>\n\nYou're now subscribed to institutional flow intelligence.\n\n<b>What you'll receive:</b>\n\ud83d\udcca Cash Flow Updates (FII/DII daily)\n\ud83d\udcc8 F&O Derivatives Positioning\n\ud83c\udfe6 Sector Rotation (NSDL data)\n\ud83e\udde0 AI Regime Classification\n\ud83d\udd25 Streak & Extreme Flow Alerts\n\u26a1 Contrarian Divergence Signals\n\ud83c\udf05 Morning Pre-Market Briefs\n\ud83d\udcc5 Weekly Institutional Digests\n\n<b>Commands:</b>\n/latest \u2014 Get today's full report\n/fno \u2014 F&O derivatives positioning\n/sector \u2014 Sector rotation data\n/regime \u2014 Current market regime\n/help \u2014 All commands\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>`
             : `\ud83d\udc4b Hey ${userName}, you're already subscribed!\n\nTry /latest for today's report or /help for commands.`;
         return { chatId, reply: welcome };
     }
@@ -148,7 +148,7 @@ function processUpdate(update) {
     if (text === '/status') {
         const ids = loadChatIds();
         const ctx = getOnDemandMessages();
-        let reply = `\ud83d\udce1 <b>FlowMatrix Bot Status</b>\n\n`;
+        let reply = `\ud83d\udce1 <b>FII \u0026 DII Data Bot Status</b>\n\n`;
         reply += `\ud83d\udc64 Subscribers: <b>${ids.length}</b>\n`;
         reply += `\ud83d\udd14 You: ${ids.includes(chatId) ? '\u2705 Active' : '\u274c Inactive'}\n`;
         if (ctx && ctx.latest) {
@@ -213,7 +213,7 @@ function processUpdate(update) {
     if (text === '/help') {
         return {
             chatId,
-            reply: `\ud83d\udcca <b>FlowMatrix Bot \u2014 Commands</b>\n\n` +
+            reply: `\ud83d\udcca <b>FII \u0026 DII Data \u2014 Commands</b>\n\n` +
                 `<b>DATA REPORTS</b>\n` +
                 `/latest \u2014 Today's FII/DII cash flows + derivatives\n` +
                 `/fno \u2014 F&O derivatives positioning\n` +
@@ -239,7 +239,7 @@ function processUpdate(update) {
     // ── Default — Unknown command ────────────────────────────────────────────
     return {
         chatId,
-        reply: `\ud83d\udcca <b>FlowMatrix Bot</b>\n\nTry /latest for today's report or /help for all commands.\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Dashboard</a>`
+        reply: `\ud83d\udcca <b>FII & DII Data</b>\n\nTry /latest for today's report or /help for all commands.\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Dashboard</a>`
     };
 }
 

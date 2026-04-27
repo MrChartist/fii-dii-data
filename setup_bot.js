@@ -22,7 +22,7 @@ async function setup() {
 
     // 2. Set description (shown when user opens bot for first time)
     const res2 = await axios.post(`https://api.telegram.org/bot${token}/setMyDescription`, {
-        description: 'Real-time FII & DII institutional money flow alerts for the Indian stock market.\n\nDaily cash flows, F&O derivatives positioning, sector rotation tracking, AI regime classification, and streak alerts.\n\nPowered by FlowMatrix | Mr. Chartist'
+        description: 'Real-time FII & DII institutional money flow alerts for the Indian stock market.\n\nDaily cash flows, F&O derivatives positioning, sector rotation tracking, AI regime classification, and streak alerts.\n\nPowered by FII & DII Data | Mr. Chartist'
     });
     console.log('Description:', res2.data.ok ? 'Set!' : res2.data);
 
@@ -34,7 +34,7 @@ async function setup() {
 
     // 4. Set bot name
     const res4 = await axios.post(`https://api.telegram.org/bot${token}/setMyName`, {
-        name: 'FlowMatrix \u2014 FII/DII Data'
+        name: 'FII & DII Data \u2014 Mr. Chartist'
     });
     console.log('Name:', res4.data.ok ? 'Set!' : res4.data);
 

@@ -1,10 +1,10 @@
 // ── Telegram Message Builders — Professional institutional-grade alerts ──────
 // Each function returns a formatted HTML string for Telegram
-// All messages include FlowMatrix branding header + footer
+// All messages include FII & DII Data branding header + footer
 
 const { fmtCr, REGIME_EMOJI, REGIME_LABELS } = require('./agents/agent-utils');
 
-const BRAND = '◈ 𝗙𝗟𝗢𝗪𝗠𝗔𝗧𝗥𝗜𝗫';
+const BRAND = '📊 𝗙𝗜𝗜 & 𝗗𝗜𝗜 𝗗𝗮𝘁𝗮';
 const LINE  = '━━━━━━━━━━━━━━━━━━━━';
 const THIN  = '─ ─ ─ ─ ─ ─ ─ ─ ─ ─';
 
@@ -23,9 +23,9 @@ function net(d, prefix) {
 
 function footer() {
     return `\n${LINE}\n` +
-        `${BRAND} <b>by Mr. Chartist</b>\n` +
+        `${BRAND} · <b>by Mr. Chartist</b>\n` +
         `🌐 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>\n` +
-        `📢 <a href="https://t.me/official_mrchartist">Join @official_mrchartist</a> for more market updates`;
+        `📢 <a href="https://t.me/official_mrchartist">Join @official_mrchartist</a>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -37,8 +37,7 @@ function buildCashFlowMessage(data, regime, streak, flowStrength) {
     const netLiq = fn + dn;
     const absorption = fn !== 0 ? Math.round((Math.abs(dn) / Math.abs(fn)) * 100) : 0;
 
-    let msg = `${BRAND}\n`;
-    msg += `📊 <b>INSTITUTIONAL CASH FLOWS</b>\n`;
+    let msg = `${BRAND} · <b>Cash Flows</b>\n`;
     msg += `📅 <i>${data.date}</i>\n`;
     msg += `${LINE}\n\n`;
 
@@ -125,8 +124,7 @@ function buildDerivativesMessage(data) {
     else if (pcr < 1.2) pcrLabel = '🟡 Mildly Bullish';
     else pcrLabel = '🟢 Bullish / Hedged';
 
-    let msg = `${BRAND}\n`;
-    msg += `📈 <b>F&O DERIVATIVES POSITIONING</b>\n`;
+    let msg = `${BRAND} · <b>F&O Positioning</b>\n`;
     msg += `📅 <i>${data.date}</i>\n`;
     msg += `${LINE}\n\n`;
 
@@ -194,8 +192,7 @@ function buildSectorMessage(sectorData, rotationState) {
     const totalAuc = sectors.reduce((s, x) => s + (x.equity_auc_inr || 0), 0);
     const totalNet = sectors.reduce((s, x) => s + (x.equity_net_inr || 0), 0);
 
-    let msg = `${BRAND}\n`;
-    msg += `🏦 <b>SECTOR ROTATION — FPI ALLOCATION</b>\n`;
+    let msg = `${BRAND} · <b>Sector Rotation</b>\n`;
     msg += `📅 <i>NSDL Data: ${sectorData.date_code || 'Latest'}</i>\n`;
     msg += `${LINE}\n\n`;
 
@@ -243,8 +240,7 @@ function buildWeeklyDigestMessage(digestState, regime, streak, history5d) {
     const days = digestState.trading_days || 5;
     const range = digestState.date_range || 'This Week';
 
-    let msg = `${BRAND}\n`;
-    msg += `📅 <b>WEEKLY INSTITUTIONAL DIGEST</b>\n`;
+    let msg = `${BRAND} · <b>Weekly Digest</b>\n`;
     msg += `📆 <i>${range} (${days} trading days)</i>\n`;
     msg += `${LINE}\n\n`;
 
@@ -309,8 +305,7 @@ function buildDivergenceMessage(divState, data) {
     const pct = divState.divergence_percentile || 0;
     const abs = divState.absorption_pct || 0;
 
-    let msg = `${BRAND}\n`;
-    msg += `⚡ <b>CONTRARIAN SIGNAL DETECTED</b>\n`;
+    let msg = `${BRAND} · <b>Contrarian Signal</b>\n`;
     msg += `📅 <i>${divState.last_signal_date || data?.date || 'Today'}</i>\n`;
     msg += `${LINE}\n\n`;
 
@@ -346,8 +341,7 @@ function buildMorningBriefMessage(latest, regime, streak, flowDiv) {
     const pcr = latest.pcr || 0;
     const sent = latest.sentiment_score || 0;
 
-    let msg = `${BRAND}\n`;
-    msg += `🌅 <b>PRE-MARKET BRIEF</b>\n`;
+    let msg = `${BRAND} · <b>Pre-Market Brief</b>\n`;
     msg += `📅 <i>${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</i>\n`;
     msg += `${LINE}\n\n`;
 
