@@ -35,3 +35,6 @@ data/fiidii.db
 
 # Push notification subscriptions (runtime data)
 data/subscriptions.json
+
+# Telegram delivery tracking (runtime data)
+data/telegram_delivery.json

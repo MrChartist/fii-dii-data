@@ -13,6 +13,7 @@
 //   node agent-runner.js --agent=weekly-digest    # Run weekly digest
 //   node agent-runner.js --agent=sector-rotation  # Run sector agents
 
+require('dotenv').config();
 const { logRun } = require('./agents/agent-utils');
 
 // ── Agent Registry ───────────────────────────────────────────────────────────

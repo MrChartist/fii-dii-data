@@ -40,27 +40,29 @@ async function run() {
         msg += `\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com/">View Dashboard</a>`;
     }
 
-    // Send via agent-utils (uses TELEGRAM_CHAT_ID)
-    await sendTelegramAlert(msg);
-
-    // Also broadcast to channel if configured
+    // Primary path: broadcastTelegram — sends to both channel AND individual subscribers
+    let alertsSent = 0;
     try {
         const telegram = require('../telegram');
         const axios = require('axios');
         const token = process.env.TELEGRAM_BOT_TOKEN;
         const channelId = process.env.TELEGRAM_CHANNEL_ID;
-        if (token && channelId && telegram) {
-            await telegram.sendToChannel(channelId, msg, token, axios);
-            console.log('[AGENT] Morning brief sent to channel');
+        if (token && telegram) {
+            await telegram.broadcastTelegram(msg, token, axios, channelId);
+            alertsSent = 1;
+            console.log('[AGENT] Morning brief broadcasted to channel + subscribers');
         }
     } catch (e) {
-        console.warn('[AGENT] Channel broadcast skipped:', e.message);
+        console.warn('[AGENT] broadcastTelegram failed, falling back to sendTelegramAlert:', e.message);
+        // Fallback: send via agent-utils (uses TELEGRAM_CHAT_ID / TELEGRAM_CHANNEL_ID)
+        const result = await sendTelegramAlert(msg);
+        if (result.sent) alertsSent = 1;
     }
     
     return {
         items_found: 1,
-        alerts_sent: 1,
-        data: { message_sent: true }
+        alerts_sent: alertsSent,
+        data: { message_sent: alertsSent > 0 }
     };
 }
 

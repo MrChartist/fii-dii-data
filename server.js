@@ -134,6 +134,7 @@ try {
 
 // ── Telegram Bot ─────────────────────────────────────────────────────────────
 let telegram;
+let tgHealth;
 const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TG_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'FlowMatrixBot';
 const TG_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || null;
@@ -147,6 +148,16 @@ try {
 } catch (e) {
     console.warn('[BOOT] telegram not available:', e.message);
     telegram = null;
+}
+
+// ── Telegram Health Monitor (boot-time validation) ────────────────────────────
+try {
+    tgHealth = require('./telegram-health');
+    tgHealth.validateConfig();
+    console.log('[BOOT] telegram-health loaded ✓');
+} catch (e) {
+    console.warn('[BOOT] telegram-health not available:', e.message);
+    tgHealth = null;
 }
 
 
@@ -827,6 +838,37 @@ app.get('/api/telegram/info', (req, res) => {
     });
 });
 
+// ── Telegram Health Diagnostic Endpoint ───────────────────────────────────────
+app.get('/api/telegram/health', async (req, res) => {
+    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
+    try {
+        const report = await tgHealth.getHealthReport(axios);
+        const status = report.overall === 'healthy' ? 200 : report.overall === 'degraded' ? 200 : 500;
+        res.status(status).json(report);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Telegram delivery log (recent entries)
+app.get('/api/telegram/delivery-log', (req, res) => {
+    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
+    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const log = tgHealth.loadDeliveryLog().slice(0, limit);
+    res.json({ entries: log, count: log.length });
+});
+
+// Manual watchdog trigger
+app.post('/api/telegram/watchdog', async (req, res) => {
+    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
+    try {
+        const result = await tgHealth.runWatchdog(axios);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Telegram webhook (alternative to polling)
 app.post('/api/telegram/webhook', async (req, res) => {
     if (!telegram || !TG_TOKEN) return res.sendStatus(200);
@@ -870,6 +912,23 @@ app.listen(PORT, '0.0.0.0', () => {
     if (telegram && TG_TOKEN && axios) {
         let lastUpdateId = 0;
         let isPolling = false;
+
+        // Clear any stale webhook before starting polling
+        // (Webhook and polling are mutually exclusive in Telegram API)
+        (async () => {
+            try {
+                const whInfo = await axios.get(`https://api.telegram.org/bot${TG_TOKEN}/getWebhookInfo`);
+                const currentUrl = whInfo.data?.result?.url;
+                if (currentUrl) {
+                    console.log(`[TELEGRAM] Active webhook detected (${currentUrl}), deleting for local polling…`);
+                    await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/deleteWebhook`, { drop_pending_updates: false });
+                    console.log('[TELEGRAM] Webhook deleted ✓');
+                }
+            } catch (e) {
+                console.warn('[TELEGRAM] Webhook check/delete failed:', e.message);
+            }
+        })();
+
         async function pollTelegram() {
             if (isPolling) return;
             isPolling = true;
@@ -892,7 +951,14 @@ app.listen(PORT, '0.0.0.0', () => {
                     }
                 }
             } catch (err) {
-                if (!err.message.includes('timeout') && !err.message.includes('canceled')) {
+                if (err.response?.data?.error_code === 409) {
+                    // 409 Conflict: webhook is active, can't use getUpdates
+                    console.error('[TELEGRAM] 409 Conflict — webhook still active. Retrying delete…');
+                    try {
+                        await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/deleteWebhook`, { drop_pending_updates: false });
+                        console.log('[TELEGRAM] Webhook re-deleted ✓');
+                    } catch (e) { /* ignore */ }
+                } else if (!err.message.includes('timeout') && !err.message.includes('canceled')) {
                     console.error('[TELEGRAM] Poll error:', err.message);
                 }
             } finally {
@@ -1020,6 +1086,16 @@ app.listen(PORT, '0.0.0.0', () => {
                 console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6|6:30|7 PM post-market + 10 AM NSDL + 8 PM Fri digest)');
             } else {
                 console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
+            }
+
+            // Telegram Watchdog — every 6 hours, auto-heal webhook conflicts + validate config
+            if (tgHealth) {
+                cron.schedule('0 */6 * * *', () => {
+                    tgHealth.runWatchdog(axios).catch(err =>
+                        console.error('[WATCHDOG] Failed:', err.message)
+                    );
+                });
+                console.log('[BOOT] ✅ Telegram watchdog scheduled (every 6 hours)');
             }
         } catch (e) {
             console.error('[BOOT] Cron scheduling failed:', e.message);

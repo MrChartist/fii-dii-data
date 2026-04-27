@@ -1,6 +1,94 @@
 [
   {
     "agent": "morning-brief",
+    "run_at": "2026-04-27T17:41:15.161Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 1750,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "data": {
+        "message_sent": true
+      }
+    }
+  },
+  {
+    "agent": "morning-brief",
+    "run_at": "2026-04-27T17:40:46.182Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 2017,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "data": {
+        "message_sent": true
+      }
+    }
+  },
+  {
+    "agent": "morning-brief",
+    "run_at": "2026-04-27T17:40:28.289Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 0,
+    "duration_ms": 22,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 0,
+      "data": {
+        "message_sent": false
+      }
+    }
+  },
+  {
+    "agent": "sector-rotation",
+    "run_at": "2026-04-23T23:00:01.864Z",
+    "status": "ok",
+    "items_found": 15,
+    "alerts_sent": 1,
+    "duration_ms": 2,
+    "error": null,
+    "result": {
+      "items_found": 15,
+      "alerts_sent": 1,
+      "rotations_detected": 15,
+      "top_inflows": [
+        "Information Technology",
+        "Consumer Services",
+        "Others"
+      ],
+      "top_outflows": [
+        "Financial Services",
+        "Automobile and Auto Components",
+        "Construction"
+      ]
+    }
+  },
+  {
+    "agent": "morning-brief",
+    "run_at": "2026-04-23T21:30:01.716Z",
+    "status": "ok",
+    "items_found": 1,
+    "alerts_sent": 1,
+    "duration_ms": 1699,
+    "error": null,
+    "result": {
+      "items_found": 1,
+      "alerts_sent": 1,
+      "data": {
+        "message_sent": true
+      }
+    }
+  },
+  {
+    "agent": "morning-brief",
     "run_at": "2026-04-02T04:23:42.060Z",
     "status": "ok",
     "items_found": 1,
