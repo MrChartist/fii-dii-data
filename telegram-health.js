@@ -213,19 +213,76 @@ async function getHealthReport(axios) {
     return report;
 }
 
-// ── 4. Self-Test Watchdog ────────────────────────────────────────────────────
-// Sends a silent getMe + validates config every N hours
-// Call this from a cron schedule
+// ── 4. Admin Alert — Dead Man's Switch ───────────────────────────────────────
+// Sends a critical alert directly to the admin when something goes wrong.
+// Uses TELEGRAM_ADMIN_CHAT_ID (personal DM) or falls back to TELEGRAM_CHANNEL_ID.
+
+async function sendAdminAlert(message, axios) {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    const adminId = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_CHANNEL_ID;
+    if (!token || !adminId || !axios) {
+        console.error('[WATCHDOG] Cannot send admin alert — missing token or admin chat ID');
+        return false;
+    }
+    try {
+        await axios.post(`https://api.telegram.org/bot${token}/sendMessage`, {
+            chat_id: adminId,
+            text: message,
+            parse_mode: 'HTML',
+            disable_web_page_preview: true
+        }, { timeout: 10000 });
+        console.log(`[WATCHDOG] 🚨 Admin alert sent to ${adminId}`);
+        trackDelivery({ status: 'success', type: 'admin-alert', target: adminId, preview: message.substring(0, 100) });
+        return true;
+    } catch (err) {
+        console.error(`[WATCHDOG] Admin alert failed:`, err.response?.data?.description || err.message);
+        trackDelivery({ status: 'failed', type: 'admin-alert', target: adminId, error: err.message, preview: message.substring(0, 100) });
+        return false;
+    }
+}
+
+// ── 5. Cron Heartbeat Tracker ────────────────────────────────────────────────
+// Records when each cron job last fired, so the watchdog can detect missed runs.
+
+const HEARTBEAT_PATH = path.join(DATA_DIR, 'cron_heartbeat.json');
+
+function loadHeartbeat() {
+    try {
+        if (!fs.existsSync(HEARTBEAT_PATH)) return {};
+        return JSON.parse(fs.readFileSync(HEARTBEAT_PATH, 'utf8'));
+    } catch { return {}; }
+}
+
+function recordHeartbeat(cronName) {
+    const hb = loadHeartbeat();
+    hb[cronName] = {
+        last_fired: new Date().toISOString(),
+        count: (hb[cronName]?.count || 0) + 1
+    };
+    try {
+        const tmp = HEARTBEAT_PATH + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(hb, null, 2), 'utf8');
+        fs.renameSync(tmp, HEARTBEAT_PATH);
+    } catch (e) {
+        console.warn('[HEARTBEAT] Write failed:', e.message);
+    }
+}
+
+// ── 6. Self-Test Watchdog — Enhanced with Dead Man's Switch ──────────────────
+// Checks everything + sends admin alerts when problems are found.
+// Call this from a cron schedule (every 6 hours).
 
 async function runWatchdog(axios) {
-    console.log('[WATCHDOG] Running Telegram health check…');
+    console.log('[WATCHDOG] ═══════════════════════════════════════════');
+    console.log('[WATCHDOG] Running full health check…');
     const token = process.env.TELEGRAM_BOT_TOKEN;
-    const issues = [];
+    const issues = [];        // 🟡 Warnings (logged but no alert)
+    const critical = [];      // 🔴 Critical (triggers admin alert)
 
     // 1. Validate env
     const config = validateConfig();
     if (!config.ok) {
-        issues.push(...config.errors);
+        critical.push(...config.errors);
     }
 
     // 2. Test bot connectivity
@@ -233,7 +290,7 @@ async function runWatchdog(axios) {
         try {
             await axios.get(`https://api.telegram.org/bot${token}/getMe`, { timeout: 5000 });
         } catch (e) {
-            issues.push(`Bot connectivity failed: ${e.response?.data?.description || e.message}`);
+            critical.push(`Bot connectivity failed: ${e.response?.data?.description || e.message}`);
         }
 
         // 3. Check for webhook/polling conflict
@@ -241,14 +298,14 @@ async function runWatchdog(axios) {
             const wh = await axios.get(`https://api.telegram.org/bot${token}/getWebhookInfo`, { timeout: 5000 });
             const info = wh.data.result;
             if (info.url) {
-                issues.push(`Webhook still active (${info.url}) — polling is blocked!`);
+                issues.push(`Webhook still active (${info.url}) — auto-deleting…`);
                 // Auto-heal: delete the webhook
                 console.warn('[WATCHDOG] Auto-healing: deleting stale webhook…');
                 await axios.post(`https://api.telegram.org/bot${token}/deleteWebhook`, { drop_pending_updates: false });
                 console.log('[WATCHDOG] Webhook deleted ✓');
             }
             if (info.pending_update_count > 50) {
-                issues.push(`${info.pending_update_count} pending updates — bot may be unresponsive`);
+                critical.push(`${info.pending_update_count} pending updates — bot may be unresponsive`);
             }
             if (info.last_error_message) {
                 issues.push(`Last webhook error: ${info.last_error_message}`);
@@ -256,42 +313,128 @@ async function runWatchdog(axios) {
         } catch (e) {
             issues.push(`Webhook check failed: ${e.message}`);
         }
+    } else {
+        critical.push('Bot token or axios not available — Telegram is completely offline');
     }
 
-    // 4. Check delivery health
+    // 4. Check delivery health (last 24h)
     const log = loadDeliveryLog();
     const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const recent = log.filter(e => e.timestamp > cutoff24h);
-    const failRate = recent.length > 0
-        ? recent.filter(e => e.status === 'failed').length / recent.length
-        : 0;
+    const recentFailed = recent.filter(e => e.status === 'failed');
+    const failRate = recent.length > 0 ? recentFailed.length / recent.length : 0;
     if (failRate > 0.5 && recent.length >= 3) {
-        issues.push(`High failure rate: ${(failRate * 100).toFixed(0)}% of ${recent.length} deliveries failed in last 24h`);
+        critical.push(`High failure rate: ${(failRate * 100).toFixed(0)}% of ${recent.length} deliveries failed in last 24h`);
     }
 
-    // 5. Check agent state freshness
+    // 5. Check data fetch freshness (CRITICAL — the core pipeline)
     try {
-        const { getState } = require('./agents/agent-utils');
-        const regimeState = getState('regime-classifier');
-        if (regimeState._updated_at) {
-            const staleHours = (Date.now() - new Date(regimeState._updated_at).getTime()) / (1000 * 60 * 60);
-            if (staleHours > 48) {
-                issues.push(`Agent state stale: regime-classifier last updated ${Math.round(staleHours)}h ago`);
+        const { readJSON } = require('./agents/agent-utils');
+        const fetchLog = readJSON('fetch-log.json', []);
+        const lastUpdate = fetchLog.find(e => e.success && e.action === 'updated');
+        if (lastUpdate) {
+            const hoursStale = (Date.now() - new Date(lastUpdate.ts).getTime()) / (1000 * 60 * 60);
+            // On weekdays, data should update daily. Allow 48h for weekends.
+            if (hoursStale > 72) {
+                critical.push(`No data update in ${Math.round(hoursStale)}h (last: ${lastUpdate.date || lastUpdate.ts})`);
+            } else if (hoursStale > 48) {
+                issues.push(`Data getting stale: last update ${Math.round(hoursStale)}h ago (${lastUpdate.date || 'unknown'})`);
             }
+        } else {
+            critical.push('No successful data fetch found in fetch-log.json');
+        }
+
+        // Check for consecutive fetch failures
+        const recentFetches = fetchLog.slice(0, 10);
+        const consecutiveFailures = recentFetches.findIndex(e => e.success);
+        if (consecutiveFailures >= 5) {
+            critical.push(`${consecutiveFailures} consecutive fetch failures — NSE API may be blocking us`);
+        }
+    } catch (e) {
+        issues.push(`Fetch log check failed: ${e.message}`);
+    }
+
+    // 6. Check ALL agent states freshness
+    try {
+        const { getAllStates } = require('./agents/agent-utils');
+        const states = getAllStates();
+        const staleAgents = [];
+        const STALE_THRESHOLD_HOURS = 72; // 3 days (allows for weekends)
+
+        for (const [name, state] of Object.entries(states)) {
+            if (state._updated_at) {
+                const staleHours = (Date.now() - new Date(state._updated_at).getTime()) / (1000 * 60 * 60);
+                if (staleHours > STALE_THRESHOLD_HOURS) {
+                    staleAgents.push(`${name}: ${Math.round(staleHours)}h`);
+                }
+            }
+        }
+        if (staleAgents.length > 0) {
+            critical.push(`Stale agents (>${STALE_THRESHOLD_HOURS}h): ${staleAgents.join(', ')}`);
         }
     } catch { /* ignore */ }
 
-    // Report
-    if (issues.length) {
-        console.error('[WATCHDOG] ⚠️  Issues detected:');
-        issues.forEach(i => console.error(`[WATCHDOG]   → ${i}`));
-        trackDelivery({ status: 'watchdog', issues, action: 'alert' });
-    } else {
-        console.log('[WATCHDOG] ✅ All Telegram systems healthy');
-        trackDelivery({ status: 'watchdog', issues: [], action: 'ok' });
+    // 7. Check cron heartbeat — did the scheduled jobs actually fire?
+    try {
+        const hb = loadHeartbeat();
+        const now = Date.now();
+        const expectedCrons = {
+            'post-market-fetch': 24,    // Should fire daily on weekdays
+            'nsdl-sector-fetch': 48,    // Daily but may skip weekends
+            'morning-brief': 24         // Daily on weekdays
+        };
+        for (const [cronName, maxHours] of Object.entries(expectedCrons)) {
+            if (hb[cronName]?.last_fired) {
+                const hoursSince = (now - new Date(hb[cronName].last_fired).getTime()) / (1000 * 60 * 60);
+                // Only flag on weekdays (skip Sat/Sun grace period)
+                const dayOfWeek = new Date().getDay(); // 0=Sun, 6=Sat
+                const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+                if (hoursSince > maxHours * 2 && isWeekday) {
+                    critical.push(`Cron "${cronName}" hasn't fired in ${Math.round(hoursSince)}h`);
+                }
+            }
+            // Don't flag missing heartbeats until the system has been running for a while
+        }
+    } catch { /* ignore */ }
+
+    // ── Compile Report ──────────────────────────────────────────────────────
+    const allIssues = [...critical, ...issues];
+
+    if (critical.length > 0) {
+        console.error('[WATCHDOG] 🔴 CRITICAL issues detected:');
+        critical.forEach(i => console.error(`[WATCHDOG]   🔴 ${i}`));
+    }
+    if (issues.length > 0) {
+        console.warn('[WATCHDOG] 🟡 Warnings:');
+        issues.forEach(i => console.warn(`[WATCHDOG]   🟡 ${i}`));
+    }
+    if (allIssues.length === 0) {
+        console.log('[WATCHDOG] ✅ All systems healthy');
     }
 
-    return { ok: issues.length === 0, issues };
+    // Log to delivery tracker
+    trackDelivery({
+        status: 'watchdog',
+        critical: critical.length,
+        warnings: issues.length,
+        issues: allIssues,
+        action: critical.length > 0 ? 'alert_sent' : allIssues.length > 0 ? 'warning' : 'ok'
+    });
+
+    // ── 🚨 DEAD MAN'S SWITCH — Send admin alert on CRITICAL issues ──────
+    if (critical.length > 0 && axios) {
+        const alertMsg = `🚨 <b>FLOWMATRIX ALERT</b>\n\n` +
+            `<b>Critical issues detected by watchdog:</b>\n\n` +
+            critical.map((c, i) => `${i + 1}. ${c}`).join('\n') +
+            (issues.length > 0 ? `\n\n<b>Warnings:</b>\n${issues.map(w => `⚠️ ${w}`).join('\n')}` : '') +
+            `\n\n⏰ ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}` +
+            `\n🔗 Check: /api/telegram/health`;
+
+        await sendAdminAlert(alertMsg, axios);
+    }
+
+    console.log('[WATCHDOG] ═══════════════════════════════════════════');
+    return { ok: critical.length === 0, critical, warnings: issues, issues: allIssues };
 }
 
 module.exports = {
@@ -302,6 +445,9 @@ module.exports = {
     loadDeliveryLog,
     getHealthReport,
     runWatchdog,
+    sendAdminAlert,
+    recordHeartbeat,
+    loadHeartbeat,
     REQUIRED_ENV,
     RECOMMENDED_ENV
 };

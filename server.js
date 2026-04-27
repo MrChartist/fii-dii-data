@@ -975,6 +975,7 @@ app.listen(PORT, '0.0.0.0', () => {
         try {
             async function runFetchTask(label) {
                 console.log(`[${new Date().toISOString()}] ${label} fetch starting…`);
+                if (tgHealth) tgHealth.recordHeartbeat('post-market-fetch');
                 try {
                     const data = await fetchAndProcessData();
                     console.log(`[${new Date().toISOString()}] ${label} fetch completed.`);
@@ -996,6 +997,7 @@ app.listen(PORT, '0.0.0.0', () => {
             // ── NSDL Sector Data Fetch ────────────────────────────────────
             async function runNSDLFetch() {
                 console.log(`[${new Date().toISOString()}] NSDL sector fetch starting…`);
+                if (tgHealth) tgHealth.recordHeartbeat('nsdl-sector-fetch');
                 try {
                     // Read existing date_code before fetch
                     const oldSector = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'sector_latest.json'), 'utf8') || '{}');
@@ -1078,6 +1080,7 @@ app.listen(PORT, '0.0.0.0', () => {
                 // Morning pre-market brief — 8:30 AM IST Mon-Fri (03:00 UTC)
                 cron.schedule('0 3 * * 1-5', () => {
                     console.log(`[${new Date().toISOString()}] Morning brief starting…`);
+                    if (tgHealth) tgHealth.recordHeartbeat('morning-brief');
                     agentRunner.runAgent('morning-brief').catch(err =>
                         console.error(`[${new Date().toISOString()}] Morning brief failed:`, err.message)
                     );
