@@ -8,7 +8,10 @@ process.on('unhandledRejection', (reason) => {
 
 console.log('[BOOT] Starting server.js…');
 
-require('dotenv').config();
+require('dotenv').config(); // Load .env from project root
+// Also try loading from parent/home directory (survives Hostinger auto-deploys)
+const dotenvPath = require('path').join(__dirname, '..', '.env.fii-dii');
+try { require('dotenv').config({ path: dotenvPath, override: false }); } catch {}
 
 const express = require('express');
 const cors = require('cors');
@@ -290,8 +293,19 @@ app.post('/api/setup-env', express.json(), (req, res) => {
             .map(([k, v]) => `${k}=${v}`)
             .join('\n') + '\n';
 
+        // Write to project root (may be overwritten by deploys)
         const envPath = path.join(__dirname, '.env');
         fs.writeFileSync(envPath, envContent, 'utf8');
+
+        // Also write to parent directory (survives Hostinger auto-deploys)
+        try {
+            const persistPath = path.join(__dirname, '..', '.env.fii-dii');
+            fs.writeFileSync(persistPath, envContent, 'utf8');
+            console.log(`[SETUP] Persistent .env written to ${persistPath}`);
+        } catch (e) {
+            console.warn('[SETUP] Could not write persistent .env:', e.message);
+        }
+
         _envSetupUsed = true;
 
         // Hot-reload the env vars into the running process
