@@ -1123,11 +1123,13 @@ app.listen(PORT, '0.0.0.0', () => {
                 }
             }
 
-            // NSE FII/DII data publishes after market close (~6-7 PM IST)
-            // Run 3 targeted fetches during the publish window (IST = UTC+5:30)
-            cron.schedule('30 12 * * 1-5', () => runFetchTask('Post-market-1'));  // 6:00 PM IST
-            cron.schedule('0 13 * * 1-5',  () => runFetchTask('Post-market-2'));  // 6:30 PM IST
-            cron.schedule('30 13 * * 1-5', () => runFetchTask('Post-market-3'));  // 7:00 PM IST
+            // NSE FII/DII data publishes after market close (~6-7 PM IST, sometimes delayed)
+            // Run every 15 mins from 6:00 PM to 9:00 PM IST (12:30 UTC - 15:30 UTC)
+            // Smart-skip in fetch_data.js ensures it stops processing once Cash + F&O are both acquired.
+            const postMarketCrons = ['30,45 12 * * 1-5', '*/15 13-14 * * 1-5', '0,15,30 15 * * 1-5'];
+            postMarketCrons.forEach(schedule => {
+                cron.schedule(schedule, () => runFetchTask('Post-market'));
+            });
 
             // NSDL sector data — check daily at 10:00 AM IST (smart skip if unchanged)
             cron.schedule('30 4 * * 1-5', () => runNSDLFetch());  // 10:00 AM IST
@@ -1164,9 +1166,9 @@ app.listen(PORT, '0.0.0.0', () => {
                     );
                 });
 
-                console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6|6:30|7 PM post-market + 10 AM NSDL + 8 PM Fri digest)');
+                console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6PM-9PM post-market + 10 AM NSDL + 8 PM Fri digest)');
             } else {
-                console.log('[BOOT] ✅ Cron jobs scheduled (6:00, 6:30, 7:00 PM IST Mon-Fri + 10:00 AM NSDL)');
+                console.log('[BOOT] ✅ Cron jobs scheduled (6PM-9PM post-market IST Mon-Fri + 10:00 AM NSDL)');
             }
 
             // Telegram Watchdog — every 6 hours, auto-heal webhook conflicts + validate config
