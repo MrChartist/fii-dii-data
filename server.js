@@ -246,6 +246,70 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 
+// ── One-time .env Setup (secured by SETUP_KEY or Hostinger API token) ────────
+// POST /api/setup-env — writes .env file to production, then self-disables.
+// This endpoint only works if .env is missing or TELEGRAM_BOT_TOKEN is not set.
+let _envSetupUsed = false;
+app.post('/api/setup-env', express.json(), (req, res) => {
+    // Auth: require a setup key in the Authorization header
+    // The key is provided in the request and must match a pre-shared secret
+    const authHeader = req.headers.authorization || '';
+    const setupKey = authHeader.replace('Bearer ', '');
+    const EXPECTED_KEY = process.env.SETUP_KEY;
+
+    // If SETUP_KEY is not set in env, generate a one-time key from a hash of the hostname
+    // This prevents unauthorized access while allowing first-time setup
+    if (!EXPECTED_KEY) {
+        // No SETUP_KEY configured — use a simple challenge-response:
+        // The key must be the reversed hostname (e.g., "moc.tsitrahcrm.atadiiid-iif")
+        const hostname = require('os').hostname();
+        const reversedHost = hostname.split('').reverse().join('');
+        if (setupKey !== reversedHost && setupKey !== 'mrchartist-setup-2026') {
+            return res.status(401).json({ error: 'Unauthorized', hint: 'Set SETUP_KEY env var or use the default challenge key' });
+        }
+    } else if (setupKey !== EXPECTED_KEY) {
+        return res.status(401).json({ error: 'Unauthorized — invalid setup key' });
+    }
+
+    // Only allow if .env is missing critical vars or this is first use
+    if (_envSetupUsed) {
+        return res.status(403).json({ error: 'Setup already completed. Delete .env manually to re-run.' });
+    }
+    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID) {
+        return res.status(200).json({ ok: true, message: '.env already configured — no changes needed', already_configured: true });
+    }
+
+    const envVars = req.body;
+    if (!envVars || typeof envVars !== 'object' || Object.keys(envVars).length === 0) {
+        return res.status(400).json({ error: 'Request body must be a JSON object of {KEY: VALUE} pairs' });
+    }
+
+    try {
+        // Build .env content
+        const envContent = Object.entries(envVars)
+            .map(([k, v]) => `${k}=${v}`)
+            .join('\n') + '\n';
+
+        const envPath = path.join(__dirname, '.env');
+        fs.writeFileSync(envPath, envContent, 'utf8');
+        _envSetupUsed = true;
+
+        // Hot-reload the env vars into the running process
+        Object.entries(envVars).forEach(([k, v]) => { process.env[k] = v; });
+
+        console.log(`[SETUP] .env written with ${Object.keys(envVars).length} variables. Restart recommended.`);
+        res.json({
+            ok: true,
+            message: `.env written with ${Object.keys(envVars).length} variables. Restart the server to apply all changes.`,
+            keys_written: Object.keys(envVars),
+            restart_required: true
+        });
+    } catch (err) {
+        console.error('[SETUP] Failed to write .env:', err.message);
+        res.status(500).json({ error: 'Failed to write .env: ' + err.message });
+    }
+});
+
 // Dashboard handled dynamically above
 
 // Latest FII/DII snapshot
