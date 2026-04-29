@@ -15,6 +15,7 @@
     "agent:diverge": "node agent-runner.js --agent=flow-divergence",
     "agent:digest": "node agent-runner.js --agent=weekly-digest",
     "agent:all": "node agent-runner.js --agent=all",
+    "test:ui": "node scripts/verify_terminal_ui.js",
     "build": "echo 'No build step required'"
   },
   "engines": {
