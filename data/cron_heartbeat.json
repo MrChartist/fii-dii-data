@@ -1,0 +1,14 @@
+{
+  "morning-brief": {
+    "last_fired": "2026-04-28T21:30:00.022Z",
+    "count": 1
+  },
+  "nsdl-sector-fetch": {
+    "last_fired": "2026-04-28T23:00:00.034Z",
+    "count": 1
+  },
+  "post-market-fetch": {
+    "last_fired": "2026-04-29T10:00:00.019Z",
+    "count": 13
+  }
+}
