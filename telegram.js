@@ -130,7 +130,7 @@ function processUpdate(update) {
     if (text === '/start') {
         const isNew = addChatId(chatId);
         const welcome = isNew
-            ? `\u2728 <b>Welcome to FII & DII Data, ${userName}!</b>\n\nYou're now subscribed to institutional flow intelligence.\n\n<b>What you'll receive:</b>\n\ud83d\udcca Cash Flow Updates (FII/DII daily)\n\ud83d\udcc8 F&O Derivatives Positioning\n\ud83c\udfe6 Sector Rotation (NSDL data)\n\ud83e\udde0 AI Regime Classification\n\ud83d\udd25 Streak & Extreme Flow Alerts\n\u26a1 Contrarian Divergence Signals\n\ud83c\udf05 Morning Pre-Market Briefs\n\ud83d\udcc5 Weekly Institutional Digests\n\n<b>Commands:</b>\n/latest \u2014 Get today's full report\n/fno \u2014 F&O derivatives positioning\n/sector \u2014 Sector rotation data\n/regime \u2014 Current market regime\n/help \u2014 All commands\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>`
+            ? `\u2728 <b>Welcome to FII & DII Data, ${userName}!</b>\n\nYou're now subscribed to institutional flow intelligence.\n\n<b>What you'll receive:</b>\n\ud83d\udcca Cash Flow Updates (FII/DII daily)\n\ud83d\udcc8 F&O Derivatives Positioning\n\ud83c\udfe6 Sector Rotation (NSDL data)\n\ud83e\udde0 AI Regime Classification\n\ud83d\udd25 Streak & Extreme Flow Alerts\n\u26a1 Contrarian Divergence Signals\n\ud83c\udf05 Morning Pre-Market Briefs\n\ud83d\udcc5 Weekly Institutional Digests\n\n<b>Commands:</b>\n/latest \u2014 Get today's full report\n/fno \u2014 F&O derivatives positioning\n/sector \u2014 Sector rotation data\n/regime \u2014 Current market regime\n/help \u2014 All commands\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Live Dashboard</a>`
             : `\ud83d\udc4b Hey ${userName}, you're already subscribed!\n\nTry /latest for today's report or /help for commands.`;
         return { chatId, reply: welcome };
     }
@@ -140,7 +140,7 @@ function processUpdate(update) {
         removeChatId(chatId);
         return {
             chatId,
-            reply: `\ud83d\udd15 <b>Unsubscribed.</b>\n\nYou won't receive further alerts.\nType /start to re-subscribe anytime.\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Dashboard is always available</a>`
+            reply: `\ud83d\udd15 <b>Unsubscribed.</b>\n\nYou won't receive further alerts.\nType /start to re-subscribe anytime.\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Dashboard is always available</a>`
         };
     }
 
@@ -197,7 +197,7 @@ function processUpdate(update) {
         if (r.vix) reply += `VIX: <b>${r.vix}</b>\n`;
         if (r.fii_cumulative_10d) reply += `FII 10d: ${r.fii_cumulative_10d >= 0 ? '+' : ''}\u20b9${Math.abs(r.fii_cumulative_10d).toLocaleString('en-IN')} Cr\n`;
         if (r.recommendation) reply += `\n\ud83d\udca1 <i>${r.recommendation}</i>`;
-        reply += `\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Dashboard</a>`;
+        reply += `\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
         return { chatId, reply };
     }
 
@@ -231,7 +231,7 @@ function processUpdate(update) {
                 `\ud83c\udf05 Morning brief \u2014 8:30 AM IST Mon-Fri\n` +
                 `\ud83d\udcc5 Weekly digest \u2014 Friday 8 PM IST\n` +
                 `\u26a1 Divergence alerts \u2014 On detection\n\n` +
-                `\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>\n` +
+                `\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Live Dashboard</a>\n` +
                 `\ud83d\udce2 <a href="https://t.me/official_mrchartist">Join Channel</a>`
         };
     }
@@ -239,7 +239,7 @@ function processUpdate(update) {
     // ── Default — Unknown command ────────────────────────────────────────────
     return {
         chatId,
-        reply: `\ud83d\udcca <b>FII & DII Data</b>\n\nTry /latest for today's report or /help for all commands.\n\n\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com">Open Dashboard</a>`
+        reply: `\ud83d\udcca <b>FII & DII Data</b>\n\nTry /latest for today's report or /help for all commands.\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`
     };
 }
 

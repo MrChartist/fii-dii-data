@@ -24,7 +24,7 @@ function net(d, prefix) {
 function footer() {
     return `\n${LINE}\n` +
         `${BRAND} · <b>by Mr. Chartist</b>\n` +
-        `🌐 <a href="https://fii-diidata.mrchartist.com">Open Live Dashboard</a>\n` +
+        `🌐 <a href="https://mrchartist.com/fii-dii-data">Open Live Dashboard</a>\n` +
         `📢 <a href="https://t.me/official_mrchartist">Join @official_mrchartist</a>`;
 }
 

@@ -10,6 +10,11 @@ module.exports = {
       autorestart: true,
       watch: false,
       max_memory_restart: '256M',
+      exp_backoff_restart_delay: 100,
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      error_file: './logs/error.log',
+      out_file: './logs/out.log',
+      merge_logs: true,
       env: {
         NODE_ENV: 'production',
         PORT: 3000

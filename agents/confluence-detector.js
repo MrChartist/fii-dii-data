@@ -94,7 +94,7 @@ async function run() {
                 msg += `<i>Multiple independent agents have aligned to generate this high-conviction signal:</i>\n\n`;
                 conf.reasons.forEach(r => msg += `• ${r}\n`);
                 msg += `\n<b>Context:</b> ${conf.action}\n`;
-                msg += `\n<a href="https://fii-diidata.mrchartist.com/">View Live Dashboard</a>`;
+                msg += `\n<a href="https://mrchartist.com/fii-dii-data/">View Live Dashboard</a>`;
 
                 await sendTelegramAlert(msg);
                 alerts_sent++;

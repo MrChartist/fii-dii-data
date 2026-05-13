@@ -15,9 +15,23 @@ try { require('dotenv').config({ path: dotenvPath, override: false }); } catch {
 
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
+
+// ── SSE (Server-Sent Events) — real-time push through Apache ─────────────────
+const sseClients = new Set();
+function sseBroadcast(event, data) {
+    const msg = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+    for (const res of sseClients) {
+        try { res.write(msg); } catch { sseClients.delete(res); }
+    }
+}
+
+// ── Synthesis Cache (5-min TTL to avoid spamming Groq) ───────────────────────
+let _synthCache = { text: null, ts: 0 };
+const SYNTH_TTL = 24 * 60 * 60 * 1000; // 24 hours — synthesis regenerates once daily after FII/DII data posts
 
 // ── Web Push Notifications ───────────────────────────────────────────────────
 let webpush;
@@ -168,6 +182,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── Middleware ────────────────────────────────────────────────────────────────
+app.use(compression({ threshold: 1024 }));
 app.use(cors());
 app.use(express.json());
 
@@ -578,59 +593,89 @@ app.get('/api/market', async (req, res) => {
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', ts: new Date().toISOString() });
+    res.json({ status: 'ok', ts: new Date().toISOString(), uptime: process.uptime(), memory: Math.round(process.memoryUsage().rss / 1024 / 1024) + 'MB', sseClients: sseClients.size });
+});
+
+// ── SSE Stream Endpoint ──────────────────────────────────────────────────────
+app.get('/api/stream', (req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no'  // Disable buffering in reverse proxies
+    });
+    res.write(`data: ${JSON.stringify({ type: 'connected', ts: new Date().toISOString() })}\n\n`);
+    sseClients.add(res);
+    const heartbeat = setInterval(() => {
+        try { res.write(`: heartbeat\n\n`); } catch { clearInterval(heartbeat); sseClients.delete(res); }
+    }, 25000); // 25s heartbeat to keep Apache proxy alive
+    req.on('close', () => { clearInterval(heartbeat); sseClients.delete(res); });
 });
 
 // ── Agent API Endpoints ──────────────────────────────────────────────────────
 
-// Real-Time LLM Synthesis (Groq AI Agent)
+// Real-Time LLM Synthesis (Groq AI Agent) — with 5-min cache
 app.get('/api/agents/synthesis', async (req, res) => {
     try {
+        // Return cached if fresh
+        if (_synthCache.text && (Date.now() - _synthCache.ts) < SYNTH_TTL) {
+            return res.json({ success: true, synthesis: _synthCache.text, cached: true, cached_at: new Date(_synthCache.ts).toISOString() });
+        }
+
         const groqKey = process.env.GROQ_API_KEY;
         if (!groqKey) return res.status(503).json({ error: 'Groq API key not configured' });
         
-        if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
         const { getAllStates } = require('./agents/agent-utils');
-        
-        // Gather full ecosystem context
         const states = getAllStates();
         const latestData = getLatestData();
         const sectorData = getSectorData();
         
-        const systemPrompt = `You are the Lead Financial Analyst AI for 'Mr. Chartist'. Your job is to read the exact, unvarnished data state of the Indian Institutional Market (FII & DII data) and write a punchy, professional, and bold 2-3 paragraph markdown analysis. 
-        Focus strictly on what the 'Agents' have detected. 
-        Tone: Professional hedge fund manager, sharp, analytical, cutting through the noise.
-        Format: Use markdown. Do NOT use fake greetings or disclaimers. 
-        Data Context:
-        - Current Regime: ${states['regime-classifier']?.regime} (Volatility: ${states['regime-classifier']?.vix})
-        - FII Sell Streak: ${states['fii-streak']?.current_sell_streak} days, Buy Streak: ${states['fii-streak']?.current_buy_streak} days
-        - Most Recent Market Flow: FII Net: ${latestData?.fii_net} Cr, DII Net: ${latestData?.dii_net} Cr
-        - Sector Rotation Detected: ${states['sector-rotation']?.last_alert_summary || 'No recent rotation'}
-        - Contrarian Signal: ${states['flow-divergence']?.divergence_type || 'None'}
-        `;
+        // Top 3 sectors by AUM
+        const topSectors = Array.isArray(sectorData) ? sectorData.slice(0, 3).map(s => `${s.sector}: ${s.latest_aum_pct?.toFixed(1)}%`).join(', ') : 'N/A';
+        const fiiNet = latestData?.fii_net || 0;
+        const diiNet = latestData?.dii_net || 0;
+        const date = latestData?.date || 'N/A';
+
+        const systemPrompt = `You are the Lead Institutional Analyst AI for 'Mr. Chartist' — India's top FII/DII data terminal.
+
+Your output format is EXACTLY:
+Line 1: A bold, punchy 8-12 word headline (no markdown, no asterisks, just raw text).
+Line 2: Empty line.
+Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Professional hedge fund tone. No fluff, no disclaimers, no greetings. Reference specific numbers.
+
+Data State (${date}):
+- FII Net: ${fiiNet >= 0 ? '+' : ''}${fiiNet} Cr | DII Net: ${diiNet >= 0 ? '+' : ''}${diiNet} Cr
+- Combined Net: ${(fiiNet + diiNet) >= 0 ? '+' : ''}${Math.abs(fiiNet + diiNet).toFixed(2)} Cr
+- Regime: ${states['regime-classifier']?.regime || 'NEUTRAL'} (VIX: ${states['regime-classifier']?.vix || 'N/A'})
+- FII Sell Streak: ${states['fii-streak']?.current_sell_streak || 0} days | Buy Streak: ${states['fii-streak']?.current_buy_streak || 0} days
+- Flow Strength: ${states['flow-strength']?.flow_label || 'N/A'}
+- Sector Rotation: ${states['sector-rotation']?.last_alert_summary || 'None detected'}
+- Divergence Signal: ${states['flow-divergence']?.divergence_type || 'None'}
+- Top Sectors: ${topSectors}`;
 
         const payload = {
-            model: "llama3-8b-8192",
+            model: "llama-3.1-8b-instant",
             messages: [
                 { role: "system", content: systemPrompt },
-                { role: "user", content: "Write the live market synthesis right now based on our agent data." }
+                { role: "user", content: "Generate the institutional briefing now." }
             ],
-            temperature: 0.5,
-            max_tokens: 500
+            temperature: 0.4,
+            max_tokens: 300
         };
 
         const response = await axios.post('https://api.groq.com/openai/v1/chat/completions', payload, {
-            headers: {
-                'Authorization': `Bearer ${groqKey}`,
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Authorization': `Bearer ${groqKey}`, 'Content-Type': 'application/json' },
+            timeout: 10000
         });
 
         const synthesis = response.data.choices[0].message.content;
-        res.json({ success: true, synthesis });
+        _synthCache = { text: synthesis, ts: Date.now() };
+        res.json({ success: true, synthesis, cached: false });
 
     } catch (err) {
         console.error('[GROQ] Synthesis failed:', err.response?.data || err.message);
+        // Return stale cache if available
+        if (_synthCache.text) return res.json({ success: true, synthesis: _synthCache.text, cached: true, stale: true });
         res.status(500).json({ error: 'Failed to generate synthesis' });
     }
 });
@@ -969,7 +1014,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
 app.post('/api/telegram/setup-webhook', async (req, res) => {
     if (!TG_TOKEN) return res.status(400).json({ error: 'TELEGRAM_BOT_TOKEN not set' });
     try {
-        const baseUrl = req.body.url || `https://fii-diidata.mrchartist.com`;
+        const baseUrl = req.body.url || `https://mrchartist.com/fii-dii-data`;
         const webhookUrl = `${baseUrl}/api/telegram/webhook`;
         const resp = await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook`, {
             url: webhookUrl,
@@ -1057,6 +1102,10 @@ app.listen(PORT, '0.0.0.0', () => {
                 try {
                     const data = await fetchAndProcessData();
                     console.log(`[${new Date().toISOString()}] ${label} fetch completed.`);
+                    // SSE: Push live update to all connected browsers
+                    if (data && !data._skipped) {
+                        sseBroadcast('data-update', { date: data.date, fii_net: data.fii_net, dii_net: data.dii_net, ts: new Date().toISOString() });
+                    }
                     // Auto-broadcast category-specific notifications on new data
                     if (data && !data._skipped) {
                         sendDataNotifications(data);
