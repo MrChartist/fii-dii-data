@@ -1,5 +1,5 @@
 # FII & DII Data India — by Mr. Chartist
-# https://fii-diidata.mrchartist.com
+# https://mrchartist.com/fii-dii-data
 
 ## What is this?
 This is India's most comprehensive free, real-time tracker for FII (Foreign Institutional Investor) and DII (Domestic Institutional Investor) institutional money flows in the Indian equity markets. Built and maintained by @mr_chartist.
@@ -48,7 +48,7 @@ Indian equity traders, fund managers, retail investors, financial analysts, and 
 - Twitter/X: https://twitter.com/mr_chartist
 - Website: https://mrchartist.com
 - GitHub: https://github.com/MrChartist/fii-dii-data
-- Dashboard: https://fii-diidata.mrchartist.com
+- Dashboard: https://mrchartist.com/fii-dii-data
 
 ## License
 Free for personal, research, and educational use. Data sourced from public NSE/NSDL reports.

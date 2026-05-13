@@ -37,7 +37,7 @@ async function run() {
         msg += `<b>Yesterday's Flows:</b>\n`;
         msg += `\u2022 FII: ${fmtCr(latest.fii_net)} ${latest.fii_net < 0 ? '\ud83d\udd34' : '\ud83d\udfe2'}\n`;
         msg += `\u2022 DII: ${fmtCr(latest.dii_net)} ${latest.dii_net < 0 ? '\ud83d\udd34' : '\ud83d\udfe2'}\n\n`;
-        msg += `\ud83c\udf10 <a href="https://fii-diidata.mrchartist.com/">View Dashboard</a>`;
+        msg += `\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data/">View Dashboard</a>`;
     }
 
     // Primary path: broadcastTelegram — sends to both channel AND individual subscribers
