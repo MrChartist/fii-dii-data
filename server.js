@@ -556,6 +556,13 @@ function sendDataNotifications(data) {
         }, 'fao');
     }
 
+    // 2b. Personal threshold alerts (/alert command) — once per session per user
+    if (telegram && TG_TOKEN && sendCash && typeof telegram.checkUserThresholdAlerts === 'function') {
+        telegram.checkUserThresholdAlerts(data, TG_TOKEN, axios)
+            .then(n => { if (n) console.log(`[TELEGRAM] ${n} personal threshold alert(s) sent`); })
+            .catch(err => console.error('[TELEGRAM] Threshold alerts failed:', err.message));
+    }
+
     // 3. Telegram: Detailed messages via telegram-messages module
     if (telegram && TG_TOKEN && tgMessages) {
         try {
@@ -699,6 +706,52 @@ app.get('/api/large-deals', async (req, res) => {
         res.status(502).json({ error: 'Large deals unavailable (NSE may be blocking this host)', detail: err.message });
     }
 });
+
+// NSDL daily FPI trends (custodian-settled equity/debt/hybrid nets)
+app.get('/api/fpi-daily', (req, res) => {
+    try {
+        const p = path.join(__dirname, 'data', 'fpi_daily.json');
+        if (!fs.existsSync(p)) return res.status(404).json({ error: 'NSDL daily data not yet fetched' });
+        res.json(JSON.parse(fs.readFileSync(p, 'utf8')));
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Persisted daily market closes (Nifty + India VIX), appended post-market
+app.get('/api/market-history', (req, res) => {
+    try {
+        const p = path.join(__dirname, 'data', 'market_history.json');
+        res.json(fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : []);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Append today's Nifty + VIX close to data/market_history.json (idempotent per date)
+async function persistMarketClose(dateStr) {
+    try {
+        const fetchClose = async (ticker) => {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+            const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 8000 });
+            const v = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+            return Number.isFinite(v) ? Math.round(v * 100) / 100 : null;
+        };
+        const [nifty, vix] = await Promise.all([fetchClose('^NSEI'), fetchClose('^INDIAVIX')]);
+        if (nifty == null && vix == null) return;
+        const p = path.join(__dirname, 'data', 'market_history.json');
+        const rows = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : [];
+        const idx = rows.findIndex(r => r.date === dateStr);
+        const row = { date: dateStr, nifty_close: nifty, vix_close: vix, ts: new Date().toISOString() };
+        if (idx >= 0) rows[idx] = row; else rows.unshift(row);
+        const tmp = p + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(rows.slice(0, 800), null, 2), 'utf8');
+        fs.renameSync(tmp, p);
+        console.log(`[MARKET] Persisted close for ${dateStr} (Nifty ${nifty}, VIX ${vix})`);
+    } catch (err) {
+        console.warn('[MARKET] Close persistence failed:', err.message);
+    }
+}
 
 // Health check
 app.get('/health', (req, res) => {
@@ -1238,6 +1291,7 @@ app.listen(PORT, '0.0.0.0', () => {
                     // Auto-broadcast category-specific notifications on new data
                     if (data && !data._skipped) {
                         _synthCache = { text: null, ts: 0 }; // new data → regenerate AI synthesis
+                        persistMarketClose(data.date); // store Nifty+VIX close alongside the session
                         // Run post-market agents FIRST so the broadcast messages read
                         // today's streak/regime/divergence state, not yesterday's
                         if (agentRunner) {

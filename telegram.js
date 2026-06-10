@@ -30,6 +30,46 @@ function saveChatIds(ids) {
     fs.renameSync(tmp, SUBS_PATH);
 }
 
+// ── User-set alert thresholds (/alert command) ──────────────────────────────
+const PREFS_PATH = path.join(__dirname, 'data', 'telegram_alert_prefs.json');
+
+function loadAlertPrefs() {
+    try {
+        if (!fs.existsSync(PREFS_PATH)) return {};
+        return JSON.parse(fs.readFileSync(PREFS_PATH, 'utf8'));
+    } catch { return {}; }
+}
+
+function saveAlertPrefs(prefs) {
+    const tmp = PREFS_PATH + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(prefs, null, 2), 'utf8');
+    fs.renameSync(tmp, PREFS_PATH);
+}
+
+// Called after each new data day: fire personal alerts for users whose
+// |FII net| threshold was crossed. Returns number of alerts sent.
+async function checkUserThresholdAlerts(data, token, axios) {
+    if (!token || !data) return 0;
+    const prefs = loadAlertPrefs();
+    const fn = data.fii_net || 0;
+    let sent = 0;
+    for (const [chatId, p] of Object.entries(prefs)) {
+        const thr = p && p.fii_threshold;
+        if (!thr || Math.abs(fn) < thr) continue;
+        if (p.last_alerted_date === data.date) continue; // once per session
+        const dir = fn < 0 ? 'SELLING' : 'BUYING';
+        const msg = `🎯 <b>YOUR ALERT TRIGGERED</b> · ${data.date}\n\n` +
+            `FII net ${dir.toLowerCase()} of <b>${fn < 0 ? '-' : '+'}₹${Math.abs(Math.round(fn)).toLocaleString('en-IN')} Cr</b> ` +
+            `crossed your ±₹${thr.toLocaleString('en-IN')} Cr threshold.\n\n` +
+            `Manage: /alert off · /alert &lt;amount&gt;\n` +
+            `🌐 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
+        const ok = await sendMessage(chatId, msg, token, axios);
+        if (ok) { p.last_alerted_date = data.date; sent++; }
+    }
+    if (sent) saveAlertPrefs(prefs);
+    return sent;
+}
+
 function addChatId(chatId) {
     const ids = loadChatIds();
     if (!ids.includes(chatId)) {
@@ -216,6 +256,30 @@ function processUpdate(update) {
         return { chatId, reply };
     }
 
+    // ── /alert — user-set FII net threshold alerts ──────────────────────────
+    if (text === '/alert' || text.startsWith('/alert ')) {
+        const arg = text.replace('/alert', '').trim();
+        const prefs = loadAlertPrefs();
+        if (arg === 'off' || arg === 'stop') {
+            delete prefs[chatId];
+            saveAlertPrefs(prefs);
+            return { chatId, reply: '🔕 Threshold alert removed. Set a new one anytime with /alert 5000' };
+        }
+        const amount = parseInt(arg.replace(/[,₹\s]/g, ''), 10);
+        if (!arg) {
+            const cur = prefs[chatId]?.fii_threshold;
+            return { chatId, reply: cur
+                ? `🎯 Your alert: FII net beyond <b>±₹${cur.toLocaleString('en-IN')} Cr</b>\n\nChange: /alert 8000 · Remove: /alert off`
+                : `🎯 <b>Personal threshold alerts</b>\n\nGet pinged when FII net flow crosses YOUR level:\n/alert 5000 — alert beyond ±₹5,000 Cr\n/alert off — disable` };
+        }
+        if (!Number.isFinite(amount) || amount < 100 || amount > 1000000) {
+            return { chatId, reply: '⚠️ Use an amount between 100 and 10,00,000 (₹ Cr). Example: /alert 5000' };
+        }
+        prefs[chatId] = { ...(prefs[chatId] || {}), fii_threshold: amount };
+        saveAlertPrefs(prefs);
+        return { chatId, reply: `✅ Done — you'll be alerted when FII net flow exceeds <b>±₹${amount.toLocaleString('en-IN')} Cr</b> in a session.\n\nRemove anytime with /alert off` };
+    }
+
     // ── /streaks — Active FII buy/sell streaks ───────────────────────────────
     if (text === '/streaks' || text === '/streak') {
         const ctx = getOnDemandMessages();
@@ -283,6 +347,7 @@ function processUpdate(update) {
                 `/regime \u2014 Current market regime\n` +
                 `/streaks \u2014 Active FII buy/sell streak\n` +
                 `/absorption \u2014 DII absorption of FII selling\n` +
+                `/alert 5000 \u2014 personal alert when FII net crosses \u00b1\u20b95,000 Cr\n` +
                 `/weekly \u2014 Weekly institutional digest\n\n` +
                 `<b>SUBSCRIPTION</b>\n` +
                 `/start \u2014 Subscribe to alerts\n` +
@@ -307,4 +372,4 @@ function processUpdate(update) {
     };
 }
 
-module.exports = { loadChatIds, addChatId, removeChatId, sendMessage, sendToChannel, broadcastTelegram, processUpdate };
+module.exports = { loadChatIds, addChatId, removeChatId, sendMessage, sendToChannel, broadcastTelegram, processUpdate, checkUserThresholdAlerts };
