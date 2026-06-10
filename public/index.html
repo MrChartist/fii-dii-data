@@ -1367,6 +1367,41 @@ tr:last-child td { border-bottom: none; }
 .sig-bull { background: hsl(152 62% 38% / 0.1); color: var(--green); border: 1px solid hsl(152 62% 38% / 0.2); }
 .sig-bear { background: hsl(0 72% 52% / 0.1); color: var(--red); border: 1px solid hsl(0 72% 52% / 0.2); }
 .sig-neutral { background: var(--l3); color: var(--t3); border: 1px solid var(--sep2); }
+
+/* ── Glossary tooltips (plain-language jargon explainers) ── */
+.gloss { border-bottom: 1px dotted var(--t4); cursor: help; position: relative; }
+.gloss::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  background: var(--l1, #1a1a24); color: var(--t1); border: 1px solid var(--sep2); border-radius: 8px;
+  padding: 8px 12px; font-size: 11px; font-weight: 500; line-height: 1.5; width: 230px; text-align: left;
+  text-transform: none; letter-spacing: normal; white-space: normal; opacity: 0; pointer-events: none;
+  transition: opacity .15s; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+.gloss:hover::after, .gloss:focus::after { opacity: 1; }
+
+/* ── Provisional data chip ── */
+.prov-chip { display: none; font-size: 9px; font-weight: 800; letter-spacing: .06em; padding: 2px 8px;
+  border-radius: 9999px; background: hsl(38 92% 50% / .12); color: #f59e0b; border: 1px solid hsl(38 92% 50% / .25);
+  vertical-align: middle; margin-left: 8px; }
+
+/* ── 30-session signal timeline (replay strip) ── */
+.sig-timeline { display: flex; gap: 3px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+.sig-dot { width: 12px; height: 12px; border-radius: 3px; cursor: default; transition: transform .1s; }
+.sig-dot:hover { transform: scale(1.4); }
+.sig-q-bull { background: var(--green); }
+.sig-q-absorb { background: #f59e0b; }
+.sig-q-fiionly { background: #60a5fa; }
+.sig-q-bear { background: var(--red); }
+
+/* ── First-visit tour ── */
+.tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.66); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.tour-card { background: var(--l1, #14141c); border: 1px solid var(--sep2); border-radius: 16px; max-width: 420px; padding: 28px; text-align: left; }
+.tour-card h3 { font-size: 17px; margin-bottom: 10px; color: var(--t1); }
+.tour-card p { font-size: 13.5px; color: var(--t3); line-height: 1.65; margin-bottom: 20px; }
+.tour-dots { display: flex; gap: 6px; margin-bottom: 18px; }
+.tour-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--sep2); }
+.tour-dots span.on { background: var(--green); }
+.tour-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.tour-btn { padding: 9px 18px; border-radius: 8px; border: 1px solid var(--sep2); background: transparent; color: var(--t3); font-weight: 700; font-size: 13px; cursor: pointer; }
+.tour-btn.primary { background: var(--green); color: #06251c; border-color: transparent; }
 .btn-x { background: rgb(255 255 255 / 0.58); border: 1px solid rgb(0 0 0 / 0.055); color: var(--t2); padding: 0 14px; border-radius: 999px; font-family: var(--font-body); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 250ms ease-out; display: inline-flex; align-items: center; gap: 6px; height: 30px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.74), 0 16px 36px rgb(0 0 0 / 0.055); }
 [data-theme="dark"] .btn-x { background: rgb(255 255 255 / 0.035); border-color: rgb(255 255 255 / 0.06); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035), 0 18px 44px rgb(0 0 0 / 0.24); }
 .btn-x:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px) scale(1.015); }
@@ -2512,17 +2547,17 @@ tr:last-child td { border-bottom: none; }
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">Cash Flow Tape</div>
-            <div class="terminal-sub" id="lDate">Loading latest session</div>
+            <div class="terminal-sub"><span id="lDate">Loading latest session</span><span class="prov-chip gloss" id="provChip" data-tip="NSE evening figures are provisional. Custodian-confirmed numbers publish the next morning and can differ slightly.">PROVISIONAL</span></div>
           </div>
           <div class="mom-badge mb-neut" id="heroBadge">Syncing</div>
         </div>
         <div class="cash-tape-grid">
           <div class="tape-cell">
-            <div class="terminal-label">FII / FPI Net</div>
+            <div class="terminal-label"><span class="gloss" data-tip="Foreign Institutional Investors / Foreign Portfolio Investors — overseas funds buying or selling Indian equities. Net = buys minus sells in the cash market.">FII / FPI</span> Net</div>
             <div class="terminal-value t-red" id="lFii">--</div>
           </div>
           <div class="tape-cell">
-            <div class="terminal-label">DII Net</div>
+            <div class="terminal-label"><span class="gloss" data-tip="Domestic Institutional Investors — Indian mutual funds, insurers and banks. Often absorb FII selling, fueled by monthly SIP inflows.">DII</span> Net</div>
             <div class="terminal-value terminal-value-sm t-green" id="lDii">--</div>
           </div>
           <div class="tape-cell tape-net">
@@ -2539,6 +2574,15 @@ tr:last-child td { border-bottom: none; }
             <div id="meterFII" class="meter-fii" style="width:50%"></div>
             <div id="meterDII" class="meter-dii" style="width:50%"></div>
           </div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="terminal-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="gloss" data-tip="Each square is one session, oldest to newest. Green = both buying · Amber = DII absorbing FII selling · Blue = FII buying alone · Red = both selling.">Signal Replay — last 30 sessions</span>
+            <span style="display:flex; gap:8px; font-size:9px; color:var(--t4); text-transform:none;">
+              <span>🟩 Both buy</span><span>🟧 Absorption</span><span>🟦 FII only</span><span>🟥 Both sell</span>
+            </span>
+          </div>
+          <div class="sig-timeline" id="signal-timeline"></div>
         </div>
         <div class="terminal-actions">
           <button class="terminal-mini-btn" onclick="switchMainTab('t-matrix')">Open Archive</button>
@@ -2966,6 +3010,16 @@ tr:last-child td { border-bottom: none; }
       <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Data_Matrix')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg> Export</button>
       
       <div style="margin-bottom: 24px;">
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+          <button class="terminal-mini-btn" id="btnFlowView" onclick="setFlowView(false)" style="opacity:1;">Period Flows</button>
+          <button class="terminal-mini-btn gloss" id="btnCumView" onclick="setFlowView(true)" style="opacity:.55;" data-tip="Running total of FII and DII net flows with the NIFTY 50 overlaid — the chart traders use to judge whether sustained institutional selling is dragging the index.">Σ Cumulative vs NIFTY</button>
+          <select id="cumRange" onchange="renderHistoryChart()" style="display:none; background:var(--l1); color:var(--t2); border:1px solid var(--sep2); border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700;">
+            <option value="30">30 Sessions</option>
+            <option value="90" selected>90 Sessions</option>
+            <option value="250">1 Year</option>
+            <option value="0">All</option>
+          </select>
+        </div>
         <div class="chart-canvas-wrap" style="height:320px; position:relative; width:100%;"><canvas id="chHistory"></canvas></div>
         <div class="chart-legend" style="margin-top:12px; padding:12px; border-top:1px solid var(--sep2); display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
           <div style="display:flex; align-items:center; gap:6px;">
@@ -3296,6 +3350,18 @@ tr:last-child td { border-bottom: none; }
           <canvas id="chFnoHistory"></canvas>
         </div>
       </div>
+
+      <!-- FII LONG-SHORT RATIO TIME SERIES -->
+      <div style="display:block; padding-top:32px; margin-top:24px; border-top:1px solid var(--sep2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:10px;">
+          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">⚖️ <span class="gloss" data-tip="FII index-futures long contracts ÷ short contracts. Above 1 = net long (bullish positioning). A single reading means little — extremes vs its own history are what matter.">FII Long-Short Ratio</span> (Index Futures)</div>
+          <div style="font-size:11px; color:var(--t4);" id="lsRatioNow">—</div>
+        </div>
+        <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Shaded band = 10th–90th percentile of the loaded history. Readings outside the band are positioning extremes.</div>
+        <div style="position:relative; height:260px;">
+          <canvas id="chLsRatio"></canvas>
+        </div>
+      </div>
     </div>
   </div> <!-- /t-fno -->
 
@@ -3510,6 +3576,7 @@ tr:last-child td { border-bottom: none; }
           <li><a href="#" onclick="switchMainTab('t-fno'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">F&O Positions</a></li>
           <li><a href="#" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart(); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Sector Analysis</a></li>
           <li><a href="https://github.com/MrChartist/fii-dii-data#readme" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Documentation</a></li>
+          <li><a href="/data-api.html" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Data &amp; API</a></li>
           <li><a href="/api/agents/docs" target="_blank" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Agent API Docs</a></li>
         </ul>
       </div>
@@ -3638,6 +3705,7 @@ function switchMainTab(id) {
     }
     if (id === 't-fno') {
       if (typeof renderFnoHistoryChart === 'function') setTimeout(() => renderFnoHistoryChart('fii-fut'), 50);
+      if (typeof renderLsRatioChart === 'function') setTimeout(() => renderLsRatioChart(), 80);
     }
     isSwitchingTab = false;
   };
@@ -3928,10 +3996,30 @@ function recomputeRollups() {
   if (yIdx >= 0) yearlyData[yIdx] = yRow; else yearlyData.unshift(yRow);
 }
 
+/* ── 30-session signal replay strip (hero) ──
+   Quadrant classification per session: both buying / DII absorbing FII selling /
+   FII buying alone / both selling. */
+function renderSignalTimeline() {
+  const el = document.getElementById('signal-timeline');
+  if (!el || !dailyData.length || dailyData[0].d === 'N/A') return;
+  const sessions = dailyData.slice(0, 30).reverse(); // oldest → newest
+  el.innerHTML = sessions.map(s => {
+    let cls, label;
+    if (s.fn >= 0 && s.dn >= 0)      { cls = 'sig-q-bull';    label = 'Both buying'; }
+    else if (s.fn < 0 && s.dn >= 0)  { cls = 'sig-q-absorb';  label = 'DII absorbing FII selling'; }
+    else if (s.fn >= 0 && s.dn < 0)  { cls = 'sig-q-fiionly'; label = 'FII buying, DII selling'; }
+    else                             { cls = 'sig-q-bear';    label = 'Both selling'; }
+    return `<div class="sig-dot ${cls}" title="${escapeHtml(s.d)} — ${label} · FII ${fmt(s.fn)} · DII ${fmt(s.dn)}"></div>`;
+  }).join('');
+}
+
 function renderDashboard() {
   recomputeRollups();
+  renderSignalTimeline();
+  const provChip = document.getElementById('provChip');
+  if (provChip && dailyData.length && dailyData[0].d !== 'N/A') provChip.style.display = 'inline-block';
   const latest = dailyData[0];
-  
+
   // Calculate Flow Streak
   let streakCount = 1;
   let sType = latest.fn > 0 ? 'buy' : 'sell';
@@ -5369,20 +5457,64 @@ window.addEventListener('DOMContentLoaded', async () => {
   const sTxt  = document.getElementById('sTxt');
   if (dailyData && dailyData.length > 0 && dailyData[0].d !== 'N/A') {
     if (sPill) sPill.className = 'status-pill live';
-    if (sTxt)  sTxt.innerHTML  = `LIVE &bull; ${dailyData[0].d}`;
+    // If the latest session isn't today's, tell users when fresh data lands
+    // instead of leaving them wondering whether the site is broken
+    const istHour = (new Date().getUTCHours() + 5.5) % 24;
+    let pillText = `LIVE &bull; ${dailyData[0].d}`;
+    try {
+      const parsed = parseNSEDate(dailyData[0].d);
+      const istNow = new Date(Date.now() + 5.5 * 60 * 60 * 1000);
+      const sameDay = parsed && parsed.getFullYear() === istNow.getUTCFullYear() &&
+        parsed.getMonth() === istNow.getUTCMonth() && parsed.getDate() === istNow.getUTCDate();
+      if (!sameDay && istHour >= 9 && istHour < 18.5) {
+        pillText = `${dailyData[0].d} &bull; today's data ~6 PM IST`;
+      }
+    } catch {}
+    if (sTxt) sTxt.innerHTML = pillText;
   } else {
     if (sPill) sPill.className = 'status-pill err';
-    if (sTxt)  sTxt.innerHTML  = 'OFFLINE';
+    if (sTxt)  sTxt.innerHTML  = 'NSE publishes ~6 PM IST — retry later';
   }
 
   scheduleNextRefresh();
   startCountdown();
   switchMainTab('t-hero'); // activate default tab panel
+  initTour();
 });
+
+/* ── First-visit tour (3 steps, skippable, shown once) ── */
+function initTour() {
+  try { if (localStorage.getItem('tour_done')) return; } catch { return; }
+  const steps = [
+    { t: '👋 Welcome to FII & DII Data', p: 'Every evening after market close, this dashboard shows whether Foreign Institutional Investors (FII) were net buyers or sellers of Indian equities — and whether Domestic Institutions (DII) absorbed the move. Green = buying, red = selling.' },
+    { t: '📊 Go deeper in two taps', p: 'The F&O tab shows how institutions are positioned in derivatives (futures & options), Flow Analytics holds the full daily/weekly/monthly archive with filters and CSV export, and Sectors tracks where foreign money rotates fortnight by fortnight.' },
+    { t: '🔔 Never refresh manually', p: 'Enable push alerts or join the Telegram bot to get cash-flow, F&O and sector updates the moment they publish — plus an AI-written daily brief. Everything is free.' }
+  ];
+  let idx = 0;
+  const overlay = document.createElement('div');
+  overlay.className = 'tour-overlay';
+  const render = () => {
+    const s = steps[idx];
+    overlay.innerHTML = `<div class="tour-card">
+      <div class="tour-dots">${steps.map((_, i) => `<span class="${i <= idx ? 'on' : ''}"></span>`).join('')}</div>
+      <h3>${s.t}</h3><p>${s.p}</p>
+      <div class="tour-actions">
+        <button class="tour-btn" id="tourSkip">Skip</button>
+        <button class="tour-btn primary" id="tourNext">${idx === steps.length - 1 ? 'Start exploring' : 'Next'}</button>
+      </div></div>`;
+    overlay.querySelector('#tourSkip').onclick = done;
+    overlay.querySelector('#tourNext').onclick = () => { if (idx === steps.length - 1) done(); else { idx++; render(); } };
+  };
+  const done = () => { overlay.remove(); try { localStorage.setItem('tour_done', '1'); } catch {} };
+  render();
+  setTimeout(() => document.body.appendChild(overlay), 1200);
+}
 
 // 3. Charts Render & Theme Logic
 let chartHistory = null;
 let _historyChartMode = 'daily'; // Default to daily since the matrix defaults to daily flows
+let _cumulativeView = false;
+let _niftyHist = null; // [{date:'DD-MMM-YYYY', close}] — lazy-loaded
 
 function initCharts() {
   switchHistoryChart('daily');
@@ -5391,6 +5523,74 @@ function initCharts() {
 function switchHistoryChart(mode) {
   _historyChartMode = mode;
   renderHistoryChart();
+}
+
+function setFlowView(cumulative) {
+  _cumulativeView = cumulative;
+  const bF = document.getElementById('btnFlowView');
+  const bC = document.getElementById('btnCumView');
+  const rng = document.getElementById('cumRange');
+  if (bF) bF.style.opacity = cumulative ? '.55' : '1';
+  if (bC) bC.style.opacity = cumulative ? '1' : '.55';
+  if (rng) rng.style.display = cumulative ? '' : 'none';
+  if (cumulative && !_niftyHist) {
+    fetch('/api/nifty-history').then(r => r.ok ? r.json() : null).then(rows => {
+      if (Array.isArray(rows)) _niftyHist = rows;
+      renderHistoryChart();
+    }).catch(() => renderHistoryChart());
+  } else {
+    renderHistoryChart();
+  }
+}
+
+/* Cumulative FII/DII flows with NIFTY 50 overlay — the flows-vs-index view */
+function renderCumulativeChart(ctx, isLight, gridCol, tickCol, labelCol) {
+  const rangeN = parseInt(document.getElementById('cumRange')?.value || '90', 10);
+  let rows = [...dailyData].reverse(); // oldest → newest
+  if (rangeN > 0) rows = rows.slice(-rangeN);
+
+  const niftyByDate = {};
+  (_niftyHist || []).forEach(r => { niftyByDate[r.date] = r.close; });
+
+  let cf = 0, cd = 0;
+  const labels = [], cumFii = [], cumDii = [], nifty = [];
+  let lastNifty = null;
+  rows.forEach(r => {
+    cf += r.fn || 0; cd += r.dn || 0;
+    labels.push(r.d); cumFii.push(Math.round(cf)); cumDii.push(Math.round(cd));
+    if (niftyByDate[r.d] != null) lastNifty = niftyByDate[r.d];
+    nifty.push(lastNifty); // carry forward over gaps so the line stays continuous
+  });
+
+  const datasets = [
+    { label: 'Cumulative FII', data: cumFii, borderColor: '#FB3640', backgroundColor: 'rgba(251,54,64,0.08)', fill: true, tension: .25, pointRadius: 0, borderWidth: 2, yAxisID: 'y' },
+    { label: 'Cumulative DII', data: cumDii, borderColor: isLight ? '#004643' : '#00D09E', backgroundColor: 'rgba(0,208,158,0.08)', fill: true, tension: .25, pointRadius: 0, borderWidth: 2, yAxisID: 'y' }
+  ];
+  const hasNifty = nifty.some(v => v != null);
+  if (hasNifty) {
+    datasets.push({ label: 'NIFTY 50', data: nifty, borderColor: isLight ? '#2563EB' : '#60A5FA', borderDash: [6, 4], fill: false, tension: .25, pointRadius: 0, borderWidth: 2, yAxisID: 'y1' });
+  }
+
+  chartHistory = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { labels: { color: labelCol, font: { size: 11, weight: '600' }, boxWidth: 14 } },
+        tooltip: { callbacks: { label: c => c.dataset.yAxisID === 'y1'
+          ? ` NIFTY 50: ${c.raw == null ? '—' : c.raw.toLocaleString('en-IN')}`
+          : ` ${c.dataset.label}: ${fmt(c.raw)}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickCol, font: { size: 9 }, maxTicksLimit: 10 } },
+        y: { grid: { color: gridCol }, ticks: { color: tickCol, font: { size: 9 }, callback: v => fmt(v) },
+             title: { display: true, text: '₹ Crore (cumulative)', color: tickCol, font: { size: 10 } } },
+        ...(hasNifty ? { y1: { position: 'right', grid: { display: false }, ticks: { color: tickCol, font: { size: 9 } },
+             title: { display: true, text: 'NIFTY 50', color: tickCol, font: { size: 10 } } } } : {})
+      }
+    }
+  });
 }
 
 function renderHistoryChart() {
@@ -5407,7 +5607,9 @@ function renderHistoryChart() {
   const canvasEl = document.getElementById('chHistory');
   if (!canvasEl) return;
   const ctx = canvasEl.getContext('2d');
-  
+
+  if (_cumulativeView) return renderCumulativeChart(ctx, isLight, gridCol, tickCol, labelCol);
+
   let sourceData = [];
   let lblKey = '';
   
@@ -6072,6 +6274,56 @@ function switchSectorChartType(t) {
 
 let fnoHistoryChart = null;
 let _fnoHistoryMode = 'fii-fut';
+
+/* ── FII long-short ratio time series with percentile bands ── */
+let _lsRatioChart = null;
+function renderLsRatioChart() {
+  const canvas = document.getElementById('chLsRatio');
+  if (!canvas || !dailyData.length) return;
+
+  // Build the ratio series from sessions that have futures OI (oldest → newest)
+  const rows = [...dailyData].reverse().filter(d => (d.fii_idx_fut_long || 0) > 0 && (d.fii_idx_fut_short || 0) > 0);
+  if (rows.length < 5) return;
+  const labels = rows.map(d => d.d);
+  const ratios = rows.map(d => Math.round((d.fii_idx_fut_long / d.fii_idx_fut_short) * 100) / 100);
+
+  // 10th / 90th percentile of the series' own history
+  const sorted = [...ratios].sort((a, b) => a - b);
+  const pct = q => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(q * (sorted.length - 1))))];
+  const p10 = pct(0.10), p90 = pct(0.90);
+
+  const nowEl = document.getElementById('lsRatioNow');
+  if (nowEl) {
+    const cur = ratios[ratios.length - 1];
+    const zone = cur > p90 ? '🔥 above 90th pctile' : cur < p10 ? '🧊 below 10th pctile' : 'within normal band';
+    nowEl.textContent = `Now: ${cur} (${zone})`;
+  }
+
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const tickCol = isLight ? 'rgba(0,15,8,0.5)' : 'rgba(240,237,229,0.5)';
+  const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
+
+  if (_lsRatioChart) _lsRatioChart.destroy();
+  _lsRatioChart = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Long-Short Ratio', data: ratios, borderColor: isLight ? '#7c3aed' : '#a78bfa', backgroundColor: 'rgba(139,92,246,0.08)', fill: true, tension: .25, pointRadius: 0, borderWidth: 2 },
+        { label: '90th pctile', data: labels.map(() => p90), borderColor: 'rgba(239,68,68,0.45)', borderDash: [4, 4], pointRadius: 0, borderWidth: 1, fill: false },
+        { label: '10th pctile', data: labels.map(() => p10), borderColor: 'rgba(10,209,166,0.45)', borderDash: [4, 4], pointRadius: 0, borderWidth: 1, fill: '-1', backgroundColor: isLight ? 'rgba(0,15,8,0.03)' : 'rgba(240,237,229,0.03)' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${c.raw}` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: tickCol, font: { size: 9 }, maxTicksLimit: 10 } },
+        y: { grid: { color: gridCol }, ticks: { color: tickCol, font: { size: 9 } }, title: { display: true, text: 'Long ÷ Short', color: tickCol, font: { size: 10 } } }
+      }
+    }
+  });
+}
 
 function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   _fnoHistoryMode = mode;

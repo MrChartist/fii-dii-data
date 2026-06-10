@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data & API — FII & DII Data by Mr. Chartist</title>
+<meta name="description" content="Free JSON API and CSV downloads for Indian FII/DII institutional flow data — daily cash flows, F&O participant-wise OI, NSDL FPI sector allocation.">
+<link rel="canonical" href="https://fii-diidata.mrchartist.com/data-api.html">
+<link rel="icon" href="/icons/icon-192.png">
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --sep:#23232e; --t1:#f2f2f7; --t2:#b9b9c6; --t3:#8a8a99; --acc:#6366f1; --green:#0ad1a6; --red:#ef4444; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--t1); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; line-height:1.6; padding:32px 16px 80px; }
+  .wrap { max-width:860px; margin:0 auto; }
+  h1 { font-size:26px; margin-bottom:6px; }
+  h2 { font-size:18px; margin:36px 0 12px; color:var(--t1); border-bottom:1px solid var(--sep); padding-bottom:8px; }
+  p { color:var(--t2); margin-bottom:12px; font-size:14px; }
+  a { color:var(--acc); }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px; }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--sep); vertical-align:top; }
+  th { color:var(--t3); font-size:11px; text-transform:uppercase; letter-spacing:.05em; }
+  code { background:var(--card); border:1px solid var(--sep); border-radius:6px; padding:2px 7px; font-size:12.5px; color:var(--green); font-family:ui-monospace,'SF Mono',Menlo,monospace; }
+  .btn { display:inline-block; background:var(--acc); color:#fff; font-weight:700; font-size:13px; padding:10px 18px; border-radius:8px; text-decoration:none; border:none; cursor:pointer; margin:4px 8px 4px 0; }
+  .btn.ghost { background:transparent; border:1px solid var(--sep); color:var(--t2); }
+  .note { background:var(--card); border:1px solid var(--sep); border-left:3px solid var(--acc); border-radius:8px; padding:14px 16px; font-size:13px; color:var(--t2); margin:16px 0; }
+  .back { font-size:13px; color:var(--t3); text-decoration:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/">← Back to dashboard</a>
+  <h1 style="margin-top:14px;">📡 Data &amp; API</h1>
+  <p>Every dataset behind the dashboard is available as free JSON. No key, no signup.
+     Sourced from NSE (daily cash + F&amp;O participant OI) and NSDL (fortnightly FPI sector data).</p>
+
+  <h2>Downloads</h2>
+  <p>
+    <button class="btn" onclick="downloadCSV()">⬇ Full history (CSV)</button>
+    <a class="btn ghost" href="/api/history-full" target="_blank">Full history (JSON)</a>
+    <a class="btn ghost" href="/api/sectors" target="_blank">Sectors (JSON)</a>
+  </p>
+
+  <h2>Endpoints</h2>
+  <table>
+    <tr><th>Endpoint</th><th>Returns</th></tr>
+    <tr><td><code>GET /api/data</code></td><td>Latest session — FII/DII cash buy/sell/net plus F&amp;O participant OI, PCR and sentiment score. Evening figures are <b>provisional</b> (custodian-confirmed figures land the next morning).</td></tr>
+    <tr><td><code>GET /api/history</code></td><td>Last 60 sessions, newest first.</td></tr>
+    <tr><td><code>GET /api/history-full</code></td><td>Full daily history (compact keys: <code>d</code> date, <code>fb/fs/fn</code> FII buy/sell/net, <code>db/ds/dn</code> DII, plus F&amp;O OI fields, <code>pcr</code>, <code>sentiment_score</code>).</td></tr>
+    <tr><td><code>GET /api/sectors</code></td><td>NSDL fortnightly FPI sector allocation — AUM %, fortnight net flow (₹ Cr), 1-year flow, per-fortnight history array.</td></tr>
+    <tr><td><code>GET /api/market</code></td><td>Live NIFTY 50 &amp; India VIX quote (Yahoo Finance proxy).</td></tr>
+    <tr><td><code>GET /api/nifty-history</code></td><td>~2 years of NIFTY 50 daily closes (for flow-vs-index overlays).</td></tr>
+    <tr><td><code>GET /api/large-deals</code></td><td>Today's NSE bulk / block / short-sale deals (when upstream allows).</td></tr>
+    <tr><td><code>GET /api/agents/status</code></td><td>All analysis agents — streaks, regime, flow strength, divergence, sector rotation.</td></tr>
+    <tr><td><code>GET /api/agents/regime</code></td><td>Current market regime classification with recommendation.</td></tr>
+    <tr><td><code>GET /api/agents/streaks</code></td><td>Active FII buy/sell streak, cumulative flow, DII absorption %.</td></tr>
+    <tr><td><code>GET /api/agents/docs</code></td><td>Self-documenting agent API manifest.</td></tr>
+  </table>
+
+  <h2>Field reference</h2>
+  <table>
+    <tr><th>Field</th><th>Meaning</th></tr>
+    <tr><td><code>fii_net</code> / <code>fn</code></td><td>FII net cash purchase in ₹ Crore (negative = net selling).</td></tr>
+    <tr><td><code>dii_net</code> / <code>dn</code></td><td>DII net cash purchase in ₹ Crore.</td></tr>
+    <tr><td><code>fii_idx_fut_long/short</code></td><td>FII index-futures open interest, contracts (long-short ratio = long ÷ short).</td></tr>
+    <tr><td><code>pcr</code></td><td>FII index-option put-call ratio computed on short OI (put short ÷ call short).</td></tr>
+    <tr><td><code>_source</code></td><td><code>fetch-pipeline</code> = real NSE data. Other values are seeded/estimated rows kept for continuity.</td></tr>
+  </table>
+
+  <div class="note">
+    <b>Terms:</b> Data originates from NSE and NSDL public reports, which permit
+    <b>personal, non-commercial</b> use. This API is offered free for research and
+    personal analysis — please don't resell the data, and keep request rates polite
+    (responses are cached server-side). Attribution appreciated:
+    <a href="https://fii-diidata.mrchartist.com/">FII &amp; DII Data by Mr. Chartist</a>.
+  </div>
+
+  <p style="margin-top:28px; font-size:12px; color:var(--t3);">
+    Questions or a dataset you wish existed? Ping <a href="https://twitter.com/mr_chartist">@mr_chartist</a>
+    or open an issue on <a href="https://github.com/MrChartist/fii-dii-data">GitHub</a>.
+  </p>
+</div>
+<script>
+async function downloadCSV() {
+  try {
+    const res = await fetch('/api/history-full');
+    const rows = await res.json();
+    if (!rows.length) return alert('No data available');
+    const cols = Object.keys(rows[0]);
+    const csv = [cols.join(',')].concat(
+      rows.map(r => cols.map(c => r[c] ?? '').join(','))
+    ).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'fii-dii-history.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch (e) { alert('Download failed: ' + e.message); }
+}
+</script>
+</body>
+</html>
