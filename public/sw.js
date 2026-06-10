@@ -5,7 +5,7 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v9';
+const CACHE_NAME = 'mrchartist-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -38,17 +38,28 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
   if (event.request.url.includes('/api/')) return;
 
+  // Cache same-origin requests only, keyed without the query string — the page
+  // polls data files with ?t=<timestamp> cache-busters, and caching each unique
+  // URL grows storage unboundedly while never matching offline.
+  const reqUrl = new URL(event.request.url);
+  const sameOrigin = reqUrl.origin === self.location.origin;
+  const cacheKey = sameOrigin ? reqUrl.origin + reqUrl.pathname : null;
+
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        // Clone and cache successful responses
-        if (response.ok) {
+        if (response.ok && cacheKey) {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          caches.open(CACHE_NAME)
+            .then(cache => cache.put(cacheKey, clone))
+            .catch(() => { /* opaque/unsupported responses — ignore */ });
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(cacheKey || event.request, { ignoreSearch: true })
+        .then(cached => cached || caches.match('/index.html'))
+        .then(cached => cached || Response.error())
+      )
   );
 });
 
@@ -114,9 +125,12 @@ self.addEventListener('notificationclick', event => {
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-      // If a tab is already open, focus it
+      // If a tab is already open, navigate it to the deep-link target and focus it
       for (const client of windowClients) {
         if (client.url.includes(self.registration.scope) && 'focus' in client) {
+          if ('navigate' in client) {
+            return client.navigate(urlToOpen).then(c => (c || client).focus()).catch(() => client.focus());
+          }
           return client.focus();
         }
       }

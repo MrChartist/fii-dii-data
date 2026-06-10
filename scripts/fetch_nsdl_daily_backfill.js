@@ -167,8 +167,9 @@ function getFortnightDates(monthsBack = 6) {
     const dates = [];
     const today = new Date();
     for (let m = 0; m < monthsBack; m++) {
-        const d = new Date(today);
-        d.setMonth(d.getMonth() - m);
+        // Anchor to day 1 — setMonth() on a day-29/30/31 date rolls over into
+        // the wrong month (e.g. May 31 − 1 month → May 1), skipping months
+        const d = new Date(today.getFullYear(), today.getMonth() - m, 1);
         const yr = d.getFullYear();
         const mon = MONTH_ABBR[d.getMonth()];
         // NSDL publishes on 15th and last day of month

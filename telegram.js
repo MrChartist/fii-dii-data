@@ -9,7 +9,13 @@ function tgHealth() {
     return _tgHealth;
 }
 
-const SUBS_PATH = path.join(process.cwd(), 'data', 'telegram_subs.json');
+const SUBS_PATH = path.join(__dirname, 'data', 'telegram_subs.json');
+
+// Escape user-controlled text before interpolating into HTML parse-mode
+// messages — names like "<3" otherwise make Telegram reject the whole send
+function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
 
 function loadChatIds() {
     try {
@@ -48,6 +54,7 @@ async function sendMessage(chatId, text, token, axios) {
             disable_web_page_preview: false
         });
         tgHealth().trackSuccess('subscriber', chatId, text);
+        return true;
     } catch (err) {
         if (err.response?.data?.error_code === 403) {
             removeChatId(chatId);
@@ -58,6 +65,7 @@ async function sendMessage(chatId, text, token, axios) {
             console.error(`[TELEGRAM] Send failed for ${chatId}:`, errMsg);
             tgHealth().trackFailure('subscriber', chatId, errMsg, text);
         }
+        return false;
     }
 }
 
@@ -75,24 +83,30 @@ async function sendToChannel(channelId, text, token, axios) {
         });
         console.log(`[TELEGRAM] Posted to channel ${channelId}`);
         tgHealth().trackSuccess('channel', channelId, text);
+        return true;
     } catch (err) {
         const errMsg = err.response?.data?.description || err.message;
         console.error(`[TELEGRAM] Channel post failed:`, errMsg);
         tgHealth().trackFailure('channel', channelId, errMsg, text);
+        return false;
     }
 }
 
 async function broadcastTelegram(text, token, axios, channelId) {
-    if (!token) return;
+    if (!token) return { sent: 0, failed: 0 };
+    let sent = 0, failed = 0;
     // Post to channel first
     if (channelId) {
-        await sendToChannel(channelId, text, token, axios);
+        (await sendToChannel(channelId, text, token, axios)) ? sent++ : failed++;
     }
     // Then broadcast to individual subscribers
     const ids = loadChatIds();
-    if (!ids.length) return;
-    console.log(`[TELEGRAM] Broadcasting to ${ids.length} subscriber(s)\u2026`);
-    await Promise.allSettled(ids.map(id => sendMessage(id, text, token, axios)));
+    if (ids.length) {
+        console.log(`[TELEGRAM] Broadcasting to ${ids.length} subscriber(s)\u2026`);
+        const results = await Promise.allSettled(ids.map(id => sendMessage(id, text, token, axios)));
+        results.forEach(r => (r.status === 'fulfilled' && r.value) ? sent++ : failed++);
+    }
+    return { sent, failed };
 }
 
 // ── Build on-demand reports for /latest, /fno, /sector commands ──────────────
@@ -123,8 +137,9 @@ function processUpdate(update) {
     if (!msg || !msg.text) return null;
 
     const chatId = msg.chat.id;
-    const text = msg.text.trim().toLowerCase();
-    const userName = msg.from?.first_name || 'Investor';
+    // Strip "@BotName" suffix so group commands like /latest@FlowMatrixBot work
+    const text = msg.text.trim().toLowerCase().split('@')[0];
+    const userName = escapeHtml(msg.from?.first_name || 'Investor');
 
     // ── /start ───────────────────────────────────────────────────────────────
     if (text === '/start') {
@@ -161,7 +176,7 @@ function processUpdate(update) {
     // ── /latest — Full cash flow report ──────────────────────────────────────
     if (text === '/latest') {
         const ctx = getOnDemandMessages();
-        if (!ctx) return { chatId, reply: '\u26a0\ufe0f Data not available yet. Please try later.' };
+        if (!ctx || !ctx.latest) return { chatId, reply: '\u26a0\ufe0f Data not available yet. Please try later.' };
         // Return as async: multi-message
         return {
             chatId,
@@ -173,7 +188,7 @@ function processUpdate(update) {
     // ── /fno — Derivatives positioning ───────────────────────────────────────
     if (text === '/fno' || text === '/derivatives') {
         const ctx = getOnDemandMessages();
-        if (!ctx) return { chatId, reply: '\u26a0\ufe0f Data not available yet.' };
+        if (!ctx || !ctx.latest) return { chatId, reply: '\u26a0\ufe0f Data not available yet.' };
         return { chatId, reply: ctx.tgMessages.buildDerivativesMessage(ctx.latest) };
     }
 

@@ -175,8 +175,10 @@ async function fetchVIX() {
 // ── Formatters ───────────────────────────────────────────────────────────────
 
 function fmtCr(value) {
-    const sign = value >= 0 ? '+' : '-';
-    return `${sign}₹${Math.abs(Math.round(value)).toLocaleString('en-IN')} Cr`;
+    // Sign comes from the rounded value so -0.4 prints "+₹0 Cr", not "-₹0 Cr"
+    const rounded = Math.round(value || 0);
+    const sign = rounded >= 0 ? '+' : '-';
+    return `${sign}₹${Math.abs(rounded).toLocaleString('en-IN')} Cr`;
 }
 
 function fmtPct(value) {

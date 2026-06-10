@@ -18,6 +18,15 @@ const {
 
 const AGENT_NAME = 'weekly-digest';
 
+// ISO-8601 week number (weeks start Monday, week 1 contains the first Thursday)
+function getISOWeek(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+}
+
 // ── Digest Compiler ──────────────────────────────────────────────────────────
 
 function compileWeeklyDigest(history5, allStates) {
@@ -148,14 +157,33 @@ async function run() {
         return { items_found: 0, alerts_sent: 0, message: 'Failed to compile digest' };
     }
 
-    // Always send the weekly digest (it's scheduled weekly)
-    const alert = buildDigestAlert(digest);
-    await sendTelegramAlert(alert);
-    console.log(`[${AGENT_NAME}] 📋 Weekly digest sent (${digest.tradingDays} days, FII: ${fmtCr(digest.weeklyFII)})`);
+    // Send at most once per ISO week — this agent is also reachable via
+    // /api/agents/run-all and `--agent=all`, which previously fired a digest
+    // to the channel on every invocation
+    const state = getState(AGENT_NAME);
+    const istNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const weekKey = `${istNow.getFullYear()}-W${getISOWeek(istNow)}`;
+    let alertsSent = 0;
+    if (state.last_digest_week !== weekKey) {
+        // The Friday cron in server.js broadcasts the rich digest to the channel
+        // + subscribers right after this run — only send this plain copy when a
+        // separate admin chat is configured, to avoid double-posting the channel
+        const adminChat = process.env.TELEGRAM_CHAT_ID;
+        const channel = process.env.TELEGRAM_CHANNEL_ID;
+        if (adminChat && adminChat !== channel) {
+            const alert = buildDigestAlert(digest);
+            const result = await sendTelegramAlert(alert);
+            if (result?.sent) alertsSent++;
+        }
+        console.log(`[${AGENT_NAME}] 📋 Weekly digest compiled (${digest.tradingDays} days, FII: ${fmtCr(digest.weeklyFII)})`);
+    } else {
+        console.log(`[${AGENT_NAME}] Digest already sent for ${weekKey} — skipping send`);
+    }
 
     // Update state
     setState(AGENT_NAME, {
         last_digest_date: new Date().toISOString(),
+        last_digest_week: weekKey,
         weekly_fii: digest.weeklyFII,
         weekly_dii: digest.weeklyDII,
         trading_days: digest.tradingDays,
@@ -164,7 +192,7 @@ async function run() {
 
     return {
         items_found: digest.tradingDays,
-        alerts_sent: 1,
+        alerts_sent: alertsSent,
         summary: {
             weekly_fii: fmtCr(digest.weeklyFII),
             weekly_dii: fmtCr(digest.weeklyDII),

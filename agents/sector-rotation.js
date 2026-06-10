@@ -21,39 +21,34 @@ const AGENT_NAME = 'sector-rotation';
 function analyzeSectors(sectors) {
     if (!sectors.length) return null;
 
+    // historyCr is an oldest→newest array of PER-FORTNIGHT net flows (₹ Cr),
+    // not cumulative levels — the latest entry IS the fortnight's flow, and a
+    // "sustained exit" means consecutive negative flows (not decreasing ones).
     const analysis = sectors.map(sector => {
         const history = sector.historyCr || [];
         if (history.length < 2) return null;
 
-        const latest = history[history.length - 1];
-        const previous = history[history.length - 2];
-        const fortnightChange = latest - previous;
+        const fortnightChange = history[history.length - 1];
 
-        // Calculate consecutive decline fortnights
+        // Consecutive outflow fortnights (FPI selling)
         let declineStreak = 0;
-        for (let i = history.length - 1; i >= 1; i--) {
-            if (history[i] < history[i - 1]) {
-                declineStreak++;
-            } else {
-                break;
-            }
+        for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i] < 0) declineStreak++;
+            else break;
         }
 
-        // Calculate consecutive growth fortnights
+        // Consecutive inflow fortnights (FPI buying)
         let growthStreak = 0;
-        for (let i = history.length - 1; i >= 1; i--) {
-            if (history[i] > history[i - 1]) {
-                growthStreak++;
-            } else {
-                break;
-            }
+        for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i] > 0) growthStreak++;
+            else break;
         }
 
         return {
             name: sector.name,
             aumPct: sector.aumPct || 0,
             fortnightChange,
-            cumulativeOneYear: latest,
+            cumulativeOneYear: sector.oneYearCr ?? history.reduce((s, v) => s + v, 0),
             declineStreak,
             growthStreak,
             fortnightCr: sector.fortnightCr || fortnightChange,
@@ -103,14 +98,14 @@ function buildRotationAlert(rotation) {
     let sustainedSection = '';
     if (rotation.sustainedExits.length > 0) {
         const exits = rotation.sustainedExits
-            .map(s => `  ⚠️ ${s.name}: ${s.declineStreak} fortnights of decline`)
+            .map(s => `  ⚠️ ${s.name}: ${s.declineStreak} fortnights of outflows`)
             .join('\n');
         sustainedSection = `\n🚨 Sustained FPI Exits:\n${exits}\n`;
     }
 
     if (rotation.sustainedEntries.length > 0) {
         const entries = rotation.sustainedEntries
-            .map(s => `  ✅ ${s.name}: ${s.growthStreak} fortnights of growth`)
+            .map(s => `  ✅ ${s.name}: ${s.growthStreak} fortnights of inflows`)
             .join('\n');
         sustainedSection += `\n📈 Sustained FPI Entries:\n${entries}\n`;
     }
@@ -148,19 +143,12 @@ async function run() {
 
     let alertsSent = 0;
 
-    // Detect if new sector data has arrived
-    // Compare history array lengths — new fortnight = new entry appended
-    const currentLengths = {};
-    for (const s of sectors) {
-        currentLengths[s.name] = (s.historyCr || []).length;
-    }
+    // Detect if new sector data has arrived via the fortnight date code —
+    // history array lengths stop changing once the history file hits its cap
+    const currentDateCode = sectors[0]?.lastDate || '';
+    const hasNewData = currentDateCode !== (state.last_date_code || '');
 
-    const lastLengths = state.last_sector_lengths || {};
-    const hasNewData = Object.keys(currentLengths).some(name =>
-        (currentLengths[name] || 0) !== (lastLengths[name] || 0)
-    );
-
-    if (hasNewData || Object.keys(lastLengths).length === 0) {
+    if (hasNewData || !state.last_date_code) {
         // New sector data detected — send alert
         if (rotation.significantMoves.length > 0 || rotation.sustainedExits.length > 0) {
             const alert = buildRotationAlert(rotation);
@@ -174,7 +162,7 @@ async function run() {
 
     // Update state
     setState(AGENT_NAME, {
-        last_sector_lengths: currentLengths,
+        last_date_code: currentDateCode,
         total_sectors: rotation.totalSectors,
         significant_moves: rotation.significantMoves.length,
         sustained_exits: rotation.sustainedExits.map(s => s.name),

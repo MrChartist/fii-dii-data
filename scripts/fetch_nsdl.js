@@ -61,8 +61,12 @@ function readJSON(filename, defaultVal = null) {
 }
 
 function writeJSON(filename, data) {
+    // Atomic write — the server reads these files while this script runs,
+    // so a direct overwrite could be observed half-written
     const p = path.join(DATA_DIR, filename);
-    fs.writeFileSync(p, JSON.stringify(data, null, 2), 'utf8');
+    const tmp = p + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
+    fs.renameSync(tmp, p);
     console.log(`  ✅ Saved ${filename}`);
 }
 
@@ -252,11 +256,16 @@ function parseFortnightHtml(html, dateCode) {
         // A valid sector data row should have ~50 cells
         if (cells.length < 30) continue;
 
-        // Cell [1] should be a sector name — check against known sectors
-        const sectorCell = cells[1] || '';
-        const matched = KNOWN_SECTORS.find(s =>
-            sectorCell.toLowerCase().includes(s.toLowerCase().substring(0, 12))
-        );
+        // Cell [1] should be a sector name — check against known sectors.
+        // Prefer exact matches, then try longest names first so prefixes don't
+        // shadow longer names (e.g. "Construction" must not absorb
+        // "Construction Materials" rows).
+        const sectorCell = (cells[1] || '').trim();
+        const matched =
+            KNOWN_SECTORS.find(s => sectorCell.toLowerCase() === s.toLowerCase()) ||
+            [...KNOWN_SECTORS].sort((a, b) => b.length - a.length).find(s =>
+                sectorCell.toLowerCase().includes(s.toLowerCase().substring(0, 12))
+            );
         if (!matched) continue;
 
         // Also check for the "Total" row which we want to skip
@@ -354,8 +363,9 @@ function parseDailyTrends(html, isMonthly = false) {
         const label = row[0].trim();
         const lower = label.toLowerCase();
         
-        // Break out of loop when we hit the end of the first table (cash market)
-        if (lower === 'total') break;
+        // Skip total/subtotal rows — they can appear between date blocks, so
+        // breaking here would drop every later day in the table
+        if (lower === 'total') continue;
 
         // Skip irrelevant top rows
         if (/date|month|year|category|sr\./i.test(label) && !/^\d+\-/.test(label)) continue;
@@ -393,8 +403,9 @@ function parseDailyTrends(html, isMonthly = false) {
             if (mode === 'equity') curDay.equity_net += net;
             else if (mode === 'debt') curDay.debt_net += net;
             else if (mode === 'hybrid') curDay.hybrid_net += net;
-            else if (mode === 'aif') curDay.total_net += net;
-            
+            // AIF rows have no bucket of their own — they only roll into the
+            // unconditional total below (adding here would double-count them)
+
             curDay.total_net += net;
         }
     }
@@ -410,6 +421,14 @@ function parseDailyTrends(html, isMonthly = false) {
     });
 
     console.log(`  Parsed ${dailyData.length} clean daily trend items (isMonthly=${isMonthly})`);
+
+    // Sort newest-first — the HTML table's row order is not guaranteed
+    const M = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+    const parseDate = (s) => {
+        const p = (s || '').split('-');
+        return p.length === 3 ? new Date(parseInt(p[2]), M[p[1].toLowerCase()] ?? 0, parseInt(p[0])) : new Date(0);
+    };
+    dailyData.sort((a, b) => parseDate(b.date) - parseDate(a.date));
 
     return {
         fetched_at: new Date().toISOString(),
@@ -490,10 +509,12 @@ function compileSectorsJson(historyArray) {
         const auc = latestInfo.equity_auc_inr || 0;
         const aumPct = totalAUM > 0 ? parseFloat(((auc / totalAUM) * 100).toFixed(1)) : 0;
         
-        // FII Ownership % and Alpha require NSE specific stock data, providing mock defaults if needed,
-        // or trying to recover from existing sectors.json if available to prevent wiping out static data
-        let fiiOwn = parseFloat((Math.random() * 15 + 5).toFixed(1)); // 5% - 20% mock fallback
-        let alpha = parseFloat(((Math.random() - 0.5) * 5).toFixed(1));
+        // FII Ownership % and Alpha require NSE-specific stock data this script
+        // doesn't fetch — default to null (UI shows n/a) rather than fabricating
+        // random numbers that would be persisted as if real. Existing values
+        // from sectors.json are preserved below.
+        let fiiOwn = null;
+        let alpha = null;
         
         return {
             name: sectorName,
