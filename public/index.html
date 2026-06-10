@@ -1303,6 +1303,26 @@ body .s-tab {
 .iso-bar.iso-r3 { background: #D72828; }
 .iso-bar.iso-r4 { background: #FF3B30; }
 .iso-bar.iso-flat { background: var(--l4); }
+/* Colorblind-safe redundancy: selling (red) bars carry a subtle diagonal
+   texture so direction isn't encoded by hue alone */
+.iso-bar[class*="iso-r"] { background-image: repeating-linear-gradient(135deg, transparent 0 3px, rgba(0,0,0,0.30) 3px 5px); }
+
+/* ── Mobile: prune gross buy/sell columns from the daily archive table
+      (keep Date, FII Net, DII Net, Total — the 4 highest-value fields) ── */
+@media (max-width: 640px) {
+  #tblDailyArchive th:nth-child(2), #tblDailyArchive td:nth-child(2),
+  #tblDailyArchive th:nth-child(3), #tblDailyArchive td:nth-child(3),
+  #tblDailyArchive th:nth-child(5), #tblDailyArchive td:nth-child(5),
+  #tblDailyArchive th:nth-child(6), #tblDailyArchive td:nth-child(6) { display: none; }
+}
+
+/* ── Sticky KPI strip — headline numbers stay visible while scrolling ── */
+.sticky-kpi { position: fixed; top: 0; left: 0; right: 0; z-index: 90; display: none;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--sep2); padding: 8px 16px; }
+.sticky-kpi.visible { display: flex; gap: 18px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.sticky-kpi .sk-item { font-size: 12px; font-weight: 700; color: var(--t3); white-space: nowrap; }
+.sticky-kpi .sk-item b { font-variant-numeric: tabular-nums; }
 /* Legend */
 .iso-legend {
   display: flex;
@@ -2301,10 +2321,14 @@ tr:last-child td { border-bottom: none; }
 .sse-dot.disconnected { background: var(--red); animation: none; }
 
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
+<script src="/vendor/html2canvas-1.4.1.min.js"></script>
+<script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
+<script src="/vendor/chart-3.9.1.min.js"></script>
+<script>window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>')</script>
 </head>
 <body>
+<div class="sticky-kpi" id="stickyKpi" aria-hidden="true"></div>
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
   <div style="padding:40px; text-align:center; font-family:sans-serif; background:#F5F7FA; min-height:100vh;">
@@ -2584,6 +2608,7 @@ tr:last-child td { border-bottom: none; }
           </div>
           <div class="sig-timeline" id="signal-timeline"></div>
         </div>
+        <div id="nsdlConfirm" style="display:none; font-size:10px; color:var(--t4); margin-top:10px;"></div>
         <div class="terminal-actions">
           <button class="terminal-mini-btn" onclick="switchMainTab('t-matrix')">Open Archive</button>
           <button class="terminal-mini-btn" onclick="exportDOM(document.getElementById('cmd-cash-tape'), 'Command_Center_Cash_Tape')">Snapshot</button>
@@ -3006,6 +3031,21 @@ tr:last-child td { border-bottom: none; }
       </div>
     </div>
 
+    <!-- NSE BULK & BLOCK DEALS (hidden until data loads) -->
+    <div class="card" style="padding:24px; display:none; margin-bottom:24px;" id="large-deals-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:8px;">
+        <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px;">🧾 <span class="gloss" data-tip="Bulk deal: single client trades >0.5% of a company's shares in a day. Block deal: a single negotiated trade of ≥₹10 Cr in a special window. Both reveal which stocks big players moved.">Bulk &amp; Block Deals</span> (NSE)</div>
+        <div style="font-size:11px; color:var(--t4);" id="ld-date"></div>
+      </div>
+      <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Stock-level institutional activity behind today's aggregate flow numbers.</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Symbol</th><th>Client</th><th>Side</th><th>Qty</th><th>Avg Price</th></tr></thead>
+          <tbody id="tbLargeDeals"></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="card" style="padding:24px;" id="matrix-card">
       <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Data_Matrix')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg> Export</button>
       
@@ -3063,7 +3103,7 @@ tr:last-child td { border-bottom: none; }
           </div>
         </div>
         <div class="tbl-wrap">
-          <table>
+          <table id="tblDailyArchive">
             <thead><tr><th>Trading Date</th><th>FII Gross Buy</th><th>FII Gross Sell</th><th>FII Net</th><th>DII Gross Buy</th><th>DII Gross Sell</th><th>DII Net</th><th>Total Liquidity</th></tr></thead>
             <tbody id="tbDaily"></tbody>
             <tfoot id="tfDaily"></tfoot>
@@ -4013,9 +4053,79 @@ function renderSignalTimeline() {
   }).join('');
 }
 
+/* ── Sticky KPI strip — headline numbers follow the user down the page ── */
+let _stickyKpiWired = false;
+function renderStickyKpi() {
+  const el = document.getElementById('stickyKpi');
+  if (!el || !dailyData.length || dailyData[0].d === 'N/A') return;
+  const d = dailyData[0];
+  const clr = v => v >= 0 ? 'var(--green)' : 'var(--red)';
+  el.innerHTML =
+    `<span class="sk-item">${escapeHtml(d.d)}</span>` +
+    `<span class="sk-item">FII <b style="color:${clr(d.fn)}">${fmt(d.fn)}</b></span>` +
+    `<span class="sk-item">DII <b style="color:${clr(d.dn)}">${fmt(d.dn)}</b></span>` +
+    `<span class="sk-item">Net <b style="color:${clr(d.fn + d.dn)}">${fmt(d.fn + d.dn)}</b></span>`;
+  if (!_stickyKpiWired) {
+    _stickyKpiWired = true;
+    window.addEventListener('scroll', () => {
+      el.classList.toggle('visible', window.scrollY > 480);
+    }, { passive: true });
+  }
+}
+
+/* ── NSE bulk/block deals panel (Flow Analytics tab) ── */
+let _dealsLoaded = false;
+async function loadLargeDeals() {
+  if (_dealsLoaded) return;
+  try {
+    const res = await fetch('/api/large-deals');
+    if (!res.ok) return; // NSE blocking or no data — keep panel hidden
+    const data = await res.json();
+    const rows = [
+      ...(data.bulk || []).map(d => ({ ...d, type: 'Bulk' })),
+      ...(data.block || []).map(d => ({ ...d, type: 'Block' }))
+    ].filter(d => d.symbol);
+    if (!rows.length) return;
+    rows.sort((a, b) => (b.qty * b.price) - (a.qty * a.price));
+    const body = document.getElementById('tbLargeDeals');
+    body.innerHTML = rows.slice(0, 12).map(d => {
+      const buy = /b/i.test(d.side);
+      return `<tr>
+        <td><span class="signal-pill ${d.type === 'Block' ? 'sig-neutral' : 'sig-bull'}" style="text-transform:none;">${d.type}</span></td>
+        <td style="font-weight:700; color:var(--t1);">${escapeHtml(d.symbol)}</td>
+        <td style="color:var(--t3); max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(d.client)}">${escapeHtml(d.client)}</td>
+        <td class="${buy ? 'pos' : 'neg'}" style="font-weight:800;">${buy ? '▲ BUY' : '▼ SELL'}</td>
+        <td style="font-variant-numeric:tabular-nums;">${Number(d.qty || 0).toLocaleString('en-IN')}</td>
+        <td style="font-variant-numeric:tabular-nums;">₹${Number(d.price || 0).toLocaleString('en-IN')}</td>
+      </tr>`;
+    }).join('');
+    const dt = document.getElementById('ld-date');
+    if (dt && data.as_on) dt.textContent = data.as_on;
+    document.getElementById('large-deals-card').style.display = 'block';
+    _dealsLoaded = true;
+  } catch { /* keep hidden */ }
+}
+
+/* ── NSDL custodian-confirmed figure next to the provisional NSE number ── */
+async function loadNsdlConfirm() {
+  try {
+    const res = await fetch('/api/fpi-daily');
+    if (!res.ok) return;
+    const data = await res.json();
+    const row = (data.rows || [])[0] || data.latest;
+    if (!row || !row.date || row.equity_net == null) return;
+    const el = document.getElementById('nsdlConfirm');
+    if (!el) return;
+    const v = row.equity_net;
+    el.innerHTML = `🏛️ NSDL custodian-confirmed (${escapeHtml(row.date)}): FPI equity net <b style="color:${v >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(v)}</b> · <span class="gloss" data-tip="Depository-settled figures from NSDL. They lag the provisional exchange numbers by a day but are the confirmed record, and include flows NSE cash data misses.">why this differs</span>`;
+    el.style.display = 'block';
+  } catch { /* keep hidden */ }
+}
+
 function renderDashboard() {
   recomputeRollups();
   renderSignalTimeline();
+  renderStickyKpi();
   const provChip = document.getElementById('provChip');
   if (provChip && dailyData.length && dailyData[0].d !== 'N/A') provChip.style.display = 'inline-block';
   const latest = dailyData[0];
@@ -5195,7 +5305,7 @@ function toggleRowDetail(idx) {
 
 function renderDetailChart(idx, d) {
   const canvas = document.getElementById(`detailChart-${idx}`);
-  if (!canvas) return;
+  if (!canvas || typeof Chart === 'undefined') return;
   
   const ctx = canvas.getContext('2d');
   // Theme lives in data-theme on <html>, not a body class
@@ -5261,7 +5371,7 @@ function setMatrixView(mode) {
 
 function renderMatrixChart() {
   const canvas = document.getElementById('matrixChart');
-  if (!canvas || !dailyData.length) return;
+  if (!canvas || !dailyData.length || typeof Chart === 'undefined') return;
   
   const ctx = canvas.getContext('2d');
   const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
@@ -5594,6 +5704,7 @@ function renderCumulativeChart(ctx, isLight, gridCol, tickCol, labelCol) {
 }
 
 function renderHistoryChart() {
+  if (typeof Chart === 'undefined') return; // chart lib failed to load — keep the page alive
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
   const tickCol = isLight ? 'rgba(0,15,8,0.5)' : 'rgba(240,237,229,0.5)';
@@ -5792,14 +5903,19 @@ function openSectorModal(origIdx) {
   document.getElementById('sz-title').innerText = s.name;
   
   const alphaEl = document.getElementById('sz-alpha');
-  alphaEl.innerText = s.alpha > 0 ? `Outperforming (${s.alpha}%)` : `Underperforming (${s.alpha}%)`;
-  alphaEl.className = 'sz-alpha ' + (s.alpha > 0 ? 'out' : 'under');
+  if (s.alpha === null || s.alpha === undefined) {
+    alphaEl.innerText = 'Alpha: n/a';
+    alphaEl.className = 'sz-alpha';
+  } else {
+    alphaEl.innerText = s.alpha > 0 ? `Outperforming (${s.alpha}%)` : `Underperforming (${s.alpha}%)`;
+    alphaEl.className = 'sz-alpha ' + (s.alpha > 0 ? 'out' : 'under');
+  }
 
   // Populate stats row
   document.getElementById('sz-1ycr').innerText = _fmtCr(s.oneYearCr);
   document.getElementById('sz-1ycr').className = 'sz-stat-value ' + (s.oneYearCr >= 0 ? 't-green' : 't-red');
   document.getElementById('sz-aum').innerText = s.aumPct.toFixed(1) + '%';
-  document.getElementById('sz-fiiown').innerText = s.fiiOwn + '%';
+  document.getElementById('sz-fiiown').innerText = s.fiiOwn != null ? s.fiiOwn + '%' : '—';
   const fortEl = document.getElementById('sz-fortnight');
   fortEl.innerText = _fmtCr(s.fortnightCr);
   fortEl.className = 'sz-stat-value ' + (s.fortnightCr >= 0 ? 't-green' : 't-red');
@@ -5921,26 +6037,18 @@ function drawSectorSparkline(canvasId, sectorObj) {
     sectorSparklines[canvasId].destroy();
   }
 
-  // Generate simulated 1Y trend data for the visual sparkline (24 fortnights)
-  const points = 24;
-  let chartData = [];
-  let current = 0;
+  // Plot the REAL cumulative FPI flow from the per-fortnight history
+  // (was previously a randomly simulated curve, regenerated on every render)
   const target = sectorObj.oneYearCr;
   const isPositive = target >= 0;
-  
-  for(let i=0; i<points; i++) {
-     if (i === 0) {
-         chartData.push(0);
-         continue;
-     }
-     const progress = (i+1)/points;
-     // Add noise to mimic organic flow trajectory
-     const noise = (Math.random() - 0.5) * (Math.abs(target) * 0.4);
-     current = (target * Math.pow(progress, 1.5)) + noise;
-     chartData.push(current);
+  let chartData = [];
+  if (Array.isArray(sectorObj.historyCr) && sectorObj.historyCr.length) {
+    let cum = 0;
+    chartData = sectorObj.historyCr.map(v => { cum += (v || 0); return cum; });
+  } else {
+    chartData = [0, target]; // no history — straight line to the 1Y total
   }
-  chartData[points-1] = target;
-  
+
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const greenColor = isLight ? '#059669' : '#30b86a';
   const redColor = isLight ? '#DC3545' : '#FF5252';
@@ -5948,7 +6056,7 @@ function drawSectorSparkline(canvasId, sectorObj) {
   sectorSparklines[canvasId] = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: Array.from({length: points}, (_, i) => i),
+      labels: Array.from({length: chartData.length}, (_, i) => i),
       datasets: [{
         data: chartData,
         borderColor: greenColor,
@@ -6279,7 +6387,7 @@ let _fnoHistoryMode = 'fii-fut';
 let _lsRatioChart = null;
 function renderLsRatioChart() {
   const canvas = document.getElementById('chLsRatio');
-  if (!canvas || !dailyData.length) return;
+  if (!canvas || !dailyData.length || typeof Chart === 'undefined') return;
 
   // Build the ratio series from sessions that have futures OI (oldest → newest)
   const rows = [...dailyData].reverse().filter(d => (d.fii_idx_fut_long || 0) > 0 && (d.fii_idx_fut_short || 0) > 0);
@@ -6915,6 +7023,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   // Load briefing after initial data fetch
   setTimeout(() => loadSniperBriefing(), 2000);
   setTimeout(() => renderAgentData(), 2500); // hydrate the AI agent panel (was never invoked)
+  setTimeout(() => { loadLargeDeals(); loadNsdlConfirm(); }, 3000);
 
   // ── PHASE 4: SSE Live Connection ─────────────────────────────────────────────
   function initSSE() {

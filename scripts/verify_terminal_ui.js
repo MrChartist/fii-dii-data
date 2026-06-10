@@ -13,7 +13,6 @@ const requiredMarkers = [
   ['F&O snapshot', 'cmd-fno-snapshot'],
   ['F&O 3D chart shell', 'fno-3d-chart'],
   ['F&O 3D pressure bars', 'fno-3d-bar'],
-  ['F&O chart renderer helper', 'function pressure3dBar('],
   ['sector rotation', 'cmd-sector-rotation'],
   ['heatmap rail', 'cmd-heatmap-rail'],
   ['recent sessions body', 'cmd-recent-body'],
@@ -24,15 +23,23 @@ const requiredMarkers = [
   ['product row', 'terminal-product-row'],
   ['command summary', 'terminal-summary-grid'],
   ['dark-first default', 'data-theme="dark"'],
-  ['pro terminal 2 polish layer', 'Pro Terminal 2.0'],
-  ['manual readability tuning layer', 'Pro Terminal 2.1'],
-  ['scanability polish layer', 'Pro Terminal 2.2'],
-  ['iOS-level card finish layer', 'Pro Terminal 2.3'],
-  ['public-ready terminal finish layer', 'Pro Terminal 2.4'],
-  ['original website theme alignment layer', 'Pro Terminal 2.5'],
-  ['final typography normalization layer', 'Pro Terminal 2.6'],
   ['recent-session signal pills', 'signal-pill'],
-  ['FII & DII brand', 'FII & DII']
+  ['FII & DII brand', 'FII & DII'],
+  // Roadmap features (June 2026)
+  ['signal replay strip', 'id="signal-timeline"'],
+  ['signal timeline renderer', 'function renderSignalTimeline()'],
+  ['provisional data chip', 'id="provChip"'],
+  ['glossary tooltips', 'class="gloss"'],
+  ['cumulative vs NIFTY view', 'function renderCumulativeChart('],
+  ['long-short ratio chart', 'function renderLsRatioChart()'],
+  ['live rollup recompute', 'function recomputeRollups()'],
+  ['first-visit tour', 'function initTour()'],
+  ['sticky KPI strip', 'id="stickyKpi"'],
+  ['bulk/block deals panel', 'id="large-deals-card"'],
+  ['NSDL confirmation line', 'id="nsdlConfirm"'],
+  ['data & API page link', '/data-api.html'],
+  ['self-hosted chart.js', '/vendor/chart-3.9.1.min.js'],
+  ['HTML escaping helper', 'function escapeHtml(']
 ];
 
 const missing = requiredMarkers.filter(([, marker]) => !html.includes(marker));
