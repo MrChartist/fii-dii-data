@@ -18,6 +18,12 @@ async function run() {
 
     const confluences = [];
 
+    // Extreme-event states only count if they were alerted for the latest
+    // data date — otherwise stale events from a prior session leak into
+    // today's confluence score
+    const latestDataDate = strength.last_run_date || '';
+    const strengthIsFresh = !!strength.last_alerted_date && strength.last_alerted_date === latestDataDate;
+
     // 1. CAPITULATION SIGNAL
     // Definition: Deep bearish regime, massive selling streak, and a panic flow divergence
     if (regime.regime === 'STRONG_BEARISH' || regime.regime === 'MILD_BEARISH') {
@@ -33,7 +39,7 @@ async function run() {
         if (divergence.last_signal === 'PANIC_MODE' && divergence.divergence_percentile > 80) {
             score++; reasons.push(`Panic divergence signal (P${divergence.divergence_percentile}) 🚨`);
         }
-        const hasBloodbath = strength.last_alerted_events?.includes('FII_BLOODBATH');
+        const hasBloodbath = strengthIsFresh && strength.last_alerted_events?.includes('FII_BLOODBATH');
         if (hasBloodbath) {
             score++; reasons.push(`Extreme FII cash selling detected today 🩸`);
         }
@@ -65,7 +71,8 @@ async function run() {
         if (divergence.last_signal === 'CONTRARIAN_BULLISH') {
             score++; reasons.push(`Contrarian Bullish flow divergence 🚀`);
         }
-        const hasMassiveInflow = strength.last_alerted_events?.includes('MASSIVE_INFLOW');
+        // flow-strength emits FII_MEGA_BUY for extreme buying (there is no MASSIVE_INFLOW key)
+        const hasMassiveInflow = strengthIsFresh && strength.last_alerted_events?.includes('FII_MEGA_BUY');
         if (hasMassiveInflow) {
             score++; reasons.push(`Extreme cash inflows detected today 💸`);
         }
@@ -83,7 +90,9 @@ async function run() {
 
     // Check if we need to alert
     let alerts_sent = 0;
-    const todayStr = new Date().toISOString().split('T')[0];
+    // Dedupe key must be the IST calendar day — UTC flips at 05:30 IST, which
+    // would allow a morning + evening double-alert on the same trading day
+    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
     if (confluences.length > 0) {
         // Only alert once per day per confluence type

@@ -48,7 +48,7 @@ async function runAgent(name) {
 
     try {
         const agent = require(agentDef.module);
-        const result = await agent.run();
+        const result = (await agent.run()) || {};
         const duration = Date.now() - startTime;
 
         const logEntry = {

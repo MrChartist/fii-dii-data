@@ -29,7 +29,7 @@ function sseBroadcast(event, data) {
     }
 }
 
-// ── Synthesis Cache (5-min TTL to avoid spamming Groq) ───────────────────────
+// ── Synthesis Cache (24h TTL, invalidated when new data arrives) ─────────────
 let _synthCache = { text: null, ts: 0 };
 const SYNTH_TTL = 24 * 60 * 60 * 1000; // 24 hours — synthesis regenerates once daily after FII/DII data posts
 
@@ -45,7 +45,7 @@ try {
     console.warn('[BOOT] web-push not available:', e.message);
 }
 
-const SUBS_PATH = path.join(process.cwd(), 'data', 'subscriptions.json');
+const SUBS_PATH = path.join(__dirname, 'data', 'subscriptions.json');
 const ALL_ALERT_CATEGORIES = ['cash', 'fao', 'sectors'];
 
 function loadSubscriptions() {
@@ -90,7 +90,10 @@ async function broadcastNotification(payload, category = 'cash') {
         }
     }));
     if (dead.length) {
-        const cleaned = subs.filter(s => !dead.includes(s.endpoint));
+        // Re-load before writing: subscribers may have been added/updated while
+        // the push fan-out was in flight, and writing the stale snapshot would drop them.
+        const fresh = loadSubscriptions();
+        const cleaned = fresh.filter(s => !dead.includes(s.endpoint));
         saveSubscriptions(cleaned);
         console.log(`[PUSH] Cleaned ${dead.length} expired subscription(s)`);
     }
@@ -213,7 +216,7 @@ app.get('/', (req, res, next) => {
 
         let dynamicDesc = "Live FII/DII flow tracker.";
         if (latest && regimeState && streakState) {
-            const fmtCr = val => (val >= 0 ? '+' : '') + '₹' + Math.abs(val || 0).toLocaleString('en-IN') + ' Cr';
+            const fmtCr = val => ((val || 0) >= 0 ? '+' : '-') + '₹' + Math.abs(val || 0).toLocaleString('en-IN') + ' Cr';
             const fiiVal = fmtCr(latest.fii_net);
             const regime = regimeState.regime ? regimeState.regime.replace(/_/g, ' ') : 'NEUTRAL';
             
@@ -275,17 +278,12 @@ app.post('/api/setup-env', express.json(), (req, res) => {
     const setupKey = authHeader.replace('Bearer ', '');
     const EXPECTED_KEY = process.env.SETUP_KEY;
 
-    // If SETUP_KEY is not set in env, generate a one-time key from a hash of the hostname
-    // This prevents unauthorized access while allowing first-time setup
+    // SETUP_KEY must be explicitly configured — there is no fallback key.
+    // (Set it via the hosting panel / shell before calling this endpoint.)
     if (!EXPECTED_KEY) {
-        // No SETUP_KEY configured — use a simple challenge-response:
-        // The key must be the reversed hostname (e.g., "moc.tsitrahcrm.atadiiid-iif")
-        const hostname = require('os').hostname();
-        const reversedHost = hostname.split('').reverse().join('');
-        if (setupKey !== reversedHost && setupKey !== 'mrchartist-setup-2026') {
-            return res.status(401).json({ error: 'Unauthorized', hint: 'Set SETUP_KEY env var or use the default challenge key' });
-        }
-    } else if (setupKey !== EXPECTED_KEY) {
+        return res.status(403).json({ error: 'Setup disabled — SETUP_KEY env var is not configured on the server' });
+    }
+    if (setupKey !== EXPECTED_KEY) {
         return res.status(401).json({ error: 'Unauthorized — invalid setup key' });
     }
 
@@ -300,6 +298,14 @@ app.post('/api/setup-env', express.json(), (req, res) => {
     const envVars = req.body;
     if (!envVars || typeof envVars !== 'object' || Object.keys(envVars).length === 0) {
         return res.status(400).json({ error: 'Request body must be a JSON object of {KEY: VALUE} pairs' });
+    }
+
+    // Reject keys/values that could inject extra lines or malformed entries into .env
+    const invalid = Object.entries(envVars).find(([k, v]) =>
+        !/^[A-Z][A-Z0-9_]*$/i.test(k) || typeof v !== 'string' || /[\r\n]/.test(v)
+    );
+    if (invalid) {
+        return res.status(400).json({ error: `Invalid env entry: ${invalid[0]} (keys must be alphanumeric/underscore, values single-line strings)` });
     }
 
     try {
@@ -480,13 +486,30 @@ app.post('/api/unsubscribe', (req, res) => {
     }
 });
 
-// Manual trigger
+// Manual trigger — cooldown prevents anonymous callers from hammering NSE
+// (the frontend treats a non-OK response as "already fresh" and reads /api/data)
+let _lastRefreshAt = 0;
+const REFRESH_COOLDOWN_MS = 30 * 1000;
 app.post('/api/refresh', async (req, res) => {
     try {
+        const now = Date.now();
+        if (now - _lastRefreshAt < REFRESH_COOLDOWN_MS) {
+            return res.status(429).json({ success: false, error: 'Refresh cooldown active — try again shortly' });
+        }
+        _lastRefreshAt = now;
         const data = await fetchAndProcessData();
         // Send category-specific push notifications if new data arrived
         if (data && !data._skipped) {
-            sendDataNotifications(data);
+            _synthCache = { text: null, ts: 0 }; // new data → regenerate AI synthesis
+            // Respond first, then run agents + notifications in the background
+            // (agents must run before the broadcast so messages use today's state)
+            (async () => {
+                if (agentRunner) {
+                    try { await agentRunner.runAllPostMarket(); }
+                    catch (err) { console.error('[API] Agent run failed:', err.message); }
+                }
+                sendDataNotifications(data);
+            })();
         }
         res.json({ success: true, data });
     } catch (err) {
@@ -498,21 +521,30 @@ let tgMessages;
 try { tgMessages = require('./telegram-messages'); } catch (e) { console.warn('[BOOT] telegram-messages not loaded:', e.message); }
 
 // ── Category-specific notification builder ───────────────────────────────────
+// Dedupe guard: the fetch pipeline can run multiple times per evening (cash data
+// lands first, F&O later) and /api/refresh is publicly callable — only notify
+// once per category per trading date.
+const _notifiedDates = { cash: null, fao: null, divergence: null };
 function sendDataNotifications(data) {
-    const fiiSign = data.fii_net >= 0 ? '+' : '';
-    const diiSign = data.dii_net >= 0 ? '+' : '';
     const fmtCr = (v) => `${v >= 0 ? '+' : '-'}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
     const fmtContracts = (v) => `${v >= 0 ? '+' : ''}${(v / 1000).toFixed(0)}K`;
 
     // 1. Cash flow notification
-    broadcastNotification({
-        title: '📊 Institutional Cash Flows',
-        body: `${data.date} — FII: ${fiiSign}₹${Math.abs(data.fii_net).toLocaleString('en-IN')} Cr | DII: ${diiSign}₹${Math.abs(data.dii_net).toLocaleString('en-IN')} Cr`,
-        url: '/#t-hero'
-    }, 'cash');
+    const sendCash = _notifiedDates.cash !== data.date;
+    if (sendCash) {
+        _notifiedDates.cash = data.date;
+        broadcastNotification({
+            title: '📊 Institutional Cash Flows',
+            body: `${data.date} — FII: ${fmtCr(data.fii_net)} | DII: ${fmtCr(data.dii_net)}`,
+            url: '/#t-hero'
+        }, 'cash');
+    }
 
     // 2. F&O sentiment notification
-    if (data._fao_summary || data.pcr) {
+    const hasFao = data._fao_summary || data.pcr;
+    const sendFao = hasFao && _notifiedDates.fao !== data.date;
+    if (sendFao) {
+        _notifiedDates.fao = data.date;
         const summary = data._fao_summary || {};
         const sentiment = summary.sentiment || (data.sentiment_score > 60 ? 'Bullish' : data.sentiment_score < 40 ? 'Bearish' : 'Neutral');
         const pcr = summary.pcr || data.pcr || 0;
@@ -534,13 +566,15 @@ function sendDataNotifications(data) {
             const flowDiv = getState('flow-divergence');
 
             // A. Cash Flow Message (detailed breakdown)
-            const cashMsg = tgMessages.buildCashFlowMessage(data, regime, streak, flowStrength);
-            telegram.broadcastTelegram(cashMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                console.error('[TELEGRAM] Cash broadcast failed:', err.message)
-            );
+            if (sendCash) {
+                const cashMsg = tgMessages.buildCashFlowMessage(data, regime, streak, flowStrength);
+                telegram.broadcastTelegram(cashMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
+                    console.error('[TELEGRAM] Cash broadcast failed:', err.message)
+                );
+            }
 
             // B. Derivatives Message (30s delay to avoid flooding)
-            if (data.fii_idx_fut_long || data.pcr) {
+            if (sendFao && (data.fii_idx_fut_long || data.pcr)) {
                 setTimeout(() => {
                     const drvMsg = tgMessages.buildDerivativesMessage(data);
                     telegram.broadcastTelegram(drvMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
@@ -550,7 +584,9 @@ function sendDataNotifications(data) {
             }
 
             // C. Divergence alert (if signal is active for today)
-            if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE' && flowDiv.last_signal_date === data.date) {
+            if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE' && flowDiv.last_signal_date === data.date &&
+                _notifiedDates.divergence !== data.date) {
+                _notifiedDates.divergence = data.date;
                 setTimeout(() => {
                     const divMsg = tgMessages.buildDivergenceMessage(flowDiv, data);
                     telegram.broadcastTelegram(divMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
@@ -579,9 +615,12 @@ app.get('/api/market', async (req, res) => {
         const fetchJSON = async (ticker) => {
             const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
             const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 8000 });
-            const m = data.chart.result[0].meta;
-            const price = m.regularMarketPrice;
-            const prev = m.previousClose || m.chartPreviousClose;
+            const m = data?.chart?.result?.[0]?.meta;
+            const price = m?.regularMarketPrice;
+            const prev = m?.previousClose || m?.chartPreviousClose;
+            if (!Number.isFinite(price) || !Number.isFinite(prev) || prev === 0) {
+                throw new Error(`Yahoo returned incomplete quote for ${ticker}`);
+            }
             return { price, change: price - prev, pct: ((price - prev) / prev) * 100 };
         };
         const [nifty, vix] = await Promise.all([fetchJSON('^NSEI'), fetchJSON('^INDIAVIX')]);
@@ -630,8 +669,10 @@ app.get('/api/agents/synthesis', async (req, res) => {
         const latestData = getLatestData();
         const sectorData = getSectorData();
         
-        // Top 3 sectors by AUM
-        const topSectors = Array.isArray(sectorData) ? sectorData.slice(0, 3).map(s => `${s.sector}: ${s.latest_aum_pct?.toFixed(1)}%`).join(', ') : 'N/A';
+        // Top 3 sectors by AUM (sectors.json items: { name, aumPct, ... })
+        const topSectors = Array.isArray(sectorData) && sectorData.length
+            ? sectorData.slice(0, 3).map(s => `${s.name}: ${s.aumPct?.toFixed(1)}%`).join(', ')
+            : 'N/A';
         const fiiNet = latestData?.fii_net || 0;
         const diiNet = latestData?.dii_net || 0;
         const date = latestData?.date || 'N/A';
@@ -645,7 +686,7 @@ Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Professional h
 
 Data State (${date}):
 - FII Net: ${fiiNet >= 0 ? '+' : ''}${fiiNet} Cr | DII Net: ${diiNet >= 0 ? '+' : ''}${diiNet} Cr
-- Combined Net: ${(fiiNet + diiNet) >= 0 ? '+' : ''}${Math.abs(fiiNet + diiNet).toFixed(2)} Cr
+- Combined Net: ${(fiiNet + diiNet) >= 0 ? '+' : '-'}${Math.abs(fiiNet + diiNet).toFixed(2)} Cr
 - Regime: ${states['regime-classifier']?.regime || 'NEUTRAL'} (VIX: ${states['regime-classifier']?.vix || 'N/A'})
 - FII Sell Streak: ${states['fii-streak']?.current_sell_streak || 0} days | Buy Streak: ${states['fii-streak']?.current_buy_streak || 0} days
 - Flow Strength: ${states['flow-strength']?.flow_label || 'N/A'}
@@ -774,7 +815,7 @@ app.get('/api/agents/runs', (req, res) => {
     try {
         if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
         const { getRunHistory } = require('./agents/agent-utils');
-        const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+        const limit = Math.max(1, Math.min(parseInt(req.query.limit) || 50, 200));
         const agent = req.query.agent || null;
         const runs = getRunHistory(limit, agent);
         res.json({ runs, count: runs.length });
@@ -914,7 +955,15 @@ app.get('/api/agents/docs', (req, res) => {
         agents: Object.entries(agentRunner ? agentRunner.AGENTS : {}).map(([name, def]) => ({
             name,
             group: def.group,
-            state_endpoint: `/api/agents/${name === 'fii-streak' ? 'streaks' : name}`,
+            // Only agents with a dedicated GET route get a state_endpoint
+            state_endpoint: ({
+                'fii-streak': '/api/agents/streaks',
+                'regime-classifier': '/api/agents/regime',
+                'flow-strength': '/api/agents/flow-strength',
+                'flow-divergence': '/api/agents/flow-divergence',
+                'sector-rotation': '/api/agents/sector-rotation',
+                'weekly-digest': '/api/agents/weekly-digest'
+            })[name] || null,
             description: {
                 'fii-streak': 'Detects sustained FII selling/buying pressure (≥5 consecutive days)',
                 'regime-classifier': 'Classifies institutional environment into 5 regimes (Strong Bullish → Strong Bearish)',
@@ -976,7 +1025,7 @@ app.get('/api/telegram/health', async (req, res) => {
 // Telegram delivery log (recent entries)
 app.get('/api/telegram/delivery-log', (req, res) => {
     if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
-    const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+    const limit = Math.max(1, Math.min(parseInt(req.query.limit) || 50, 200));
     const log = tgHealth.loadDeliveryLog().slice(0, limit);
     res.json({ entries: log, count: log.length });
 });
@@ -1011,10 +1060,18 @@ app.post('/api/telegram/webhook', async (req, res) => {
 });
 
 // Setup webhook (call once to register with Telegram)
+// Only allowlisted hosts are accepted — otherwise anyone could redirect the
+// bot's update stream (and every user's chat ID) to a server they control.
 app.post('/api/telegram/setup-webhook', async (req, res) => {
     if (!TG_TOKEN) return res.status(400).json({ error: 'TELEGRAM_BOT_TOKEN not set' });
     try {
         const baseUrl = req.body.url || `https://mrchartist.com/fii-dii-data`;
+        let host;
+        try { host = new URL(baseUrl).hostname; } catch { return res.status(400).json({ error: 'Invalid url' }); }
+        const allowedHost = process.env.WEBHOOK_HOST || 'mrchartist.com';
+        if (host !== allowedHost && !host.endsWith('.' + allowedHost)) {
+            return res.status(403).json({ error: `Webhook host not allowed: ${host}` });
+        }
         const webhookUrl = `${baseUrl}/api/telegram/webhook`;
         const resp = await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook`, {
             url: webhookUrl,
@@ -1108,13 +1165,17 @@ app.listen(PORT, '0.0.0.0', () => {
                     }
                     // Auto-broadcast category-specific notifications on new data
                     if (data && !data._skipped) {
-                        sendDataNotifications(data);
-                        // Run post-market agents after successful data fetch
+                        _synthCache = { text: null, ts: 0 }; // new data → regenerate AI synthesis
+                        // Run post-market agents FIRST so the broadcast messages read
+                        // today's streak/regime/divergence state, not yesterday's
                         if (agentRunner) {
-                            agentRunner.runAllPostMarket().catch(err =>
-                                console.error(`[${new Date().toISOString()}] Agent run failed:`, err.message)
-                            );
+                            try {
+                                await agentRunner.runAllPostMarket();
+                            } catch (err) {
+                                console.error(`[${new Date().toISOString()}] Agent run failed:`, err.message);
+                            }
                         }
+                        sendDataNotifications(data);
                     }
                 } catch (err) {
                     console.error(`[${new Date().toISOString()}] ${label} fetch failed:`, err.message);
@@ -1126,9 +1187,13 @@ app.listen(PORT, '0.0.0.0', () => {
                 console.log(`[${new Date().toISOString()}] NSDL sector fetch starting…`);
                 if (tgHealth) tgHealth.recordHeartbeat('nsdl-sector-fetch');
                 try {
-                    // Read existing date_code before fetch
-                    const oldSector = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'sector_latest.json'), 'utf8') || '{}');
-                    const oldCode = oldSector.date_code || '';
+                    // Read existing date_code before fetch — missing/corrupt file must
+                    // not abort the fetch (it's what creates the file in the first place)
+                    let oldCode = '';
+                    try {
+                        const oldSector = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'sector_latest.json'), 'utf8'));
+                        oldCode = oldSector.date_code || '';
+                    } catch { /* first run or unreadable file — treat as no previous data */ }
 
                     const result = await fetchAllNSDL();
                     console.log(`[${new Date().toISOString()}] NSDL sector fetch completed.`);
@@ -1140,7 +1205,7 @@ app.listen(PORT, '0.0.0.0', () => {
                         const sorted = [...sectors].sort((a, b) => b.equity_net_inr - a.equity_net_inr);
                         const topIn = sorted[0];
                         const topOut = sorted[sorted.length - 1];
-                        const fmtCr = (v) => `${v >= 0 ? '+' : ''}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
+                        const fmtCr = (v) => `${v >= 0 ? '+' : '-'}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
 
                         broadcastNotification({
                             title: '🏦 Sector Rotation Update',
@@ -1172,16 +1237,20 @@ app.listen(PORT, '0.0.0.0', () => {
                 }
             }
 
+            // All cron expressions below are written in UTC — pin the timezone so
+            // schedules don't silently shift if the server clock is set to IST.
+            const CRON_OPTS = { timezone: 'Etc/UTC' };
+
             // NSE FII/DII data publishes after market close (~6-7 PM IST, sometimes delayed)
             // Run every 15 mins from 6:00 PM to 9:00 PM IST (12:30 UTC - 15:30 UTC)
             // Smart-skip in fetch_data.js ensures it stops processing once Cash + F&O are both acquired.
             const postMarketCrons = ['30,45 12 * * 1-5', '*/15 13-14 * * 1-5', '0,15,30 15 * * 1-5'];
             postMarketCrons.forEach(schedule => {
-                cron.schedule(schedule, () => runFetchTask('Post-market'));
+                cron.schedule(schedule, () => runFetchTask('Post-market'), CRON_OPTS);
             });
 
             // NSDL sector data — check daily at 10:00 AM IST (smart skip if unchanged)
-            cron.schedule('30 4 * * 1-5', () => runNSDLFetch());  // 10:00 AM IST
+            cron.schedule('30 4 * * 1-5', () => runNSDLFetch(), CRON_OPTS);  // 10:00 AM IST
 
             // Weekly institutional digest — Friday 8:00 PM IST
             if (agentRunner) {
@@ -1204,7 +1273,7 @@ app.listen(PORT, '0.0.0.0', () => {
                     } catch (err) {
                         console.error(`[${new Date().toISOString()}] Weekly digest failed:`, err.message);
                     }
-                });
+                }, CRON_OPTS);
 
                 // Morning pre-market brief — 8:30 AM IST Mon-Fri (03:00 UTC)
                 cron.schedule('0 3 * * 1-5', () => {
@@ -1213,7 +1282,7 @@ app.listen(PORT, '0.0.0.0', () => {
                     agentRunner.runAgent('morning-brief').catch(err =>
                         console.error(`[${new Date().toISOString()}] Morning brief failed:`, err.message)
                     );
-                });
+                }, CRON_OPTS);
 
                 console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6PM-9PM post-market + 10 AM NSDL + 8 PM Fri digest)');
             } else {
@@ -1226,7 +1295,7 @@ app.listen(PORT, '0.0.0.0', () => {
                     tgHealth.runWatchdog(axios).catch(err =>
                         console.error('[WATCHDOG] Failed:', err.message)
                     );
-                });
+                }, CRON_OPTS);
                 console.log('[BOOT] ✅ Telegram watchdog scheduled (every 6 hours)');
             }
         } catch (e) {

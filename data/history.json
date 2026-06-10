@@ -20,22 +20,23 @@
     "dii_stk_fut_short": 4650791,
     "dii_stk_fut_net": -4277985,
     "fii_idx_call_long": 521246,
-    "fii_idx_call_short": 930475,
-    "fii_idx_call_net": -409229,
-    "fii_idx_put_long": 798673,
+    "fii_idx_call_short": 798673,
+    "fii_idx_call_net": -277427,
+    "fii_idx_put_long": 930475,
     "fii_idx_put_short": 399488,
-    "fii_idx_put_net": 399185,
-    "pcr": 0.43,
+    "fii_idx_put_net": 530987,
+    "pcr": 0.5,
     "sentiment_score": 38.8,
     "_updated_at": "10 Jun 2026, 7:18 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.43,
+      "pcr": 0.5,
       "fii_fut_net": -271979,
-      "fii_call_net": -409229,
-      "fii_put_net": 399185
-    }
+      "fii_call_net": -277427,
+      "fii_put_net": 530987
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "09-Jun-2026",
@@ -58,22 +59,23 @@
     "dii_stk_fut_short": 4679063,
     "dii_stk_fut_net": -4312393,
     "fii_idx_call_long": 446983,
-    "fii_idx_call_short": 870166,
-    "fii_idx_call_net": -423183,
-    "fii_idx_put_long": 713453,
+    "fii_idx_call_short": 713453,
+    "fii_idx_call_net": -266470,
+    "fii_idx_put_long": 870166,
     "fii_idx_put_short": 343108,
-    "fii_idx_put_net": 370345,
-    "pcr": 0.39,
+    "fii_idx_put_net": 527058,
+    "pcr": 0.48,
     "sentiment_score": 33.9,
     "_updated_at": "9 Jun 2026, 9:01 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.39,
+      "pcr": 0.48,
       "fii_fut_net": -277001,
-      "fii_call_net": -423183,
-      "fii_put_net": 370345
-    }
+      "fii_call_net": -266470,
+      "fii_put_net": 527058
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "08-Jun-2026",
@@ -96,22 +98,23 @@
     "dii_stk_fut_short": 4638462,
     "dii_stk_fut_net": -4275960,
     "fii_idx_call_long": 672055,
-    "fii_idx_call_short": 1000213,
-    "fii_idx_call_net": -328158,
-    "fii_idx_put_long": 965991,
+    "fii_idx_call_short": 965991,
+    "fii_idx_call_net": -293936,
+    "fii_idx_put_long": 1000213,
     "fii_idx_put_short": 450778,
-    "fii_idx_put_net": 515213,
-    "pcr": 0.45,
+    "fii_idx_put_net": 549435,
+    "pcr": 0.47,
     "sentiment_score": 31.9,
     "_updated_at": "8 Jun 2026, 8:00 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.45,
+      "pcr": 0.47,
       "fii_fut_net": -277614,
-      "fii_call_net": -328158,
-      "fii_put_net": 515213
-    }
+      "fii_call_net": -293936,
+      "fii_put_net": 549435
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "05-Jun-2026",
@@ -134,22 +137,23 @@
     "dii_stk_fut_short": 4635030,
     "dii_stk_fut_net": -4274691,
     "fii_idx_call_long": 591082,
-    "fii_idx_call_short": 977772,
-    "fii_idx_call_net": -386690,
-    "fii_idx_put_long": 867141,
+    "fii_idx_call_short": 867141,
+    "fii_idx_call_net": -276059,
+    "fii_idx_put_long": 977772,
     "fii_idx_put_short": 447544,
-    "fii_idx_put_net": 419597,
-    "pcr": 0.46,
+    "fii_idx_put_net": 530228,
+    "pcr": 0.52,
     "sentiment_score": 28,
     "_updated_at": "5 Jun 2026, 6:54 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.46,
+      "pcr": 0.52,
       "fii_fut_net": -267706,
-      "fii_call_net": -386690,
-      "fii_put_net": 419597
-    }
+      "fii_call_net": -276059,
+      "fii_put_net": 530228
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "04-Jun-2026",
@@ -172,22 +176,23 @@
     "dii_stk_fut_short": 4602944,
     "dii_stk_fut_net": -4250465,
     "fii_idx_call_long": 514106,
-    "fii_idx_call_short": 920148,
-    "fii_idx_call_net": -406042,
-    "fii_idx_put_long": 788094,
+    "fii_idx_call_short": 788094,
+    "fii_idx_call_net": -273988,
+    "fii_idx_put_long": 920148,
     "fii_idx_put_short": 403282,
-    "fii_idx_put_net": 384812,
-    "pcr": 0.44,
+    "fii_idx_put_net": 516866,
+    "pcr": 0.51,
     "sentiment_score": 34.1,
     "_updated_at": "4 Jun 2026, 7:01 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.44,
+      "pcr": 0.51,
       "fii_fut_net": -264568,
-      "fii_call_net": -406042,
-      "fii_put_net": 384812
-    }
+      "fii_call_net": -273988,
+      "fii_put_net": 516866
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "03-Jun-2026",
@@ -210,22 +215,23 @@
     "dii_stk_fut_short": 4564681,
     "dii_stk_fut_net": -4214946,
     "fii_idx_call_long": 487011,
-    "fii_idx_call_short": 903225,
-    "fii_idx_call_net": -416214,
-    "fii_idx_put_long": 738356,
+    "fii_idx_call_short": 738356,
+    "fii_idx_call_net": -251345,
+    "fii_idx_put_long": 903225,
     "fii_idx_put_short": 365221,
-    "fii_idx_put_net": 373135,
-    "pcr": 0.4,
+    "fii_idx_put_net": 538004,
+    "pcr": 0.49,
     "sentiment_score": 31.8,
     "_updated_at": "3 Jun 2026, 8:34 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.4,
+      "pcr": 0.49,
       "fii_fut_net": -259253,
-      "fii_call_net": -416214,
-      "fii_put_net": 373135
-    }
+      "fii_call_net": -251345,
+      "fii_put_net": 538004
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "02-Jun-2026",
@@ -248,22 +254,23 @@
     "dii_stk_fut_short": 4508321,
     "dii_stk_fut_net": -4173443,
     "fii_idx_call_long": 382230,
-    "fii_idx_call_short": 795091,
-    "fii_idx_call_net": -412861,
-    "fii_idx_put_long": 662013,
+    "fii_idx_call_short": 662013,
+    "fii_idx_call_net": -279783,
+    "fii_idx_put_long": 795091,
     "fii_idx_put_short": 299989,
-    "fii_idx_put_net": 362024,
-    "pcr": 0.38,
+    "fii_idx_put_net": 495102,
+    "pcr": 0.45,
     "sentiment_score": 28,
     "_updated_at": "2 Jun 2026, 8:01 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.38,
+      "pcr": 0.45,
       "fii_fut_net": -230096,
-      "fii_call_net": -412861,
-      "fii_put_net": 362024
-    }
+      "fii_call_net": -279783,
+      "fii_put_net": 495102
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "01-Jun-2026",
@@ -286,22 +293,23 @@
     "dii_stk_fut_short": 4402595,
     "dii_stk_fut_net": -4095713,
     "fii_idx_call_long": 640525,
-    "fii_idx_call_short": 869221,
-    "fii_idx_call_net": -228696,
-    "fii_idx_put_long": 894212,
+    "fii_idx_call_short": 894212,
+    "fii_idx_call_net": -253687,
+    "fii_idx_put_long": 869221,
     "fii_idx_put_short": 375175,
-    "fii_idx_put_net": 519037,
-    "pcr": 0.43,
+    "fii_idx_put_net": 494046,
+    "pcr": 0.42,
     "sentiment_score": 35.2,
     "_updated_at": "1 Jun 2026, 9:49 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.43,
+      "pcr": 0.42,
       "fii_fut_net": -223180,
-      "fii_call_net": -228696,
-      "fii_put_net": 519037
-    }
+      "fii_call_net": -253687,
+      "fii_put_net": 494046
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "29-May-2026",
@@ -324,22 +332,23 @@
     "dii_stk_fut_short": 4383275,
     "dii_stk_fut_net": -4085147,
     "fii_idx_call_long": 553247,
-    "fii_idx_call_short": 842769,
-    "fii_idx_call_net": -289522,
-    "fii_idx_put_long": 823871,
+    "fii_idx_call_short": 823871,
+    "fii_idx_call_net": -270624,
+    "fii_idx_put_long": 842769,
     "fii_idx_put_short": 381083,
-    "fii_idx_put_net": 442788,
-    "pcr": 0.45,
+    "fii_idx_put_net": 461686,
+    "pcr": 0.46,
     "sentiment_score": 28,
     "_updated_at": "29 May 2026, 9:41 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.45,
+      "pcr": 0.46,
       "fii_fut_net": -201309,
-      "fii_call_net": -289522,
-      "fii_put_net": 442788
-    }
+      "fii_call_net": -270624,
+      "fii_put_net": 461686
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "27-May-2026",
@@ -362,22 +371,23 @@
     "dii_stk_fut_short": 4214429,
     "dii_stk_fut_net": -3930351,
     "fii_idx_call_long": 426192,
-    "fii_idx_call_short": 768438,
-    "fii_idx_call_net": -342246,
-    "fii_idx_put_long": 633361,
+    "fii_idx_call_short": 633361,
+    "fii_idx_call_net": -207169,
+    "fii_idx_put_long": 768438,
     "fii_idx_put_short": 331028,
-    "fii_idx_put_net": 302333,
-    "pcr": 0.43,
+    "fii_idx_put_net": 437410,
+    "pcr": 0.52,
     "sentiment_score": 40.9,
     "_updated_at": "27 May 2026, 9:45 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Neutral",
-      "pcr": 0.43,
+      "pcr": 0.52,
       "fii_fut_net": -163012,
-      "fii_call_net": -342246,
-      "fii_put_net": 302333
-    }
+      "fii_call_net": -207169,
+      "fii_put_net": 437410
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "26-May-2026",
@@ -400,22 +410,23 @@
     "dii_stk_fut_short": 4170590,
     "dii_stk_fut_net": -3898761,
     "fii_idx_call_long": 320160,
-    "fii_idx_call_short": 681647,
-    "fii_idx_call_net": -361487,
-    "fii_idx_put_long": 520515,
+    "fii_idx_call_short": 520515,
+    "fii_idx_call_net": -200355,
+    "fii_idx_put_long": 681647,
     "fii_idx_put_short": 246905,
-    "fii_idx_put_net": 273610,
-    "pcr": 0.36,
+    "fii_idx_put_net": 434742,
+    "pcr": 0.47,
     "sentiment_score": 38.2,
     "_updated_at": "26 May 2026, 9:44 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.36,
+      "pcr": 0.47,
       "fii_fut_net": -152865,
-      "fii_call_net": -361487,
-      "fii_put_net": 273610
-    }
+      "fii_call_net": -200355,
+      "fii_put_net": 434742
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "25-May-2026",
@@ -438,22 +449,23 @@
     "dii_stk_fut_short": 4326741,
     "dii_stk_fut_net": -3881989,
     "fii_idx_call_long": 799957,
-    "fii_idx_call_short": 1024401,
-    "fii_idx_call_net": -224444,
-    "fii_idx_put_long": 843791,
+    "fii_idx_call_short": 843791,
+    "fii_idx_call_net": -43834,
+    "fii_idx_put_long": 1024401,
     "fii_idx_put_short": 668943,
-    "fii_idx_put_net": 174848,
-    "pcr": 0.65,
-    "sentiment_score": 44.6,
+    "fii_idx_put_net": 355458,
+    "pcr": 0.79,
+    "sentiment_score": 40.6,
     "_updated_at": "25 May 2026, 9:02 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Neutral",
-      "pcr": 0.65,
+      "pcr": 0.79,
       "fii_fut_net": -214977,
-      "fii_call_net": -224444,
-      "fii_put_net": 174848
-    }
+      "fii_call_net": -43834,
+      "fii_put_net": 355458
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "22-May-2026",
@@ -476,22 +488,23 @@
     "dii_stk_fut_short": 4321198,
     "dii_stk_fut_net": -3886000,
     "fii_idx_call_long": 653857,
-    "fii_idx_call_short": 926504,
-    "fii_idx_call_net": -272647,
-    "fii_idx_put_long": 815806,
+    "fii_idx_call_short": 815806,
+    "fii_idx_call_net": -161949,
+    "fii_idx_put_long": 926504,
     "fii_idx_put_short": 532543,
-    "fii_idx_put_net": 283263,
-    "pcr": 0.57,
+    "fii_idx_put_net": 393961,
+    "pcr": 0.65,
     "sentiment_score": 34.1,
     "_updated_at": "22 May 2026, 8:58 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.57,
+      "pcr": 0.65,
       "fii_fut_net": -224992,
-      "fii_call_net": -272647,
-      "fii_put_net": 283263
-    }
+      "fii_call_net": -161949,
+      "fii_put_net": 393961
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "21-May-2026",
@@ -514,22 +527,23 @@
     "dii_stk_fut_short": 4271635,
     "dii_stk_fut_net": -3853232,
     "fii_idx_call_long": 564691,
-    "fii_idx_call_short": 919425,
-    "fii_idx_call_net": -354734,
-    "fii_idx_put_long": 820753,
+    "fii_idx_call_short": 820753,
+    "fii_idx_call_net": -256062,
+    "fii_idx_put_long": 919425,
     "fii_idx_put_short": 504978,
-    "fii_idx_put_net": 315775,
-    "pcr": 0.55,
+    "fii_idx_put_net": 414447,
+    "pcr": 0.62,
     "sentiment_score": 39.2,
     "_updated_at": "21 May 2026, 9:24 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.55,
+      "pcr": 0.62,
       "fii_fut_net": -231190,
-      "fii_call_net": -354734,
-      "fii_put_net": 315775
-    }
+      "fii_call_net": -256062,
+      "fii_put_net": 414447
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "20-May-2026",
@@ -552,22 +566,23 @@
     "dii_stk_fut_short": 4256781,
     "dii_stk_fut_net": -3853276,
     "fii_idx_call_long": 441464,
-    "fii_idx_call_short": 854211,
-    "fii_idx_call_net": -412747,
-    "fii_idx_put_long": 663620,
+    "fii_idx_call_short": 663620,
+    "fii_idx_call_net": -222156,
+    "fii_idx_put_long": 854211,
     "fii_idx_put_short": 475740,
-    "fii_idx_put_net": 187880,
-    "pcr": 0.56,
-    "sentiment_score": 39.8,
+    "fii_idx_put_net": 378471,
+    "pcr": 0.72,
+    "sentiment_score": 35.8,
     "_updated_at": "20 May 2026, 9:34 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.56,
+      "pcr": 0.72,
       "fii_fut_net": -222520,
-      "fii_call_net": -412747,
-      "fii_put_net": 187880
-    }
+      "fii_call_net": -222156,
+      "fii_put_net": 378471
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "19-May-2026",
@@ -590,22 +605,23 @@
     "dii_stk_fut_short": 4241838,
     "dii_stk_fut_net": -3852814,
     "fii_idx_call_long": 406028,
-    "fii_idx_call_short": 813798,
-    "fii_idx_call_net": -407770,
-    "fii_idx_put_long": 611362,
+    "fii_idx_call_short": 611362,
+    "fii_idx_call_net": -205334,
+    "fii_idx_put_long": 813798,
     "fii_idx_put_short": 385995,
-    "fii_idx_put_net": 225367,
-    "pcr": 0.47,
+    "fii_idx_put_net": 427803,
+    "pcr": 0.63,
     "sentiment_score": 38.1,
     "_updated_at": "19 May 2026, 9:24 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.47,
+      "pcr": 0.63,
       "fii_fut_net": -216280,
-      "fii_call_net": -407770,
-      "fii_put_net": 225367
-    }
+      "fii_call_net": -205334,
+      "fii_put_net": 427803
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "18-May-2026",
@@ -628,22 +644,23 @@
     "dii_stk_fut_short": 4236736,
     "dii_stk_fut_net": -3876384,
     "fii_idx_call_long": 517083,
-    "fii_idx_call_short": 1089492,
-    "fii_idx_call_net": -572409,
-    "fii_idx_put_long": 731449,
+    "fii_idx_call_short": 731449,
+    "fii_idx_call_net": -214366,
+    "fii_idx_put_long": 1089492,
     "fii_idx_put_short": 686328,
-    "fii_idx_put_net": 45121,
-    "pcr": 0.63,
-    "sentiment_score": 48.6,
+    "fii_idx_put_net": 403164,
+    "pcr": 0.94,
+    "sentiment_score": 40.6,
     "_updated_at": "18 May 2026, 7:31 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Neutral",
-      "pcr": 0.63,
+      "pcr": 0.94,
       "fii_fut_net": -209866,
-      "fii_call_net": -572409,
-      "fii_put_net": 45121
-    }
+      "fii_call_net": -214366,
+      "fii_put_net": 403164
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "15-May-2026",
@@ -666,22 +683,23 @@
     "dii_stk_fut_short": 4239629,
     "dii_stk_fut_net": -3896523,
     "fii_idx_call_long": 532822,
-    "fii_idx_call_short": 904311,
-    "fii_idx_call_net": -371489,
-    "fii_idx_put_long": 789341,
+    "fii_idx_call_short": 789341,
+    "fii_idx_call_net": -256519,
+    "fii_idx_put_long": 904311,
     "fii_idx_put_short": 513070,
-    "fii_idx_put_net": 276271,
-    "pcr": 0.57,
+    "fii_idx_put_net": 391241,
+    "pcr": 0.65,
     "sentiment_score": 45.7,
     "_updated_at": "15 May 2026, 8:39 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Neutral",
-      "pcr": 0.57,
+      "pcr": 0.65,
       "fii_fut_net": -216507,
-      "fii_call_net": -371489,
-      "fii_put_net": 276271
-    }
+      "fii_call_net": -256519,
+      "fii_put_net": 391241
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "14-May-2026",
@@ -704,22 +722,23 @@
     "dii_stk_fut_short": 4279112,
     "dii_stk_fut_net": -3943526,
     "fii_idx_call_long": 424050,
-    "fii_idx_call_short": 864744,
-    "fii_idx_call_net": -440694,
-    "fii_idx_put_long": 656098,
+    "fii_idx_call_short": 656098,
+    "fii_idx_call_net": -232048,
+    "fii_idx_put_long": 864744,
     "fii_idx_put_short": 485115,
-    "fii_idx_put_net": 170983,
-    "pcr": 0.56,
-    "sentiment_score": 43.4,
+    "fii_idx_put_net": 379629,
+    "pcr": 0.74,
+    "sentiment_score": 39.4,
     "_updated_at": "14 May 2026, 8:32 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
-      "sentiment": "Neutral",
-      "pcr": 0.56,
+      "sentiment": "Bearish",
+      "pcr": 0.74,
       "fii_fut_net": -225611,
-      "fii_call_net": -440694,
-      "fii_put_net": 170983
-    }
+      "fii_call_net": -232048,
+      "fii_put_net": 379629
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "13-May-2026",
@@ -742,22 +761,23 @@
     "dii_stk_fut_short": 4304640,
     "dii_stk_fut_net": -3977772,
     "fii_idx_call_long": 428267,
-    "fii_idx_call_short": 832593,
-    "fii_idx_call_net": -404326,
-    "fii_idx_put_long": 682279,
+    "fii_idx_call_short": 682279,
+    "fii_idx_call_net": -254012,
+    "fii_idx_put_long": 832593,
     "fii_idx_put_short": 388545,
-    "fii_idx_put_net": 293734,
-    "pcr": 0.47,
+    "fii_idx_put_net": 444048,
+    "pcr": 0.57,
     "sentiment_score": 33.6,
     "_updated_at": "13 May 2026, 8:35 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.47,
+      "pcr": 0.57,
       "fii_fut_net": -237874,
-      "fii_call_net": -404326,
-      "fii_put_net": 293734
-    }
+      "fii_call_net": -254012,
+      "fii_put_net": 444048
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "12-May-2026",
@@ -780,22 +800,23 @@
     "dii_stk_fut_short": 4269902,
     "dii_stk_fut_net": -3958119,
     "fii_idx_call_long": 373291,
-    "fii_idx_call_short": 812130,
-    "fii_idx_call_net": -438839,
-    "fii_idx_put_long": 623294,
+    "fii_idx_call_short": 623294,
+    "fii_idx_call_net": -250003,
+    "fii_idx_put_long": 812130,
     "fii_idx_put_short": 336181,
-    "fii_idx_put_net": 287113,
-    "pcr": 0.41,
+    "fii_idx_put_net": 475949,
+    "pcr": 0.54,
     "sentiment_score": 39.1,
     "_updated_at": "12 May 2026, 9:39 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.41,
+      "pcr": 0.54,
       "fii_fut_net": -237144,
-      "fii_call_net": -438839,
-      "fii_put_net": 287113
-    }
+      "fii_call_net": -250003,
+      "fii_put_net": 475949
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "29-Apr-2026",
@@ -818,22 +839,23 @@
     "dii_stk_fut_short": 4105077,
     "dii_stk_fut_net": -3841990,
     "fii_idx_call_long": 293574,
-    "fii_idx_call_short": 653116,
-    "fii_idx_call_net": -359542,
-    "fii_idx_put_long": 509632,
+    "fii_idx_call_short": 509632,
+    "fii_idx_call_net": -216058,
+    "fii_idx_put_long": 653116,
     "fii_idx_put_short": 319965,
-    "fii_idx_put_net": 189667,
-    "pcr": 0.49,
+    "fii_idx_put_net": 333151,
+    "pcr": 0.63,
     "sentiment_score": 38.1,
     "_updated_at": "29 Apr 2026, 7:19 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.49,
+      "pcr": 0.63,
       "fii_fut_net": -171058,
-      "fii_call_net": -359542,
-      "fii_put_net": 189667
-    }
+      "fii_call_net": -216058,
+      "fii_put_net": 333151
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "28-Apr-2026",
@@ -856,22 +878,23 @@
     "dii_stk_fut_short": 4053650,
     "dii_stk_fut_net": -3795317,
     "fii_idx_call_long": 255953,
-    "fii_idx_call_short": 602178,
-    "fii_idx_call_net": -346225,
-    "fii_idx_put_long": 457771,
+    "fii_idx_call_short": 457771,
+    "fii_idx_call_net": -201818,
+    "fii_idx_put_long": 602178,
     "fii_idx_put_short": 258666,
-    "fii_idx_put_net": 199105,
-    "pcr": 0.43,
+    "fii_idx_put_net": 343512,
+    "pcr": 0.57,
     "sentiment_score": 38.8,
     "_updated_at": "28 Apr 2026, 8:30 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.43,
+      "pcr": 0.57,
       "fii_fut_net": -170678,
-      "fii_call_net": -346225,
-      "fii_put_net": 199105
-    }
+      "fii_call_net": -201818,
+      "fii_put_net": 343512
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "27-Apr-2026",
@@ -894,22 +917,23 @@
     "dii_stk_fut_short": 4162797,
     "dii_stk_fut_net": -3690474,
     "fii_idx_call_long": 620796,
-    "fii_idx_call_short": 944737,
-    "fii_idx_call_net": -323941,
-    "fii_idx_put_long": 825375,
+    "fii_idx_call_short": 825375,
+    "fii_idx_call_net": -204579,
+    "fii_idx_put_long": 944737,
     "fii_idx_put_short": 616983,
-    "fii_idx_put_net": 208392,
-    "pcr": 0.65,
-    "sentiment_score": 40.7,
+    "fii_idx_put_net": 327754,
+    "pcr": 0.75,
+    "sentiment_score": 36.7,
     "_updated_at": "27 Apr 2026, 8:27 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
-      "sentiment": "Neutral",
-      "pcr": 0.65,
+      "sentiment": "Bearish",
+      "pcr": 0.75,
       "fii_fut_net": -205981,
-      "fii_call_net": -323941,
-      "fii_put_net": 208392
-    }
+      "fii_call_net": -204579,
+      "fii_put_net": 327754
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "24-Apr-2026",
@@ -932,22 +956,23 @@
     "dii_stk_fut_short": 4132496,
     "dii_stk_fut_net": -3684245,
     "fii_idx_call_long": 658740,
-    "fii_idx_call_short": 906190,
-    "fii_idx_call_net": -247450,
-    "fii_idx_put_long": 885490,
+    "fii_idx_call_short": 885490,
+    "fii_idx_call_net": -226750,
+    "fii_idx_put_long": 906190,
     "fii_idx_put_short": 522378,
-    "fii_idx_put_net": 363112,
-    "pcr": 0.58,
+    "fii_idx_put_net": 383812,
+    "pcr": 0.59,
     "sentiment_score": 28,
     "_updated_at": "24 Apr 2026, 7:42 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.58,
+      "pcr": 0.59,
       "fii_fut_net": -204079,
-      "fii_call_net": -247450,
-      "fii_put_net": 363112
-    }
+      "fii_call_net": -226750,
+      "fii_put_net": 383812
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "23-Apr-2026",
@@ -970,22 +995,23 @@
     "dii_stk_fut_short": 4064601,
     "dii_stk_fut_net": -3630829,
     "fii_idx_call_long": 495010,
-    "fii_idx_call_short": 856649,
-    "fii_idx_call_net": -361639,
-    "fii_idx_put_long": 741870,
+    "fii_idx_call_short": 741870,
+    "fii_idx_call_net": -246860,
+    "fii_idx_put_long": 856649,
     "fii_idx_put_short": 481179,
-    "fii_idx_put_net": 260691,
-    "pcr": 0.56,
+    "fii_idx_put_net": 375470,
+    "pcr": 0.65,
     "sentiment_score": 36.5,
     "_updated_at": "23 Apr 2026, 9:48 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.56,
+      "pcr": 0.65,
       "fii_fut_net": -190914,
-      "fii_call_net": -361639,
-      "fii_put_net": 260691
-    }
+      "fii_call_net": -246860,
+      "fii_put_net": 375470
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "17-Apr-2026",
@@ -1182,22 +1208,23 @@
     "dii_stk_fut_short": 4178526,
     "dii_stk_fut_net": -3875108,
     "fii_idx_call_long": 376141,
-    "fii_idx_call_short": 702669,
-    "fii_idx_call_net": -326528,
-    "fii_idx_put_long": 630531,
+    "fii_idx_call_short": 630531,
+    "fii_idx_call_net": -254390,
+    "fii_idx_put_long": 702669,
     "fii_idx_put_short": 346355,
-    "fii_idx_put_net": 284176,
-    "pcr": 0.49,
-    "sentiment_score": 0,
+    "fii_idx_put_net": 356314,
+    "pcr": 0.55,
+    "sentiment_score": 28,
     "_updated_at": "1 Apr 2026, 7:39 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.49,
+      "pcr": 0.55,
       "fii_fut_net": -264821,
-      "fii_call_net": -326528,
-      "fii_put_net": 284176
-    }
+      "fii_call_net": -254390,
+      "fii_put_net": 356314
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "30-Mar-2026",
@@ -1220,22 +1247,23 @@
     "dii_stk_fut_short": 4139453,
     "dii_stk_fut_net": -3843872,
     "fii_idx_call_long": 270111,
-    "fii_idx_call_short": 625831,
-    "fii_idx_call_net": -355720,
-    "fii_idx_put_long": 502548,
+    "fii_idx_call_short": 502548,
+    "fii_idx_call_net": -232437,
+    "fii_idx_put_long": 625831,
     "fii_idx_put_short": 262259,
-    "fii_idx_put_net": 240289,
-    "pcr": 0.42,
-    "sentiment_score": 0,
+    "fii_idx_put_net": 363572,
+    "pcr": 0.52,
+    "sentiment_score": 28,
     "_updated_at": "30 Mar 2026, 9:02 pm IST",
     "_source": "fetch-pipeline",
     "_fao_summary": {
       "sentiment": "Bearish",
-      "pcr": 0.42,
+      "pcr": 0.52,
       "fii_fut_net": -264046,
-      "fii_call_net": -355720,
-      "fii_put_net": 240289
-    }
+      "fii_call_net": -232437,
+      "fii_put_net": 363572
+    },
+    "_fao_columns_repaired": true
   },
   {
     "date": "27-Mar-2026",

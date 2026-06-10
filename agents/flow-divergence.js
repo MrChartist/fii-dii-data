@@ -158,8 +158,10 @@ async function run() {
     const lastSignalDate = state.last_signal_date || '';
 
     if (analysis.signal !== 'NONE') {
-        // New signal or signal changed
-        if (analysis.signal !== lastSignal || analysis.date !== lastSignalDate) {
+        // Alert only when the signal itself changes — divergence conditions
+        // typically persist for days, and re-alerting on every new data date
+        // spams the channel with identical signals
+        if (analysis.signal !== lastSignal) {
             const alert = buildDivergenceAlert(analysis);
             await sendTelegramAlert(alert);
             alertsSent++;

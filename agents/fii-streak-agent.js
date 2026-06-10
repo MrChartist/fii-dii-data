@@ -129,34 +129,45 @@ async function run() {
     const streaks = calculateStreaks(history);
     let alertsSent = 0;
 
+    // Only advance the alerted-streak watermark when the send actually
+    // succeeded — otherwise a failed send permanently swallows that alert
+    let alertedSell = state.last_alerted_sell_streak || 0;
+    let alertedBuy = state.last_alerted_buy_streak || 0;
+
     // Process sell streak
     if (streaks.sell && streaks.sell.length >= 5) {
-        const lastAlertedSell = state.last_alerted_sell_streak || 0;
-
-        if (streaks.sell.length > lastAlertedSell) {
+        if (streaks.sell.length > alertedSell) {
             const alert = buildStreakAlert('sell', streaks.sell);
-            await sendTelegramAlert(alert);
-            alertsSent++;
+            const result = await sendTelegramAlert(alert);
+            if (result?.sent) {
+                alertsSent++;
+                alertedSell = streaks.sell.length;
+            }
             console.log(`[${AGENT_NAME}] 🔴 FII sell streak: ${streaks.sell.length} days, cumulative: ${fmtCr(streaks.sell.cumulative_fii)}`);
         }
+    } else {
+        alertedSell = 0; // streak broken — reset watermark
     }
 
     // Process buy streak
     if (streaks.buy && streaks.buy.length >= 5) {
-        const lastAlertedBuy = state.last_alerted_buy_streak || 0;
-
-        if (streaks.buy.length > lastAlertedBuy) {
+        if (streaks.buy.length > alertedBuy) {
             const alert = buildStreakAlert('buy', streaks.buy);
-            await sendTelegramAlert(alert);
-            alertsSent++;
+            const result = await sendTelegramAlert(alert);
+            if (result?.sent) {
+                alertsSent++;
+                alertedBuy = streaks.buy.length;
+            }
             console.log(`[${AGENT_NAME}] 🟢 FII buy streak: ${streaks.buy.length} days, cumulative: ${fmtCr(streaks.buy.cumulative_fii)}`);
         }
+    } else {
+        alertedBuy = 0; // streak broken — reset watermark
     }
 
     // Update state
     setState(AGENT_NAME, {
-        last_alerted_sell_streak: streaks.sell ? streaks.sell.length : 0,
-        last_alerted_buy_streak: streaks.buy ? streaks.buy.length : 0,
+        last_alerted_sell_streak: alertedSell,
+        last_alerted_buy_streak: alertedBuy,
         current_sell_streak: streaks.sell ? streaks.sell.length : 0,
         current_buy_streak: streaks.buy ? streaks.buy.length : 0,
         sell_cumulative: streaks.sell ? streaks.sell.cumulative_fii : 0,

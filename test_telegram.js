@@ -7,7 +7,9 @@ const { getState } = require('./agents/agent-utils');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const channel = process.env.TELEGRAM_CHANNEL_ID;
-const latest = require('./data/latest.json');
+let latest;
+try { latest = require('./data/latest.json'); }
+catch (e) { console.error('\u274c data/latest.json missing \u2014 run `npm run fetch` first.'); process.exit(1); }
 
 const regime = getState('regime-classifier');
 const streak = getState('fii-streak');
