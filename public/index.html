@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script>/* Restore saved theme before first paint to avoid a flash */
+try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- SEO Meta Tags -->
@@ -1360,6 +1362,11 @@ tr:last-child td { border-bottom: none; }
 .mb-bull { background: hsl(152 62% 38% / 0.1); color: var(--green); border: 1px solid hsl(152 62% 38% / 0.2); }
 .mb-bear { background: hsl(0 72% 52% / 0.1); color: var(--red); border: 1px solid hsl(0 72% 52% / 0.2); }
 .mb-neut { background: var(--l3); color: var(--t3); border: 1px solid var(--sep2); }
+/* Signal pills in the Recent Sessions table (same look as momentum badges) */
+.signal-pill { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+.sig-bull { background: hsl(152 62% 38% / 0.1); color: var(--green); border: 1px solid hsl(152 62% 38% / 0.2); }
+.sig-bear { background: hsl(0 72% 52% / 0.1); color: var(--red); border: 1px solid hsl(0 72% 52% / 0.2); }
+.sig-neutral { background: var(--l3); color: var(--t3); border: 1px solid var(--sep2); }
 .btn-x { background: rgb(255 255 255 / 0.58); border: 1px solid rgb(0 0 0 / 0.055); color: var(--t2); padding: 0 14px; border-radius: 999px; font-family: var(--font-body); font-size: 11px; font-weight: 800; cursor: pointer; transition: all 250ms ease-out; display: inline-flex; align-items: center; gap: 6px; height: 30px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.74), 0 16px 36px rgb(0 0 0 / 0.055); }
 [data-theme="dark"] .btn-x { background: rgb(255 255 255 / 0.035); border-color: rgb(255 255 255 / 0.06); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035), 0 18px 44px rgb(0 0 0 / 0.24); }
 .btn-x:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px) scale(1.015); }
@@ -2261,7 +2268,6 @@ tr:last-child td { border-bottom: none; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
 </head>
 <body>
 <!-- Noscript Fallback for SEO crawlers -->
@@ -3503,7 +3509,7 @@ tr:last-child td { border-bottom: none; }
           <li><a href="#" onclick="switchMainTab('t-hero'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">FII/DII Cash Flows</a></li>
           <li><a href="#" onclick="switchMainTab('t-fno'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">F&O Positions</a></li>
           <li><a href="#" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart(); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Sector Analysis</a></li>
-          <li><a href="#" onclick="switchMainTab('t-docs'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Documentation</a></li>
+          <li><a href="https://github.com/MrChartist/fii-dii-data#readme" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Documentation</a></li>
           <li><a href="/api/agents/docs" target="_blank" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Agent API Docs</a></li>
         </ul>
       </div>
@@ -3674,7 +3680,9 @@ function switchSubTab(id) {
 /* ── DATASETS ── */
 let dailyData = []; // Populated dynamically on startup
 
-const weeklyData = [
+/* Static seeds shown until live data loads — recomputeRollups() rebuilds all
+   three from dailyData so the Weekly/Monthly/Annual views stay current */
+let weeklyData = [
   { w:"Wk Mar 18*", fn:-16821, dn:21071 },
   { w:"Wk Mar 13", fn:-22905, dn:26097 }, { w:"Wk Mar 06", fn:-20399, dn:22099 },
   { w:"Wk Feb 27", fn:-18602, dn:22519 }, { w:"Wk Feb 20", fn:-11204, dn:16402 },
@@ -3683,7 +3691,7 @@ const weeklyData = [
   { w:"Wk Jan 16", fn:-15201, dn:19402 }, { w:"Wk Jan 09", fn:-12770, dn:18602 },
 ];
 
-const monthlyData = [
+let monthlyData = [
   { m:"Mar 2026*", fn:-46646,  dn:36462,  nc:"-2.8%", np:22199 },
   { m:"Feb 2026",  fn:-12240,  dn:57471,  nc:"+1.2%", np:22920 },
   { m:"Jan 2026",  fn:-87374,  dn:105309, nc:"-3.4%", np:23163 },
@@ -3698,7 +3706,7 @@ const monthlyData = [
   { m:"Apr 2025",  fn:-34201,  dn:45201,  nc:"+1.2%", np:24039 },
 ];
 
-const yearlyData = [
+let yearlyData = [
   { y:"2026*", fn:-112414, dn:186649 }, { y:"2025",  fn:-306419, dn:788184 },
   { y:"2024",  fn:-304217, dn:527438 }, { y:"2023",  fn:-16325,  dn:181482 },
   { y:"2022",  fn:-278429, dn:275726 }, { y:"2021",  fn:-91626,  dn:94846  },
@@ -3711,6 +3719,11 @@ const yearlyData = [
 /* ── DOM RENDER UTILS ── */
 function fC(v) { return (v>0?'pos':'neg'); }
 function fmt(v) { return (v>0?'+':(v<0?'-':'')) + '₹' + Math.abs(v).toLocaleString('en-IN') + ' Cr'; }
+/* Escape untrusted strings (LLM output, scraped sector names, API errors)
+   before they reach an innerHTML sink */
+function escapeHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 function getBar(v, max) { 
   const p = Math.min(100, Math.abs(v)/max*100); 
   return `<div class="td-bar-wrap"><div class="td-bar" style="width:${p}%; background:${v>0?'var(--green)':'var(--red)'}"></div></div>`; 
@@ -3786,8 +3799,7 @@ function renderIsoMatrix3D() {
         const cls = isoClass(v);
         const h = barH(v, maxV);
         const delay = (i * 0.015).toFixed(3);
-        const sign = v >= 0 ? '+' : '';
-        const tip = d.d + ': ' + sign + fmt(v);
+        const tip = d.d + ': ' + fmt(v); // fmt() already prefixes the sign
         return '<div class="iso-bar-wrap"><div class="iso-bar ' + cls + '" style="height:' + h + 'px;animation-delay:' + delay + 's" title="' + tip + '"><span class="iso-tip">' + tip + '</span></div></div>';
       }).join('');
     }
@@ -3845,7 +3857,79 @@ function parseNSEDate(str) {
   return null;
 }
 
+/* ── Live rollups ──
+   Rebuild the Weekly / Monthly / Annual aggregates from dailyData so the
+   tables and chart modes track the live feed instead of the static seeds
+   (which were frozen at their hand-entry date). Months/years only partially
+   covered by the loaded history keep their seeded values where available. */
+const _seedMonthly = monthlyData.slice();
+function recomputeRollups() {
+  if (!dailyData.length || dailyData[0].d === 'N/A') return;
+  const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const rows = [];
+  dailyData.forEach(r => {
+    const dt = parseNSEDate(r.d);
+    if (dt) rows.push({ dt, fn: r.fn || 0, dn: r.dn || 0 });
+  });
+  if (!rows.length) return;
+  rows.sort((a, b) => a.dt - b.dt);
+  const oldest = rows[0].dt, newest = rows[rows.length - 1].dt;
+
+  // Weekly — last 12 weeks, keyed by week-start Monday, labeled by week's last session
+  const weeks = new Map();
+  rows.forEach(r => {
+    const monday = new Date(r.dt);
+    monday.setDate(r.dt.getDate() - ((r.dt.getDay() + 6) % 7));
+    const key = monday.getTime();
+    const w = weeks.get(key) || { end: r.dt, fn: 0, dn: 0 };
+    w.fn += r.fn; w.dn += r.dn;
+    if (r.dt > w.end) w.end = r.dt;
+    weeks.set(key, w);
+  });
+  weeklyData = [...weeks.entries()].sort((a, b) => b[0] - a[0]).slice(0, 12)
+    .map(([, w], i) => ({
+      w: `Wk ${MN[w.end.getMonth()]} ${String(w.end.getDate()).padStart(2, '0')}${i === 0 ? '*' : ''}`,
+      fn: Math.round(w.fn), dn: Math.round(w.dn)
+    }));
+
+  // Monthly — computed where history covers the month; Nifty change/level (nc/np)
+  // and months older than the loaded history come from the static seed
+  const months = new Map();
+  rows.forEach(r => {
+    const key = r.dt.getFullYear() * 100 + r.dt.getMonth();
+    const m = months.get(key) || { y: r.dt.getFullYear(), mo: r.dt.getMonth(), fn: 0, dn: 0 };
+    m.fn += r.fn; m.dn += r.dn;
+    months.set(key, m);
+  });
+  const moArr = [...months.entries()].sort((a, b) => b[0] - a[0]);
+  const curMoKey = moArr[0][0];
+  const computedMonths = moArr.map(([key, m]) => {
+    const label = `${MN[m.mo]} ${m.y}`;
+    const seed = _seedMonthly.find(s => s.m.replace('*', '') === label);
+    const fullyCovered = m.y > oldest.getFullYear() ||
+      (m.y === oldest.getFullYear() && (m.mo > oldest.getMonth() || oldest.getDate() <= 3));
+    if (!fullyCovered && seed) return { ...seed, m: label + (key === curMoKey ? '*' : '') };
+    return {
+      m: label + (key === curMoKey ? '*' : ''),
+      fn: Math.round(m.fn), dn: Math.round(m.dn),
+      nc: seed ? seed.nc : '—', np: seed ? seed.np : null
+    };
+  });
+  const computedLabels = new Set(computedMonths.map(x => x.m.replace('*', '')));
+  monthlyData = [...computedMonths, ..._seedMonthly.filter(s => !computedLabels.has(s.m.replace('*', '')))].slice(0, 24);
+
+  // Annual — recompute the current (partial, '*') year from live data;
+  // completed historical years keep their static records
+  const curYear = newest.getFullYear();
+  let fnY = 0, dnY = 0;
+  rows.forEach(r => { if (r.dt.getFullYear() === curYear) { fnY += r.fn; dnY += r.dn; } });
+  const yRow = { y: `${curYear}*`, fn: Math.round(fnY), dn: Math.round(dnY) };
+  const yIdx = yearlyData.findIndex(x => String(x.y).replace('*', '') === String(curYear));
+  if (yIdx >= 0) yearlyData[yIdx] = yRow; else yearlyData.unshift(yRow);
+}
+
 function renderDashboard() {
+  recomputeRollups();
   const latest = dailyData[0];
   
   // Calculate Flow Streak
@@ -4061,7 +4145,7 @@ function renderDashboard() {
 
   // Other Tables
   document.getElementById('tbWeekly').innerHTML = weeklyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2)">${d.w}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 40000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 40000)}</td><td class="${fC(t)}">${fmt(t)}</td><td><span class="${t>0?'mb-bull':'mb-bear'} mom-badge" style="font-size:10px; padding:4px 8px;">${t>0?'BULLISH ACCUMULATION':'DISTRIBUTION RISK'}</span></td></tr>`}).join('');
-  document.getElementById('tbMonthly').innerHTML = monthlyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2); font-weight:700;">${d.m}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 150000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 150000)}</td><td class="${fC(t)}" style="font-weight:800; font-size:14px;">${fmt(t)}</td><td class="${d.nc.includes('+')?'pos':'neg'}">${d.nc}</td></tr>`}).join('');
+  document.getElementById('tbMonthly').innerHTML = monthlyData.map(d => {const t=d.fn+d.dn; const ncCls=d.nc.includes('+')?'pos':d.nc.includes('-')?'neg':''; return `<tr><td style="color:var(--t2); font-weight:700;">${d.m}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 150000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 150000)}</td><td class="${fC(t)}" style="font-weight:800; font-size:14px;">${fmt(t)}</td><td class="${ncCls}">${d.nc}</td></tr>`}).join('');
   document.getElementById('tbYearly').innerHTML = yearlyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t1); font-weight:800; font-size:15px;">${d.y}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 400000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 800000)}</td><td class="${fC(t)}" style="font-weight:800;">${fmt(t)}</td><td style="color:var(--t3); font-weight:700;">${d.fn<0&&d.dn>0? (d.dn/Math.abs(d.fn)).toFixed(2)+'x' : 'N/A'}</td></tr>`}).join('');
 
   // ── Phase 8: Populate Matrices Summary Stats ──
@@ -4206,7 +4290,8 @@ function renderCommandCenter() {
   const callNet = Number(latestFno.fii_idx_call_long || 0) - Number(latestFno.fii_idx_call_short || 0);
   const putNet = Number(latestFno.fii_idx_put_long || 0) - Number(latestFno.fii_idx_put_short || 0);
   set('cmd-fno-direction', fno.label, fno.color);
-  set('cmd-fno-callput', `${signedContracts(callNet)} / ${signedContracts(putNet)}`, callNet + putNet >= 0 ? 'var(--green)' : 'var(--red)');
+  // Net long calls = bullish, net long puts = bearish — so the bullish tilt is call MINUS put
+  set('cmd-fno-callput', `${signedContracts(callNet)} / ${signedContracts(putNet)}`, callNet - putNet >= 0 ? 'var(--green)' : 'var(--red)');
   set('cmd-fno-net', signedContracts(futNet), futNet >= 0 ? 'var(--green)' : 'var(--red)');
   const fnoTarget = document.getElementById('cmd-fno-pressure');
   if (fnoTarget) {
@@ -4695,6 +4780,7 @@ function exportDailyCSV() {
 
 function _getShareText() {
   const d = dailyData[0];
+  if (!d) return `📊 Track live FII/DII institutional flows: https://mrchartist.com/fii-dii-data\n\n#Nifty50 #FIIData #StockMarketIndia @mr_chartist`;
   const latestFn = fmt(d.fn);
   const latestDn = fmt(d.dn);
   const netLiq = fmt(d.fn + d.dn);
@@ -4867,11 +4953,13 @@ async function fetchLiveNSE(isManual = false) {
     const parsed = parseNSEDate(dateStr);
     if (!parsed) return false;
     const now = new Date();
-    // IST offset: UTC+5:30
+    // IST offset: UTC+5:30 — compare with local getters on `parsed` because
+    // parseNSEDate returns a LOCAL-midnight date (UTC getters shift it a day
+    // for any viewer east of UTC, including the IST audience)
     const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
-    return parsed.getUTCFullYear() === istNow.getUTCFullYear() &&
-           parsed.getUTCMonth() === istNow.getUTCMonth() &&
-           parsed.getUTCDate() === istNow.getUTCDate();
+    return parsed.getFullYear() === istNow.getUTCFullYear() &&
+           parsed.getMonth() === istNow.getUTCMonth() &&
+           parsed.getDate() === istNow.getUTCDate();
   }
 
   /* ── TIER 0: Trigger server-side NSE fetch + read fresh data ── */
@@ -5010,9 +5098,10 @@ function toggleRowDetail(idx) {
   
   panel.classList.add('open');
   mainRow.classList.add('expanded');
-  
-  // Lazy-render the mini chart
-  const d = dailyData[idx];
+
+  // Lazy-render the mini chart — idx points into the FILTERED dataset
+  // (with a filter or date range active, dailyData[idx] is a different day)
+  const d = paginatedFilteredData[idx] || dailyData[idx];
   if (d) renderDetailChart(idx, d);
 }
 
@@ -5021,10 +5110,11 @@ function renderDetailChart(idx, d) {
   if (!canvas) return;
   
   const ctx = canvas.getContext('2d');
-  const isDark = document.body.classList.contains('dark');
+  // Theme lives in data-theme on <html>, not a body class
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
   const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   const textColor = isDark ? '#a0a0a0' : '#666';
-  
+
   if (_activeDetailCharts[idx]) _activeDetailCharts[idx].destroy();
   
   _activeDetailCharts[idx] = new Chart(ctx, {
@@ -5086,10 +5176,10 @@ function renderMatrixChart() {
   if (!canvas || !dailyData.length) return;
   
   const ctx = canvas.getContext('2d');
-  const isDark = document.body.classList.contains('dark');
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
   const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   const textColor = isDark ? '#a0a0a0' : '#666';
-  
+
   // Take the data in chronological order (reversed from descending)
   const data = [...dailyData].reverse();
   const labels = data.map(d => d.d);
@@ -5226,7 +5316,8 @@ window.addEventListener('DOMContentLoaded', async () => {
           const fallbackRes = await fetch('https://raw.githubusercontent.com/MrChartist/fii-dii-data/main/data/history.json');
           if (fallbackRes.ok) {
               const rawHistory = await fallbackRes.json();
-              dailyData = rawHistory.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 800).map(h => ({
+              // new Date("10-Jun-2026") is Invalid Date in Safari/Firefox — use the NSE parser
+              dailyData = rawHistory.sort((a,b) => parseNSEDate(b.date) - parseNSEDate(a.date)).slice(0, 800).map(h => ({
                   d: h.date, fb: h.fii_buy || 0, fs: h.fii_sell || 0, fn: h.fii_net || 0,
                   db: h.dii_buy || 0, ds: h.dii_sell || 0, dn: h.dii_net || 0,
                   fii_idx_fut_long: h.fii_idx_fut_long, fii_idx_fut_short: h.fii_idx_fut_short,
@@ -5407,6 +5498,7 @@ function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
   html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  try { localStorage.setItem('theme', isDark ? 'light' : 'dark'); } catch {}
   document.getElementById('btnTheme').innerHTML = isDark
     ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Dark Mode`
     : `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg> Light Mode`;
@@ -5447,18 +5539,20 @@ function renderSectors() {
     const fortStr = (isBull ? '▲ ' : '▼ ') + Math.abs(s.fortnightCr).toLocaleString('en-IN') + ' Cr';
     const net1yStr = _fmtCr(s.oneYearCr);
 
-    const alphaStr = s.alpha > 0 ? `<span class="t-green">outperforming (${s.alpha}%)</span>` : `<span class="t-red">underperforming (${s.alpha}%)</span>`;
+    const alphaStr = (s.alpha === null || s.alpha === undefined)
+      ? `<span style="color:var(--t4);">n/a</span>`
+      : s.alpha > 0 ? `<span class="t-green">outperforming (${s.alpha}%)</span>` : `<span class="t-red">underperforming (${s.alpha}%)</span>`;
 
     const origIdx = SECTOR_DATA.indexOf(s);
     return `<div class="sector-card" onclick="openSectorModal(${origIdx})">
       <div class="sc-head">
-        <div class="sc-name" title="${s.name}">${s.name}</div>
+        <div class="sc-name" title="${escapeHtml(s.name)}">${escapeHtml(s.name)}</div>
         <div class="sc-fortnight ${fortClass}">${fortStr}</div>
       </div>
-      
+
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
         <div class="sc-aum-pct">${s.aumPct.toFixed(1)}% of AUM</div>
-        <div style="font-size:11px; color:var(--t4); font-weight:600;">FII Own: <span style="color:var(--t1);">${s.fiiOwn}%</span></div>
+        <div style="font-size:11px; color:var(--t4); font-weight:600;">FII Own: <span style="color:var(--t1);">${s.fiiOwn ?? '—'}${s.fiiOwn != null ? '%' : ''}</span></div>
       </div>
       
       <div class="sc-chart-wrapper" style="margin: 16px 0;">
@@ -6424,8 +6518,8 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
         html += `
           <div class="agent-row" style="background:var(--l1); padding:10px 14px; border-radius:8px; border:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
              <div style="flex:1; min-width:0;">
-               <div style="font-weight:700; font-size:12px; color:var(--t2);">${a.name.toUpperCase()}</div>
-               <div style="font-size:10px; color:var(--t4); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${infoStr}</div>
+               <div style="font-weight:700; font-size:12px; color:var(--t2);">${escapeHtml(a.name.toUpperCase())}</div>
+               <div style="font-size:10px; color:var(--t4); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(infoStr)}</div>
              </div>
              <div style="display:flex; align-items:center; flex-shrink:0;">
                ${shareBtn}
@@ -6467,17 +6561,17 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
       const data = await res.json();
       
       if(data.success) {
-        // Convert Markdown bold to strong tags
-        let txt = data.synthesis.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Escape first (LLM output is untrusted), then apply markdown transforms
+        let txt = escapeHtml(data.synthesis).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         // Convert Markdown newlines to br
         txt = txt.replace(/\n/g, '<br>');
-        
+
         content.innerHTML = txt;
       } else {
-        content.innerHTML = `<div style="color:var(--red);">Error: ${data.error}</div>`;
+        content.innerHTML = `<div style="color:var(--red);">Error: ${escapeHtml(data.error)}</div>`;
       }
     } catch(e) {
-      content.innerHTML = `<div style="color:var(--red);">Failed to connect to LLM: ${e.message}</div>`;
+      content.innerHTML = `<div style="color:var(--red);">Failed to connect to LLM: ${escapeHtml(e.message)}</div>`;
     }
     
     loader.style.display = 'none';
@@ -6494,11 +6588,15 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     const body = document.getElementById('sniperBody');
     const timestamp = document.getElementById('sniperTimestamp');
 
-    // Daily cache: keyed to today's date in IST — generate once per day only
+    // Cache keyed to the latest SESSION date, not the calendar day — data
+    // publishes ~6:30 PM IST, so a calendar-day key caches the morning's
+    // (yesterday's-data) briefing and hides the evening update all day.
+    // Falls back to the IST calendar day before data has loaded.
     const now = new Date();
     const istOffset = 5.5 * 60 * 60 * 1000;
     const ist = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60 * 1000);
-    const todayKey = `sniper_${ist.getFullYear()}-${String(ist.getMonth()+1).padStart(2,'0')}-${String(ist.getDate()).padStart(2,'0')}`;
+    const istDay = `${ist.getFullYear()}-${String(ist.getMonth()+1).padStart(2,'0')}-${String(ist.getDate()).padStart(2,'0')}`;
+    const todayKey = `sniper_${(typeof dailyData !== 'undefined' && dailyData[0]?.d) || istDay}`;
 
     // Check localStorage for today's cached synthesis
     const cached = localStorage.getItem(todayKey);
@@ -6525,7 +6623,9 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
       if (data.success && data.synthesis) {
         const lines = data.synthesis.trim().split('\n').filter(l => l.trim());
         const headlineText = lines[0].replace(/\*\*/g, '').replace(/^#+\s*/, '').trim();
-        const bodyText = lines.slice(1).join(' ').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').trim();
+        // Escape before the bold transform — this string is LLM output and is
+        // persisted to localStorage, so injected markup would replay on every visit
+        const bodyText = escapeHtml(lines.slice(1).join(' ')).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').trim();
         const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
         headline.textContent = headlineText;
@@ -6539,16 +6639,17 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
           time: timeStr
         }));
 
-        // Clean up old days (keep only last 3)
+        // Clean up old entries (collect keys first — removing while iterating
+        // forward shifts indices and skips keys)
+        const staleKeys = [];
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
-          if (k && k.startsWith('sniper_') && k !== todayKey) {
-            localStorage.removeItem(k);
-          }
+          if (k && k.startsWith('sniper_') && k !== todayKey) staleKeys.push(k);
         }
+        staleKeys.forEach(k => localStorage.removeItem(k));
       } else {
         headline.textContent = 'Market intelligence loading...';
-        body.innerHTML = data.error || 'AI synthesis temporarily unavailable. Data feeds are active.';
+        body.innerHTML = escapeHtml(data.error) || 'AI synthesis temporarily unavailable. Data feeds are active.';
       }
     } catch (e) {
       headline.textContent = 'Institutional flow data active';
@@ -6561,6 +6662,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
 
   // Load briefing after initial data fetch
   setTimeout(() => loadSniperBriefing(), 2000);
+  setTimeout(() => renderAgentData(), 2500); // hydrate the AI agent panel (was never invoked)
 
   // ── PHASE 4: SSE Live Connection ─────────────────────────────────────────────
   function initSSE() {
@@ -6577,9 +6679,9 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     evtSource.addEventListener('data-update', (e) => {
       try {
         const d = JSON.parse(e.data);
-        // Flash the KPI values
-        const fiiEl = document.getElementById('kpi-fii-net');
-        const diiEl = document.getElementById('kpi-dii-net');
+        // Flash the KPI values (the live KPI elements are #lFii / #lDii)
+        const fiiEl = document.getElementById('lFii');
+        const diiEl = document.getElementById('lDii');
         if (fiiEl) {
           fiiEl.classList.remove('kpi-flash-green', 'kpi-flash-red');
           void fiiEl.offsetWidth; // force reflow
@@ -6596,7 +6698,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     });
 
     evtSource.addEventListener('agent-update', () => {
-      if (typeof loadAgentStatus === 'function') loadAgentStatus();
+      if (typeof renderAgentData === 'function') renderAgentData();
     });
 
     evtSource.onerror = () => {
@@ -6696,7 +6798,8 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
       const tsEl = document.getElementById('tickerUpdatedAt');
       const dotEl = document.getElementById('tickerDot');
       if (tsEl && !_lastMarketData) tsEl.textContent = 'Market data unavailable';
-      if (tsEl && _lastMarketData) tsEl.textContent += ' (stale)';
+      // Set, don't append — consecutive failures otherwise stack " (stale) (stale)…"
+      if (tsEl && _lastMarketData && !tsEl.textContent.endsWith('(stale)')) tsEl.textContent += ' (stale)';
       if (dotEl) dotEl.className = 'ticker-live-dot stale';
     }
 
