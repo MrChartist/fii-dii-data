@@ -630,6 +630,76 @@ app.get('/api/market', async (req, res) => {
     }
 });
 
+// Nifty 50 daily close history (Yahoo proxy, cached 1h) — powers the
+// cumulative-flows-vs-Nifty overlay on the dashboard
+let _niftyHistCache = { data: null, ts: 0 };
+app.get('/api/nifty-history', async (req, res) => {
+    try {
+        if (_niftyHistCache.data && Date.now() - _niftyHistCache.ts < 60 * 60 * 1000) {
+            return res.json(_niftyHistCache.data);
+        }
+        const url = 'https://query1.finance.yahoo.com/v8/finance/chart/%5ENSEI?interval=1d&range=2y';
+        const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 10000 });
+        const result = data?.chart?.result?.[0];
+        const stamps = result?.timestamp || [];
+        const closes = result?.indicators?.quote?.[0]?.close || [];
+        const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const rows = [];
+        for (let i = 0; i < stamps.length; i++) {
+            if (!Number.isFinite(closes[i])) continue;
+            // Yahoo timestamps are session-start UTC; shift to IST for the trading date
+            const d = new Date((stamps[i] + 19800) * 1000);
+            rows.push({
+                date: `${String(d.getUTCDate()).padStart(2, '0')}-${MONTHS[d.getUTCMonth()]}-${d.getUTCFullYear()}`,
+                close: Math.round(closes[i] * 100) / 100
+            });
+        }
+        if (!rows.length) throw new Error('Yahoo returned no Nifty history');
+        _niftyHistCache = { data: rows, ts: Date.now() };
+        res.json(rows);
+    } catch (err) {
+        if (_niftyHistCache.data) return res.json(_niftyHistCache.data); // stale ok
+        res.status(502).json({ error: 'Nifty history unavailable: ' + err.message });
+    }
+});
+
+// NSE bulk/block deals proxy (cached 30 min). NSE edge-blocks many datacenter
+// IPs — fail gracefully so the frontend can hide the panel.
+let _dealsCache = { data: null, ts: 0 };
+app.get('/api/large-deals', async (req, res) => {
+    try {
+        if (_dealsCache.data && Date.now() - _dealsCache.ts < 30 * 60 * 1000) {
+            return res.json(_dealsCache.data);
+        }
+        const NSE_HEADERS = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': '*/*', 'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.nseindia.com/market-data/large-deals'
+        };
+        // Bootstrap cookies from the homepage, then hit the JSON API
+        const home = await axios.get('https://www.nseindia.com/', { headers: NSE_HEADERS, timeout: 10000 });
+        const cookies = (home.headers['set-cookie'] || []).map(c => c.split(';')[0]).join('; ');
+        const { data } = await axios.get('https://www.nseindia.com/api/snapshot-capital-market-largedeal', {
+            headers: { ...NSE_HEADERS, Cookie: cookies }, timeout: 10000
+        });
+        const mapDeal = (d) => ({
+            symbol: d.symbol, name: d.name || d.clientName || '', client: d.clientName || '',
+            side: d.buySell || '', qty: d.qty || 0, price: d.watp || d.tradePrice || 0
+        });
+        const out = {
+            as_on: data?.as_on_date || null,
+            bulk: (data?.BULK_DEALS_DATA || []).map(mapDeal),
+            block: (data?.BLOCK_DEALS_DATA || []).map(mapDeal),
+            short: (data?.SHORT_DEALS_DATA || []).map(mapDeal)
+        };
+        _dealsCache = { data: out, ts: Date.now() };
+        res.json(out);
+    } catch (err) {
+        if (_dealsCache.data) return res.json(_dealsCache.data); // stale ok
+        res.status(502).json({ error: 'Large deals unavailable (NSE may be blocking this host)', detail: err.message });
+    }
+});
+
 // Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', ts: new Date().toISOString(), uptime: process.uptime(), memory: Math.round(process.memoryUsage().rss / 1024 / 1024) + 'MB', sseClients: sseClients.size });
@@ -667,6 +737,7 @@ app.get('/api/agents/synthesis', async (req, res) => {
         const { getAllStates } = require('./agents/agent-utils');
         const states = getAllStates();
         const latestData = getLatestData();
+        const prevData = getHistoryData(2)[1] || null;
         const sectorData = getSectorData();
         
         // Top 3 sectors by AUM (sectors.json items: { name, aumPct, ... })
@@ -682,10 +753,11 @@ app.get('/api/agents/synthesis', async (req, res) => {
 Your output format is EXACTLY:
 Line 1: A bold, punchy 8-12 word headline (no markdown, no asterisks, just raw text).
 Line 2: Empty line.
-Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Professional hedge fund tone. No fluff, no disclaimers, no greetings. Reference specific numbers.
+Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Professional hedge fund tone. No fluff, no disclaimers, no greetings. Reference specific numbers. LEAD with what CHANGED versus the previous session (acceleration, reversal, divergence) — readers already know the static picture.
 
 Data State (${date}):
 - FII Net: ${fiiNet >= 0 ? '+' : ''}${fiiNet} Cr | DII Net: ${diiNet >= 0 ? '+' : ''}${diiNet} Cr
+- Previous Session (${prevData?.date || 'N/A'}): FII ${prevData ? (prevData.fii_net >= 0 ? '+' : '') + prevData.fii_net : 'N/A'} Cr | DII ${prevData ? (prevData.dii_net >= 0 ? '+' : '') + prevData.dii_net : 'N/A'} Cr
 - Combined Net: ${(fiiNet + diiNet) >= 0 ? '+' : '-'}${Math.abs(fiiNet + diiNet).toFixed(2)} Cr
 - Regime: ${states['regime-classifier']?.regime || 'NEUTRAL'} (VIX: ${states['regime-classifier']?.vix || 'N/A'})
 - FII Sell Streak: ${states['fii-streak']?.current_sell_streak || 0} days | Buy Streak: ${states['fii-streak']?.current_buy_streak || 0} days

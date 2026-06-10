@@ -216,6 +216,53 @@ function processUpdate(update) {
         return { chatId, reply };
     }
 
+    // ── /streaks — Active FII buy/sell streaks ───────────────────────────────
+    if (text === '/streaks' || text === '/streak') {
+        const ctx = getOnDemandMessages();
+        if (!ctx) return { chatId, reply: '⚠️ Data not available.' };
+        const s = ctx.streak || {};
+        const fmtCr = v => `${(v || 0) >= 0 ? '+' : '-'}₹${Math.abs(Math.round(v || 0)).toLocaleString('en-IN')} Cr`;
+        let reply = `🔥 <b>FII STREAK TRACKER</b>\n\n`;
+        if (s.current_sell_streak > 0) {
+            reply += `🔴 Sell Streak: <b>${s.current_sell_streak} day(s)</b>\n`;
+            reply += `💰 Cumulative: <b>${fmtCr(s.sell_cumulative)}</b>\n`;
+            if (s.sell_absorption_pct) reply += `🛡️ DII absorbed: <b>${s.sell_absorption_pct}%</b>\n`;
+        } else if (s.current_buy_streak > 0) {
+            reply += `🟢 Buy Streak: <b>${s.current_buy_streak} day(s)</b>\n`;
+            reply += `💰 Cumulative: <b>${fmtCr(s.buy_cumulative)}</b>\n`;
+        } else {
+            reply += `⚪ No active streak — FII direction flipped in the last session.\n`;
+        }
+        reply += `\n🌐 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
+        return { chatId, reply };
+    }
+
+    // ── /absorption — DII absorption of FII selling ─────────────────────────
+    if (text === '/absorption' || text === '/absorb') {
+        const ctx = getOnDemandMessages();
+        if (!ctx || !ctx.latest) return { chatId, reply: '⚠️ Data not available.' };
+        const fn = ctx.latest.fii_net || 0;
+        const dn = ctx.latest.dii_net || 0;
+        const fmtCr = v => `${(v || 0) >= 0 ? '+' : '-'}₹${Math.abs(Math.round(v || 0)).toLocaleString('en-IN')} Cr`;
+        let reply = `🛡️ <b>DII ABSORPTION</b> · ${ctx.latest.date}\n\n`;
+        reply += `FII Net: <b>${fmtCr(fn)}</b>\nDII Net: <b>${fmtCr(dn)}</b>\n\n`;
+        if (fn < 0 && dn > 0) {
+            const pct = Math.round((dn / Math.abs(fn)) * 100);
+            reply += `DII absorbed <b>${pct}%</b> of FII selling today.\n`;
+            reply += pct >= 100 ? `✅ Selling fully absorbed — domestic bid in control.` :
+                     pct >= 60 ? `🟡 Substantial but partial absorption.` :
+                                 `🔴 Weak absorption — net supply overhang.`;
+        } else if (fn >= 0 && dn >= 0) {
+            reply += `🟢 Both FII and DII were net buyers — no absorption needed.`;
+        } else if (fn >= 0 && dn < 0) {
+            reply += `⚡ Roles reversed: FII buying while DII books profits.`;
+        } else {
+            reply += `🔴 Both FII and DII were net sellers — no domestic cushion today.`;
+        }
+        reply += `\n\n🌐 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
+        return { chatId, reply };
+    }
+
     // ── /weekly — Weekly digest ──────────────────────────────────────────────
     if (text === '/weekly' || text === '/digest') {
         const ctx = getOnDemandMessages();
@@ -234,6 +281,8 @@ function processUpdate(update) {
                 `/fno \u2014 F&O derivatives positioning\n` +
                 `/sector \u2014 FPI sector rotation (NSDL)\n` +
                 `/regime \u2014 Current market regime\n` +
+                `/streaks \u2014 Active FII buy/sell streak\n` +
+                `/absorption \u2014 DII absorption of FII selling\n` +
                 `/weekly \u2014 Weekly institutional digest\n\n` +
                 `<b>SUBSCRIPTION</b>\n` +
                 `/start \u2014 Subscribe to alerts\n` +
