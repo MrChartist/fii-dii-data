@@ -61,8 +61,9 @@ function classifyRegime(history10, vix) {
 
     // ── Classification Logic ─────────────────────────────────────────────────
 
-    // 🔴 STRONG_BEARISH: FII selling streak ≥ 5 days + cumulative > ₹10k Cr
-    if (fiiSellStreak >= 5 && Math.abs(fiiCumulative) > 10000) {
+    // 🔴 STRONG_BEARISH: FII selling streak ≥ 5 days + cumulative selling > ₹10k Cr
+    // (must be net OUTFLOW — Math.abs would let a net-buying window qualify)
+    if (fiiSellStreak >= 5 && fiiCumulative < -10000) {
         return 'STRONG_BEARISH';
     }
 
@@ -79,8 +80,9 @@ function classifyRegime(history10, vix) {
         return 'MILD_BEARISH';
     }
 
-    // 🟡 MILD_BULLISH: FII mixed but DII buying, or FII buying alone
-    if (fiiBuyDays >= 4 || (diiBuyDays >= 6 && fiiCumulative > -2000)) {
+    // 🟡 MILD_BULLISH: FII buying majority of days, or FII mildly positive with DII support
+    // (a bare "fiiBuyDays >= 4" would label 6-of-10 FII sell days as bullish)
+    if (fiiBuyDays >= 6 || (fiiBuyDays >= 4 && fiiCumulative > 0) || (diiBuyDays >= 6 && fiiCumulative > -2000)) {
         return 'MILD_BULLISH';
     }
 

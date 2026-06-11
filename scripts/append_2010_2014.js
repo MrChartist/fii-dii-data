@@ -1,5 +1,6 @@
 const fs = require('fs');
-const FILE_PATH = '/Users/mrchartist/FII DII Data/data/fpi_yearly_monthly.json';
+const path = require('path');
+const FILE_PATH = path.join(__dirname, '..', 'data', 'fpi_yearly_monthly.json');
 
 const rawData = {
   "2014": [

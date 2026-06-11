@@ -345,8 +345,10 @@ async function runWatchdog(axios) {
         }
 
         // Check for consecutive fetch failures
+        // (findIndex returns -1 when ALL recent fetches failed — the worst case)
         const recentFetches = fetchLog.slice(0, 10);
-        const consecutiveFailures = recentFetches.findIndex(e => e.success);
+        const firstSuccessIdx = recentFetches.findIndex(e => e.success);
+        const consecutiveFailures = firstSuccessIdx === -1 ? recentFetches.length : firstSuccessIdx;
         if (consecutiveFailures >= 5) {
             critical.push(`${consecutiveFailures} consecutive fetch failures — NSE API may be blocking us`);
         }
@@ -386,10 +388,14 @@ async function runWatchdog(axios) {
         for (const [cronName, maxHours] of Object.entries(expectedCrons)) {
             if (hb[cronName]?.last_fired) {
                 const hoursSince = (now - new Date(hb[cronName].last_fired).getTime()) / (1000 * 60 * 60);
-                // Only flag on weekdays (skip Sat/Sun grace period)
+                // Only flag on weekdays (skip Sat/Sun grace period).
+                // Threshold must span the weekend: Friday-evening → Monday-evening
+                // is ~72h for daily crons, so anything below that false-alarms
+                // every Monday morning.
                 const dayOfWeek = new Date().getDay(); // 0=Sun, 6=Sat
                 const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
-                if (hoursSince > maxHours * 2 && isWeekday) {
+                const threshold = Math.max(maxHours * 2, 76);
+                if (hoursSince > threshold && isWeekday) {
                     critical.push(`Cron "${cronName}" hasn't fired in ${Math.round(hoursSince)}h`);
                 }
             }
