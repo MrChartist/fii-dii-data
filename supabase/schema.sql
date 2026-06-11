@@ -8,6 +8,7 @@
 CREATE TABLE IF NOT EXISTS daily_flows (
     id              BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     date            TEXT NOT NULL UNIQUE,                -- '01-Apr-2026' (NSE format)
+    date_iso        DATE,                                -- same day as a real DATE — use this for ORDER BY (TEXT sorts alphabetically)
     fii_buy         DECIMAL(14,2) DEFAULT 0,
     fii_sell        DECIMAL(14,2) DEFAULT 0,
     fii_net         DECIMAL(14,2) DEFAULT 0,
@@ -45,6 +46,7 @@ CREATE TABLE IF NOT EXISTS daily_flows (
 );
 
 CREATE INDEX idx_daily_flows_date ON daily_flows(date);
+CREATE INDEX idx_daily_flows_date_iso ON daily_flows(date_iso DESC);
 
 -- ── Agent State (Persistent Key-Value per Agent) ─────────────────────────
 CREATE TABLE IF NOT EXISTS agent_state (

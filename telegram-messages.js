@@ -86,7 +86,7 @@ function buildCashFlowMessage(data, regime, streak, flowStrength) {
     // Extreme Events
     if (flowStrength && flowStrength.last_alerted_events && flowStrength.last_alerted_date === data.date) {
         const labels = {
-            FII_MASSIVE_BUY: '💰 FII Massive Buy',
+            FII_MEGA_BUY: '💰 FII Mega Buy',
             FII_BLOODBATH: '🩸 FII Bloodbath Selling',
             DII_MASSIVE_ABSORB: '🛡️ DII Massive Absorption',
             EXTREME_DIVERGENCE: '⚡ Extreme FII-DII Divergence'
@@ -198,7 +198,7 @@ function buildSectorMessage(sectorData, rotationState) {
 
     // Overview
     msg += `<b>📊 FPI PORTFOLIO SNAPSHOT</b>\n`;
-    msg += `    Total AUC: ₹${(totalAuc / 100).toFixed(0)}K Cr\n`;
+    msg += `    Total AUC: ₹${(totalAuc / 100000).toFixed(1)}L Cr\n`;
     msg += `    Net Equity Flow: ${dot(totalNet)} <b>${fmtCr(totalNet)}</b>\n`;
     msg += `    Sectors Tracked: ${sectors.length}\n\n`;
 
@@ -314,11 +314,16 @@ function buildDivergenceMessage(divState, data) {
         msg += `FII is selling aggressively, but DII absorption exceeds the selling pressure. `;
         msg += `This divergence is at the <b>${pct}th percentile</b> vs 30-day history — historically, `;
         msg += `such extremes have preceded upward reversals.\n\n`;
-    } else if (signal === 'CONTRARIAN_BEARISH') {
-        msg += `🔴 <b>CONTRARIAN BEARISH SIGNAL</b>\n\n`;
-        msg += `FII is buying heavily while DII is pulling back. `;
-        msg += `This divergence is at the <b>${pct}th percentile</b> — when smart money diverges at this extreme, `;
-        msg += `caution is warranted.\n\n`;
+    } else if (signal === 'PANIC_MODE') {
+        msg += `🔴 <b>PANIC MODE</b>\n\n`;
+        msg += `Both FII and DII are selling simultaneously — institutional support has withdrawn. `;
+        msg += `Divergence sits at the <b>${pct}th percentile</b> vs 30-day history. `;
+        msg += `Such joint selling phases historically carry elevated downside risk.\n\n`;
+    } else if (signal === 'EUPHORIA_CHECK') {
+        msg += `🟡 <b>EUPHORIA CHECK</b>\n\n`;
+        msg += `Both FII and DII are buying aggressively at the same time. `;
+        msg += `Divergence is at the <b>${pct}th percentile</b> — broad institutional euphoria can mark `;
+        msg += `short-term tops; watch for exhaustion.\n\n`;
     }
 
     msg += `<b>📊 SIGNAL METRICS</b>\n`;
@@ -342,7 +347,7 @@ function buildMorningBriefMessage(latest, regime, streak, flowDiv) {
     const sent = latest.sentiment_score || 0;
 
     let msg = `${BRAND} · <b>Pre-Market Brief</b>\n`;
-    msg += `📅 <i>${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' })}</i>\n`;
+    msg += `📅 <i>${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })}</i>\n`;
     msg += `${LINE}\n\n`;
 
     msg += `<b>📊 PREVIOUS SESSION RECAP</b>\n`;

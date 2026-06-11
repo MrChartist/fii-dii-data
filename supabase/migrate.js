@@ -29,7 +29,7 @@ function readJSON(filename, defaultVal) {
 }
 
 async function migrate() {
-    const { supabase, isSupabaseEnabled } = require('./client');
+    const { supabase, isSupabaseEnabled, toISODate } = require('./client');
 
     if (!isSupabaseEnabled) {
         console.error('❌ Supabase is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_KEY in .env');
@@ -49,6 +49,7 @@ async function migrate() {
         for (let i = 0; i < history.length; i += BATCH_SIZE) {
             const batch = history.slice(i, i + BATCH_SIZE).map(h => ({
                 date: h.date,
+                date_iso: toISODate(h.date),
                 fii_buy: h.fii_buy || 0,
                 fii_sell: h.fii_sell || 0,
                 fii_net: h.fii_net || 0,
@@ -176,7 +177,10 @@ async function migrate() {
     console.log('\n📝 Migrating fetch_logs...');
     const fetchLogs = readJSON('fetch-log.json', []);
     if (fetchLogs.length) {
-        const batch = fetchLogs.slice(0, 100).map(l => ({
+        // Keep the most recent 100 — the file on disk is not guaranteed sorted
+        const sorted = [...fetchLogs].sort((a, b) => new Date(b.ts || 0) - new Date(a.ts || 0));
+        if (sorted.length > 100) console.log(`  ℹ Truncating fetch logs: keeping newest 100 of ${sorted.length}`);
+        const batch = sorted.slice(0, 100).map(l => ({
             ts: l.ts,
             success: l.success !== false,
             date: l.date || null,

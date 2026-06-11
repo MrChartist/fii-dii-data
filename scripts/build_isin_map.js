@@ -47,11 +47,11 @@ async function buildMap() {
 
         // Merge defaults first
         const defaults = {
-            'INE009A01021': 'Financial Services',
+            'INE009A01021': 'Information Technology',
             'INE040A01034': 'Financial Services',
             'INE062A01020': 'Financial Services',
             'INE090A01021': 'Financial Services',
-            'INE154A01025': 'Financial Services',
+            'INE154A01025': 'Fast Moving Consumer Goods',
             'INE160A01022': 'Financial Services',
             'INE584A01023': 'Financial Services',
             'INE238A01034': 'Financial Services',

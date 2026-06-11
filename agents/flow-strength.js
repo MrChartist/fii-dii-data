@@ -77,10 +77,15 @@ async function run() {
 
     if (triggeredEvents.length === 0) {
         console.log(`[${AGENT_NAME}] No extreme flow events detected for ${latest.date}`);
+        // Clear stale event state — setState merges, so without this the
+        // previous day's events linger and downstream consumers (confluence
+        // detector, cash-flow message) treat them as today's
         setState(AGENT_NAME, {
             last_run_date: latest.date,
             events_checked: Object.keys(THRESHOLDS).length,
-            events_triggered: 0
+            events_triggered: 0,
+            last_alerted_events: latest.date === lastAlertedDate ? lastAlertedEvents : [],
+            last_alerted_date: latest.date === lastAlertedDate ? lastAlertedDate : ''
         });
         return { items_found: 0, alerts_sent: 0, events_detected: [] };
     }

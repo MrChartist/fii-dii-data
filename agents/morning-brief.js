@@ -48,9 +48,9 @@ async function run() {
         const token = process.env.TELEGRAM_BOT_TOKEN;
         const channelId = process.env.TELEGRAM_CHANNEL_ID;
         if (token && telegram) {
-            await telegram.broadcastTelegram(msg, token, axios, channelId);
-            alertsSent = 1;
-            console.log('[AGENT] Morning brief broadcasted to channel + subscribers');
+            const { sent = 0, failed = 0 } = (await telegram.broadcastTelegram(msg, token, axios, channelId)) || {};
+            alertsSent = sent;
+            console.log(`[AGENT] Morning brief broadcast: ${sent} sent, ${failed} failed`);
         }
     } catch (e) {
         console.warn('[AGENT] broadcastTelegram failed, falling back to sendTelegramAlert:', e.message);

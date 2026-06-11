@@ -7,11 +7,11 @@ Disallow: /api/
 Disallow: /node_modules/
 
 # Sitemap
-Sitemap: https://mrchartist.com/fii-dii-data/sitemap.xml
+Sitemap: https://fii-diidata.mrchartist.com/sitemap.xml
 
 # Crawl-delay (optional, respected by Bing/Yandex)
 Crawl-delay: 2
 
 # AI / LLM Discoverability
 # See https://llmstxt.org/ for more info
-LLMs-Txt: https://mrchartist.com/fii-dii-data/llms.txt
+LLMs-Txt: https://fii-diidata.mrchartist.com/llms.txt

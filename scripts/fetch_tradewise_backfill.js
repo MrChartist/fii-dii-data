@@ -59,18 +59,16 @@ const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'
 // Top ~100 ISINs by FPI AUC mapped to their BSE sector classification
 const DEFAULT_ISIN_SECTOR_MAP = {
     // Financial Services
-    'INE009A01021': 'Financial Services',   // HDFC Bank
-    'INE040A01034': 'Financial Services',   // HDFC
+    'INE040A01034': 'Financial Services',   // HDFC Bank
     'INE062A01020': 'Financial Services',   // SBI
     'INE090A01021': 'Financial Services',   // ICICI Bank
-    'INE154A01025': 'Financial Services',   // ITC
     'INE160A01022': 'Financial Services',   // Bajaj Finance
     'INE584A01023': 'Financial Services',   // Bajaj Finserv
     'INE238A01034': 'Financial Services',   // Axis Bank
     'INE476A01022': 'Financial Services',   // Kotak Mahindra
     // IT
     'INE467B01029': 'Information Technology', // TCS
-    'INE009A01021': 'Information Technology', // Infosys (duplicate handled)
+    'INE009A01021': 'Information Technology', // Infosys
     'INE860A01027': 'Information Technology', // HCL Tech
     'INE075A01022': 'Information Technology', // Wipro
     'INE356A01018': 'Information Technology', // Tech Mahindra
@@ -85,6 +83,7 @@ const DEFAULT_ISIN_SECTOR_MAP = {
     'INE758T01015': 'Automobile and Auto Components', // Tata Motors
     // FMCG
     'INE030A01027': 'Fast Moving Consumer Goods', // HUL
+    'INE154A01025': 'Fast Moving Consumer Goods', // ITC
     'INE047A01021': 'Fast Moving Consumer Goods', // Nestle
     // Metals
     'INE081A01020': 'Metals & Mining',     // Tata Steel
@@ -126,8 +125,9 @@ function getRecentMonthURLs(monthsBack = 12) {
     const urls = [];
     const now = new Date();
     for (let i = 0; i < monthsBack; i++) {
-        const d = new Date(now);
-        d.setMonth(d.getMonth() - i);
+        // Anchor to day 1 — setMonth() on a day-29/30/31 date rolls over into
+        // the wrong month, duplicating/skipping months in the URL list
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const yr = d.getFullYear();
         const monIdx = d.getMonth();
         const monName = MONTH_NAMES[monIdx];

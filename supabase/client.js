@@ -42,12 +42,22 @@ if (SUPABASE_URL && SUPABASE_SERVICE_KEY) {
 
 // ── Helper: Daily Flows ──────────────────────────────────────────────────
 
+// 'date' is NSE display format ('01-Apr-2026') — TEXT sorts that alphabetically,
+// so a parallel ISO column is kept for correct chronological ordering.
+const MONTHS = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+function toISODate(nseDate) {
+    const m = /^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/.exec(nseDate || '');
+    if (!m || !MONTHS[m[2]]) return null;
+    return `${m[3]}-${MONTHS[m[2]]}-${m[1].padStart(2, '0')}`;
+}
+
 async function upsertDailyFlow(data) {
     if (!isSupabaseEnabled) return null;
     const { error } = await supabase
         .from('daily_flows')
         .upsert({
             date: data.date,
+            date_iso: toISODate(data.date),
             fii_buy: data.fii_buy,
             fii_sell: data.fii_sell,
             fii_net: data.fii_net,
@@ -87,7 +97,7 @@ async function getLatestFlow() {
     const { data, error } = await supabase
         .from('daily_flows')
         .select('*')
-        .order('date', { ascending: false })
+        .order('date_iso', { ascending: false })
         .limit(1)
         .single();
     if (error) return null;
@@ -99,7 +109,7 @@ async function getFlowHistory(limit = 60) {
     const { data, error } = await supabase
         .from('daily_flows')
         .select('*')
-        .order('date', { ascending: false })
+        .order('date_iso', { ascending: false })
         .limit(limit);
     if (error) return null;
     return data;
@@ -113,8 +123,13 @@ async function getAgentState(agentName) {
         .from('agent_state')
         .select('state_data')
         .eq('agent_name', agentName)
-        .single();
-    if (error) return {};
+        .maybeSingle();
+    if (error) {
+        // null = "use JSON fallback" — returning {} here would make callers
+        // treat a transient DB error as genuinely-empty state and overwrite it
+        console.error('[SUPABASE] getAgentState error:', error.message);
+        return null;
+    }
     return data?.state_data || {};
 }
 
@@ -177,21 +192,20 @@ async function getAgentRunHistory(limit = 50, agentFilter = null) {
 
 async function upsertSectors(sectors) {
     if (!isSupabaseEnabled) return null;
-    for (const sector of sectors) {
-        const { error } = await supabase
-            .from('sectors')
-            .upsert({
-                name: sector.name,
-                aum_pct: sector.aumPct || 0,
-                fii_own: sector.fiiOwn || 0,
-                alpha: sector.alpha || 0,
-                fortnight_cr: sector.fortnightCr || 0,
-                history_cr: sector.historyCr || [],
-                date_code: sector.dateCode || null,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'name' });
-        if (error) console.error('[SUPABASE] upsertSector error:', error.message);
-    }
+    const batch = sectors.map(sector => ({
+        name: sector.name,
+        aum_pct: sector.aumPct || 0,
+        fii_own: sector.fiiOwn || 0,
+        alpha: sector.alpha || 0,
+        fortnight_cr: sector.fortnightCr || 0,
+        history_cr: sector.historyCr || [],
+        date_code: sector.dateCode || null,
+        updated_at: new Date().toISOString()
+    }));
+    const { error } = await supabase
+        .from('sectors')
+        .upsert(batch, { onConflict: 'name' });
+    if (error) console.error('[SUPABASE] upsertSectors error:', error.message);
 }
 
 async function getSectors() {
@@ -234,6 +248,7 @@ async function logFetch(entry) {
 module.exports = {
     supabase,
     isSupabaseEnabled,
+    toISODate,
     // Daily flows
     upsertDailyFlow,
     getLatestFlow,

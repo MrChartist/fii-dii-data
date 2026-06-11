@@ -133,6 +133,8 @@ async function fetchNSE() {
             if (Array.isArray(data) && data.length > 0) return data;
         } catch (err) {
             console.warn(`  ⚠️ Direct NSE fetch failed: ${err.message}. Trying proxy...`);
+            // Cookies may have gone stale — refresh so the next retry gets a clean session
+            await refreshNSESession();
         }
 
         // Fallback to proxy
@@ -176,6 +178,9 @@ async function fetchFaoOi(dateStr) {
 }
 
 // ── Parse F&O CSV ─────────────────────────────────────────────────────────────
+// Parses by header name — NSE's column order groups all Long columns before
+// Short ("...Call Long, Put Long, Call Short, Put Short"), so positional
+// indexing silently swaps Put Long ↔ Call Short.
 function parseFao(csvText) {
     const faoData = {};
     if (!csvText) return faoData;
@@ -183,10 +188,14 @@ function parseFao(csvText) {
     try {
         const lines = csvText.trim().split('\n');
         if (lines.length < 2) return faoData;
+        const clean = lines.filter(l => l.trim() && !l.startsWith(','));
 
-        const records = parse(lines.slice(1).join('\n'), {
+        const records = parse(clean.join('\n'), {
+            columns: true,
             skip_empty_lines: true,
-            relax_column_count: true
+            trim: true,
+            relax_column_count: true,
+            relax_quotes: true
         });
 
         const getInt = (val) => {
@@ -195,23 +204,20 @@ function parseFao(csvText) {
             return isNaN(n) ? 0 : n;
         };
 
-        for (let i = 0; i < records.length; i++) {
-            const row = records[i];
-            if (!row || row.length < 9) continue;
-
-            const clientType = (row[0] || "").trim().toUpperCase();
+        for (const row of records) {
+            const clientType = (row['Client Type'] || "").trim().toUpperCase();
             if (!clientType.includes("FII") && !clientType.includes("DII")) continue;
 
             const key = clientType.includes("FII") ? "FII" : "DII";
             faoData[key] = {
-                idx_fut_long:   getInt(row[1]),
-                idx_fut_short:  getInt(row[2]),
-                stk_fut_long:   getInt(row[3]),
-                stk_fut_short:  getInt(row[4]),
-                idx_call_long:  getInt(row[5]),
-                idx_call_short: getInt(row[6]),
-                idx_put_long:   getInt(row[7]),
-                idx_put_short:  getInt(row[8]),
+                idx_fut_long:   getInt(row['Future Index Long']),
+                idx_fut_short:  getInt(row['Future Index Short']),
+                stk_fut_long:   getInt(row['Future Stock Long']),
+                stk_fut_short:  getInt(row['Future Stock Short']),
+                idx_call_long:  getInt(row['Option Index Call Long']),
+                idx_call_short: getInt(row['Option Index Call Short']),
+                idx_put_long:   getInt(row['Option Index Put Long']),
+                idx_put_short:  getInt(row['Option Index Put Short']),
             };
         }
     } catch (e) {
@@ -301,7 +307,7 @@ function updateSitemap() {
         if (fs.existsSync(sitemapPath)) {
             let content = fs.readFileSync(sitemapPath, 'utf8');
             const today = new Date().toISOString().split('T')[0];
-            content = content.replace(/<lastmod>.*?<\/lastmod>/, `<lastmod>${today}</lastmod>`);
+            content = content.replace(/<lastmod>.*?<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
             fs.writeFileSync(sitemapPath, content, 'utf8');
         }
     } catch (err) {
@@ -336,9 +342,12 @@ async function fetchAndProcessData() {
             return null;
         }
 
-        // Smart skip: check if we already have this exact data
+        // Smart skip: check if we already have this exact data.
+        // Only trust rows the real pipeline wrote — seeded/estimated rows
+        // (_source: 'historical-seed' / 'backfill-estimated') must be replaced
+        // by real data, never re-published to latest.json.
         const history = readJSON('history.json', []);
-        const existing = history.find(r => r.date === targetDate);
+        const existing = history.find(r => r.date === targetDate && r._source === 'fetch-pipeline');
         const hasFaoData = existing && (existing.fii_idx_fut_long > 0 || existing.fii_idx_fut_short > 0);
         if (existing && existing.fii_net !== 0 && hasFaoData) {
             console.log(`ℹ️ Data for ${targetDate} already exists (cash+F&O). Skipping store.`);
