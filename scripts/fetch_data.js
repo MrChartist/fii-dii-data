@@ -233,6 +233,89 @@ function validateData(data) {
     return fields.every(f => isFinite(data[f]));
 }
 
+// True when a row actually carries F&O participant-OI data
+function rowHasFao(row) {
+    return !!row && ((row.fii_idx_fut_long || 0) !== 0 || (row.fii_idx_fut_short || 0) !== 0);
+}
+
+// F&O summary used in notification payloads
+function buildFaoSummary(d) {
+    return {
+        sentiment: d.sentiment_score > 60 ? 'Bullish' : d.sentiment_score < 40 ? 'Bearish' : 'Neutral',
+        pcr: d.pcr,
+        fii_fut_net: d.fii_idx_fut_net,
+        fii_call_net: d.fii_idx_call_net,
+        fii_put_net: d.fii_idx_put_net
+    };
+}
+
+// Apply parsed F&O data onto a row (recomputes nets, PCR, sentiment).
+// Returns true if FII F&O data was applied. Does NOT touch cash fields.
+function applyFao(out, fao) {
+    let applied = false;
+    if (fao && fao["FII"]) {
+        const f = fao["FII"];
+        out.fii_idx_fut_long = f.idx_fut_long; out.fii_idx_fut_short = f.idx_fut_short; out.fii_idx_fut_net = f.idx_fut_long - f.idx_fut_short;
+        out.fii_stk_fut_long = f.stk_fut_long; out.fii_stk_fut_short = f.stk_fut_short; out.fii_stk_fut_net = f.stk_fut_long - f.stk_fut_short;
+        out.fii_idx_call_long = f.idx_call_long; out.fii_idx_call_short = f.idx_call_short; out.fii_idx_call_net = f.idx_call_long - f.idx_call_short;
+        out.fii_idx_put_long = f.idx_put_long; out.fii_idx_put_short = f.idx_put_short; out.fii_idx_put_net = f.idx_put_long - f.idx_put_short;
+
+        out.pcr = f.idx_call_short > 0 ? parseFloat((f.idx_put_short / f.idx_call_short).toFixed(2)) : 1.0;
+
+        let sentiment = 50;
+        // Clamp each factor to ±15 to prevent single-factor domination
+        sentiment += Math.max(-15, Math.min(15, (out.fii_net || 0) / 500));
+        sentiment += Math.max(-15, Math.min(15, out.fii_idx_fut_net / 10000));
+        if (out.pcr > 1.3) sentiment -= 8;
+        else if (out.pcr > 1.1) sentiment -= 4;
+        if (out.pcr < 0.7) sentiment += 8;
+        else if (out.pcr < 0.9) sentiment += 4;
+        out.sentiment_score = Math.min(100, Math.max(5, parseFloat(sentiment.toFixed(1))));
+        applied = true;
+    }
+    if (fao && fao["DII"]) {
+        const d = fao["DII"];
+        out.dii_idx_fut_long = d.idx_fut_long; out.dii_idx_fut_short = d.idx_fut_short; out.dii_idx_fut_net = d.idx_fut_long - d.idx_fut_short;
+        out.dii_stk_fut_long = d.stk_fut_long; out.dii_stk_fut_short = d.stk_fut_short; out.dii_stk_fut_net = d.stk_fut_long - d.stk_fut_short;
+        applied = true;
+    }
+    return applied;
+}
+
+// NSE publishes the participant-OI (F&O) file LATER than cash — sometimes after
+// the evening fetch window closes. On each run, retry F&O for the most recent
+// cash-only rows and merge it in without disturbing the cash figures. Cheap when
+// nothing is missing (rows that already have F&O make no HTTP calls).
+// Returns the list of dates that were filled.
+async function backfillMissingFao() {
+    const history = readJSON('history.json', []);
+    if (!history.length) return [];
+    const recent = [...history].sort((a, b) => compareDates(b.date, a.date)).slice(0, 4);
+    const filled = [];
+    for (const row of recent) {
+        if (row._source !== 'fetch-pipeline' || rowHasFao(row)) continue;
+        let csv = null;
+        try { csv = await fetchFaoOi(row.date); } catch { /* not published yet */ }
+        if (!csv) continue;
+        const fao = parseFao(csv);
+        if (applyFao(row, fao) && rowHasFao(row)) {
+            row._fao_summary = buildFaoSummary(row);
+            row._fao_backfilled_at = new Date().toISOString();
+            filled.push(row.date);
+        }
+    }
+    if (filled.length) {
+        writeJSON('history.json', history);
+        const latest = readJSON('latest.json', null);
+        if (latest && filled.includes(latest.date)) {
+            const updated = history.find(r => r.date === latest.date);
+            if (updated) writeJSON('latest.json', updated);
+        }
+        console.log(`[F&O BACKFILL] Filled F&O for: ${filled.join(', ')}`);
+    }
+    return filled;
+}
+
 // ── Transform data ───────────────────────────────────────────────────────────
 async function transformData(rawCash, rawFaoCsv) {
     const out = {
@@ -264,35 +347,7 @@ async function transformData(rawCash, rawFaoCsv) {
     }
 
     if (out.date && rawFaoCsv) {
-        const fao = parseFao(rawFaoCsv);
-        if (fao["FII"]) {
-            const f = fao["FII"];
-            out.fii_idx_fut_long = f.idx_fut_long; out.fii_idx_fut_short = f.idx_fut_short; out.fii_idx_fut_net = f.idx_fut_long - f.idx_fut_short;
-            out.fii_stk_fut_long = f.stk_fut_long; out.fii_stk_fut_short = f.stk_fut_short; out.fii_stk_fut_net = f.stk_fut_long - f.stk_fut_short;
-            out.fii_idx_call_long = f.idx_call_long; out.fii_idx_call_short = f.idx_call_short; out.fii_idx_call_net = f.idx_call_long - f.idx_call_short;
-            out.fii_idx_put_long = f.idx_put_long; out.fii_idx_put_short = f.idx_put_short; out.fii_idx_put_net = f.idx_put_long - f.idx_put_short;
-            
-            if (f.idx_call_short > 0) {
-                out.pcr = parseFloat((f.idx_put_short / f.idx_call_short).toFixed(2));
-            } else {
-                out.pcr = 1.0;
-            }
-
-            let sentiment = 50;
-            // Clamp each factor to ±15 to prevent single-factor domination
-            sentiment += Math.max(-15, Math.min(15, out.fii_net / 500));
-            sentiment += Math.max(-15, Math.min(15, out.fii_idx_fut_net / 10000));
-            if (out.pcr > 1.3) sentiment -= 8;
-            else if (out.pcr > 1.1) sentiment -= 4;
-            if (out.pcr < 0.7) sentiment += 8;
-            else if (out.pcr < 0.9) sentiment += 4;
-            out.sentiment_score = Math.min(100, Math.max(5, parseFloat(sentiment.toFixed(1))));
-        }
-        if (fao["DII"]) {
-            const d = fao["DII"];
-            out.dii_idx_fut_long = d.idx_fut_long; out.dii_idx_fut_short = d.idx_fut_short; out.dii_idx_fut_net = d.idx_fut_long - d.idx_fut_short;
-            out.dii_stk_fut_long = d.stk_fut_long; out.dii_stk_fut_short = d.stk_fut_short; out.dii_stk_fut_net = d.stk_fut_long - d.stk_fut_short;
-        }
+        applyFao(out, parseFao(rawFaoCsv));
     }
 
     out._updated_at = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: 'medium', timeStyle: 'short' }) + " IST";
@@ -342,17 +397,29 @@ async function fetchAndProcessData() {
             return null;
         }
 
+        // Recover F&O for any recent cash-only rows (NSE publishes it late).
+        // Cheap no-op when nothing is missing.
+        let filledNow = [];
+        try { filledNow = await backfillMissingFao(); } catch (e) { console.warn("  ⚠️ F&O backfill skipped:", e.message); }
+
         // Smart skip: check if we already have this exact data.
         // Only trust rows the real pipeline wrote — seeded/estimated rows
         // (_source: 'historical-seed' / 'backfill-estimated') must be replaced
         // by real data, never re-published to latest.json.
         const history = readJSON('history.json', []);
         const existing = history.find(r => r.date === targetDate && r._source === 'fetch-pipeline');
-        const hasFaoData = existing && (existing.fii_idx_fut_long > 0 || existing.fii_idx_fut_short > 0);
+        const hasFaoData = rowHasFao(existing);
         if (existing && existing.fii_net !== 0 && hasFaoData) {
+            writeJSON('latest.json', existing);
+            // If F&O *just* arrived via backfill, surface it (non-skipped) so the
+            // F&O notification fires once. Otherwise it's old news → skip.
+            if (filledNow.includes(targetDate)) {
+                console.log(`⚡ F&O just recovered for ${targetDate} — surfacing for notification.`);
+                logFetch({ success: true, date: targetDate, action: "fao-recovered" });
+                return existing;
+            }
             console.log(`ℹ️ Data for ${targetDate} already exists (cash+F&O). Skipping store.`);
             logFetch({ success: true, date: targetDate, action: "skipped" });
-            writeJSON('latest.json', existing);
             return { ...existing, _skipped: true };
         }
         if (existing && existing.fii_net !== 0 && !hasFaoData) {
@@ -364,14 +431,8 @@ async function fetchAndProcessData() {
 
         if (!validateData(data)) throw new Error(`Validation failed for ${data.date}`);
 
-        // Enrich with F&O summary for notification payloads
-        data._fao_summary = {
-            sentiment: data.sentiment_score > 60 ? 'Bullish' : data.sentiment_score < 40 ? 'Bearish' : 'Neutral',
-            pcr: data.pcr,
-            fii_fut_net: data.fii_idx_fut_net,
-            fii_call_net: data.fii_idx_call_net,
-            fii_put_net: data.fii_idx_put_net
-        };
+        // Enrich with F&O summary for notification payloads (only when F&O is real)
+        if (rowHasFao(data)) data._fao_summary = buildFaoSummary(data);
 
         saveToHistory(data);
         writeJSON('latest.json', data);
@@ -392,4 +453,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs };
+module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao };

@@ -100,6 +100,7 @@ async function broadcastNotification(payload, category = 'cash') {
 }
 
 let axios, cron, fetchAndProcessData, getLatestData, getHistoryData, getFetchLogs, getSectorData;
+let backfillMissingFao = async () => [];
 let fetchAllNSDL;
 
 try {
@@ -123,6 +124,7 @@ try {
     getHistoryData = fetchModule.getHistoryData;
     getFetchLogs = fetchModule.getFetchLogs;
     getSectorData = fetchModule.getSectorData;
+    if (fetchModule.backfillMissingFao) backfillMissingFao = fetchModule.backfillMissingFao;
     console.log('[BOOT] fetch_data loaded ✓');
 } catch (e) {
     console.error('[BOOT] fetch_data failed:', e.message);
@@ -521,18 +523,52 @@ let tgMessages;
 try { tgMessages = require('./telegram-messages'); } catch (e) { console.warn('[BOOT] telegram-messages not loaded:', e.message); }
 
 // ── Category-specific notification builder ───────────────────────────────────
-// Dedupe guard: the fetch pipeline can run multiple times per evening (cash data
-// lands first, F&O later) and /api/refresh is publicly callable — only notify
-// once per category per trading date.
-const _notifiedDates = { cash: null, fao: null, divergence: null };
+// Dedupe is PERSISTED to disk so a category alerts exactly once per trading date,
+// even though the fetch pipeline runs every ~15 min (cash lands first, F&O later),
+// /api/refresh is publicly callable, and the process restarts on every deploy.
+const NOTIFY_LOG_PATH = path.join(__dirname, 'data', 'notify_log.json');
+function _loadNotifyLog() {
+    try { return JSON.parse(fs.readFileSync(NOTIFY_LOG_PATH, 'utf8')); } catch { return {}; }
+}
+function alreadyNotified(date, category) {
+    const log = _loadNotifyLog();
+    return !!(log[date] && log[date][category]);
+}
+function markNotified(date, category) {
+    const log = _loadNotifyLog();
+    if (!log[date]) log[date] = {};
+    log[date][category] = new Date().toISOString();
+    // Prune to the 40 most-recent dates (by latest timestamp in each entry)
+    const dates = Object.keys(log);
+    if (dates.length > 40) {
+        dates.sort((a, b) => {
+            const ta = Math.max(...Object.values(log[a]).map(t => Date.parse(t) || 0));
+            const tb = Math.max(...Object.values(log[b]).map(t => Date.parse(t) || 0));
+            return tb - ta;
+        });
+        const pruned = {};
+        dates.slice(0, 40).forEach(d => { pruned[d] = log[d]; });
+        Object.keys(log).forEach(k => delete log[k]);
+        Object.assign(log, pruned);
+    }
+    try {
+        const tmp = NOTIFY_LOG_PATH + '.tmp';
+        fs.writeFileSync(tmp, JSON.stringify(log, null, 2), 'utf8');
+        fs.renameSync(tmp, NOTIFY_LOG_PATH);
+    } catch (e) { console.warn('[NOTIFY] Could not persist notify log:', e.message); }
+}
+function _faoPresent(data) {
+    return (data.fii_idx_fut_long || 0) !== 0 || (data.fii_idx_fut_short || 0) !== 0 || (data.pcr || 0) > 0;
+}
+
 function sendDataNotifications(data) {
     const fmtCr = (v) => `${v >= 0 ? '+' : '-'}₹${Math.abs(v).toLocaleString('en-IN')} Cr`;
     const fmtContracts = (v) => `${v >= 0 ? '+' : ''}${(v / 1000).toFixed(0)}K`;
 
-    // 1. Cash flow notification
-    const sendCash = _notifiedDates.cash !== data.date;
+    // 1. Cash flow notification — once per date
+    const sendCash = !alreadyNotified(data.date, 'cash');
     if (sendCash) {
-        _notifiedDates.cash = data.date;
+        markNotified(data.date, 'cash');
         broadcastNotification({
             title: '📊 Institutional Cash Flows',
             body: `${data.date} — FII: ${fmtCr(data.fii_net)} | DII: ${fmtCr(data.dii_net)}`,
@@ -540,11 +576,12 @@ function sendDataNotifications(data) {
         }, 'cash');
     }
 
-    // 2. F&O sentiment notification
-    const hasFao = data._fao_summary || data.pcr;
-    const sendFao = hasFao && _notifiedDates.fao !== data.date;
+    // 2. F&O sentiment notification — once per date, ONLY when F&O is genuinely
+    //    present (it publishes later than cash; an all-zeros row must not consume
+    //    the alert before the real data arrives)
+    const sendFao = _faoPresent(data) && !alreadyNotified(data.date, 'fao');
     if (sendFao) {
-        _notifiedDates.fao = data.date;
+        markNotified(data.date, 'fao');
         const summary = data._fao_summary || {};
         const sentiment = summary.sentiment || (data.sentiment_score > 60 ? 'Bullish' : data.sentiment_score < 40 ? 'Bearish' : 'Neutral');
         const pcr = summary.pcr || data.pcr || 0;
@@ -592,8 +629,8 @@ function sendDataNotifications(data) {
 
             // C. Divergence alert (if signal is active for today)
             if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE' && flowDiv.last_signal_date === data.date &&
-                _notifiedDates.divergence !== data.date) {
-                _notifiedDates.divergence = data.date;
+                !alreadyNotified(data.date, 'divergence')) {
+                markNotified(data.date, 'divergence');
                 setTimeout(() => {
                     const divMsg = tgMessages.buildDivergenceMessage(flowDiv, data);
                     telegram.broadcastTelegram(divMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
@@ -1377,6 +1414,26 @@ app.listen(PORT, '0.0.0.0', () => {
 
             // NSDL sector data — check daily at 10:00 AM IST (smart skip if unchanged)
             cron.schedule('30 4 * * 1-5', () => runNSDLFetch(), CRON_OPTS);  // 10:00 AM IST
+
+            // F&O recovery — NSE sometimes publishes participant-OI after the
+            // evening fetch window closes. Backfill any cash-only rows and fire
+            // the (still-pending) F&O alert once. 10 PM IST + next-day 8 AM IST.
+            async function runFaoRecovery(label) {
+                try {
+                    const filled = await backfillMissingFao();
+                    if (!filled || !filled.length) return;
+                    console.log(`[${new Date().toISOString()}] ${label} recovered F&O: ${filled.join(', ')}`);
+                    const latest = getLatestData();
+                    if (latest && filled.includes(latest.date) && !latest._skipped) {
+                        sseBroadcast('data-update', { date: latest.date, fii_net: latest.fii_net, dii_net: latest.dii_net, ts: new Date().toISOString() });
+                        sendDataNotifications(latest); // cash already deduped → only F&O fires
+                    }
+                } catch (err) {
+                    console.error(`[${new Date().toISOString()}] ${label} F&O recovery failed:`, err.message);
+                }
+            }
+            cron.schedule('30 16 * * 1-5', () => runFaoRecovery('Late-evening'), CRON_OPTS); // 10:00 PM IST
+            cron.schedule('30 2 * * 2-6', () => runFaoRecovery('Next-morning'), CRON_OPTS);  // 08:00 AM IST (Tue–Sat)
 
             // Weekly institutional digest — Friday 8:00 PM IST
             if (agentRunner) {
