@@ -4239,10 +4239,15 @@ function renderDashboard() {
 
   // Render Flow Strength Meter
 // Wait 2 seconds for JS execution before doing the rest
-  // ── Render F&O Data (if available in latest) ───────────────────────────────
-  const latestFno = dailyData.find(d => d.fii_idx_fut_long !== undefined) || latest;
+  // ── Render F&O Data ────────────────────────────────────────────────────────
+  // NSE publishes participant-OI later than cash, so the newest session can have
+  // cash but all-zero F&O. Show the most recent session that actually HAS F&O
+  // rather than a misleading all-zeros panel.
+  const _hasRealFno = d => d && ((d.fii_idx_fut_long || 0) !== 0 || (d.fii_idx_fut_short || 0) !== 0);
+  const latestFno = dailyData.find(_hasRealFno) || latest;
+  const fnoIsStale = latestFno && latest && latestFno.d !== latest.d;
 
-  if (latestFno.fii_idx_fut_long !== undefined) {
+  if (_hasRealFno(latestFno)) {
     const fnl = n => n ? n.toLocaleString('en-IN') : '0';
     const fillRatio = (l, s, bar, reverseColor = false) => {
       document.getElementById(bar).style.width = (l+s > 0) ? `${(l/(l+s))*100}%` : '50%';
@@ -4297,12 +4302,18 @@ function renderDashboard() {
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);
     let fnoDtStr = fnoDt ? fnoDt.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : latestFno.d;
-    document.getElementById('fnoDate').innerText = `Data for: ${fnoDtStr}`;
+    document.getElementById('fnoDate').innerText = fnoIsStale
+      ? `Data for: ${fnoDtStr} · F&O for ${latest.d} pending (NSE publishes it later)`
+      : `Data for: ${fnoDtStr}`;
 
     // F&O Historical Chart
     if (typeof renderFnoHistoryChart === 'function') {
       renderFnoHistoryChart();
     }
+  } else {
+    // No F&O anywhere in the loaded history
+    const fnoDateEl = document.getElementById('fnoDate');
+    if (fnoDateEl) fnoDateEl.innerText = 'F&O positioning data not available yet';
   }
 
   const fNetAbs = Math.abs(latest.fn);
@@ -4454,7 +4465,9 @@ function renderSectorTape() {
 function renderCommandCenter() {
   if (!dailyData || !dailyData.length) return;
   const latest = dailyData[0];
-  const latestFno = dailyData.find(d => d.fii_idx_fut_long !== undefined) || latest;
+  // Most recent session with REAL F&O (newest day may be cash-only until NSE
+  // publishes participant-OI later in the evening)
+  const latestFno = dailyData.find(d => (d.fii_idx_fut_long || 0) !== 0 || (d.fii_idx_fut_short || 0) !== 0) || latest;
   const market = getFlowScore(dailyData, 5);
   const stock = getStockScore(dailyData);
   const fno = getFnoSentiment(latestFno);
@@ -4482,7 +4495,8 @@ function renderCommandCenter() {
   set('cmd-anomaly-counts', `${bloodbath} / ${absorption}`);
   set('cmd-divergence-count', `Divergence ${divergence}`);
 
-  set('cmd-fno-date', latestFno?.d ? `F&O data: ${latestFno.d}` : 'F&O data pending');
+  const _fnoReal = latestFno && ((latestFno.fii_idx_fut_long || 0) !== 0 || (latestFno.fii_idx_fut_short || 0) !== 0);
+  set('cmd-fno-date', !_fnoReal ? 'F&O data pending' : (latestFno.d !== latest.d ? `F&O: ${latestFno.d} (${latest.d} pending)` : `F&O data: ${latestFno.d}`));
   const signedContracts = (value) => `${Number(value || 0) >= 0 ? '+' : ''}${Number(value || 0).toLocaleString('en-IN')}`;
   const futNet = Number(latestFno.fii_idx_fut_long || 0) - Number(latestFno.fii_idx_fut_short || 0);
   const callNet = Number(latestFno.fii_idx_call_long || 0) - Number(latestFno.fii_idx_call_short || 0);
