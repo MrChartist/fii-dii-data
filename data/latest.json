@@ -1,11 +1,11 @@
 {
-  "date": "10-Aug-2026",
-  "fii_buy": 13161.56,
-  "fii_sell": 11186.8,
-  "fii_net": 1974.76,
-  "dii_buy": 15868.51,
-  "dii_sell": 17158.8,
-  "dii_net": -1290.29,
+  "date": "11-Aug-2026",
+  "fii_buy": 14628.47,
+  "fii_sell": 14369.92,
+  "fii_net": 258.55,
+  "dii_buy": 15006.72,
+  "dii_sell": 14981.95,
+  "dii_net": 24.77,
   "fii_idx_fut_long": 0,
   "fii_idx_fut_short": 0,
   "fii_idx_fut_net": 0,
@@ -26,6 +26,6 @@
   "fii_idx_put_net": 0,
   "pcr": 0,
   "sentiment_score": 50,
-  "_updated_at": "11 Aug 2026, 4:35 pm IST",
+  "_updated_at": "11 Aug 2026, 7:19 pm IST",
   "_source": "fetch-pipeline"
 }
