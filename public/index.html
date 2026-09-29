@@ -225,7 +225,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <div class="logo-glow"></div>
 <div class="wrap panel-container" role="main">
 
-  <header role="banner" class="terminal-product-row">
+  <header role="banner" class="terminal-product-row" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;border:0;margin:-1px">
     <div class="header-left">
       <div>
         <h1 class="h-title">FII & DII Data</h1>
@@ -285,7 +285,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   </header>
 
   <!-- LIVE MARKET TICKER BAR -->
-  <div class="market-ticker" id="marketTicker">
+  <div class="market-ticker" id="marketTicker" hidden>
     <div class="ticker-live-dot" id="tickerDot" title="Live market data"></div>
     <div class="ticker-item">
       <span class="ticker-label">Nifty 50</span>
@@ -409,7 +409,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   <!-- TAB: FII/DII DATE (HERO & HEATMAPS) -->
   <div id="t-hero" class="panel active">
   <div class="terminal-shell" id="cmd-shell">
-    <section class="terminal-strip" aria-label="Institutional flow command bar">
+    <section class="terminal-strip" aria-label="Institutional flow command bar" hidden style="display:none !important">
       <div class="terminal-summary-grid">
         <div class="terminal-summary-cell">
           <span>Session</span>

@@ -309,6 +309,19 @@
       var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot');
       if (ts) { var t = new Date(d.ts || Date.now()); ts.textContent = 'Updated ' + t.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + (d.stale ? ' (delayed)' : ''); ts.classList.toggle('cached', !!cached); }
       if (dot) dot.className = 'ticker-live-dot' + (cached || d.stale ? ' stale' : '');
+      // Show the ticker only when real quotes exist; hide any quote that is missing.
+      var box = $('#marketTicker'), any = false;
+      [['nifty', '#tickerNiftyPrice'], ['sensex', '#tickerSensexPrice'], ['vix', '#tickerVixPrice']].forEach(function (p) {
+        var ok = !!(d[p[0]] && Number.isFinite(Number(d[p[0]].price))), el = $(p[1]);
+        var item = el && el.closest('.ticker-item');
+        if (item) {
+          item.hidden = !ok;
+          var prev = item.previousElementSibling, next = item.nextElementSibling;
+          [prev, next].forEach(function (s) { if (s && s.classList.contains('ticker-divider')) s.hidden = true; });
+        }
+        if (ok) any = true;
+      });
+      if (box) box.hidden = !any;
     }
     function schedule() { clearTimeout(timer); if (doc.hidden) return; timer = setTimeout(poll, live() ? 15000 : 300000); }
     function poll() {
@@ -330,4 +343,37 @@
     poll();
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTicker); else initTicker();
+})();
+
+/* F&O Snapshot: one verdict badge + a clear stale-data notice (additive, reads existing text only) */
+(function () {
+  'use strict';
+  function $(s) { return document.querySelector(s); }
+  function tone(t) { return /bull/i.test(t) ? 'bull' : /bear/i.test(t) ? 'bear' : 'neutral'; }
+  function sync() {
+    var dir = $('#cmd-fno-direction'), date = $('#cmd-fno-date');
+    if (dir) {
+      var t = (dir.textContent || '').trim();
+      if (t && !/loading|awaiting|--/i.test(t)) {
+        var title = t.toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        var want = tone(t);
+        if (dir.getAttribute('data-os') !== want + title) {
+          dir.setAttribute('data-os', want + title);
+          dir.className = 'os-badge lg ' + want;
+          dir.innerHTML = '<i class="os-dot"></i>' + title;
+        }
+      }
+    }
+    if (date) {
+      var d = (date.textContent || '').trim(), stale = /pending|stale|delayed/i.test(d);
+      date.classList.toggle('os-stale', stale);
+      if (stale) date.title = 'Latest F&O data available is older than the cash-market session. It will update once NSE publishes it.';
+    }
+  }
+  function init() {
+    var box = $('#cmd-fno-snapshot'); if (!box) return;
+    new MutationObserver(function () { sync(); }).observe(box, { childList: true, subtree: true, characterData: true });
+    sync();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

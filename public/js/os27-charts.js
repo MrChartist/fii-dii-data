@@ -233,7 +233,7 @@
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
   function build() {
-    btn = el('button', 'os27-cust-btn'); btn.type = 'button';
+    btn = el('button', 'os27-cust-btn os-fab'); btn.type = 'button';
     btn.setAttribute('aria-label', 'Customise appearance'); btn.setAttribute('aria-haspopup', 'dialog'); btn.setAttribute('aria-expanded', 'false');
     btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2.2"/><circle cx="8" cy="17" r="2.2"/></svg><span>Customise</span>';
     btn.addEventListener('click', function () { sheet.hidden ? open() : close(); });
