@@ -12,6 +12,8 @@ const STATIC_ASSETS = [
   '/css/os27-core.css',
   '/css/os27-components.css',
   '/css/os27-content.css',
+  '/css/os27-motion.css',
+  '/js/os27-motion.js',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'
