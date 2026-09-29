@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en-IN" data-theme="dark">
+<head>
+<script>try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NSE Bulk &amp; Block Deals Today | Mr. Chartist</title>
+<meta name="description" content="Latest NSE bulk and block deals: which stocks large investors bought or sold, with client name, quantity and average price. By Mr. Chartist.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://fii-diidata.mrchartist.com/deals.html">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="/css/legacy.css?v=1">
+<link rel="stylesheet" href="/css/os27-core.css?v=1">
+<link rel="stylesheet" href="/css/os27-components.css?v=1">
+<link rel="stylesheet" href="/css/os27-content.css?v=1">
+<link rel="stylesheet" href="/css/os27-motion.css?v=1">
+<link rel="stylesheet" href="/css/os27-custom.css?v=1">
+<link rel="stylesheet" href="/css/os27-polish.css?v=1">
+<link rel="stylesheet" href="/css/os27-ui.css?v=1">
+</head>
+<body>
+<div class="ambient-orb ambient-orb-1"></div>
+<div class="ambient-orb ambient-orb-2"></div>
+<div id="os-nav-mount" data-active="deals"></div>
+<div class="wrap" role="main">
+  <div class="os-page-head">
+    <h1 class="os-page-title">Bulk &amp; Block Deals</h1>
+    <p class="os-page-sub" id="deals-summary">Large single-client trades on NSE. They show which stocks big players are buying or selling.</p>
+  </div>
+  <div class="os-deals-bar">
+    <div class="os-seg" id="deals-filter" role="group" aria-label="Filter deals by type">
+      <button type="button" class="os-seg-btn active" data-deal="all" aria-pressed="true">All</button>
+      <button type="button" class="os-seg-btn" data-deal="Bulk" aria-pressed="false">Bulk</button>
+      <button type="button" class="os-seg-btn" data-deal="Block" aria-pressed="false">Block</button>
+    </div>
+    <span class="os-muted" id="ld-date"></span>
+  </div>
+  <div class="card os-deals-card" id="large-deals-card">
+    <div class="tbl-wrap">
+      <table class="os-deals-table">
+        <thead><tr><th>Type</th><th>Symbol</th><th>Client</th><th>Side</th><th class="num">Qty</th><th class="num">Avg price</th></tr></thead>
+        <tbody id="tbLargeDeals"></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="os-empty" id="deals-empty" hidden></div>
+  <p class="os-note"><strong>Bulk deal:</strong> one client trades more than 0.5% of a company's shares in a day. <strong>Block deal:</strong> a single negotiated trade of at least &#8377;10 Cr in a special window.</p>
+</div>
+<div id="os-footer-mount"></div>
+<script src="/js/os27-ui.js?v=1" defer></script>
+<script src="/js/os27-deals.js?v=1" defer></script>
+</body>
+</html>

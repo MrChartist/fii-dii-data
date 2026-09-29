@@ -13,6 +13,11 @@
     </image:image>
   </url>
   <url>
+    <loc>https://fii-diidata.mrchartist.com/deals.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://fii-diidata.mrchartist.com/api/agents/docs</loc>
     <lastmod>2026-09-28</lastmod>
     <changefreq>weekly</changefreq>
