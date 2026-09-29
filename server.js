@@ -15,6 +15,7 @@ try { require('dotenv').config({ path: dotenvPath, override: false }); } catch {
 
 const express = require('express');
 const cors = require('cors');
+const { apiGuard, corsOptions } = require('./api-guard');
 const compression = require('compression');
 const path = require('path');
 const fs = require('fs');
@@ -188,7 +189,8 @@ const PORT = process.env.PORT || 3000;
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(compression({ threshold: 1024 }));
-app.use(cors());
+app.set('trust proxy', 1);
+app.use(cors(corsOptions()));
 app.use(express.json());
 
 // Security headers (production-grade)
@@ -200,6 +202,9 @@ app.use((req, res, next) => {
     res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     next();
 });
+
+// API access control — dashboard (same-origin) or approved key only
+app.use(apiGuard);
 
 // Dynamic Root Route for OG Tags (MUST be before express.static)
 app.get('/', (req, res, next) => {

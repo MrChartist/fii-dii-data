@@ -93,7 +93,6 @@ body .tabs-wrap {
 }
 @media (min-width: 769px) {
   .wrap { padding-top: 96px; padding-bottom: 72px; }
-  .sticky-kpi { top: 80px !important; max-width: min(1100px, calc(100% - 32px)); left: 50% !important; right: auto !important; transform: translateX(-50%); }
 }
 /* Customise capsule is docked in the navbar menu or top bar; never fixed over content */
 .os27-cust-btn:not(.os-docked) { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
@@ -268,7 +267,6 @@ body .tabs-wrap { width: min(1200px, calc(100% - 32px)); }
 .tabs-wrap .tab { padding: 0 12px; }
 .tabs-wrap .nav-divider { margin: 0 4px; }
 .tabs-wrap #sPill { max-width: 150px; }
-.sticky-kpi, .sticky-kpi.visible { display: none !important; }
 
 /* mobile topbar + deals cards refinements */
 .os-topbar #sPill #sTxt { white-space: nowrap; }
@@ -385,3 +383,10 @@ header.terminal-product-row { position: absolute !important; width: 1px !importa
 .legend-dot.sell, .os-legend-dot.bear { background: var(--os-bear) !important; }
 #t-hero .t-blue, #t-fno .t-blue { color: var(--os-bull); }
 .fno-3d-cube.pos, .fno-3d-cube[class*="green"] { background: var(--os-bull); }
+
+/* ---------- Sticky FII / DII capsule, docked below the navbar ---------- */
+.sticky-kpi { z-index: 900; padding: 6px 18px !important; border-radius: 999px !important; border: 1px solid var(--os-hairline, rgb(128 128 128 / .25)) !important; width: fit-content; max-width: calc(100% - 32px); box-sizing: border-box; pointer-events: none; }
+.sticky-kpi.visible { gap: 4px 18px !important; flex-wrap: nowrap !important; }
+.sticky-kpi .sk-item { font-size: 13px !important; white-space: nowrap; }
+@media (min-width: 769px) { .sticky-kpi { top: 78px !important; left: 0 !important; right: 0 !important; margin: 0 auto; } }
+@media (max-width: 768px) { .sticky-kpi { top: calc(var(--os-topbar-h) + env(safe-area-inset-top, 0px) + 8px) !important; left: 0 !important; right: 0 !important; margin: 0 auto; } .sticky-kpi.visible { gap: 4px 10px !important; } .sticky-kpi .sk-item { font-size: 12px !important; } .sticky-kpi .sk-item:nth-child(n+4) { display: none; } }

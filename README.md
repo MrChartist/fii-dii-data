@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://fii-diidata.mrchartist.com/"><img src="https://img.shields.io/badge/Live_Dashboard-fii--diidata.mrchartist.com-6366f1?style=for-the-badge" alt="Live Dashboard"></a>
   <a href="https://twitter.com/mr_chartist"><img src="https://img.shields.io/badge/Follow-@mr__chartist-0d1117?style=for-the-badge&logo=x&logoColor=white" alt="Twitter"></a>
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="MIT License">
+  <img src="https://img.shields.io/badge/License-Personal_Use_Only-orange?style=for-the-badge" alt="Personal Use Only License">
 </p>
 
 ---
@@ -244,3 +244,15 @@ All responses include:
 </p>
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:6366f1&height=100&section=footer" width="100%" />
+
+---
+
+## License
+
+**Personal use only — no commercial use.** This project is source-available under the
+[PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)
+with additional terms restricting it to personal, non-commercial use (no organisational use,
+no public re-hosting, no resale, no API or data-feed offerings). See [LICENSE](LICENSE).
+For commercial licensing, contact [Mr. Chartist](https://mrchartist.com).
+
+Versions published before this change remain under the terms they were released with.
