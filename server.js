@@ -761,10 +761,12 @@ app.get('/api/large-deals', async (req, res) => {
         });
         const mapDeal = (d) => ({
             symbol: d.symbol, name: d.name || d.clientName || '', client: d.clientName || '',
-            side: d.buySell || '', qty: d.qty || 0, price: d.watp || d.tradePrice || 0
+            side: d.buySell || '', qty: d.qty || 0, price: d.watp || d.tradePrice || 0,
+            date: d.date || d.tradeDate || d.mTIMESTAMP || ''
         });
         const out = {
             as_on: data?.as_on_date || null,
+            fetched_at: new Date().toISOString(),
             bulk: (data?.BULK_DEALS_DATA || []).map(mapDeal),
             block: (data?.BLOCK_DEALS_DATA || []).map(mapDeal),
             short: (data?.SHORT_DEALS_DATA || []).map(mapDeal)

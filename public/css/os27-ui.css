@@ -394,3 +394,5 @@ header.terminal-product-row { position: absolute !important; width: 1px !importa
 /* F&O snapshot: with the duplicate tiles hidden, the Bias tile spans the full row */
 #cmd-fno-summary { grid-template-columns: 1fr !important; }
 #cmd-fno-summary > div { width: 100%; }
+
+.os-deals-table td.dt { color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }

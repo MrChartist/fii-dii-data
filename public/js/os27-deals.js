@@ -1,7 +1,7 @@
 /* os27-deals: standalone renderer for /deals.html. Same endpoint as the dashboard panel (/api/large-deals). */
 (function () {
   'use strict';
-  var rows = [], filter = 'all';
+  var rows = [], filter = 'all', asOn = '';
   var $ = function (s) { return document.querySelector(s); };
   function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function inr(n) { return Number(n || 0).toLocaleString('en-IN'); }
@@ -15,7 +15,7 @@
       card.hidden = false; empty.hidden = true;
       $('#tbLargeDeals').innerHTML = list.map(function (d) {
         var buy = /b/i.test(d.side);
-        return '<tr><td><span class="os-tag ' + (d.type === 'Block' ? 'block' : 'bulk') + '">' + d.type + '</span></td>' +
+        return '<tr><td class="dt">' + esc(d.date || asOn || '\u2014') + '</td><td><span class="os-tag ' + (d.type === 'Block' ? 'block' : 'bulk') + '">' + d.type + '</span></td>' +
           '<td class="sym">' + esc(d.symbol) + '</td><td class="cli" title="' + esc(d.client) + '">' + esc(d.client) + '</td>' +
           '<td class="' + (buy ? 'pos' : 'neg') + '">' + (buy ? 'Buy' : 'Sell') + '</td>' +
           '<td class="num">' + inr(d.qty) + '</td><td class="num">&#8377;' + inr(d.price) + '</td></tr>';
@@ -38,7 +38,10 @@
         .concat((data.block || []).map(function (d) { d.type = 'Block'; return d; }))
         .filter(function (d) { return d.symbol; })
         .sort(function (a, b) { return (b.qty * b.price) - (a.qty * a.price); });
-      if (data.as_on) $('#ld-date').textContent = 'As on ' + data.as_on;
+      asOn = data.as_on || '';
+      var t = '';
+      if (data.fetched_at) { try { t = ' \u00b7 updated ' + new Date(data.fetched_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) + ' IST'; } catch (e) {} }
+      if (asOn) $('#ld-date').textContent = 'As on ' + asOn + t;
     }
     render();
   }).catch(function () { render(); });
