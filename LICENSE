@@ -1,21 +1,114 @@
-MIT License
+# FII & DII Data — Personal-Use-Only License
 
-Copyright (c) 2026 Mr. Chartist (twitter.com/mr_chartist)
+Required Notice: Copyright (c) 2026 Mr. Chartist (Rohit Singh) (https://mrchartist.com)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+This software is **source-available, not open source**. It is licensed under the
+PolyForm Noncommercial License 1.0.0 (full text below), **as narrowed by the
+Additional Terms in this section**. If the Additional Terms and the PolyForm text
+conflict, the Additional Terms control.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+## Additional Terms (Personal Use Only)
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+1. **Personal use only.** You may use, run and study the software, and make private
+   changes for it, solely for your own personal, non-commercial purposes (for
+   example, personal learning, hobby projects and tracking your own investments).
+   The PolyForm "Noncommercial Organizations" clause does **not** apply: use by or
+   on behalf of any company, firm, fund, broker, advisor, educational institution,
+   charity, government body or other organisation is **not** permitted without a
+   separate written licence from the licensor.
+2. **No commercial use of any kind.** This includes selling, sublicensing, hosting or
+   offering the software, its code, its design or any derivative as a product,
+   service, subscription, API or data feed; using it to advise clients, manage money,
+   generate leads or run advertising; embedding it in any paid or monetised product,
+   website, app, channel or newsletter; and training, fine-tuning or building
+   commercial datasets or models from it.
+3. **No public redistribution or re-hosting.** You may not publish, mirror or host
+   copies or modified versions publicly (including on public repositories or
+   websites) or present them as your own work.
+4. **Attribution and notices.** Keep all `Required Notice:` lines and copyright
+   notices intact in any permitted copy.
+5. **Brand and data not licensed.** The names "Mr. Chartist", "FII & DII Data",
+   "Investology", the logos, graphics and visual design are not licensed to you.
+   Third-party market data (for example from NSE, NSDL or Yahoo Finance) remains
+   subject to its providers' terms; nothing here grants rights in that data.
+6. **Commercial licences.** To use the software commercially, contact the licensor
+   via https://mrchartist.com for a separate written licence.
+7. **Versions.** Versions published before this licence took effect remain available
+   under the terms they were originally released with; this licence applies to all
+   versions from this change onward.
+
+---
+
+# PolyForm Noncommercial License 1.0.0
+
+<https://polyformproject.org/licenses/noncommercial/1.0.0>
+
+## Acceptance
+
+In order to get any license under these terms, you must agree to them as both strict obligations and conditions to all your licenses.
+
+## Copyright License
+
+The licensor grants you a copyright license for the software to do everything you might do with the software that would otherwise infringe the licensor's copyright in it for any permitted purpose.  However, you may only distribute the software according to [Distribution License](#distribution-license) and make changes or new works based on the software according to [Changes and New Works License](#changes-and-new-works-license).
+
+## Distribution License
+
+The licensor grants you an additional copyright license to distribute copies of the software.  Your license to distribute covers distributing the software with changes and new works permitted by [Changes and New Works License](#changes-and-new-works-license).
+
+## Notices
+
+You must ensure that anyone who gets a copy of any part of the software from you also gets a copy of these terms or the URL for them above, as well as copies of any plain-text lines beginning with `Required Notice:` that the licensor provided with the software.  For example:
+
+> Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
+
+## Changes and New Works License
+
+The licensor grants you an additional copyright license to make changes and new works based on the software for any permitted purpose.
+
+## Patent License
+
+The licensor grants you a patent license for the software that covers patent claims the licensor can license, or becomes able to license, that you would infringe by using the software.
+
+## Noncommercial Purposes
+
+Any noncommercial purpose is a permitted purpose.
+
+## Personal Uses
+
+Personal use for research, experiment, and testing for the benefit of public knowledge, personal study, private entertainment, hobby projects, amateur pursuits, or religious observance, without any anticipated commercial application, is use for a permitted purpose.
+
+## Noncommercial Organizations
+
+Use by any charitable organization, educational institution, public research organization, public safety or health organization, environmental protection organization, or government institution is use for a permitted purpose regardless of the source of funding or obligations resulting from the funding.
+
+## Fair Use
+
+You may have "fair use" rights for the software under the law. These terms do not limit them.
+
+## No Other Rights
+
+These terms do not allow you to sublicense or transfer any of your licenses to anyone else, or prevent the licensor from granting licenses to anyone else.  These terms do not imply any other licenses.
+
+## Patent Defense
+
+If you make any written claim that the software infringes or contributes to infringement of any patent, your patent license for the software granted under these terms ends immediately. If your company makes such a claim, your patent license ends immediately for work on behalf of your company.
+
+## Violations
+
+The first time you are notified in writing that you have violated any of these terms, or done anything with the software not covered by your licenses, your licenses can nonetheless continue if you come into full compliance with these terms, and take practical steps to correct past violations, within 32 days of receiving notice.  Otherwise, all your licenses end immediately.
+
+## No Liability
+
+***As far as the law allows, the software comes as is, without any warranty or condition, and the licensor will not be liable to you for any damages arising out of these terms or the use or nature of the software, under any kind of legal claim.***
+
+## Definitions
+
+The **licensor** is the individual or entity offering these terms, and the **software** is the software the licensor makes available under these terms.
+
+**You** refers to the individual or entity agreeing to these terms.
+
+**Your company** is any legal entity, sole proprietorship, or other kind of organization that you work for, plus all organizations that have control over, are under the control of, or are under common control with that organization.  **Control** means ownership of substantially all the assets of an entity, or the power to direct its management and policies by vote, contract, or otherwise.  Control can be direct or indirect.
+
+**Your licenses** are all the licenses granted to you for the software under these terms.
+
+**Use** means anything you do with the software requiring one of your licenses.

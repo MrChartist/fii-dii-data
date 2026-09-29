@@ -4812,7 +4812,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
 
   // Load briefing after initial data fetch
   setTimeout(() => renderAgentData(), 2500); // hydrate the AI agent panel (was never invoked)
-  setTimeout(() => { loadLargeDeals(); loadNsdlConfirm(); }, 3000);
+  setTimeout(() => { loadNsdlConfirm(); }, 3000); // bulk and block deals now load on /deals.html
 
   // ── PHASE 4: SSE Live Connection ─────────────────────────────────────────────
   function initSSE() {

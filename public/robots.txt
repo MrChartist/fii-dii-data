@@ -13,5 +13,3 @@ Sitemap: https://fii-diidata.mrchartist.com/sitemap.xml
 Crawl-delay: 2
 
 # AI / LLM Discoverability
-# See https://llmstxt.org/ for more info
-LLMs-Txt: https://fii-diidata.mrchartist.com/llms.txt
