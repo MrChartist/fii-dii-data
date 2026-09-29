@@ -396,3 +396,11 @@ header.terminal-product-row { position: absolute !important; width: 1px !importa
 #cmd-fno-summary > div { width: 100%; }
 
 .os-deals-table td.dt { color: var(--t3); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* Anything marked hidden must stay hidden, whatever display value a component sets */
+.market-ticker[hidden], .ticker-item[hidden], .ticker-divider[hidden], .terminal-strip[hidden] { display: none !important; }
+
+/* F&O Snapshot */
+#cmd-fno-summary > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+#cmd-fno-direction.os-badge { text-transform: none; letter-spacing: 0; }
+.os-stale { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; color: var(--os-neutral); background: var(--os-neutral-bg); border: var(--os-hair, 1px) solid var(--os-hairline, rgb(128 128 128 / .25)); }
