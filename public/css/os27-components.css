@@ -1097,3 +1097,17 @@ body .sub-tabs { border-radius: 999px; }
 .momentum-grid em, .signal-row em { display: block; }
 .pressure-summary strong { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
 .terminal-meter + div[style*="margin-top:14px"] { margin-top: 24px !important; }
+
+/* ---- fixes: grid blowout + active chips ---- */
+.sector-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 1400px) { .sector-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 900px)  { .sector-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
+@media (max-width: 500px)  { .sector-grid { grid-template-columns: 1fr !important; } }
+.sector-card { min-width: 0; overflow: hidden; }
+.sc-head > .sc-name { min-width: 0; flex: 1; }
+.sc-fortnight { flex-shrink: 0; }
+.sector-card > div { min-width: 0; }
+.filter-btn.active, .filter-btn.active:hover { background: #1c1c1e !important; color: #fff !important; }
+[data-theme="dark"] .filter-btn.active, [data-theme="dark"] .filter-btn.active:hover { background: rgba(255,255,255,.92) !important; color: #000 !important; }
+.sector-card { padding: 20px; }
+@media (max-width:480px){ .sector-card { padding: 20px; } }
