@@ -4247,8 +4247,8 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   const brandGreen = getVar('--green') || '#059669';
   const brandRed   = getVar('--red') || '#DC2626';
 
-  // Get up to 20 days of history
-  const slicedData = dailyData.filter(d => d.fii_idx_fut_long !== undefined).slice(0, 20).reverse();
+  // Load up to 252 sessions; the range selector (os27-ranges.js) picks the visible window
+  const slicedData = dailyData.filter(d => d.fii_idx_fut_long !== undefined).slice(0, 252).reverse();
   const labels = slicedData.map(d => {
     const p = d.d.split('-');
     return p.length >= 2 ? `${p[0]} ${p[1]}` : d.d;
