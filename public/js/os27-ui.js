@@ -161,11 +161,13 @@
     if (!more || !top || !navA) return;
     if (mq.matches) { if (more.parentNode !== top) top.insertBefore(more, $('.os-cta', top)); if (movedLive && movedLive.parentNode !== top) top.insertBefore(movedLive, $('.os-round-btn', top)); }
     else { if (more.parentNode !== navA) navA.insertBefore(more, $('.os-cta', navA)); if (movedLive && movedLive.parentNode !== navA) navA.insertBefore(movedLive, navA.firstChild); }
+    dockCust();
   }
   function dockCust() {
-    var b = $('.os27-cust-btn'), pop = $('#navMore .os-menu-pop'); if (!b || !pop) return false;
-    if (b.parentNode !== pop) { pop.appendChild(b); b.classList.add('os-docked'); }
-    return true;
+    var b = $('.os27-cust-btn'); if (!b) return false;
+    var more = $('#navMore'); if (!more) return false;
+    if (b.parentNode !== more.parentNode || b.nextSibling !== more) more.parentNode.insertBefore(b, more);
+    b.classList.add('os-docked'); return true;
   }
   function watchDock() {
     dockMenu(); if (mq.addEventListener) mq.addEventListener('change', dockMenu);
