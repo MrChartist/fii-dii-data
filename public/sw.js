@@ -5,7 +5,7 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v11';
+const CACHE_NAME = 'mrchartist-v12';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -18,6 +18,10 @@ const STATIC_ASSETS = [
   '/css/os27-custom.css',
   '/css/os27-polish.css',
   '/js/os27-charts.js',
+  '/css/os27-ui.css',
+  '/js/os27-ui.js',
+  '/deals.html',
+  '/js/os27-deals.js',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

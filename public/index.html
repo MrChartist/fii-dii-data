@@ -198,6 +198,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <link rel="stylesheet" href="/css/os27-motion.css?v=1">
 <link rel="stylesheet" href="/css/os27-custom.css?v=1">
 <link rel="stylesheet" href="/css/os27-polish.css?v=1">
+<link rel="stylesheet" href="/css/os27-ui.css?v=1">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -329,7 +330,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
     <div class="alert-settings-content">
       <div class="alert-modal-header">
         <div>
-          <div class="alert-modal-title">🔔 Alert Settings</div>
+          <div class="alert-modal-title">Alert Settings</div>
           <div class="alert-modal-sub">Choose which data feeds you want push notifications for</div>
         </div>
         <button class="alert-modal-close" onclick="closeAlertModal()">
@@ -341,7 +342,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       <div id="alert-subscribed-view">
         <div class="alert-categories">
           <div class="alert-cat-card active" onclick="toggleAlertCard('cash')">
-            <div class="alert-cat-icon cash">📊</div>
+            <div class="alert-cat-icon cash">C</div>
             <div class="alert-cat-info">
               <div class="alert-cat-name">Institutional Cash Flows</div>
               <div class="alert-cat-desc">Daily FII/DII net buy/sell & combined liquidity drain</div>
@@ -357,7 +358,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           </div>
 
           <div class="alert-cat-card active" onclick="toggleAlertCard('fao')">
-            <div class="alert-cat-icon fao">📈</div>
+            <div class="alert-cat-icon fao">F</div>
             <div class="alert-cat-info">
               <div class="alert-cat-name">F&O Sentiment Matrix</div>
               <div class="alert-cat-desc">Daily derivatives positioning, PCR & sentiment score</div>
@@ -373,7 +374,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           </div>
 
           <div class="alert-cat-card active" onclick="toggleAlertCard('sectors')">
-            <div class="alert-cat-icon sectors">🏦</div>
+            <div class="alert-cat-icon sectors">S</div>
             <div class="alert-cat-info">
               <div class="alert-cat-name">Sector Rotation Index</div>
               <div class="alert-cat-desc">Fortnightly NSDL FPI sector-wise allocation updates</div>
@@ -842,44 +843,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   </div><!-- /legacy-home-stack -->
   </div> <!-- /t-hero -->
 
-  <!-- TABS (FLOATING ISLAND NAV) -->
-  <nav class="tabs-wrap" role="navigation" aria-label="Dashboard sections">
-    <!-- Brand -->
-    <a href="/" class="nav-brand" title="FII &amp; DII Data - Institutional Analytics">
-      <span class="nav-logo-text">Mr. Chartist</span>
-    </a>
-    <div class="nav-divider"></div>
-    <!-- Tabs -->
-    <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> <span class="tab-txt">FII/DII</span>
-    </div>
-    <div class="tab" data-tab="t-fno" onclick="switchMainTab('t-fno')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg> <span class="tab-txt">F&amp;O</span>
-    </div>
-    <div class="tab" data-tab="t-matrix" onclick="switchMainTab('t-matrix')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> <span class="tab-txt">Analytics</span>
-    </div>
-    <div class="tab" data-tab="t-sector" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart();">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> <span class="tab-txt">Sectors</span>
-    </div>
-
-
-    <div class="nav-divider"></div>
-    <!-- Actions -->
-    <div class="nav-actions">
-      <button onclick="toggleTheme()" class="nav-icon-btn" title="Toggle theme">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-      </button>
-      <a href="https://t.me/fiidiidatalivebot" target="_blank" class="nav-tg-btn" id="navTgBtn" title="Get Telegram Alerts">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>
-        Alerts
-      </a>
-      <a href="https://t.me/official_mrchartist" target="_blank" class="nav-channel-btn" id="navChannelBtn" title="Join our Telegram Channel for market updates">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
-        Channel
-      </a>
-    </div>
-  </nav>
+  <div id="os-nav-mount" data-active="t-hero"></div>
 
   <!-- TAB: DATA MATRIX -->
   <div id="t-matrix" class="panel">
@@ -911,21 +875,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">FII Bloodbath Days</div>
         <div style="font-size:22px; font-weight:800; color:var(--red); font-variant-numeric:tabular-nums;" id="mx-bloodbath">—</div>
         <div style="font-size:10px; color:var(--t4); margin-top:4px;">sessions &lt; -₹5k Cr</div>
-      </div>
-    </div>
-
-    <!-- NSE BULK & BLOCK DEALS (hidden until data loads) -->
-    <div class="card" style="padding:24px; display:none; margin-bottom:24px;" id="large-deals-card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:8px;">
-        <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px;">🧾 <span class="gloss" data-tip="Bulk deal: single client trades >0.5% of a company's shares in a day. Block deal: a single negotiated trade of ≥₹10 Cr in a special window. Both reveal which stocks big players moved.">Bulk &amp; Block Deals</span> (NSE)</div>
-        <div style="font-size:11px; color:var(--t4);" id="ld-date"></div>
-      </div>
-      <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Stock-level institutional activity behind today's aggregate flow numbers.</div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Type</th><th>Symbol</th><th>Client</th><th>Side</th><th>Qty</th><th>Avg Price</th></tr></thead>
-          <tbody id="tbLargeDeals"></tbody>
-        </table>
       </div>
     </div>
 
@@ -1261,7 +1210,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       <!-- EXTENDED HISTORY CHART (ALWAYS VISIBLE) -->
       <div id="fno-chart-container" style="display: block; padding-top: 32px; margin-top: 24px; border-top: 1px solid var(--sep2);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 10px;">
-          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">📈 Historical Institutional Positioning (Net Contracts)</div>
+          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">Historical Institutional Positioning (Net Contracts)</div>
           <div class="sub-tabs" style="margin-bottom:0; overflow-x: auto; white-space: nowrap;">
             <div class="s-tab active" id="fno-tab-fii-fut" onclick="renderFnoHistoryChart('fii-fut')">FII Futures</div>
             <div class="s-tab" id="fno-tab-fii-call" onclick="renderFnoHistoryChart('fii-call')">FII Calls</div>
@@ -1277,7 +1226,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       <!-- FII LONG-SHORT RATIO TIME SERIES -->
       <div style="display:block; padding-top:32px; margin-top:24px; border-top:1px solid var(--sep2);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:10px;">
-          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">⚖️ <span class="gloss" data-tip="FII index-futures long contracts ÷ short contracts. Above 1 = net long (bullish positioning). A single reading means little — extremes vs its own history are what matter.">FII Long-Short Ratio</span> (Index Futures)</div>
+          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;"><span class="gloss" data-tip="FII index-futures long contracts ÷ short contracts. Above 1 = net long (bullish positioning). A single reading means little — extremes vs its own history are what matter.">FII Long-Short Ratio</span> (Index Futures)</div>
           <div style="font-size:11px; color:var(--t4);" id="lsRatioNow">—</div>
         </div>
         <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Shaded band = 10th–90th percentile of the loaded history. Readings outside the band are positioning extremes.</div>
@@ -1458,60 +1407,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   </div>
 
 <!-- SEO FOOTER -->
-<footer style="margin-top:56px; padding:0; border:none;">
-  <!-- Footer Matte Card -->
-  <div style="border-radius:1.75rem; padding:36px 32px 28px; border-top:1px solid var(--sep2); position:relative; overflow:hidden;">
-    <!-- Subtle ambient glow -->
-    <div style="position:absolute; bottom:0; left:50%; transform:translateX(-50%); width:600px; height:300px; background:hsl(16 100% 60% / 0.025); border-radius:50%; filter:blur(100px); pointer-events:none;"></div>
-
-    <div style="display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr; gap:40px; margin-bottom:32px; position:relative; z-index:1;">
-      <!-- Brand Column -->
-      <div>
-        <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-          <span style="font-family:var(--font-display); font-size:18px; font-weight:900; letter-spacing:-0.055em; color:var(--t1);">Mr. Chartist</span>
-          <span style="width:6px; height:6px; border-radius:50%; background:hsl(16 100% 60%); box-shadow:0 0 12px hsl(16 100% 60% / 0.3);"></span>
-        </div>
-        <p style="font-size:13px; color:var(--t3); line-height:1.7; max-width:320px; font-weight:500;">India's most comprehensive real-time tracker for FII and DII institutional money flows. Updated daily with data from NSE, NSDL, and F&O derivatives archives.</p>
-      </div>
-      <!-- Data Sources -->
-      <div>
-        <div style="font-family:var(--font-display); font-size:11px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.15em; margin-bottom:14px;">Data Sources</div>
-        <ul style="list-style:none; font-size:13px; line-height:2.2;">
-          <li><a href="https://www.nseindia.com/reports-indices-fii-dii-trading-activity" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">NSE India — Cash Market</a></li>
-          <li><a href="https://www.nseindia.com/all-reports" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">NSE F&O Archives</a></li>
-          <li><a href="https://www.fpi.nsdl.co.in" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">NSDL FPI Monitor</a></li>
-        </ul>
-      </div>
-      <!-- Mr. Chartist -->
-      <div>
-        <div style="font-family:var(--font-display); font-size:11px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.15em; margin-bottom:14px;">Mr. Chartist</div>
-        <ul style="list-style:none; font-size:13px; line-height:2.2;">
-          <li><a href="https://mrchartist.com" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Website</a></li>
-          <li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">𝕏 (Twitter)</a></li>
-          <li><a href="https://github.com/MrChartist" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">GitHub</a></li>
-        </ul>
-      </div>
-      <!-- Quick Links -->
-      <div>
-        <div style="font-family:var(--font-display); font-size:11px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.15em; margin-bottom:14px;">Quick Links</div>
-        <ul style="list-style:none; font-size:13px; line-height:2.2;">
-          <li><a href="#" onclick="switchMainTab('t-hero'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">FII/DII Cash Flows</a></li>
-          <li><a href="#" onclick="switchMainTab('t-fno'); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">F&O Positions</a></li>
-          <li><a href="#" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart(); return false;" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Sector Analysis</a></li>
-          <li><a href="https://github.com/MrChartist/fii-dii-data#readme" target="_blank" rel="noopener" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Documentation</a></li>
-          <li><a href="/data-api.html" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Data &amp; API</a></li>
-          <li><a href="/api/agents/docs" target="_blank" style="color:var(--t3); text-decoration:none; font-weight:500; transition:color 0.15s;" onmouseover="this.style.color='var(--t1)'" onmouseout="this.style.color='var(--t3)'">Agent API Docs</a></li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Copyright -->
-    <div style="border-top:1px solid var(--sep2); padding-top:18px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; position:relative; z-index:1;">
-      <p style="font-size:12px; color:var(--t4); font-weight:500;">&copy; 2024–2026 Mr. Chartist (Investology). All rights reserved.</p>
-      <p style="font-size:12px; color:var(--t4); font-weight:500; font-style:italic;">Built with conviction. For traders, by a trader.</p>
-    </div>
-  </div>
-</footer>
+<div id="os-footer-mount"></div>
 
 </div><!-- /wrap -->
 
@@ -5088,6 +4984,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   setTimeout(fetchMarketData, 1500);
 
 </script>
+<script src="/js/os27-ui.js?v=1" defer></script>
 <script src="/js/os27-motion.js?v=1" defer></script>
 <script src="/js/os27-charts.js?v=1" defer></script>
 </body>
