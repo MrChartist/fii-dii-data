@@ -1,1 +1,94 @@
-/* os27-motion */
+/* os27-motion: additive UI motion. Purely CSS classes + keyframes; no layout changes. */
+:root {
+  --os-spring: cubic-bezier(.32, .72, 0, 1);
+  --os-spring-soft: cubic-bezier(.22, 1, .36, 1);
+  --os-spring-pop: cubic-bezier(.34, 1.4, .64, 1);
+  --os-dur-fast: .18s;
+  --os-dur: .45s;
+  --os-dur-slow: .7s;
+}
+
+/* Sliding capsule indicator (injected by JS). Hidden until measured. */
+.os-pill {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 0;
+  border-radius: 999px; pointer-events: none; opacity: 0;
+  background: var(--os-glass-solid, rgb(255 255 255 / .9));
+  box-shadow: var(--os-highlight, inset 0 1px 0 rgb(255 255 255 / .6)), 0 1px 3px rgb(0 0 0 / .14), 0 6px 16px rgb(0 0 0 / .10);
+  will-change: transform, width;
+}
+[data-theme="dark"] .os-pill { background: rgb(255 255 255 / .16); box-shadow: var(--os-highlight, none), 0 4px 14px rgb(0 0 0 / .4); }
+.s-tab-pill { box-shadow: 0 1px 2px rgb(0 0 0 / .12), 0 3px 8px rgb(0 0 0 / .08); }
+.os-pill.os-ready { opacity: 1; }
+.os-pill-host > .tab, .os-pill-host > .s-tab, .os-pill-host > button { position: relative; z-index: 1; }
+.os-pill-host.os-pill-on > .tab.active,
+.os-pill-host.os-pill-on > .s-tab.active,
+.os-pill-host.os-pill-on > button.active { background: transparent !important; box-shadow: none !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .os-pill.os-anim {
+    transition: transform .5s var(--os-spring), width .5s var(--os-spring), opacity .2s;
+  }
+
+  /* Tab panels: fade + rise + blur to sharp */
+  .panel.active { animation-name: os-panel-in; animation-duration: .55s; animation-timing-function: var(--os-spring); }
+  .s-panel.active { animation: os-panel-in .45s var(--os-spring) both; }
+  @keyframes os-panel-in {
+    from { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+    to   { opacity: 1; transform: none; filter: blur(0); }
+  }
+
+  /* Scroll reveal for below-the-fold cards */
+  .os-pre { opacity: 0; transform: translateY(18px); }
+  .os-in { animation: os-rise .7s var(--os-spring) var(--os-d, 0s) backwards; }
+  @keyframes os-rise { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+
+  /* Card micro-lift */
+  @media (hover: hover) {
+    .card, .terminal-panel, .sector-card {
+      transition: transform var(--os-dur) var(--os-spring), box-shadow var(--os-dur) var(--os-spring), border-color .3s, background-color .3s;
+    }
+    .card:hover, .terminal-panel:hover, .sector-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 4px rgb(0 0 0 / .05), 0 14px 32px rgb(0 0 0 / .12);
+    }
+    .heat-rail-cells > *, .fno-3d-bar, .td-bar-wrap { transition: transform .3s var(--os-spring), filter .3s; }
+    .heat-rail-cells > *:hover { transform: translateY(-2px) scale(1.06); filter: brightness(1.08); }
+    .fno-3d-bar:hover { transform: translateY(-1px); }
+  }
+
+  /* Buttons / capsules: press scale + hover lift */
+  .btn-x, .btn-primary, .filter-btn, .tour-btn, .os-btn, .hdr-btn, .nav-icon-btn, .nav-tg-btn, .nav-channel-btn, .tab, .s-tab, .view-toggle button {
+    transition-property: transform, background-color, color, box-shadow, opacity, filter;
+    transition-duration: .3s; transition-timing-function: var(--os-spring);
+  }
+  @media (hover: hover) {
+    .btn-x:hover, .btn-primary:hover, .filter-btn:hover, .os-btn:hover, .hdr-btn:hover { transform: translateY(-1px); }
+  }
+  .btn-x:active, .btn-primary:active, .filter-btn:active, .os-btn:active, .hdr-btn:active,
+  .nav-icon-btn:active, .tab:active, .s-tab:active, .view-toggle button:active {
+    transform: scale(.96); transition-duration: .1s;
+  }
+
+  /* Live dots: gentle, cheap pulse (opacity only) */
+  .os-dot, .status-dot, .sse-dot, .ticker-live-dot, .sig-dot, .sparkdot { animation: os-breathe 2.6s ease-in-out infinite; }
+  .sse-dot.disconnected, .ticker-live-dot.stale { animation: none; }
+  @keyframes os-breathe { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+  /* Badge pop when text changes */
+  .os-popping { animation: os-pop .5s var(--os-spring-pop); }
+  @keyframes os-pop { 0% { transform: scale(.82); opacity: .4; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* Bars grow from zero */
+  .os-grow { transform-origin: left center; animation: os-grow .9s var(--os-spring) backwards; }
+  @keyframes os-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Skeleton shimmer: slower, softer */
+  .skeleton { animation-duration: 1.9s !important; animation-timing-function: ease-in-out !important; }
+
+  /* Modals / sheets */
+  #sector-zoom-modal.active, #alert-settings-modal.active, .tour-overlay { animation: os-fade .3s ease both; }
+  @keyframes os-fade { from { opacity: 0; } to { opacity: 1; } }
+  .sz-content, .alert-settings-content { transition-timing-function: var(--os-spring-pop) !important; }
+  .tour-card { animation: os-sheet .55s var(--os-spring-pop) both; }
+  @keyframes os-sheet { from { opacity: 0; transform: translateY(24px) scale(.94); } to { opacity: 1; transform: none; } }
+}
