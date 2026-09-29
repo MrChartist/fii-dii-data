@@ -4,12 +4,15 @@
   try {
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var raf = window.requestAnimationFrame.bind(window);
+    /* Saver mode (set by the perf block at the end of this file): no count-up, pops or reveal flourishes. */
+    function saver() { return document.documentElement.hasAttribute('data-saver'); }
 
     /* Chart.js default tweak (additive) */
     function chartDefaults() {
       try {
-        if (!reduce && window.Chart && Chart.defaults) {
-          Chart.defaults.animation = Object.assign({}, Chart.defaults.animation || {}, { duration: 700, easing: 'easeOutQuart' });
+        if (window.Chart && Chart.defaults) {
+          if (saver()) Chart.defaults.animation = false;
+          else if (!reduce) Chart.defaults.animation = Object.assign({}, Chart.defaults.animation || {}, { duration: 700, easing: 'easeOutQuart' });
         }
       } catch (e) {}
     }
@@ -83,12 +86,13 @@
       });
     }, { threshold: 0.08 }) : null;
     function prepCard(el) {
-      if (!io || reduce || seen.has(el)) return; seen.add(el);
+      if (!io || reduce || saver() || seen.has(el)) return; seen.add(el);
       var r = el.getBoundingClientRect();
-      if (r.width && r.top > vh()) { el.classList.add('os-pre'); io.observe(el); setTimeout(function () { el.classList.remove('os-pre'); }, 5000); }
+      /* .os-pre also self-reveals in CSS after ~1.4s; this timer is only a belt-and-braces cleanup. */
+      if (r.width && r.top > vh()) { el.classList.add('os-pre'); io.observe(el); setTimeout(function () { el.classList.remove('os-pre'); }, 2200); }
     }
     function prepBar(el) {
-      if (!io || reduce || seen.has(el)) return; seen.add(el);
+      if (!io || reduce || saver() || seen.has(el)) return; seen.add(el);
       el.dataset.osBar = '1'; io.observe(el);
     }
 
@@ -122,7 +126,7 @@
       var to = p.val;
       s = { raf: 0, val: to, wrote: new Set([txt]) };
       st.set(node, s);
-      if (reduce || from === to || !document.body.contains(node) || document.hidden) return;
+      if (reduce || saver() || from === to || !document.body.contains(node) || document.hidden) return;
       var t0 = performance.now(), D = 600;
       (function step(now) {
         var t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3);
@@ -141,7 +145,7 @@
     /* ── Badge pop ──────────────────────────────────── */
     var BADGE_SEL = '.os-badge, .signal-pill, .badge, .pill';
     function pop(el) {
-      if (reduce || !el.isConnected) return;
+      if (reduce || saver() || document.hidden || !el.isConnected) return;
       el.classList.remove('os-popping'); void el.offsetWidth; el.classList.add('os-popping');
       setTimeout(function () { el.classList.remove('os-popping'); }, 600);
     }
@@ -192,4 +196,41 @@
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   } catch (e) { /* motion must never break the app */ }
+})();
+
+/* ── os27-perf: device / battery / visibility adaptivity ─────────────────────
+   Additive. Sets two attributes on <html> that css/os27.css reacts to:
+     data-saver   present on data-saver, low battery, low memory / few cores or reduced-data
+     data-hidden  present while the tab is hidden (CSS animations are paused)
+   Nothing here touches app functions. */
+(function () {
+  'use strict';
+  try {
+    var root = document.documentElement, why = {};
+    function apply() {
+      var keys = Object.keys(why).filter(function (k) { return why[k]; });
+      if (keys.length) { if (root.getAttribute('data-saver') !== keys.join(' ')) root.setAttribute('data-saver', keys.join(' ')); }
+      else if (root.hasAttribute('data-saver')) root.removeAttribute('data-saver');
+    }
+    var nav = navigator, c = nav.connection || nav.mozConnection || nav.webkitConnection;
+    why.data = !!(c && c.saveData);
+    if (c && c.addEventListener) c.addEventListener('change', function () { why.data = !!c.saveData; apply(); });
+    why.device = (nav.deviceMemory != null && nav.deviceMemory <= 2) || (nav.hardwareConcurrency != null && nav.hardwareConcurrency <= 2);
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(prefers-reduced-data: reduce)');
+      why.reduced = !!mq.matches;
+      if (mq.addEventListener) mq.addEventListener('change', function (e) { why.reduced = e.matches; apply(); });
+    }
+    apply();
+    if (nav.getBattery) {
+      nav.getBattery().then(function (b) {
+        function sync() { why.battery = b.level < 0.2 && !b.charging; apply(); }
+        sync();
+        b.addEventListener('levelchange', sync); b.addEventListener('chargingchange', sync);
+      }, function () {});
+    }
+    function vis() { if (document.hidden) root.setAttribute('data-hidden', ''); else root.removeAttribute('data-hidden'); }
+    document.addEventListener('visibilitychange', vis); vis();
+    window.os27Perf = { saver: function () { return root.hasAttribute('data-saver'); }, reasons: function () { return Object.keys(why).filter(function (k) { return why[k]; }); } };
+  } catch (e) { /* perf hints must never break the app */ }
 })();

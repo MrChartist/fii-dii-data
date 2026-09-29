@@ -18,6 +18,8 @@ const STATIC_ASSETS = [
   '/css/os27-custom.css',
   '/css/os27-polish.css',
   '/js/os27-charts.js',
+  '/css/os27-ranges.css',
+  '/js/os27-ranges.js',
   '/css/os27-ui.css',
   '/js/os27-ui.js',
   '/deals.html',
