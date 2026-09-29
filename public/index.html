@@ -231,7 +231,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="h-sub">Institutional Money Matrix <span style="opacity:0.3; margin:0 6px;">|</span> by <a href="https://twitter.com/mr_chartist" target="_blank" style="color:var(--blue); text-decoration:none; font-weight:800;">Mr. Chartist</a></div>
       </div>
     </div>
-    <div class="h-right">
+    <div class="h-right" id="hdrControls" hidden>
       <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
         <button onclick="installPWA()" class="hdr-btn" id="btnInstall" style="display:none; color:var(--primary);">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Install App
@@ -301,27 +301,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
     <div class="ticker-divider"></div>
     <div class="ticker-item" style="font-size:10px; color:var(--t4);">
       <span id="tickerUpdatedAt">Fetching market data…</span>
-    </div>
-  </div>
-
-  <!-- AI SNIPER BRIEFING -->
-  <div class="terminal-panel sniper-briefing" id="sniperBriefingCard">
-    <div id="sniperLoading">
-      <div class="sniper-skeleton-line skeleton"></div>
-      <div class="sniper-skeleton-line skeleton"></div>
-      <div class="sniper-skeleton-line skeleton"></div>
-    </div>
-    <div id="sniperContent" style="display:none;">
-      <div class="sniper-headline" id="sniperHeadline"></div>
-      <div class="sniper-body" id="sniperBody"></div>
-      <div class="sniper-meta">
-        <span class="sse-dot" id="sseDot" title="Live connection"></span>
-        <span>AI SYNTHESIS</span>
-        <span class="sniper-meta-dot"></span>
-        <span id="sniperTimestamp">--</span>
-        <span class="sniper-meta-dot"></span>
-        <span style="font-size:9px; color:var(--t4); letter-spacing:0.04em;">DAILY REPORT</span>
-      </div>
     </div>
   </div>
 
@@ -424,10 +403,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   <div id="t-hero" class="panel active">
   <div class="terminal-shell" id="cmd-shell">
     <section class="terminal-strip" aria-label="Institutional flow command bar">
-      <div>
-        <div class="terminal-kicker">INSTITUTIONAL FLOW TERMINAL</div>
-        <div class="terminal-title">Command Center</div>
-      </div>
       <div class="terminal-summary-grid">
         <div class="terminal-summary-cell">
           <span>Session</span>
@@ -4831,7 +4806,6 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   }
 
   // Load briefing after initial data fetch
-  setTimeout(() => loadSniperBriefing(), 2000);
   setTimeout(() => renderAgentData(), 2500); // hydrate the AI agent panel (was never invoked)
   setTimeout(() => { loadLargeDeals(); loadNsdlConfirm(); }, 3000);
 
