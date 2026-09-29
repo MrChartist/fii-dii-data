@@ -293,6 +293,12 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
     </div>
     <div class="ticker-divider"></div>
     <div class="ticker-item">
+      <span class="ticker-label">Sensex</span>
+      <span class="ticker-value" id="tickerSensexPrice"><span class="ticker-skeleton"></span></span>
+      <span class="ticker-change flat" id="tickerSensexChange">--</span>
+    </div>
+    <div class="ticker-divider"></div>
+    <div class="ticker-item">
       <span class="ticker-label">India VIX</span>
       <span class="ticker-value" id="tickerVixPrice"><span class="ticker-skeleton"></span></span>
       <span class="ticker-change flat" id="tickerVixChange">--</span>
@@ -300,7 +306,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
     </div>
     <div class="ticker-divider"></div>
     <div class="ticker-item" style="font-size:10px; color:var(--t4);">
-      <span id="tickerUpdatedAt">Fetching market data…</span>
+      <span id="tickerUpdatedAt">Fetching market data</span>
     </div>
   </div>
 
@@ -4954,8 +4960,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     _marketTimerId = setTimeout(fetchMarketData, interval);
   }
 
-  // Boot market ticker
-  setTimeout(fetchMarketData, 1500);
+  // Market ticker polling now lives in js/os27-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
 <script src="/js/os27-ui.js?v=1" defer></script>

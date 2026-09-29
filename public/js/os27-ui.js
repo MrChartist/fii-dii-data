@@ -221,22 +221,111 @@
   doc.addEventListener('click', function (e) { if (openInfo && !openInfo.root.contains(e.target)) closeInfo(); });
   doc.addEventListener('keydown', function (e) { if (e.key === 'Escape' && openInfo) { var b = openInfo.btn; closeInfo(); b.focus(); } });
 
+  function textOf(e) { return (e.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function makeText(label, title, text) {
+    var p = doc.createElement('p'); p.textContent = text; p.style.margin = '0';
+    return makeInfo(p, { label: 'About ' + title, title: title, into: label });
+  }
+  /* one info button per title; further content merges into the same popover */
+  function attach(target, into, label, title) {
+    if (!target || !into) return;
+    var host = $('.os-info', into);
+    if (host) { var pop = $('.os-info-pop', host); var sep = doc.createElement('div'); sep.style.cssText = 'margin-top:12px;padding-top:12px;border-top:1px solid var(--os-hairline, rgb(128 128 128 / .25))'; sep.appendChild(target); pop.appendChild(sep); return; }
+    makeInfo(target, { label: label, title: title, into: into });
+  }
+  var LIQ = 'Net of FII and DII cash flows for the session. A negative value means institutions together took money out of the market; a positive value means they added money.';
+  var TEXTS = {
+    'Market Strength': 'Overall reading of institutional buying against selling. A higher score means stronger buying support.',
+    'Stock Strength': 'Reading of stock-level participation. A higher score means healthier participation.',
+    'F&O Sentiment': 'Direction of derivatives positioning. A negative value leans bearish and a positive value leans bullish.',
+    'Combined Liquidity': LIQ, 'Combined Liquidity Drain': LIQ, 'Combined Liquidity Support': LIQ,
+    'FII Streak': 'Number of sessions in a row in which FIIs were net sellers or net buyers.',
+    'DII Streak': 'Number of sessions in a row in which DIIs were net sellers or net buyers.',
+    '5D FII Velocity': 'Total FII net flow over the last five sessions, with the daily average.',
+    'Bloodbath / Absorb': 'Bloodbath days are sessions where FII net selling was worse than ₹5,000 Cr. Absorb days are sessions where DII net buying was above ₹5,000 Cr.',
+    'Call / Put Net': 'Net FII position in index call options against put options. More calls than puts leans bullish.',
+    'Bias': 'Overall direction taken from FII index-futures and options positioning.',
+    'Futures Net': 'Net FII index-futures contracts: long minus short.'
+  };
+  var PREFIX = [
+    ['FII Long-Short Ratio', 'FII index-futures long contracts divided by short contracts. Above 1 means net long (bullish positioning). Extremes against its own history matter more than a single reading.'],
+    ['Historical Institutional Positioning', 'Net contracts held by FIIs and DIIs over time. Use it to see whether positioning is building or unwinding.']
+  ];
+  function lookup(k) { if (TEXTS[k]) return TEXTS[k]; for (var i = 0; i < PREFIX.length; i++) if (k.indexOf(PREFIX[i][0]) === 0) return PREFIX[i][1]; return null; }
+  function scanTexts() {
+    $$('#t-hero span, #t-hero div, #t-fno span, #t-fno div').forEach(function (e) {
+      if (e.children.length > 0 || e.closest('.os-info-pop') || e.closest('.os-info')) return;
+      var k = textOf(e), t = k.length < 60 && lookup(k);
+      if (!t) return;
+      var host = e.classList.contains('gloss') ? e.parentNode : e;
+      if (!$('.os-info', host)) makeText(host, k.replace(/ \(.*\)$/, ''), t);
+    });
+  }
   function initInfos() {
     var bd = doc.createElement('div'); bd.className = 'os-info-backdrop'; bd.hidden = true; bd.addEventListener('click', closeInfo); doc.body.appendChild(bd);
     var sec = $('#t-sector h2');
-    var mb = $('.methodology-banner'); if (mb && sec) makeInfo(mb, { label: 'How is sector data calculated', title: 'How is this data calculated?', into: sec });
-    var ex = $('#sec-chart-explainer');
-    if (ex) { var ttl = $('#sec-chart-card > div > div > div'); makeInfo(ex, { label: 'About this chart', title: 'About this chart', into: ttl || null }); }
-    ['#t-matrix', '#t-fno'].forEach(function (p) {
-      var sub = $(p + ' .hero-banner-subtitle'), tt = $(p + ' .hero-banner-title');
-      if (sub && tt) makeInfo(sub, { label: 'About this page', title: 'About this page', into: tt });
-    });
-    $$('.os-legend').forEach(function (l) { makeInfo(l, { label: 'Colour guide', title: 'Colour guide' }); });
-    $$('.heatmap-legend').forEach(function (l) { makeInfo(l, { label: 'Heatmap scale', title: 'Heatmap scale' }); });
-    var cl = $('.chart-legend'); if (cl) makeInfo(cl, { label: 'Chart legend', title: 'Chart legend' });
-    $$('#t-sector > .card > div').forEach(function (d) {
-      if (/Net Inflow \(fortnight\)/.test(d.textContent) && d.children.length === 3) makeInfo(d, { label: 'Legend and update schedule', title: 'Legend' });
-    });
+    attach($('.methodology-banner'), sec, 'How is sector data calculated', 'How is this data calculated?');
+    var lg = null; $$('#t-sector > .card > div').forEach(function (d) { if (/Net Inflow \(fortnight\)/.test(d.textContent) && d.children.length === 3) lg = d; });
+    attach(lg, sec, 'Legend and update schedule', 'Legend');
+    attach($('#sec-chart-explainer'), $('#sec-chart-card > div > div > div'), 'About this chart', 'About this chart');
+    ['#t-matrix', '#t-fno'].forEach(function (p) { attach($(p + ' .hero-banner-subtitle'), $(p + ' .hero-banner-title'), 'About this page', 'About this page'); });
+    var lg1 = $$('.os-legend'), hm = $$('.heatmap-legend');
+    attach(lg1[0], $('#cmd-cash-tape .terminal-label'), 'Colour guide', 'Colour guide');
+    var ft = $$('#t-hero .c-title');
+    var fiiT = ft.filter(function (e) { return /FII 45-Day/.test(e.textContent); })[0], diiT = ft.filter(function (e) { return /DII 45-Day/.test(e.textContent); })[0];
+    attach(lg1[1], fiiT, 'Colour guide', 'Colour guide'); attach(hm[0], fiiT, 'Heatmap scale', 'Heatmap scale');
+    attach(hm[1], diiT, 'Heatmap scale', 'Heatmap scale');
+    var cv = $('#btnFlowView'); attach($('.chart-legend'), cv && cv.parentNode, 'Chart legend', 'Chart legend');
+    scanTexts();
+    var t = null; new MutationObserver(function () { clearTimeout(t); t = setTimeout(scanTexts, 250); }).observe(doc.body, { childList: true, subtree: true });
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initInfos); else initInfos();
+
+  /* ---- 6. Live quotes: single shared poll for Nifty 50, Sensex and India VIX (same ids as the original ticker) ---- */
+  function initTicker() {
+    if (!$('#marketTicker')) return;
+    var KEY = 'os27-quotes', last = 0, timer = null, prev = {}, inflight = false;
+    function fmt(n) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+    function ist() { var n = new Date(); return new Date(n.getTime() + 5.5 * 3600e3 + n.getTimezoneOffset() * 60e3); }
+    function live() { var d = ist(), m = d.getHours() * 60 + d.getMinutes(), w = d.getDay(); return w > 0 && w < 6 && m >= 540 && m <= 945; }
+    function zone(v) { return v < 14 ? ['Low Fear', 'low'] : v < 20 ? ['Normal', 'normal'] : v < 30 ? ['Elevated', 'elevated'] : ['High Fear', 'high']; }
+    function flash(el, dir) { if (!el) return; el.classList.remove('tick-up', 'tick-down'); void el.offsetWidth; el.classList.add(dir > 0 ? 'tick-up' : 'tick-down'); setTimeout(function () { el.classList.remove('tick-up', 'tick-down'); }, 1000); }
+    function put(k, q, pe, ce, invert) {
+      var p = $(pe), c = $(ce); if (!q || !p || !c || !isFinite(q.price)) return;
+      p.textContent = fmt(q.price);
+      if (prev[k] != null && prev[k] !== q.price) flash(p, q.price > prev[k] ? 1 : -1);
+      prev[k] = q.price;
+      var pct = Number(q.pct) || 0, band = invert ? 0.5 : 0.05;
+      c.textContent = (pct >= 0 ? '▲ +' : '▼ ') + pct.toFixed(2) + '%';
+      c.className = 'ticker-change ' + (invert ? (pct > band ? 'down' : pct < -band ? 'up' : 'flat') : (pct > band ? 'up' : pct < -band ? 'down' : 'flat'));
+    }
+    function render(d, cached) {
+      put('n', d.nifty, '#tickerNiftyPrice', '#tickerNiftyChange', false);
+      put('s', d.sensex, '#tickerSensexPrice', '#tickerSensexChange', false);
+      put('v', d.vix, '#tickerVixPrice', '#tickerVixChange', true);
+      if (d.vix) { var z = zone(d.vix.price), ze = $('#tickerVixZone'); if (ze) { ze.textContent = z[0]; ze.className = 'vix-zone ' + z[1]; } }
+      var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot');
+      if (ts) { var t = new Date(d.ts || Date.now()); ts.textContent = 'Updated ' + t.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + (d.stale ? ' (delayed)' : ''); ts.classList.toggle('cached', !!cached); }
+      if (dot) dot.className = 'ticker-live-dot' + (cached || d.stale ? ' stale' : '');
+    }
+    function schedule() { clearTimeout(timer); if (doc.hidden) return; timer = setTimeout(poll, live() ? 15000 : 300000); }
+    function poll() {
+      if (inflight || doc.hidden) { schedule(); return; }
+      inflight = true; last = Date.now();
+      var ac = window.AbortController ? new AbortController() : null, to = setTimeout(function () { if (ac) ac.abort(); }, 8000);
+      fetch('/api/market', { cache: 'no-store', signal: ac ? ac.signal : undefined })
+        .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
+        .then(function (d) { render(d, false); try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} })
+        .catch(function () {
+          var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot'); if (dot) dot.className = 'ticker-live-dot stale';
+          if (!ts) return;
+          if (/Updated/.test(ts.textContent)) { if (!/\(delayed\)$/.test(ts.textContent)) ts.textContent += ' (delayed)'; } else ts.textContent = 'Market data unavailable';
+        })
+        .then(function () { clearTimeout(to); inflight = false; schedule(); });
+    }
+    try { var c = JSON.parse(localStorage.getItem(KEY) || 'null'); if (c && (c.nifty || c.vix)) render(c, true); } catch (e) {}
+    doc.addEventListener('visibilitychange', function () { if (doc.hidden) clearTimeout(timer); else if (Date.now() - last > 3000) poll(); else schedule(); });
+    poll();
+  }
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTicker); else initTicker();
 })();
