@@ -9,6 +9,7 @@ const CACHE_NAME = 'mrchartist-v11';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/css/legacy.css',
   '/css/os27-core.css',
   '/css/os27-components.css',
   '/css/os27-content.css',
