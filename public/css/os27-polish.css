@@ -220,3 +220,9 @@ hr, .divider { border: 0; border-top: var(--os-hair) solid var(--os-hairline); b
 .pos, .bull, .up, .t-green { color: var(--os-bull); }
 .neg, .bear, .down, .t-red { color: var(--os-bear); }
 ::-webkit-scrollbar-thumb { background: var(--os-hairline) !important; }
+
+/* ── Refinements ── */
+.terminal-shell { border: 0 !important; background: transparent !important; border-radius: 0 !important; }
+.terminal-label { color: var(--t1) !important; }
+.os-legend, .os-legend-item { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.terminal-summary-cell .terminal-label, .detail-stat .ds-label { color: var(--t3) !important; }
