@@ -159,7 +159,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
 <!-- PWA / Installability -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#171B20">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <!-- Mobile Web App tags -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2323,6 +2324,7 @@ tr:last-child td { border-bottom: none; }
 </style>
 <link rel="stylesheet" href="/css/os27-core.css?v=1">
 <link rel="stylesheet" href="/css/os27-components.css?v=1">
+<link rel="stylesheet" href="/css/os27-content.css?v=1">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -2333,7 +2335,7 @@ tr:last-child td { border-bottom: none; }
 <div class="sticky-kpi" id="stickyKpi" aria-hidden="true"></div>
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
-  <div style="padding:40px; text-align:center; font-family:sans-serif; background:#F5F7FA; min-height:100vh;">
+  <div style="padding:40px; text-align:center; font-family:sans-serif; background:#F2F2F7; color:#1C1C1E; min-height:100vh;">
     <h1>FII &amp; DII Data India — Institutional Money Flow Tracker</h1>
     <p>This dashboard requires JavaScript to display live institutional flow data, interactive charts, heatmaps, and sector analytics.</p>
     <p>Please enable JavaScript in your browser to use the full dashboard experience.</p>
@@ -2568,6 +2570,10 @@ tr:last-child td { border-bottom: none; }
       </div>
     </section>
 
+    <div class="os-mood os-neutral" id="osMood" role="status" aria-live="polite">
+      <span class="os-badge neutral lg" id="osMoodBadge"><i class="os-dot"></i>Neutral</span>
+      <p class="os-mood-text" id="osMoodText"><strong>Market Mood:</strong> Loading the latest session...</p>
+    </div>
     <div class="terminal-command-grid">
       <section class="terminal-panel cmd-cash-tape" id="cmd-cash-tape">
         <div class="terminal-panel-head">
@@ -2575,7 +2581,7 @@ tr:last-child td { border-bottom: none; }
             <div class="terminal-label">Cash Flow Tape</div>
             <div class="terminal-sub"><span id="lDate">Loading latest session</span><span class="prov-chip gloss" id="provChip" data-tip="NSE evening figures are provisional. Custodian-confirmed numbers publish the next morning and can differ slightly.">PROVISIONAL</span></div>
           </div>
-          <div class="mom-badge mb-neut" id="heroBadge">Syncing</div>
+          <div class="mom-badge os-badge neutral mb-neut" id="heroBadge" title="Overall direction of FII net cash flow for the latest session"><i class="os-dot"></i>Syncing</div>
         </div>
         <div class="cash-tape-grid">
           <div class="tape-cell">
@@ -2721,6 +2727,7 @@ tr:last-child td { border-bottom: none; }
         </div>
       </section>
 
+<div class="os-legend" role="note"><span class="os-legend-item"><i class="os-legend-dot bull"></i>Green = Bullish / net buying</span><span class="os-legend-item"><i class="os-legend-dot bear"></i>Red = Bearish / net selling</span></div>
       <section class="terminal-panel cmd-heatmap-rail" id="cmd-heatmap-rail">
         <div class="terminal-panel-head">
           <div>
@@ -2926,6 +2933,7 @@ tr:last-child td { border-bottom: none; }
       <div class="c-head"><div><div class="c-title">FII 45-Day Concentration Matrix</div><div class="c-sub">Visualizing the sell-off depth and density</div></div></div>
       
       <!-- Generated via JS -->
+      <div class="os-legend" role="note"><span class="os-legend-item"><i class="os-legend-dot bull"></i>Green = Bullish / net buying</span><span class="os-legend-item"><i class="os-legend-dot bear"></i>Red = Bearish / net selling</span></div>
       <div id="fii-heatmap" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:32px;"></div>
       
       <div class="heatmap-legend" style="margin-top:32px; padding-top:20px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
@@ -4214,13 +4222,28 @@ function renderDashboard() {
   if (badge) {
     const fn = latest.fn;
     let label, cls;
-    if      (fn <= -10000) { label = 'Aggressive Selling'; cls = 'mb-bear'; }
-    else if (fn <=  -3000) { label = 'Net Selling';        cls = 'mb-bear'; }
-    else if (fn <    3000) { label = 'Neutral';            cls = 'mb-neut'; }
-    else if (fn <   10000) { label = 'Net Buying';         cls = 'mb-bull'; }
-    else                   { label = 'Aggressive Buying';  cls = 'mb-bull'; }
-    badge.className = `mom-badge ${cls}`;
-    badge.innerText = label;
+    let tone, tip;
+    if      (fn <= -10000) { label = 'Bearish: Heavy FII Selling'; cls = 'mb-bear'; tone = 'bear'; tip = 'FII net selling above ₹10,000 Cr in a day = Bearish for Indian equities'; }
+    else if (fn <=  -3000) { label = 'Bearish: FII Net Selling'; cls = 'mb-bear'; tone = 'bear'; tip = 'FII net selling = Bearish for Indian equities'; }
+    else if (fn <    3000) { label = 'Neutral: Balanced Flows'; cls = 'mb-neut'; tone = 'neutral'; tip = 'FII flows are small either way = Neutral'; }
+    else if (fn <   10000) { label = 'Bullish: FII Net Buying'; cls = 'mb-bull'; tone = 'bull'; tip = 'FII net buying = Bullish for Indian equities'; }
+    else                   { label = 'Bullish: Heavy FII Buying'; cls = 'mb-bull'; tone = 'bull'; tip = 'FII net buying above ₹10,000 Cr in a day = Bullish for Indian equities'; }
+    badge.className = `mom-badge os-badge ${tone} ${cls}`;
+    badge.title = tip;
+    badge.innerHTML = `<i class="os-dot"></i>${label}`;
+    // Market Mood summary
+    const mood = document.getElementById('osMood');
+    if (mood) {
+      const mb = document.getElementById('osMoodBadge'), mt = document.getElementById('osMoodText');
+      const word = tone === 'bull' ? 'Bullish' : tone === 'bear' ? 'Bearish' : 'Neutral';
+      mood.className = `os-mood os-${tone}`;
+      mood.title = tip;
+      mb.className = `os-badge ${tone} lg`;
+      mb.innerHTML = `<i class="os-dot"></i>${word}`;
+      const vb = v => v >= 0 ? 'bought' : 'sold';
+      const dNote = latest.dn >= 0 ? (latest.fn < 0 ? ', DII support' : '') : (latest.fn < 0 ? ', DIIs also selling' : '');
+      mt.innerHTML = `<strong>Market Mood:</strong> FIIs ${vb(latest.fn)} ₹${Math.abs(Math.round(latest.fn)).toLocaleString('en-IN')} Cr while DIIs ${vb(latest.dn)} ₹${Math.abs(Math.round(latest.dn)).toLocaleString('en-IN')} Cr. ${word} for FIIs${dNote}.`;
+    }
   }
 
   // ── Liquidity Drain / Injection Label ──────────────────────────────────────
@@ -4295,11 +4318,10 @@ function renderDashboard() {
     if (putNet > 50000) score--; if (putNet < -50000) score++; // Long Puts = Bearish
     
     const sBadge = document.getElementById('faoSentiment');
-    if (score >= 2) { sBadge.innerText = 'Highly Bullish'; sBadge.className = 'mom-badge mb-bull'; }
-    else if (score == 1) { sBadge.innerText = 'Mildly Bullish'; sBadge.className = 'mom-badge mb-bull'; }
-    else if (score == 0) { sBadge.innerText = 'Neutral Sentiment'; sBadge.className = 'mom-badge mb-neut'; }
-    else if (score == -1) { sBadge.innerText = 'Mildly Bearish'; sBadge.className = 'mom-badge mb-bear'; }
-    else { sBadge.innerText = 'Highly Bearish'; sBadge.className = 'mom-badge mb-bear'; }
+    const _fs = score >= 1 ? ['bull','mb-bull', score >= 2 ? 'Bullish: Strong' : 'Bullish: Mild'] : score === 0 ? ['neutral','mb-neut','Neutral'] : ['bear','mb-bear', score <= -2 ? 'Bearish: Strong' : 'Bearish: Mild'];
+    sBadge.className = `mom-badge os-badge ${_fs[0]} ${_fs[1]}`;
+    sBadge.title = 'Based on FII index futures, call and put positions. Net long futures/calls = Bullish; net long puts = Bearish.';
+    sBadge.innerHTML = `<i class="os-dot"></i>${_fs[2]}`;
 
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);
@@ -4355,7 +4377,7 @@ function renderDashboard() {
   filterDaily('all', document.getElementById('fBtn-all'));
 
   // Other Tables
-  document.getElementById('tbWeekly').innerHTML = weeklyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2)">${d.w}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 40000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 40000)}</td><td class="${fC(t)}">${fmt(t)}</td><td><span class="${t>0?'mb-bull':'mb-bear'} mom-badge" style="font-size:10px; padding:4px 8px;">${t>0?'BULLISH ACCUMULATION':'DISTRIBUTION RISK'}</span></td></tr>`}).join('');
+  document.getElementById('tbWeekly').innerHTML = weeklyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t2)">${d.w}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 40000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 40000)}</td><td class="${fC(t)}">${fmt(t)}</td><td><span class="${t>0?'mb-bull bull':'mb-bear bear'} mom-badge os-badge" title="${t>0?'FII + DII net buying this week = Bullish, money is flowing in':'FII + DII net selling this week = Bearish, money is flowing out'}"><i class="os-dot"></i>${t>0?'Bullish: Net Buying':'Bearish: Net Selling'}</span></td></tr>`}).join('');
   document.getElementById('tbMonthly').innerHTML = monthlyData.map(d => {const t=d.fn+d.dn; const ncCls=d.nc.includes('+')?'pos':d.nc.includes('-')?'neg':''; return `<tr><td style="color:var(--t2); font-weight:700;">${d.m}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 150000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 150000)}</td><td class="${fC(t)}" style="font-weight:800; font-size:14px;">${fmt(t)}</td><td class="${ncCls}">${d.nc}</td></tr>`}).join('');
   document.getElementById('tbYearly').innerHTML = yearlyData.map(d => {const t=d.fn+d.dn; return `<tr><td style="color:var(--t1); font-weight:800; font-size:15px;">${d.y}</td><td class="${fC(d.fn)}">${fmt(d.fn)}${getBar(d.fn, 400000)}</td><td class="${fC(d.dn)}">${fmt(d.dn)}${getBar(d.dn, 800000)}</td><td class="${fC(t)}" style="font-weight:800;">${fmt(t)}</td><td style="color:var(--t3); font-weight:700;">${d.fn<0&&d.dn>0? (d.dn/Math.abs(d.fn)).toFixed(2)+'x' : 'N/A'}</td></tr>`}).join('');
 
@@ -4529,7 +4551,7 @@ function renderCommandCenter() {
         <td class="${fC(d.fn)}">${fmt(d.fn)}</td>
         <td class="${fC(d.dn)}">${fmt(d.dn)}</td>
         <td class="${fC(total)}">${fmt(total)}</td>
-        <td><span class="signal-pill ${score.label.includes('BULL') ? 'sig-bull' : score.label.includes('BEAR') ? 'sig-bear' : 'sig-neutral'}">${score.label}</span></td>
+        <td>${(()=>{const L=score.label, u=L.includes('BULL')?'bull':L.includes('BEAR')?'bear':'neutral'; const w=u==='bull'?'Bullish':u==='bear'?'Bearish':'Neutral'; const t=L.replace(/_/g,' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()); return `<span class="signal-pill os-badge ${u} sig-${u}" title="${u==='bull'?'Flow score is positive = Bullish for Indian equities':u==='bear'?'Flow score is negative = Bearish for Indian equities':'Flow score is balanced = Neutral'}"><i class="os-dot"></i>${t.includes(w)?t:w}</span>`;})()}</td>
       </tr>`;
     }).join('');
   }
