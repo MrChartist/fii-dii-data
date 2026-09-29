@@ -20,14 +20,14 @@
       try {
         var pill = host.__osPill;
         var act = host.querySelector(':scope > .tab.active, :scope > .s-tab.active, :scope > button.active');
-        if (!pill || !act || !act.offsetWidth) { pill && pill.classList.remove('os-ready'); host.classList.remove('os-pill-on'); return; }
+        if (!pill || !act || !act.offsetWidth) { if (pill && pill.classList.contains('os-ready')) pill.classList.remove('os-ready'); if (host.classList.contains('os-pill-on')) host.classList.remove('os-pill-on'); return; }
         var first = !pill.classList.contains('os-ready');
-        if (first) pill.classList.remove('os-anim');
+        if (first && pill.classList.contains('os-anim')) pill.classList.remove('os-anim');
         pill.style.width = act.offsetWidth + 'px';
         pill.style.height = act.offsetHeight + 'px';
         pill.style.transform = 'translate(' + act.offsetLeft + 'px,' + act.offsetTop + 'px)';
-        pill.classList.add('os-ready');
-        host.classList.add('os-pill-on');
+        if (!pill.classList.contains('os-ready')) pill.classList.add('os-ready');
+        if (!host.classList.contains('os-pill-on')) host.classList.add('os-pill-on');
         if (first && !reduce) raf(function () { raf(function () { pill.classList.add('os-anim'); }); });
       } catch (e) {}
     }
@@ -41,7 +41,13 @@
       host.__osPill = pill;
       host.classList.add('os-pill-host');
       hosts.add(host);
-      var mo = new MutationObserver(function () { place(host); });
+      var mo = new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var t = ms[i].target;
+          if (t === pill || t === host) continue; // our own class writes
+          place(host); return;
+        }
+      });
       mo.observe(host, { attributes: true, attributeFilter: ['class'], subtree: true, childList: true });
       host.addEventListener('click', function () { raf(function () { place(host); }); setTimeout(function () { place(host); }, 60); });
       place(host);
@@ -107,23 +113,23 @@
     function animateText(node) {
       var s = st.get(node) || {};
       var txt = node.data;
-      if (s.last === txt) return;               // our own write
+      if (s.wrote && s.wrote.has(txt)) return;   // our own write
       if (s.raf) { cancelAnimationFrame(s.raf); s.raf = 0; }
       var p = parse(txt.trim());
       var lead = txt.match(/^\s*/)[0], trail = txt.match(/\s*$/)[0];
-      if (!p || !isFinite(p.val) || Math.abs(p.val) > 1e12) { st.set(node, { last: null, val: null }); return; }
+      if (!p || !isFinite(p.val) || Math.abs(p.val) > 1e12) { st.set(node, { val: null }); return; }
       var from = s.val != null && isFinite(s.val) ? s.val : 0;
       var to = p.val;
-      s = { last: null, raf: 0, val: to };
+      s = { raf: 0, val: to, wrote: new Set([txt]) };
       st.set(node, s);
       if (reduce || from === to || !document.body.contains(node) || document.hidden) return;
       var t0 = performance.now(), D = 600;
       (function step(now) {
         var t = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - t, 3);
         if (!node.isConnected) return;
-        if (t >= 1) { node.data = txt; s.last = txt; s.raf = 0; return; }
+        if (t >= 1) { node.data = txt; s.raf = 0; return; }
         var w = lead + fmt(from + (to - from) * e, p) + trail;
-        s.last = w; node.data = w;
+        s.wrote.add(w); node.data = w;
         s.raf = raf(step);
       })(t0);
     }

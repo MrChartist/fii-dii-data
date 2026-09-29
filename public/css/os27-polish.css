@@ -1,1 +1,222 @@
-/* os27-polish: final layer, hairlines + backgrounds */
+/* os27-polish: final layer. Hairline borders, near-white / near-black surfaces,
+   restrained type + spacing. Theme selectors: :root (light) and [data-theme="dark"]. */
+
+:root {
+  --os-hair: 1px;
+  --os-hairline: rgba(0, 0, 0, .10);
+  --os-hairline-soft: rgba(0, 0, 0, .06);
+  --bg: #FAFAFC;
+  --l1: #FFFFFF;
+  --l2: #F8F8FA;
+  --l3: #F3F3F6;
+  --l4: #ECECF0;
+  --sep: var(--os-hairline);
+  --sep2: var(--os-hairline-soft);
+  --glass-bg: #FFFFFF;
+  --glass-border: var(--os-hairline);
+  --nav-bg: rgba(255, 255, 255, .92);
+  --os-glass: #FFFFFF;
+  --os-glass-strong: #FFFFFF;
+  --os-glass-solid: #FFFFFF;
+  --os-fill: #F3F3F6;
+  --os-fill-2: #ECECF0;
+  --os-highlight: 0 0 0 transparent;
+  --os-shadow-1: none;
+  --os-shadow-2: 0 1px 2px rgb(0 0 0 / .03);
+  --os-shadow-3: 0 12px 32px rgb(0 0 0 / .10);
+  --card-shadow: none;
+  --shadow-glow: none;
+  --t1: #0B0B0F;
+  --t2: #3A3A42;
+  --t3: #55555F;
+  --t4: #6B6B76;
+  --os-surface: #FFFFFF;
+  --os-surface-2: #F8F8FA;
+  --os-r-sm: 8px;
+  --os-r-md: 12px;
+  --os-r-lg: 16px;
+}
+[data-theme="dark"] {
+  --os-hairline: rgba(255, 255, 255, .14);
+  --os-hairline-soft: rgba(255, 255, 255, .08);
+  --bg: #050506;
+  --l1: #0C0C0E;
+  --l2: #111113;
+  --l3: #141416;
+  --l4: #1A1A1D;
+  --glass-bg: #0C0C0E;
+  --nav-bg: rgba(12, 12, 14, .92);
+  --os-glass: #0C0C0E;
+  --os-glass-strong: #141416;
+  --os-glass-solid: #141416;
+  --os-fill: #141416;
+  --os-fill-2: #1A1A1D;
+  --os-shadow-2: none;
+  --os-shadow-3: 0 12px 32px rgb(0 0 0 / .6);
+  --t1: #F5F5F7;
+  --t2: #D4D4DA;
+  --t3: #ADADB6;
+  --t4: #8C8C96;
+  --os-surface: #0C0C0E;
+  --os-surface-2: #111113;
+}
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  :root { --os-hair: .5px; }
+}
+
+/* ── Page background: flat, at most a barely visible top glow ── */
+html { background: var(--bg) !important; }
+body,
+[data-theme="dark"] body {
+  background:
+    radial-gradient(60% 260px at 50% 0, rgb(0 122 255 / .035), transparent 100%),
+    var(--bg) !important;
+  background-attachment: scroll !important;
+  color: var(--t1);
+}
+[data-theme="dark"] body {
+  background:
+    radial-gradient(60% 260px at 50% 0, rgb(255 255 255 / .03), transparent 100%),
+    var(--bg) !important;
+}
+body::before, body::after { display: none !important; }
+
+/* ── Surfaces: flat fill, hairline, no heavy shadow ── */
+header, .market-ticker, .card, .card-glass, .terminal-strip, .terminal-panel,
+.terminal-shell, .terminal-table-wrap, .tbl-wrap, .sector-card, .hero-banner,
+.methodology-banner, .os-mood, .tabs-wrap, .sniper-briefing, .iso-matrix-wrap,
+.chart-canvas-wrap, .detail-chart-wrap, .row-detail-panel, .os27-cust-sheet,
+[data-theme="dark"] header, [data-theme="dark"] .card, [data-theme="dark"] .card-glass,
+[data-theme="dark"] .terminal-panel, [data-theme="dark"] .terminal-strip,
+[data-theme="dark"] .sector-card, [data-theme="dark"] .tbl-wrap,
+[data-theme="dark"] .terminal-table-wrap, [data-theme="dark"] .tabs-wrap {
+  background: var(--os-surface) !important;
+  background-image: none !important;
+  border: var(--os-hair) solid var(--os-hairline) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.tabs-wrap { background: var(--nav-bg) !important; -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.card:hover, .card-glass:hover, .terminal-panel:hover, .sector-card:hover,
+[data-theme="dark"] .card:hover, [data-theme="dark"] .terminal-panel:hover,
+[data-theme="dark"] .sector-card:hover {
+  border-color: var(--os-hairline) !important;
+  box-shadow: none !important;
+  transform: none;
+}
+.card, .card-glass, .terminal-panel, .terminal-strip, .sector-card, header,
+.market-ticker, .os-mood, .hero-banner { border-radius: var(--os-r-lg) !important; }
+.tbl-wrap, .terminal-table-wrap { border-radius: var(--os-r-md) !important; overflow: hidden; }
+header::before, header::after, .card::before, .card::after,
+.terminal-panel::before, .terminal-panel::after, .terminal-strip::before, .terminal-strip::after,
+.tabs-wrap::before { background-image: none !important; opacity: 0 !important; }
+
+/* Left / top accent borders and coloured mood borders become plain hairlines */
+.os-mood.os-bull, .os-mood.os-bear { border-color: var(--os-hairline) !important; }
+[class*="hero-b"], .alert-cat-card, .alert-cat-card.active {
+  border-left-width: var(--os-hair) !important;
+}
+.alert-cat-card.active { background: var(--os-surface-2) !important; border-color: var(--os-accent) !important; }
+
+/* Nested tiles / inner cells: near-white or near-black with hairline */
+.terminal-summary-cell, .detail-stat, .signal-row, .pressure-row, .pressure-summary,
+.tape-cell, .tape-net, .cash-tape-grid > *, .terminal-command-grid > *,
+.fno-3d-cube, .ratio-strip, .heat-rail, .sub-tabs, .view-toggle, .iso-section,
+.terminal-meter, .fno-grid > *, .momentum-grid > *, .signal-grid > * {
+  background: var(--os-surface-2) !important;
+  background-image: none !important;
+  border: var(--os-hair) solid var(--os-hairline-soft) !important;
+  box-shadow: none !important;
+  border-radius: var(--os-r-md);
+}
+.terminal-meter-track { border-radius: 999px !important; border: 0 !important; }
+
+/* ── Buttons, capsules, inputs, badges ── */
+.btn-x, .filter-btn, .terminal-mini-btn, .sniper-regen-btn, .nav-icon-btn,
+.nav-channel-btn, .s-tab, .tab, .signal-pill, .mom-badge, .prov-chip,
+.sector-hot-badge, .os27-cust-btn, button, input, select, textarea,
+[data-theme="dark"] .btn-x, [data-theme="dark"] .filter-btn {
+  border: var(--os-hair) solid var(--os-hairline) !important;
+  box-shadow: none !important;
+}
+.btn-x, .filter-btn, .terminal-mini-btn, .sniper-regen-btn, .nav-icon-btn,
+.signal-pill, .mom-badge, .prov-chip, .sector-hot-badge {
+  background: var(--os-surface-2) !important;
+  color: var(--t1);
+}
+.btn-x:hover, .filter-btn:hover, .terminal-mini-btn:hover, .nav-icon-btn:hover { background: var(--l3) !important; }
+.btn-x.primary, .btn-primary, .nav-channel-btn, .tab.active, .s-tab.active,
+.filter-btn.active, .view-toggle button.active {
+  border-color: transparent !important;
+}
+.tab, .s-tab { background: transparent; }
+.tab { border-color: transparent !important; }
+.tab.active, [data-theme="dark"] .tab.active { background: var(--l4) !important; color: var(--t1); }
+.s-tab { border-color: transparent !important; }
+.s-tab.active, [data-theme="dark"] .s-tab.active, .view-toggle button.active,
+[data-theme="dark"] .view-toggle button.active {
+  background: var(--l1) !important; color: var(--t1);
+  border: var(--os-hair) solid var(--os-hairline) !important;
+}
+input, select, textarea { background: var(--os-surface) !important; color: var(--t1); border-radius: var(--os-r-sm); }
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+button:focus-visible, .tab:focus-visible, .s-tab:focus-visible {
+  outline: 2px solid var(--os-accent); outline-offset: 2px;
+}
+.ticker-divider { background: var(--os-hairline) !important; width: var(--os-hair) !important; }
+
+/* Status badges: tinted text only, hairline in same hue via currentColor mix */
+.badge, [class*="-badge"], .mom-badge {
+  background: var(--os-surface-2) !important;
+  border: var(--os-hair) solid var(--os-hairline) !important;
+  box-shadow: none !important;
+}
+
+/* ── Tables: hairline separators, readable headers ── */
+table { border-collapse: collapse; }
+th, [data-theme="dark"] th {
+  background: var(--os-surface-2) !important;
+  color: var(--t3) !important;
+  font-weight: 600;
+  border-bottom: var(--os-hair) solid var(--os-hairline) !important;
+  box-shadow: none !important;
+}
+td { border-bottom: var(--os-hair) solid var(--os-hairline-soft) !important; color: var(--t1); }
+tr:last-child td { border-bottom: 0 !important; }
+tbody tr:hover td { background: var(--l2) !important; }
+tr, thead, tbody { border-color: var(--os-hairline-soft) !important; }
+.tbl-wrap th, .terminal-table th { position: sticky; top: 0; }
+
+/* ── Modals, tooltips, dropdowns, sheets ── */
+#sector-zoom-modal > *, #alert-settings-modal > *, .modal, .modal-content,
+.tour-card, .tour-tooltip, .iso-tip, [role="dialog"], [role="tooltip"], [role="menu"],
+.dropdown, .dropdown-menu, .tooltip, .os27-cust-sheet, .toast {
+  background: var(--os-glass-strong) !important;
+  border: var(--os-hair) solid var(--os-hairline) !important;
+  box-shadow: 0 12px 32px rgb(0 0 0 / .12) !important;
+  border-radius: var(--os-r-lg);
+  color: var(--t1);
+}
+[data-theme="dark"] #sector-zoom-modal > *, [data-theme="dark"] #alert-settings-modal > *,
+[data-theme="dark"] [role="dialog"], [data-theme="dark"] .iso-tip,
+[data-theme="dark"] .os27-cust-sheet { box-shadow: 0 12px 32px rgb(0 0 0 / .6) !important; }
+
+/* ── Type hierarchy / legibility ── */
+body { font-size: 14px; line-height: 1.5; }
+.c-title, .terminal-title, .card h2, .card h3 { color: var(--t1); letter-spacing: -.01em; }
+.c-sub, .terminal-sub, .terminal-kicker, .terminal-label, .ds-label,
+.ticker-label, .sc-footer { color: var(--t3) !important; }
+.terminal-strip-meta, .heat-legend-row, .heatmap-legend, .os-legend { color: var(--t3) !important; }
+.h-title { color: var(--t1) !important; -webkit-text-fill-color: currentColor !important; background: none !important; }
+footer { border-top: var(--os-hair) solid var(--os-hairline) !important; background: transparent !important; box-shadow: none !important; }
+footer, footer p, footer a { color: var(--t3); }
+footer a:hover { color: var(--t1); }
+hr, .divider { border: 0; border-top: var(--os-hair) solid var(--os-hairline); background: none; height: 0; }
+
+/* ── Bull / bear semantics with AA contrast ── */
+:root { --green: #1E7A36; --red: #C4001A; --os-bull: #1E7A36; --os-bear: #C4001A; }
+[data-theme="dark"] { --green: #34D65C; --red: #FF5A50; --os-bull: #34D65C; --os-bear: #FF5A50; }
+.pos, .bull, .up, .t-green { color: var(--os-bull); }
+.neg, .bear, .down, .t-red { color: var(--os-bear); }
+::-webkit-scrollbar-thumb { background: var(--os-hairline) !important; }
