@@ -359,3 +359,29 @@ header.terminal-product-row { position: absolute !important; width: 1px !importa
   .market-ticker .ticker-item > .ticker-label { flex: 1 1 auto; }
   .market-ticker .ticker-item:last-child { justify-content: flex-start; }
 }
+
+/* ---------- De-duplication and hierarchy ---------- */
+.os-hide, .iso-legend { display: none !important; }
+.os-legend:not(.os-info-pop .os-legend), .heatmap-legend:not(.os-info-pop .heatmap-legend) { display: none !important; }
+.os-lg { display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 50%; vertical-align: 0; }
+.os-lg.g { background: var(--os-bull); } .os-lg.r { background: var(--os-bear); } .os-lg.a { background: #FF9F0A; } .os-lg.b { background: var(--os-accent); }
+.terminal-shell { gap: 24px !important; }
+.terminal-command-grid { gap: 24px !important; align-items: stretch; }
+.terminal-command-grid > .terminal-panel { display: flex; flex-direction: column; height: 100%; box-sizing: border-box; }
+.terminal-panel { padding: 24px; }
+@media (max-width: 768px) { .terminal-shell, .terminal-command-grid { gap: 16px !important; } .terminal-panel { padding: 18px; } }
+
+/* ---------- Bullish and bearish colours always follow the tokens ---------- */
+.c-g1, .iso-bar.iso-g1 { background-color: color-mix(in srgb, var(--os-bull) 32%, transparent); }
+.c-g2, .iso-bar.iso-g2 { background-color: color-mix(in srgb, var(--os-bull) 54%, transparent); }
+.c-g3, .iso-bar.iso-g3 { background-color: color-mix(in srgb, var(--os-bull) 78%, transparent); }
+.c-g4, .iso-bar.iso-g4 { background-color: var(--os-bull); }
+.c-r1, .iso-bar.iso-r1 { background-color: color-mix(in srgb, var(--os-bear) 32%, transparent); }
+.c-r2, .iso-bar.iso-r2 { background-color: color-mix(in srgb, var(--os-bear) 54%, transparent); }
+.c-r3, .iso-bar.iso-r3 { background-color: color-mix(in srgb, var(--os-bear) 78%, transparent); }
+.c-r4, .iso-bar.iso-r4 { background-color: var(--os-bear); }
+.cal-cell.c-g1, .cal-cell.c-g2, .cal-cell.c-g3, .cal-cell.c-g4 { background-image: none; }
+.legend-dot.buy, .os-legend-dot.bull { background: var(--os-bull) !important; }
+.legend-dot.sell, .os-legend-dot.bear { background: var(--os-bear) !important; }
+#t-hero .t-blue, #t-fno .t-blue { color: var(--os-bull); }
+.fno-3d-cube.pos, .fno-3d-cube[class*="green"] { background: var(--os-bull); }
