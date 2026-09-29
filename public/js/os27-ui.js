@@ -176,7 +176,7 @@
 
   /* ---- 5. Info popovers: generic, reusable ---- */
   var infoSeq = 0, openInfo = null;
-  function closeInfo() { if (!openInfo) return; openInfo.pop.hidden = true; openInfo.btn.setAttribute('aria-expanded', 'false'); openInfo.root.classList.remove('open'); var bd = $('.os-info-backdrop'); if (bd) bd.hidden = true; openInfo = null; }
+  function closeInfo() { if (!openInfo) return; openInfo.pop.hidden = true; openInfo.root.appendChild(openInfo.pop); openInfo.btn.setAttribute('aria-expanded', 'false'); openInfo.root.classList.remove('open'); var bd = $('.os-info-backdrop'); if (bd) bd.hidden = true; openInfo = null; }
   function makeInfo(target, opts) {
     if (!target || target.closest('.os-info-pop')) return null;
     opts = opts || {};
@@ -197,12 +197,20 @@
       e.stopPropagation();
       if (openInfo && openInfo.btn === btn) { closeInfo(); return; }
       closeInfo();
+      doc.body.appendChild(pop); /* portal: cards clip overflow and create containing blocks */
       pop.hidden = false; btn.setAttribute('aria-expanded', 'true'); root.classList.add('open');
-      var bd = $('.os-info-backdrop'); if (bd && window.matchMedia('(max-width: 640px)').matches) bd.hidden = false;
+      var sheet = window.matchMedia('(max-width: 640px)').matches;
+      var bd = $('.os-info-backdrop'); if (bd && sheet) bd.hidden = false;
       openInfo = { btn: btn, pop: pop, root: root };
-      var r = pop.getBoundingClientRect();
-      root.classList.toggle('flip-x', r.right > innerWidth - 8);
-      if (r.left < 8) root.classList.add('flip-l');
+      if (sheet) { pop.style.left = pop.style.top = ''; pop.classList.add('sheet'); }
+      else {
+        pop.classList.remove('sheet');
+        var br = btn.getBoundingClientRect(), pw = Math.min(380, innerWidth - 32);
+        var left = Math.max(16, Math.min(br.left, innerWidth - pw - 16));
+        var top = br.bottom + 8, maxH = innerHeight - top - 16;
+        if (maxH < 180) { top = Math.max(16, br.top - 8 - Math.min(460, br.top - 24)); maxH = br.top - 24; }
+        pop.style.left = left + 'px'; pop.style.top = top + 'px'; pop.style.maxHeight = Math.max(160, maxH) + 'px';
+      }
     });
     $('.os-info-x', head).addEventListener('click', function () { closeInfo(); btn.focus(); });
     return root;
