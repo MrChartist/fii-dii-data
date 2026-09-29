@@ -144,6 +144,24 @@
     o.hidden = false;
   }
 
+  /* ---------- gaps: sessions with no F&O data are not "zero" ---------- */
+  Chart.register({
+    id: 'os27gaps',
+    beforeUpdate: function (chart) {
+      try {
+        var id = chart.canvas && chart.canvas.id;
+        if (id !== 'chFnoHistory') return;
+        var ds = chart.data.datasets, n = chart.data.labels.length, i, k;
+        for (i = 0; i < n; i++) {
+          var allZero = true;
+          for (k = 0; k < ds.length; k++) { var v = ds[k].data[i]; if (v !== 0 && v != null && !isNaN(v)) { allZero = false; break; } }
+          if (allZero) for (k = 0; k < ds.length; k++) ds[k].data[i] = null;  // reported as "not published", not as 0
+        }
+        for (k = 0; k < ds.length; k++) ds[k].spanGaps = false;
+      } catch (e) {}
+    }
+  });
+
   /* ---------- plugin ---------- */
   Chart.register({
     id: 'os27ranges',

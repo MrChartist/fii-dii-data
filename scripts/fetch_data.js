@@ -287,16 +287,22 @@ function applyFao(out, fao) {
 // cash-only rows and merge it in without disturbing the cash figures. Cheap when
 // nothing is missing (rows that already have F&O make no HTTP calls).
 // Returns the list of dates that were filled.
-async function backfillMissingFao() {
+async function backfillMissingFao(maxAttempts = 25) {
     const history = readJSON('history.json', []);
     if (!history.length) return [];
-    const recent = [...history].sort((a, b) => compareDates(b.date, a.date)).slice(0, 4);
+    // Newest first. Every cash-only row is a candidate (older gaps used to be
+    // skipped forever because only the 4 latest rows were tried); attempts per
+    // run are capped so a blocked NSE session does not turn into a hammering loop.
+    const recent = [...history].sort((a, b) => compareDates(b.date, a.date));
     const filled = [];
+    let attempts = 0;
+    if (!nseCookies) await refreshNSESession();
     for (const row of recent) {
         if (row._source !== 'fetch-pipeline' || rowHasFao(row)) continue;
+        if (attempts++ >= maxAttempts) break;
         let csv = null;
         try { csv = await fetchFaoOi(row.date); } catch { /* not published yet */ }
-        if (!csv) continue;
+        if (!csv) { await refreshNSESession(); continue; }
         const fao = parseFao(csv);
         if (applyFao(row, fao) && rowHasFao(row)) {
             row._fao_summary = buildFaoSummary(row);
