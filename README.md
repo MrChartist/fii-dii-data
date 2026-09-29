@@ -253,6 +253,6 @@ All responses include:
 [PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)
 with additional terms restricting it to personal, non-commercial use (no organisational use,
 no public re-hosting, no resale, no API or data-feed offerings). See [LICENSE](LICENSE).
-For commercial licensing, contact [Mr. Chartist](https://mrchartist.com).
+**Commercial use requires a written licence** — see [COMMERCIAL-LICENSE.md](COMMERCIAL-LICENSE.md). The repository is public to read but closed to changes: see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Versions published before this change remain under the terms they were released with.
