@@ -233,3 +233,59 @@ html, body { overflow-x: hidden; max-width: 100%; }
 .market-ticker { flex-wrap: wrap; row-gap: 6px; }
 @media (max-width: 768px) { header.terminal-product-row { flex-wrap: wrap; } .h-right { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .os-cta, .os-menu-pop { transition: none; } }
+
+/* ---------- Single navbar: merged header controls ---------- */
+header.terminal-product-row { background: none !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 4px 2px 0 !important; margin-bottom: 12px; }
+header.terminal-product-row::before, header.terminal-product-row::after { display: none !important; }
+.tabs-wrap .os-live-pill { height: 34px; max-width: 200px; margin: 0; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; overflow: hidden; }
+.tabs-wrap .os-live-pill #sTxt, .os-topbar .os-live-pill #sTxt { overflow: hidden; text-overflow: ellipsis; }
+.os-topbar .os-live-pill { height: 32px; max-width: 150px; padding: 0 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; overflow: hidden; }
+.os-topbar #navMore .os-menu-pop { right: -4px; }
+@media (max-width: 1080px) { .tabs-wrap .os-live-pill { display: none; } }
+.os-menu-pop .os-menu-item, .os-menu-pop .os-share-wrap > .os-menu-item {
+  display: flex !important; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: 40px; padding: 0 14px; box-sizing: border-box; margin: 0;
+  border-radius: 999px; border: 0 !important; background: transparent !important; color: var(--t1) !important; font: 600 13px/1 var(--font-body, system-ui);
+  text-transform: none; box-shadow: none; cursor: pointer; opacity: 1;
+}
+.os-menu-pop .os-menu-item:hover { background: var(--os-fill) !important; }
+.os-menu-pop #btnInstall[style*="display:none"], .os-menu-pop #btnInstall[style*="display: none"] { display: none !important; }
+.os-menu-pop .os-share-wrap { position: relative; width: 100%; }
+.os-menu-pop #shareMenu { top: auto !important; bottom: calc(100% + 6px); right: 0; max-height: 60vh; overflow: auto; }
+.os-topbar .os-menu-pop .os-share-wrap #shareMenu { right: 0; }
+
+/* ---------- Fixes after first visual pass ---------- */
+.terminal-command-grid > .os-info, .card > .os-info, .panel > .os-info, .wrap > .os-info { grid-column: 1 / -1; justify-self: end; display: flex; margin: 0 0 8px auto; width: max-content; }
+.terminal-strip { justify-content: flex-start; }
+#btnTheme { font-size: 0 !important; gap: 0; }
+#btnTheme svg { width: 16px; height: 16px; }
+.os-menu-pop #btnShare, .os-menu-pop #btnShare:hover { background: transparent !important; color: var(--t1) !important; }
+.os-menu-pop #btnShare:hover { background: var(--os-fill) !important; }
+.tabs-wrap .os-live-pill { max-width: 170px; }
+@media (max-width: 1240px) { .tabs-wrap .os-live-pill { display: none !important; } }
+@media (max-width: 1180px) { .tabs-wrap .os-cta { display: none; } }
+.tabs-wrap .tab { padding: 0 14px; }
+body .tabs-wrap { width: min(1200px, calc(100% - 32px)); }
+.tabs-wrap .tab { padding: 0 12px; }
+.tabs-wrap .nav-divider { margin: 0 4px; }
+.tabs-wrap .os-live-pill { max-width: 150px; }
+.sticky-kpi, .sticky-kpi.visible { display: none !important; }
+
+/* mobile topbar + deals cards refinements */
+.os-topbar .os-live-pill #sTxt { white-space: nowrap; }
+@media (max-width: 768px) { .os-topbar .os-live-pill { max-width: 112px; } .os-topbar .os-live-pill .status-dot { flex: none; } }
+@media (max-width: 480px) { .os-topbar .os-cta-sm { display: none; } .os-topbar .os-live-pill { max-width: 150px; } }
+.os-deals-card .tbl-wrap { border: 0 !important; background: none !important; box-shadow: none !important; }
+.os-deals-table { min-width: 0 !important; table-layout: auto; }
+@media (max-width: 560px) {
+  .os-deals-table tr { grid-template-columns: 1fr auto; grid-template-areas: "type side" "sym sym" "cli cli" "qty price"; gap: 6px 12px; align-items: center; }
+  .os-deals-table td:nth-child(1) { grid-area: type; }
+  .os-deals-table td:nth-child(2) { grid-area: sym; font-size: 16px; }
+  .os-deals-table td:nth-child(3) { grid-area: cli; }
+  .os-deals-table td:nth-child(4) { grid-area: side; text-align: right; }
+  .os-deals-table td:nth-child(5) { grid-area: qty; }
+  .os-deals-table td:nth-child(6) { grid-area: price; text-align: right; }
+  .os-deals-table td.num::before { color: var(--t4); font-weight: 500; font-size: 11px; margin-right: 6px; }
+  .os-deals-table td:nth-child(5)::before { content: "Qty"; }
+  .os-deals-table td:nth-child(6)::before { content: "Avg"; }
+  .os-deals-table td.cli { text-overflow: clip; }
+}

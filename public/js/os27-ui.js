@@ -123,25 +123,24 @@
     };
   }
 
-  /* ---- 2. Live chip mirrors the existing status pill text ---- */
-  function syncLive() {
-    var src = $('#sTxt'), pill = $('#sPill');
+  /* ---- 2. Move the old header controls into the single navbar (elements are moved, not recreated) ---- */
+  var movedLive = null;
+  function mergeHeader() {
+    var src = $('#hdrControls'), navA = $('.tabs-wrap .nav-actions'), pop = $('#navMore .os-menu-pop');
     var chips = $$('[data-os-live]');
-    if (!chips.length) return;
-    if (!src) return;
-    function upd() {
-      var t = (src.textContent || '').replace(/\s+/g, ' ').trim();
-      var label = /REFRESH IN/i.test(t) ? 'Live' : t.replace(/^LIVE\s*[\u2022•]\s*/i, 'Live \u00b7 ');
-      if (/^loading/i.test(t)) label = 'Connecting';
-      if (label.length > 26) label = label.slice(0, 25) + '\u2026';
-      var bad = pill && /err/.test(pill.className);
-      chips.forEach(function (c) { c.querySelector('span').textContent = label; c.classList.toggle('err', !!bad); c.title = t; });
-    }
-    new MutationObserver(upd).observe(src, { childList: true, characterData: true, subtree: true });
-    if (pill) new MutationObserver(upd).observe(pill, { attributes: true, attributeFilter: ['class'] });
-    upd();
+    if (!src) { chips.forEach(function (c) { c.parentNode.removeChild(c); }); return; }
+    var pill = $('#sPill'), theme = $('#btnTheme');
+    chips.forEach(function (c) { c.parentNode.removeChild(c); });
+    if (theme && navA) { theme.className = 'nav-icon-btn'; theme.title = 'Toggle theme'; theme.setAttribute('aria-label', 'Toggle theme'); navA.insertBefore(theme, navA.firstChild); var old = $('.tabs-wrap .nav-actions > .nav-icon-btn:not(#btnTheme)'); if (old && !old.classList.contains('os-menu-btn')) old.parentNode.removeChild(old); }
+    if (pill && navA) { pill.classList.add('os-live-pill'); navA.insertBefore(pill, navA.firstChild); movedLive = pill; }
+    var order = ['#btnInstall', '#btnNotify', '#btnRefresh'];
+    var labels = { '#btnInstall': 'Install app', '#btnNotify': 'Get alerts', '#btnRefresh': 'Force sync' };
+    order.forEach(function (sel) { var b = $(sel); if (b && pop) { b.classList.add('os-menu-item'); pop.insertBefore(b, pop.firstChild ? $('.nav-tg-btn', pop) : null); } });
+    var snap = $('#hdrControls button[onclick^="exportDOM"]'); if (snap && pop) { snap.classList.add('os-menu-item'); snap.removeAttribute('style'); pop.insertBefore(snap, $('.nav-tg-btn', pop)); }
+    var share = $('#btnShare'); if (share && pop) { var wrap = share.parentNode; wrap.className = 'os-share-wrap'; wrap.removeAttribute('style'); share.classList.add('os-menu-item'); share.removeAttribute('style'); pop.insertBefore(wrap, $('.nav-tg-btn', pop)); }
+    if (src.parentNode) src.parentNode.removeChild(src);
   }
-  syncLive();
+  mergeHeader();
 
   /* ---- 3. Dropdown menu in navbar ---- */
   function initMenu() {
@@ -155,19 +154,23 @@
   }
   initMenu();
 
-  /* ---- 4. Dock the Customise button (created later by os27-charts.js) ---- */
-  var mq = window.matchMedia('(max-width: 900px)');
-  function dock() {
-    var b = $('.os27-cust-btn'); if (!b) return false;
-    var host = mq.matches ? $('.os-topbar') : $('#navMore .os-menu-pop');
-    if (!host || b.parentNode === host) return true;
-    if (mq.matches) host.insertBefore(b, $('.os-cta', host)); else host.insertBefore(b, host.firstChild);
-    b.classList.add('os-docked');
+  /* ---- 4. Dock: Customise into the More menu (charts.js creates it later); on phones the menu and live pill sit in the top bar ---- */
+  var mq = window.matchMedia('(max-width: 768px)');
+  function dockMenu() {
+    var more = $('#navMore'), top = $('.os-topbar'), navA = $('.tabs-wrap .nav-actions');
+    if (!more || !top || !navA) return;
+    if (mq.matches) { if (more.parentNode !== top) top.insertBefore(more, $('.os-cta', top)); if (movedLive && movedLive.parentNode !== top) top.insertBefore(movedLive, $('.os-round-btn', top)); }
+    else { if (more.parentNode !== navA) navA.insertBefore(more, $('.os-cta', navA)); if (movedLive && movedLive.parentNode !== navA) navA.insertBefore(movedLive, navA.firstChild); }
+  }
+  function dockCust() {
+    var b = $('.os27-cust-btn'), pop = $('#navMore .os-menu-pop'); if (!b || !pop) return false;
+    if (b.parentNode !== pop) { pop.appendChild(b); b.classList.add('os-docked'); }
     return true;
   }
   function watchDock() {
-    if (dock()) { if (mq.addEventListener) mq.addEventListener('change', dock); return; }
-    var n = 0, t = setInterval(function () { if (dock() || ++n > 40) { clearInterval(t); if (mq.addEventListener) mq.addEventListener('change', dock); } }, 250);
+    dockMenu(); if (mq.addEventListener) mq.addEventListener('change', dockMenu);
+    if (dockCust()) return;
+    var n = 0, t = setInterval(function () { if (dockCust() || ++n > 40) clearInterval(t); }, 250);
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', watchDock); else watchDock();
 
