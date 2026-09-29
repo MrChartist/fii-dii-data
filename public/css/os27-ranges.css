@@ -1,1 +1,42 @@
-/* os27-ranges: chart range selector */
+/* os27-ranges: chart range capsule + empty state */
+.os27-range {
+  display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; flex: 0 0 auto;
+  background: var(--os-fill, rgb(120 120 128 / .12)); max-width: 100%;
+}
+.os27-range[hidden] { display: none; }
+.os27-range--inline { margin-left: auto; }
+.os27-range--block { display: flex; width: max-content; margin: 0 0 10px auto; }
+.os27-range button {
+  appearance: none; border: 0; background: transparent; color: var(--t2, #666); cursor: pointer;
+  font-weight: 600; font-size: 11px; line-height: 1; font-family: inherit; padding: 6px 11px; border-radius: 999px; min-width: 34px;
+  transition: background .25s, color .2s, box-shadow .25s, transform .15s;
+}
+.os27-range button:hover:not(.active):not(:disabled) { color: var(--t1, #111); }
+.os27-range button:active:not(:disabled) { transform: scale(.96); }
+.os27-range button.active {
+  background: var(--os-glass-solid, #fff); color: var(--t1, #111);
+  box-shadow: 0 1px 2px rgb(0 0 0 / .12), 0 3px 8px rgb(0 0 0 / .08);
+}
+[data-theme="dark"] .os27-range button.active { background: rgb(255 255 255 / .16); }
+.os27-range button:disabled { opacity: .35; cursor: default; }
+.os27-range button:focus-visible, .os27-empty__btn:focus-visible {
+  outline: 2px solid var(--os-accent, #007aff); outline-offset: 2px;
+}
+@media (pointer: coarse) { .os27-range button { padding: 13px 12px; min-width: 44px; } .os27-empty__btn { padding: 14px 18px; } }
+@media (max-width: 520px) { .os27-range--inline { margin-left: 0; } }
+
+.os27-empty {
+  position: absolute; inset: 0 0 90px 0; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; text-align: center; padding: 0 16px; pointer-events: none; z-index: 2;
+}
+.os27-empty[hidden] { display: none; }
+.os27-empty__msg { margin: 0; font-size: 13px; font-weight: 600; color: var(--t3, var(--t2, #666)); max-width: 34ch; line-height: 1.4; }
+.os27-empty__acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.os27-empty__btn {
+  pointer-events: auto; appearance: none; cursor: pointer; font-weight: 600; font-size: 12px; line-height: 1; font-family: inherit;
+  padding: 8px 14px; border-radius: 999px; color: var(--t2, #666);
+  background: var(--os-fill, rgb(120 120 128 / .12)); border: 1px solid var(--os-hairline, rgb(120 120 128 / .25));
+}
+.os27-empty__btn.is-primary { color: var(--os-accent, #007aff); border-color: currentColor; }
+.os27-empty__btn:hover { color: var(--t1, #111); }
+@media (prefers-reduced-motion: reduce) { .os27-range button { transition: none; } .os27-range button:active { transform: none; } }
