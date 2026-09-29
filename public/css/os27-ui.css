@@ -289,3 +289,11 @@ body .tabs-wrap { width: min(1200px, calc(100% - 32px)); }
   .os-deals-table td:nth-child(6)::before { content: "Avg"; }
   .os-deals-table td.cli { text-overflow: clip; }
 }
+
+/* info popover is portalled to body while open */
+body > .os-info-pop { position: fixed; z-index: 1200; width: min(380px, calc(100vw - 32px)); }
+@media (max-width: 640px) {
+  body > .os-info-pop { left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-height: 70vh !important; border-radius: 24px 24px 0 0; padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px)); }
+}
+.os-topbar .os-live-pill { white-space: nowrap; }
+.os-topbar .os-live-pill #sTxt { min-width: 0; }
