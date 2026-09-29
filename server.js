@@ -653,23 +653,51 @@ app.get('/api/status', async (req, res) => {
     }
 });
 
-// Yahoo Finance proxy
+// Yahoo Finance proxy — NIFTY 50, SENSEX & INDIA VIX.
+// Cached for 10s (shared by all visitors) so live polling stays fast; each
+// ticker is fetched independently and falls back to its last good quote.
+const MARKET_TICKERS = { nifty: '^NSEI', sensex: '^BSESN', vix: '^INDIAVIX' };
+const MARKET_TTL_MS = 10 * 1000;
+let _marketCache = { data: null, ts: 0, inflight: null };
+async function fetchMarketQuote(ticker) {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
+    const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 5000 });
+    const m = data?.chart?.result?.[0]?.meta;
+    const price = m?.regularMarketPrice;
+    const prev = m?.previousClose || m?.chartPreviousClose;
+    if (!Number.isFinite(price) || !Number.isFinite(prev) || prev === 0) {
+        throw new Error(`Yahoo returned incomplete quote for ${ticker}`);
+    }
+    return { price, change: price - prev, pct: ((price - prev) / prev) * 100 };
+}
+async function refreshMarket() {
+    const keys = Object.keys(MARKET_TICKERS);
+    const results = await Promise.allSettled(keys.map(k => fetchMarketQuote(MARKET_TICKERS[k])));
+    const prevData = _marketCache.data || {};
+    const out = { ts: Date.now() };
+    let ok = 0;
+    keys.forEach((k, i) => {
+        if (results[i].status === 'fulfilled') { out[k] = results[i].value; ok++; }
+        else if (prevData[k]) out[k] = { ...prevData[k], stale: true };
+    });
+    if (!ok && !Object.keys(out).some(k => k !== 'ts')) throw new Error('Market quotes unavailable');
+    _marketCache = { data: out, ts: Date.now(), inflight: null };
+    return out;
+}
 app.get('/api/market', async (req, res) => {
     try {
-        const fetchJSON = async (ticker) => {
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-            const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 8000 });
-            const m = data?.chart?.result?.[0]?.meta;
-            const price = m?.regularMarketPrice;
-            const prev = m?.previousClose || m?.chartPreviousClose;
-            if (!Number.isFinite(price) || !Number.isFinite(prev) || prev === 0) {
-                throw new Error(`Yahoo returned incomplete quote for ${ticker}`);
-            }
-            return { price, change: price - prev, pct: ((price - prev) / prev) * 100 };
-        };
-        const [nifty, vix] = await Promise.all([fetchJSON('^NSEI'), fetchJSON('^INDIAVIX')]);
-        res.json({ nifty, vix });
+        if (_marketCache.data && Date.now() - _marketCache.ts < MARKET_TTL_MS) {
+            res.set('Cache-Control', 'public, max-age=5');
+            return res.json(_marketCache.data);
+        }
+        if (!_marketCache.inflight) {
+            _marketCache.inflight = refreshMarket().finally(() => { _marketCache.inflight = null; });
+        }
+        const data = await _marketCache.inflight;
+        res.set('Cache-Control', 'public, max-age=5');
+        res.json(data);
     } catch (err) {
+        if (_marketCache.data) return res.json({ ..._marketCache.data, stale: true });
         res.status(500).json({ error: err.message });
     }
 });
@@ -1154,7 +1182,7 @@ app.get('/api/agents/docs', (req, res) => {
             { method: 'GET', path: '/api/history', description: 'Last 60 days of history' },
             { method: 'GET', path: '/api/history-full', description: 'Full 800-day history (compressed)' },
             { method: 'GET', path: '/api/sectors', description: '24-sector FPI allocation with trend data' },
-            { method: 'GET', path: '/api/market', description: 'NIFTY50 & India VIX (Yahoo Finance proxy)' },
+            { method: 'GET', path: '/api/market', description: 'NIFTY 50, SENSEX & India VIX (Yahoo Finance proxy, 10s cache)' },
             { method: 'POST', path: '/api/refresh', description: 'Trigger manual NSE data fetch' }
         ]
     };

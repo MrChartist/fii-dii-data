@@ -237,11 +237,11 @@ html, body { overflow-x: hidden; max-width: 100%; }
 /* ---------- Single navbar: merged header controls ---------- */
 header.terminal-product-row { background: none !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; padding: 4px 2px 0 !important; margin-bottom: 12px; }
 header.terminal-product-row::before, header.terminal-product-row::after { display: none !important; }
-.tabs-wrap .os-live-pill { height: 34px; max-width: 200px; margin: 0; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; overflow: hidden; }
-.tabs-wrap .os-live-pill #sTxt, .os-topbar .os-live-pill #sTxt { overflow: hidden; text-overflow: ellipsis; }
-.os-topbar .os-live-pill { height: 32px; max-width: 150px; padding: 0 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; overflow: hidden; }
+.tabs-wrap #sPill { height: 34px; max-width: 200px; margin: 0; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; overflow: hidden; }
+.tabs-wrap #sPill #sTxt, .os-topbar #sPill #sTxt { overflow: hidden; text-overflow: ellipsis; }
+.os-topbar #sPill { height: 32px; max-width: 150px; padding: 0 10px; font-size: 11px; display: inline-flex; align-items: center; gap: 6px; overflow: hidden; }
 .os-topbar #navMore .os-menu-pop { right: -4px; }
-@media (max-width: 1080px) { .tabs-wrap .os-live-pill { display: none; } }
+@media (max-width: 1080px) { .tabs-wrap #sPill { display: none; } }
 .os-menu-pop .os-menu-item, .os-menu-pop .os-share-wrap > .os-menu-item {
   display: flex !important; align-items: center; justify-content: flex-start; gap: 10px; width: 100%; height: 40px; padding: 0 14px; box-sizing: border-box; margin: 0;
   border-radius: 999px; border: 0 !important; background: transparent !important; color: var(--t1) !important; font: 600 13px/1 var(--font-body, system-ui);
@@ -260,20 +260,20 @@ header.terminal-product-row::before, header.terminal-product-row::after { displa
 #btnTheme svg { width: 16px; height: 16px; }
 .os-menu-pop #btnShare, .os-menu-pop #btnShare:hover { background: transparent !important; color: var(--t1) !important; }
 .os-menu-pop #btnShare:hover { background: var(--os-fill) !important; }
-.tabs-wrap .os-live-pill { max-width: 170px; }
-@media (max-width: 1240px) { .tabs-wrap .os-live-pill { display: none !important; } }
+.tabs-wrap #sPill { max-width: 170px; }
+@media (max-width: 1240px) { .tabs-wrap #sPill { display: none !important; } }
 @media (max-width: 1180px) { .tabs-wrap .os-cta { display: none; } }
 .tabs-wrap .tab { padding: 0 14px; }
 body .tabs-wrap { width: min(1200px, calc(100% - 32px)); }
 .tabs-wrap .tab { padding: 0 12px; }
 .tabs-wrap .nav-divider { margin: 0 4px; }
-.tabs-wrap .os-live-pill { max-width: 150px; }
+.tabs-wrap #sPill { max-width: 150px; }
 .sticky-kpi, .sticky-kpi.visible { display: none !important; }
 
 /* mobile topbar + deals cards refinements */
-.os-topbar .os-live-pill #sTxt { white-space: nowrap; }
-@media (max-width: 768px) { .os-topbar .os-live-pill { max-width: 112px; } .os-topbar .os-live-pill .status-dot { flex: none; } }
-@media (max-width: 480px) { .os-topbar .os-cta-sm { display: none; } .os-topbar .os-live-pill { max-width: 150px; } }
+.os-topbar #sPill #sTxt { white-space: nowrap; }
+@media (max-width: 768px) { .os-topbar #sPill { max-width: 112px; } .os-topbar #sPill .status-dot { flex: none; } }
+@media (max-width: 480px) { .os-topbar .os-cta-sm { display: none; } .os-topbar #sPill { max-width: 150px; } }
 .os-deals-card .tbl-wrap { border: 0 !important; background: none !important; box-shadow: none !important; }
 .os-deals-table { min-width: 0 !important; table-layout: auto; }
 @media (max-width: 560px) {
@@ -295,5 +295,18 @@ body > .os-info-pop { position: fixed; z-index: 1200; width: min(380px, calc(100
 @media (max-width: 640px) {
   body > .os-info-pop { left: 0 !important; right: 0; top: auto !important; bottom: 0; width: auto; max-height: 70vh !important; border-radius: 24px 24px 0 0; padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px)); }
 }
-.os-topbar .os-live-pill { white-space: nowrap; }
-.os-topbar .os-live-pill #sTxt { min-width: 0; }
+.os-topbar #sPill { white-space: nowrap; }
+.os-topbar #sPill #sTxt { min-width: 0; }
+
+/* Customise capsule: visible, docked in the navbar right cluster (icon button; label kept for assistive tech) */
+.os27-cust-btn.os-docked { position: static !important; width: 36px; height: 36px; padding: 0; justify-content: center; gap: 0; opacity: 1; flex: none; box-shadow: none; }
+.os27-cust-btn.os-docked span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.os-topbar #sPill, .tabs-wrap #sPill { flex-wrap: nowrap !important; }
+.os-topbar #sPill #sTxt, .tabs-wrap #sPill #sTxt { white-space: nowrap !important; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 100%; }
+@media (max-width: 480px) { .os-topbar { gap: 6px; padding-left: 12px; padding-right: 12px; } .os-topbar #sPill { max-width: 128px; font-size: 10px; } }
+@media (max-width: 768px) {
+  .os-topbar #sPill #sTxt { font-size: 0 !important; }
+  .os-topbar #sPill #sTxt::after { content: "Live"; font-size: 12px; font-weight: 600; }
+  .os-topbar #sPill.err #sTxt::after { content: "Offline"; }
+  .os-topbar #sPill { max-width: none; }
+}
