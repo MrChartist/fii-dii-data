@@ -4318,10 +4318,13 @@ function renderDashboard() {
     if (putNet > 50000) score--; if (putNet < -50000) score++; // Long Puts = Bearish
     
     const sBadge = document.getElementById('faoSentiment');
-    const _fs = score >= 1 ? ['bull','mb-bull', score >= 2 ? 'Bullish: Strong' : 'Bullish: Mild'] : score === 0 ? ['neutral','mb-neut','Neutral'] : ['bear','mb-bear', score <= -2 ? 'Bearish: Strong' : 'Bearish: Mild'];
-    sBadge.className = `mom-badge os-badge ${_fs[0]} ${_fs[1]}`;
-    sBadge.title = 'Based on FII index futures, call and put positions. Net long futures/calls = Bullish; net long puts = Bearish.';
-    sBadge.innerHTML = `<i class="os-dot"></i>${_fs[2]}`;
+    const _fsT = 'Based on FII index futures, call and put positions. Net long futures/calls = Bullish; net long puts = Bearish.';
+    sBadge.title = _fsT;
+    if (score >= 2) { sBadge.innerHTML = '<i class="os-dot"></i>Bullish: Strong'; sBadge.className = 'mom-badge os-badge bull mb-bull'; }
+    else if (score == 1) { sBadge.innerHTML = '<i class="os-dot"></i>Bullish: Mild'; sBadge.className = 'mom-badge os-badge bull mb-bull'; }
+    else if (score == 0) { sBadge.innerHTML = '<i class="os-dot"></i>Neutral'; sBadge.className = 'mom-badge os-badge neutral mb-neut'; }
+    else if (score == -1) { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Mild'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
+    else { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Strong'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
 
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);
@@ -4551,7 +4554,7 @@ function renderCommandCenter() {
         <td class="${fC(d.fn)}">${fmt(d.fn)}</td>
         <td class="${fC(d.dn)}">${fmt(d.dn)}</td>
         <td class="${fC(total)}">${fmt(total)}</td>
-        <td>${(()=>{const L=score.label, u=L.includes('BULL')?'bull':L.includes('BEAR')?'bear':'neutral'; const w=u==='bull'?'Bullish':u==='bear'?'Bearish':'Neutral'; const t=L.replace(/_/g,' ').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()); return `<span class="signal-pill os-badge ${u} sig-${u}" title="${u==='bull'?'Flow score is positive = Bullish for Indian equities':u==='bear'?'Flow score is negative = Bearish for Indian equities':'Flow score is balanced = Neutral'}"><i class="os-dot"></i>${t.includes(w)?t:w}</span>`;})()}</td>
+        <td><span class="signal-pill os-badge ${score.label.includes('BULL') ? 'bull sig-bull' : score.label.includes('BEAR') ? 'bear sig-bear' : 'neutral sig-neutral'}" title="Bullish = positive flow score, Bearish = negative flow score, Neutral = balanced"><i class="os-dot"></i>${score.label}</span></td>
       </tr>`;
     }).join('');
   }

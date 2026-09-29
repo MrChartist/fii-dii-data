@@ -424,7 +424,7 @@ input::placeholder { color: var(--t4); }
 @media (max-width: 768px) {
   header { padding: 14px; border-radius: var(--os-radius-lg); }
   .tabs-wrap {
-    left: 10px; right: 10px; width: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    top: auto; left: 10px; right: 10px; width: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     border-radius: 999px; padding: 5px; max-width: none;
     box-shadow: var(--os-highlight), var(--os-shadow-3);
   }
