@@ -17,7 +17,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <link rel="alternate" hreflang="x-default" href="https://mrchartist.com/fii-dii-data/">
 
 <!-- LLM / AI Discoverability -->
-<meta name="ai:description" content="India's most comprehensive real-time tracker for FII (Foreign Institutional Investor) and DII (Domestic Institutional Investor) money flows. Provides daily cash market data, F&O derivatives positioning, sector-wise FPI allocation, 45-day heatmaps, and flow analytics matrices. Free and open-source by Mr. Chartist.">
+<meta name="ai:description" content="India's most comprehensive real-time tracker for FII (Foreign Institutional Investor) and DII (Domestic Institutional Investor) money flows. Provides daily cash market data, F&O derivatives positioning, sector-wise FPI allocation, 45-day heatmaps, and flow analytics matrices. By Mr. Chartist.">
 <meta name="ai:keywords" content="FII DII data India, institutional money flow, NSE FII selling, DII buying, Nifty 50, F&O open interest, sector allocation FPI, NSDL data, Indian stock market">
 <link rel="author" href="https://twitter.com/mr_chartist">
 
@@ -62,7 +62,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
     "price": "0",
     "priceCurrency": "INR"
   },
-  "featureList": "Live FII/DII Cash Flows, F&O Derivatives Positioning, 24-Sector FPI Allocation, 45-Day Heatmaps, Daily/Weekly/Monthly Flow Matrices, AI Agent Synthesis",
+  "featureList": "Live FII/DII Cash Flows, F&O Derivatives Positioning, 24-Sector FPI Allocation, 45-Day Heatmaps, Daily/Weekly/Monthly Flow Matrices",
   "screenshot": "https://mrchartist.com/fii-dii-data/screenshots/01_home_fii_dii_date.png",
   "softwareVersion": "2.0.0"
 }
@@ -4811,7 +4811,6 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   }
 
   // Load briefing after initial data fetch
-  setTimeout(() => renderAgentData(), 2500); // hydrate the AI agent panel (was never invoked)
   setTimeout(() => { loadNsdlConfirm(); }, 3000); // bulk and block deals now load on /deals.html
 
   // ── PHASE 4: SSE Live Connection ─────────────────────────────────────────────
@@ -4848,7 +4847,6 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     });
 
     evtSource.addEventListener('agent-update', () => {
-      if (typeof renderAgentData === 'function') renderAgentData();
     });
 
     evtSource.onerror = () => {
