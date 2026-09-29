@@ -1,0 +1,11 @@
+/* os27-content: Market Mood + colour legend */
+.os-mood{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 16px;padding:12px 16px;border-radius:22px;background:var(--os-glass, rgba(120,120,128,.12));border:1px solid var(--os-sep, rgba(120,120,128,.2));-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)}
+.os-mood-text{margin:0;flex:1 1 240px;font-size:14px;line-height:1.5;color:var(--t2, inherit)}
+.os-mood-text strong{color:var(--t1, inherit)}
+.os-mood.os-bull{border-color:var(--os-bull, var(--green))}
+.os-mood.os-bear{border-color:var(--os-bear, var(--red))}
+.os-legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:8px 0 12px;font-size:12px;color:var(--t3, inherit)}
+.os-legend-item{display:inline-flex;align-items:center;gap:6px}
+.os-legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;background:var(--t4, #888)}
+.os-legend-dot.bull{background:var(--os-bull, var(--green))}
+.os-legend-dot.bear{background:var(--os-bear, var(--red))}
