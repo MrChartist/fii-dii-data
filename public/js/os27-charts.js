@@ -324,6 +324,7 @@
     reapplyOverrides();
     if (!document.getElementById('os27-cust-title')) build();
     retheme();
+    window.addEventListener('load', function () { retheme(); setTimeout(retheme, 800); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
