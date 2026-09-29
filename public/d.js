@@ -1,0 +1,10 @@
+const {chromium}=require('/opt/node22/lib/node_modules/playwright');
+(async()=>{const t0=Date.now(),L=m=>console.log(Date.now()-t0,m);
+const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:1440,height:900}});
+await ctx.route(/^https?:\/\/(?!localhost)/,r=>r.abort());
+await ctx.addInitScript(()=>{localStorage.setItem('tour_done','1');localStorage.setItem('theme','light')});
+const p=await ctx.newPage();L('page');
+await p.goto('http://localhost:8127/index.html',{waitUntil:'commit'});L('commit');
+await p.waitForTimeout(3000);L('wait');
+await p.screenshot({path:'a.png',timeout:15000}).then(()=>L('shot')).catch(e=>L(e.message.slice(0,100)));
+await b.close();})();
