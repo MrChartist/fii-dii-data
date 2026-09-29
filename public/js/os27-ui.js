@@ -261,6 +261,10 @@
       if (!$('.os-info', host)) makeText(host, k.replace(/ \(.*\)$/, ''), t);
     });
   }
+  /* cosmetic: the data's non-sector bucket is called 'Others' */
+  function relabel() {
+    $$('#cmd-sector-tape strong').forEach(function (e) { if (e.children.length === 0 && textOf(e) === 'Others') e.textContent = 'Unclassified'; });
+  }
   function initInfos() {
     var bd = doc.createElement('div'); bd.className = 'os-info-backdrop'; bd.hidden = true; bd.addEventListener('click', closeInfo); doc.body.appendChild(bd);
     var sec = $('#t-sector h2');
@@ -273,11 +277,11 @@
     attach(lg1[0], $('#cmd-cash-tape .terminal-label'), 'Colour guide', 'Colour guide');
     var ft = $$('#t-hero .c-title');
     var fiiT = ft.filter(function (e) { return /FII 45-Day/.test(e.textContent); })[0], diiT = ft.filter(function (e) { return /DII 45-Day/.test(e.textContent); })[0];
-    attach(lg1[1], fiiT, 'Colour guide', 'Colour guide'); attach(hm[0], fiiT, 'Heatmap scale', 'Heatmap scale');
+    attach(hm[0], fiiT, 'Heatmap scale', 'Heatmap scale');
     attach(hm[1], diiT, 'Heatmap scale', 'Heatmap scale');
     var cv = $('#btnFlowView'); attach($('.chart-legend'), cv && cv.parentNode, 'Chart legend', 'Chart legend');
-    scanTexts();
-    var t = null; new MutationObserver(function () { clearTimeout(t); t = setTimeout(scanTexts, 250); }).observe(doc.body, { childList: true, subtree: true });
+    scanTexts(); relabel();
+    var t = null; new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { scanTexts(); relabel(); }, 250); }).observe(doc.body, { childList: true, subtree: true });
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initInfos); else initInfos();
 

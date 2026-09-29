@@ -436,7 +436,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
             <div class="terminal-label">Cash Flow Tape</div>
             <div class="terminal-sub"><span id="lDate">Loading latest session</span><span class="prov-chip gloss" id="provChip" data-tip="NSE evening figures are provisional. Custodian-confirmed numbers publish the next morning and can differ slightly.">PROVISIONAL</span></div>
           </div>
-          <div class="mom-badge os-badge neutral mb-neut" id="heroBadge" title="Overall direction of FII net cash flow for the latest session"><i class="os-dot"></i>Syncing</div>
+          <div class="mom-badge os-hide os-badge neutral mb-neut" id="heroBadge" title="Overall direction of FII net cash flow for the latest session"><i class="os-dot"></i>Syncing</div>
         </div>
         <div class="cash-tape-grid">
           <div class="tape-cell">
@@ -466,14 +466,13 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <div class="terminal-label" style="display:flex; justify-content:space-between; align-items:center;">
             <span class="gloss" data-tip="Each square is one session, oldest to newest. Green = both buying · Amber = DII absorbing FII selling · Blue = FII buying alone · Red = both selling.">Signal Replay — last 30 sessions</span>
             <span style="display:flex; gap:8px; font-size:9px; color:var(--t4); text-transform:none;">
-              <span>🟩 Both buy</span><span>🟧 Absorption</span><span>🟦 FII only</span><span>🟥 Both sell</span>
+              <span><i class="os-lg g"></i>Both buy</span><span><i class="os-lg a"></i>Absorption</span><span><i class="os-lg b"></i>FII only</span><span><i class="os-lg r"></i>Both sell</span>
             </span>
           </div>
           <div class="sig-timeline" id="signal-timeline"></div>
         </div>
         <div id="nsdlConfirm" style="display:none; font-size:10px; color:var(--t4); margin-top:10px;"></div>
         <div class="terminal-actions">
-          <button class="terminal-mini-btn" onclick="switchMainTab('t-matrix')">Open Archive</button>
           <button class="terminal-mini-btn" onclick="exportDOM(document.getElementById('cmd-cash-tape'), 'Command_Center_Cash_Tape')">Snapshot</button>
         </div>
       </section>
@@ -482,7 +481,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">Signal Stack</div>
-            <div class="terminal-sub">Flow, equity, derivatives, agent bias</div>
+            <div class="terminal-sub">Scores that sum up buying, selling and positioning</div>
           </div>
           <button class="terminal-mini-btn" onclick="renderCommandCenter()">Recalc</button>
         </div>
@@ -502,7 +501,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
             <strong id="cmd-fno-score">--</strong>
             <em id="cmd-fno-label">Loading</em>
           </div>
-          <div class="signal-row">
+          <div class="signal-row os-hide">
             <span>AI Regime</span>
             <strong id="cmd-ai-regime">--</strong>
             <em id="cmd-ai-desc">Optional</em>
@@ -514,7 +513,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">Momentum Stack</div>
-            <div class="terminal-sub">Streaks, velocity, anomaly counts</div>
+            <div class="terminal-sub">How long and how fast institutions have been buying or selling</div>
           </div>
         </div>
         <div class="momentum-grid">
@@ -555,8 +554,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         </div>
         <div class="pressure-summary" id="cmd-fno-summary">
           <div><span>Bias</span><strong id="cmd-fno-direction">Loading</strong></div>
-          <div><span>Call / Put Net</span><strong id="cmd-fno-callput">--</strong></div>
-          <div><span>Futures Net</span><strong id="cmd-fno-net">--</strong></div>
+          <div class="os-hide"><span>Call / Put Net</span><strong id="cmd-fno-callput">--</strong></div>
+          <div class="os-hide"><span>Futures Net</span><strong id="cmd-fno-net">--</strong></div>
         </div>
         <div class="pressure-list fno-3d-chart" id="cmd-fno-pressure" aria-label="3D F&O net positioning chart">
           <div class="pressure-row fno-3d-bar"><span class="fno-3d-label">FII Futures</span><div class="fno-3d-track"><i class="fno-3d-cube" style="width:50%"></i></div><strong class="fno-3d-value">--</strong><em class="fno-3d-meta">Awaiting long / short split</em></div>
@@ -570,7 +569,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">Sector Rotation</div>
-            <div class="terminal-sub">NSDL fortnight leaders</div>
+            <div class="terminal-sub">Sectors with the largest FPI inflow and outflow this fortnight</div>
           </div>
           <button class="terminal-mini-btn" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart();">Open Board</button>
         </div>
@@ -587,7 +586,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">45-Day Flow Matrix</div>
-            <div class="terminal-sub">3D institutional cash pressure visualization</div>
+            <div class="terminal-sub">Daily FII and DII net buying and selling over the last 45 sessions</div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
             <div class="iso-legend">
