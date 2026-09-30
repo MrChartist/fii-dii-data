@@ -115,7 +115,7 @@ body .tabs-wrap {
 .os-fcol a:hover { color: var(--t1); }
 .os-wordmark {
   margin: 36px 0 24px; text-align: center; white-space: nowrap; user-select: none; pointer-events: none;
-  font: 800 clamp(48px, 15vw, 210px)/0.9 var(--font-display, system-ui); letter-spacing: -0.05em;
+  font: 800 clamp(32px, 9.6vw, 150px)/0.9 var(--font-display, system-ui); letter-spacing: -0.05em;
   background: linear-gradient(180deg, var(--t1) 0%, transparent 92%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .18; overflow: hidden;
 }
 .os-sebi { border: 1px solid var(--os-hairline, rgb(128 128 128 / .25)); border-radius: 22px; padding: 20px 24px; background: var(--os-fill); }
