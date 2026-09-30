@@ -24,13 +24,13 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://mrchartist.com/fii-dii-data/">
-<meta property="og:site_name" content="FII & DII Data by Mr. Chartist">
+<meta property="og:site_name" content="Mr. Chartist — FII & DII Data">
 <meta property="og:title" content="FII & DII Data India | Live Institutional Flow Tracker">
 <meta property="og:description" content="India's most comprehensive FII & DII flow tracker. Live institutional money data, F&O positioning, sector analytics, and visual flow heatmaps. Updated daily.">
 <meta property="og:image" content="https://mrchartist.com/fii-dii-data/brand/share/og-fii-dii-data.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="FII &amp; DII Data by Mr. Chartist — live institutional money flow tracker for India">
+<meta property="og:image:alt" content="Mr. Chartist — FII &amp; DII Data · live institutional money flow tracker for India">
 <meta property="og:locale" content="en_IN">
 
 <!-- Twitter / X -->
@@ -39,7 +39,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <meta name="twitter:title" content="FII & DII Data India | Live Institutional Flow Tracker">
 <meta name="twitter:description" content="Track real-time FII/DII flows, F&O positioning, and sector-wise FPI allocation in the Indian stock market. Built for professional traders and analysts.">
 <meta name="twitter:image" content="https://mrchartist.com/fii-dii-data/brand/share/og-fii-dii-data.png">
-<meta name="twitter:image:alt" content="FII &amp; DII Data by Mr. Chartist — live institutional flow analytics">
+<meta name="twitter:image:alt" content="Mr. Chartist — FII &amp; DII Data · live institutional flow analytics">
 <meta name="twitter:creator" content="@mr_chartist">
 
 <!-- Structured Data (JSON-LD) for Google Rich Results -->
@@ -50,7 +50,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   "name": "FII & DII Data India",
   "url": "https://mrchartist.com/fii-dii-data/",
   "description": "India's most comprehensive real-time tracker for FII and DII institutional money flows, F&O positioning, and sector-wise FPI allocation.",
-  "image": "https://mrchartist.com/fii-dii-data/brand/product/icon-512.png",
+  "image": "https://mrchartist.com/fii-dii-data/brand/icons/icon-512.png",
   "applicationCategory": "FinanceApplication",
   "operatingSystem": "All",
   "author": {
@@ -174,10 +174,11 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FII DII Data">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="/brand/product/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/brand/product/favicon-16.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/brand/product/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/brand/product/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="/brand/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/brand/icons/favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/brand/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/icons/apple-touch-icon.png">
 
 <!-- Google Fonts (original terminal theme: Inter / Plus Jakarta Sans + JetBrains Mono) -->
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -1429,9 +1430,9 @@ async function exportDOM(element, namePrefix) {
     const _isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const watermark = document.createElement('div');
     watermark.className = 'mc-export-mark';
-    const _wm = window.MCBrand ? MCBrand.endorsementFor(_isLight) : null;
+    const _wm = window.MCBrand ? MCBrand.logoFor(_isLight) : null;
     watermark.style.color = _isLight ? '#000' : '#fff';
-    watermark.innerHTML = _wm ? `<span>FII &amp; DII Data · ${_wm.by}</span><img alt="Mr. Chartist" src="${_wm.src}">` : '<span>FII &amp; DII Data by Mr. Chartist</span>';
+    watermark.innerHTML = _wm ? `<span>FII &amp; DII Data</span><img alt="Mr. Chartist" src="${_wm}">` : '<span>Mr. Chartist · FII &amp; DII Data</span>';
     const _wmImg = watermark.querySelector('img');
     if (_wmImg) { try { await _wmImg.decode(); } catch (e) {} }
     
@@ -3403,9 +3404,9 @@ function initTour() {
   const render = () => {
     const s = steps[idx];
     overlay.innerHTML = `<div class="tour-card">
+      ${idx === 0 && window.MCBrand ? `<div class="mc-tour-logo">${MCBrand.lockup({size:'footer'}).replace(/<span class="mc-lockup__product">.*$/,'</span>')}</div>` : ''}
       <div class="tour-dots">${steps.map((_, i) => `<span class="${i <= idx ? 'on' : ''}"></span>`).join('')}</div>
       <h3>${s.t}</h3><p>${s.p}</p>
-      ${idx === 0 && window.MCBrand ? MCBrand.endorsement({size:'modal'}) : ''}
       <div class="tour-actions">
         <button class="tour-btn" id="tourSkip">Skip</button>
         <button class="tour-btn primary" id="tourNext">${idx === steps.length - 1 ? 'Start exploring' : 'Next'}</button>
