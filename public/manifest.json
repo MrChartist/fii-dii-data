@@ -1,5 +1,5 @@
 {
-  "name": "FII & DII Data by Mr. Chartist",
+  "name": "Mr. Chartist — FII & DII Data",
   "short_name": "FII DII Data",
   "description": "Institutional-grade FII & DII flow analytics for Indian equity markets. Live NSE data, derivatives tracking, heatmaps & more.",
   "id": "/",
@@ -16,25 +16,25 @@
   "lang": "en-IN",
   "icons": [
     {
-      "src": "/brand/product/icon-192.png",
+      "src": "/brand/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand/product/icon-512.png",
+      "src": "/brand/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/brand/product/icon-maskable-192.png",
+      "src": "/brand/icons/icon-maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/brand/product/icon-maskable-512.png",
+      "src": "/brand/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
