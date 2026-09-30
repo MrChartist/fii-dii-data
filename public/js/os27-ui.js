@@ -3,7 +3,7 @@
   'use strict';
   var NAV = `  <!-- TOP BAR (mobile) -->
   <div class="os-topbar" role="banner">
-    <a href="/" class="os-topbar-brand">Mr. Chartist<i class="os-dot-accent"></i></a>
+    <a href="/" class="os-topbar-brand mc-topbar-brand" aria-label="${MCBrand.product.name} home">${MCBrand.productLockup({size:'topbar'})}</a>
     <span class="os-live-chip" data-os-live><i></i><span>Live</span></span>
     <button type="button" class="os-round-btn" onclick="toggleTheme()" aria-label="Toggle theme"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
     <a class="os-cta os-cta-sm" href="https://mrchartist.com" target="_blank" rel="noopener">Explore</a>
@@ -11,9 +11,8 @@
 
   <!-- TABS (FLOATING ISLAND NAV) -->
   <nav class="tabs-wrap" role="navigation" aria-label="Dashboard sections">
-    <a href="/" class="nav-brand" title="FII &amp; DII Data - Institutional Analytics">
-      <span class="nav-logo-text">Mr. Chartist</span><i class="os-dot-accent" aria-hidden="true"></i>
-    </a>
+    <span class="mc-brand-group"><a href="/" class="nav-brand" title="FII &amp; DII Data - Institutional Analytics" aria-label="${MCBrand.product.name} home">${MCBrand.productLockup({size:'nav'})}</a>
+    ${MCBrand.endorsement({size:'nav'})}</span>
     <div class="nav-divider"></div>
     <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> <span class="tab-txt">FII/DII</span>
@@ -53,12 +52,13 @@
   <div class="os-footer-card">
     <div class="os-footer-grid">
       <div class="os-fbrand">
-        <div class="os-fbrand-name">Mr. Chartist<i class="os-dot-accent" aria-hidden="true"></i></div>
+        <div class="os-fbrand-name">${MCBrand.productLockup({size:'footer'})}</div>
         <p>India's most comprehensive real-time tracker for FII and DII institutional money flows.</p>
+        ${MCBrand.endorsement({size:'footer'})}
       </div>
       <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Products</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Explore the ecosystem</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Investology</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Candlestick Book</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Scanner Pro</a></li><li><a href="/">FII/DII Data</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">IPO Decode</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">OptionsDesk</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradeBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">NISM Exams</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">FundaDesk</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M9 4v16M14 6v14M19 8v12"/></svg>Resources</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Research Hub</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">ChartBook Archive</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Sector Reports</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Free Tools &amp; Calculators</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8h14M5 8l-3 7a3 3 0 0 0 6 0zM19 8l-3 7a3 3 0 0 0 6 0z"/></svg>Legal</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">SEBI Registration</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Disclaimer</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Privacy Policy</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Terms of Service</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>Connect</h4><ul><li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener">Twitter / X</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">LinkedIn</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradingView</a></li><li><a href="https://github.com/MrChartist" target="_blank" rel="noopener">GitHub</a></li></ul></div>
     </div>
-    <div class="os-wordmark" aria-hidden="true">Mr. Chartist.</div>
+    <div class="os-wordmark" aria-hidden="true">FII &amp; DII Data.</div>
     <section class="os-sebi" aria-label="SEBI registration">
       <h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>SEBI Registered Research Analyst &mdash; INH000015297</h3>
       <div class="os-sebi-grid">

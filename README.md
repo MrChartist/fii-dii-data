@@ -134,9 +134,10 @@ FII and DII data/
 │   ├── sw.js                     # Service Worker (network-first, API bypass)
 │   ├── robots.txt                # Search engine crawler rules
 │   ├── sitemap.xml               # XML sitemap for SEO
-│   ├── icons/
-│   │   ├── icon-192.png          # PWA icon (192x192)
-│   │   └── icon-512.png          # PWA icon (512x512)
+│   ├── brand/                # product icon set + Mr. Chartist parent logo (see brand-source/)
+│   │   ├── product/          # favicons, touch + PWA icons
+│   │   ├── mr-chartist/      # approved parent logo (black/white)
+│   │   └── share/            # 1200x630 social card
 │   └── screenshots/              # Tab screenshots for README
 │       ├── 01_home_fii_dii_date.png
 │       ├── 02_fno_positions.png
