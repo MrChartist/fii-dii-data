@@ -7,7 +7,7 @@
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://fii-diidata.mrchartist.com/assets/og-image-flow.png</image:loc>
+      <image:loc>https://fii-diidata.mrchartist.com/brand/share/og-fii-dii-data.png</image:loc>
       <image:title>FII and DII Data India Dashboard</image:title>
       <image:caption>Real-time institutional money flow tracker for Indian equity markets showing FII selling and DII buying data</image:caption>
     </image:image>

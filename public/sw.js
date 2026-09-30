@@ -5,7 +5,7 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v12';
+const CACHE_NAME = 'mrchartist-v13';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -25,8 +25,15 @@ const STATIC_ASSETS = [
   '/deals.html',
   '/js/os27-deals.js',
   '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/css/brand.css',
+  '/js/brand.js',
+  '/favicon.ico',
+  '/brand/product/icon-192.png',
+  '/brand/product/icon-512.png',
+  '/brand/product/mark-64.png',
+  '/brand/product/mark-128.png',
+  '/brand/mr-chartist/logo-horizontal-black.svg',
+  '/brand/mr-chartist/logo-horizontal-white.svg'
 ];
 
 // Install: Pre-cache the shell
@@ -116,8 +123,8 @@ self.addEventListener('push', event => {
 
   const options = {
     body: data.body,
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
+    icon: '/brand/product/icon-192.png',
+    badge: '/brand/product/favicon-32.png',
     vibrate: [100, 50, 100],
     data: { url: data.url || '/', category: data.category || 'cash' },
     actions: config.actions,

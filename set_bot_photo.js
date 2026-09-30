@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
-const logoPath = process.argv[2] || path.join(__dirname, 'public', 'icons', 'icon-512x512.png');
+const logoPath = process.argv[2] || path.join(__dirname, 'public', 'brand', 'product', 'icon-512.png');
 
 if (!fs.existsSync(logoPath)) {
     console.error('File not found:', logoPath);
