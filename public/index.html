@@ -1118,6 +1118,8 @@
         <div class="mom-badge" id="faoSentiment">—</div>
       </div>
   
+      <div class="fno-kpis" id="fnoKpis" aria-live="polite"></div>
+
       <div class="fno-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <!-- FII Column -->
         <div style="padding:16px; background:var(--l1); border-radius:10px; border:1px solid var(--sep2);">
@@ -2085,6 +2087,35 @@ function renderDashboard() {
     else if (score == 0) { sBadge.innerHTML = '<i class="os-dot"></i>Neutral'; sBadge.className = 'mom-badge os-badge neutral mb-neut'; }
     else if (score == -1) { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Mild'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
     else { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Strong'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
+
+
+    // Net-positioning KPI strip: FII net contracts with change vs previous F&O session
+    (function renderFnoKpis() {
+      const box = document.getElementById('fnoKpis');
+      if (!box) return;
+      const prev = dailyData.slice(dailyData.indexOf(latestFno) + 1).find(_hasRealFno);
+      const sgn = n => { const a = Math.abs(Math.round(n)).toLocaleString('en-IN'); return n === 0 ? '0' : (n < 0 ? '\u2212' : '+') + a; };
+      const net = (d, l, s) => (d[l] || 0) - (d[s] || 0);
+      const tiles = [
+        { k: 'Index Futures', v: net(latestFno, 'fii_idx_fut_long', 'fii_idx_fut_short'), p: prev && net(prev, 'fii_idx_fut_long', 'fii_idx_fut_short'), bull: 1,
+          r: latestFno.fii_idx_fut_short > 0 ? (latestFno.fii_idx_fut_long / latestFno.fii_idx_fut_short).toFixed(2) : null },
+        { k: 'Stock Futures', v: net(latestFno, 'fii_stk_fut_long', 'fii_stk_fut_short'), p: prev && net(prev, 'fii_stk_fut_long', 'fii_stk_fut_short'), bull: 1,
+          r: latestFno.fii_stk_fut_short > 0 ? (latestFno.fii_stk_fut_long / latestFno.fii_stk_fut_short).toFixed(2) : null },
+        { k: 'Index Calls', v: net(latestFno, 'fii_idx_call_long', 'fii_idx_call_short'), p: prev && net(prev, 'fii_idx_call_long', 'fii_idx_call_short'), bull: 1,
+          r: latestFno.fii_idx_call_short > 0 ? (latestFno.fii_idx_call_long / latestFno.fii_idx_call_short).toFixed(2) : null },
+        { k: 'Index Puts', v: net(latestFno, 'fii_idx_put_long', 'fii_idx_put_short'), p: prev && net(prev, 'fii_idx_put_long', 'fii_idx_put_short'), bull: -1,
+          r: latestFno.fii_idx_put_short > 0 ? (latestFno.fii_idx_put_long / latestFno.fii_idx_put_short).toFixed(2) : null }
+      ];
+      box.innerHTML = tiles.map(t => {
+        const dir = t.v === 0 ? 'flat' : ((t.v > 0) === (t.bull > 0) ? 'up' : 'down');   // long puts read bearish
+        const dl = prev ? t.v - t.p : null;
+        const dcls = dl === null || dl === 0 ? 'flat' : ((dl > 0) === (t.bull > 0) ? 'up' : 'down');
+        return '<div class="fno-kpi"><div class="fno-kpi-k">FII ' + t.k + ' · Net</div>' +
+          '<div class="fno-kpi-v ' + dir + '">' + sgn(t.v) + '</div>' +
+          '<div class="fno-kpi-f"><span class="' + dcls + '">' + (dl === null ? 'No prior session' : sgn(dl) + ' vs prev') + '</span>' +
+          (t.r ? '<span>L/S ' + t.r + '</span>' : '') + '</div></div>';
+      }).join('');
+    })();
 
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);

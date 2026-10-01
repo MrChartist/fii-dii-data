@@ -186,9 +186,12 @@ function parseFao(csvText) {
     if (!csvText) return faoData;
 
     try {
-        const lines = csvText.trim().split('\n');
-        if (lines.length < 2) return faoData;
-        const clean = lines.filter(l => l.trim() && !l.startsWith(','));
+        const lines = String(csvText).split(/\r?\n/);
+        // NSE prepends a title line (""Participant wise Open Interest ... as on <date>"",,,)
+        // whose doubled quotes make csv-parse throw — start at the real header row.
+        const headerAt = lines.findIndex(l => /^\s*"?Client Type/i.test(l));
+        if (headerAt < 0) throw new Error('header row "Client Type" not found');
+        const clean = lines.slice(headerAt).filter(l => l.trim() && !l.startsWith(','));
 
         const records = parse(clean.join('\n'), {
             columns: true,
@@ -223,6 +226,7 @@ function parseFao(csvText) {
     } catch (e) {
         console.error("Error parsing F&O CSV:", e.message);
     }
+    if (csvText && !faoData.FII) console.error("⚠️ F&O CSV received but no FII row parsed — format may have changed");
     return faoData;
 }
 
@@ -459,4 +463,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao };
+module.exports = { parseFao, applyFao, buildFaoSummary, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao };
