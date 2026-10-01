@@ -1,0 +1,316 @@
+/* ==========================================================================
+   terminal.css — single dark design system (loaded LAST)
+   Source of truth: mrchartist.com tokens (void surfaces, paper ink, ember
+   orange, Inter + Plus Jakarta Sans). No light theme, no theme switching.
+   Sections: 1 Tokens · 2 Background · 3 Chrome · 4 Surfaces · 5 Hero numbers
+             6 Meter + signal replay · 7 Controls · 8 Tables · 9 Overlays
+   ========================================================================== */
+
+/* ── 1. TOKENS ─────────────────────────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  color-scheme: dark;
+
+  /* mrchartist.com void ramp */
+  --void-0: hsl(208 25% 1.6%);
+  --void-1: hsl(210 25% 3.1%);
+  --void-2: hsl(212 22% 5.5%);
+  --void-3: hsl(214 20% 8.4%);
+  --void-4: hsl(215 19% 12.5%);
+  --paper:  hsl(72 20% 95.1%);
+  --ember:  hsl(18 87.6% 54%);
+  --ember-hi: hsl(23 89% 62%);
+
+  /* market semantics — brighter than the brand site for scan speed */
+  --gain: hsl(150 68% 52%);
+  --loss: hsl(3 88% 62%);
+  --amber: hsl(38 92% 56%);
+  --gain-bg: hsl(150 68% 52% / .12);
+  --loss-bg: hsl(3 88% 62% / .12);
+  --amber-bg: hsl(38 92% 56% / .12);
+
+  --font-display: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Inter', system-ui, sans-serif;
+  --font-brand: var(--font-display);
+
+  --bg: var(--void-1);
+  --l1: var(--void-2);
+  --l2: var(--void-3);
+  --l3: var(--void-4);
+  --l4: hsl(215 17% 16%);
+  --t1: hsl(72 20% 95.1%);
+  --t2: hsl(72 10% 82%);
+  --t3: hsl(214 10% 66%);
+  --t4: hsl(214 8% 52%);
+
+  --os-hairline: hsl(72 20% 95% / .09);
+  --os-hairline-soft: hsl(72 20% 95% / .05);
+  --sep: var(--os-hairline);
+  --sep2: var(--os-hairline-soft);
+  --os-surface: var(--void-2);
+  --os-surface-2: var(--void-3);
+  --os-glass: var(--void-2);
+  --os-glass-strong: var(--void-3);
+  --os-glass-solid: var(--void-3);
+  --glass-bg: var(--void-2);
+  --glass-border: var(--os-hairline);
+  --nav-bg: hsl(210 25% 3.1% / .86);
+  --os-fill: var(--void-3);
+  --os-fill-2: var(--void-4);
+
+  --primary: var(--ember);
+  --primary-hover: var(--ember-hi);
+  --trade-orange: var(--ember);
+  --blue: hsl(212 92% 62%);
+  --os-accent: var(--ember);
+  --os-accent-bg: hsl(18 87% 54% / .14);
+
+  --green: var(--gain);
+  --red: var(--loss);
+  --orange: var(--amber);
+  --os-bull: var(--gain);
+  --os-bear: var(--loss);
+  --os-neutral: var(--amber);
+  --os-bull-bg: var(--gain-bg);
+  --os-bear-bg: var(--loss-bg);
+  --os-neutral-bg: var(--amber-bg);
+  --c-bull: var(--gain);
+  --c-bear: var(--loss);
+  --c-bull-bg: var(--gain-bg);
+  --c-bear-bg: var(--loss-bg);
+  --c-accent: var(--ember);
+  --c-amber: var(--amber);
+  --c-bull-grad: linear-gradient(90deg, hsl(150 68% 42%), var(--gain));
+  --c-bear-grad: linear-gradient(90deg, hsl(3 80% 50%), var(--loss));
+
+  --os-r-sm: 8px;
+  --os-r-md: 10px;
+  --os-r-lg: 14px;
+  --edge: inset 0 1px 0 hsl(72 20% 95% / .045);
+}
+
+/* ── 2. BACKGROUND — flat void + ember crown + masked grid ─────────────── */
+html { background: var(--void-1) !important; }
+body, [data-theme="dark"] body {
+  background:
+    radial-gradient(900px 420px at 50% -120px, hsl(18 87% 54% / .075), transparent 70%),
+    radial-gradient(700px 360px at 85% 0, hsl(215 60% 50% / .04), transparent 70%),
+    var(--void-1) !important;
+  background-attachment: scroll !important;
+  color: var(--t1);
+  font-family: var(--font-body);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body::before {
+  display: block !important;
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(hsl(72 20% 95% / .035) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(72 20% 95% / .035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(60% 55% at 50% 0, #000 0%, transparent 80%);
+          mask-image: radial-gradient(60% 55% at 50% 0, #000 0%, transparent 80%);
+}
+body::after { display: none !important; }
+.terminal-shell, main, .panel { position: relative; z-index: 1; }
+
+/* ── 3. CHROME — nav island, ticker, mood bar ──────────────────────────── */
+.tabs-wrap, header {
+  background: var(--nav-bg) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+          backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--os-hairline) !important;
+  box-shadow: var(--edge), 0 12px 40px hsl(0 0% 0% / .45) !important;
+}
+.tab { color: var(--t3); font-weight: 600; letter-spacing: -.005em; }
+.tab:hover { color: var(--t1); background: var(--void-3) !important; }
+.tab.active, [data-theme="dark"] .tab.active {
+  color: var(--t1) !important;
+  background: var(--void-4) !important;
+  box-shadow: inset 0 -2px 0 var(--ember) !important;
+}
+.nav-icon-btn { color: var(--t3); }
+.nav-icon-btn:hover { color: var(--t1); }
+.nav-channel-btn, [data-theme="dark"] .nav-channel-btn { background: var(--paper) !important; color: var(--void-0) !important; font-weight: 700; }
+
+.os-live-pill, .status-pill { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 10.5px; }
+
+.market-ticker {
+  background: var(--void-2) !important;
+  border: 1px solid var(--os-hairline) !important;
+  box-shadow: var(--edge) !important;
+  font-variant-numeric: tabular-nums;
+}
+.ticker-label { font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--t3) !important; }
+.ticker-value {
+  font: 700 18px/1 var(--font-display);
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--t1);
+}
+.ticker-change {
+  font: 700 11.5px/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  padding: 4px 8px; border-radius: 6px;
+}
+.ticker-change.up   { color: var(--gain); background: var(--gain-bg); }
+.ticker-change.down { color: var(--loss); background: var(--loss-bg); }
+.ticker-change.flat { color: var(--t3);   background: var(--void-3); }
+.vix-zone { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; border-radius: 6px; padding: 4px 8px; }
+.vix-zone.low      { background: var(--gain-bg);  color: var(--gain);  border: 0; }
+.vix-zone.normal   { background: var(--void-4);   color: var(--t2);    border: 0; }
+.vix-zone.elevated { background: var(--amber-bg); color: var(--amber); border: 0; }
+.vix-zone.high     { background: var(--loss-bg);  color: var(--loss);  border: 0; }
+.ticker-live-dot { background: var(--gain); box-shadow: 0 0 0 3px var(--gain-bg), 0 0 12px var(--gain); }
+.ticker-live-dot.stale { background: var(--amber); box-shadow: 0 0 0 3px var(--amber-bg); }
+#tickerUpdatedAt { font-variant-numeric: tabular-nums; color: var(--t4); font-size: 11px; }
+
+.os-mood {
+  background: var(--void-2) !important;
+  border: 1px solid var(--os-hairline) !important;
+  border-left: 3px solid var(--t4) !important;
+  border-radius: var(--os-r-md) !important;
+  padding: 12px 16px;
+}
+.os-mood.os-bull    { border-left-color: var(--gain) !important; background: linear-gradient(90deg, var(--gain-bg), transparent 45%), var(--void-2) !important; }
+.os-mood.os-bear    { border-left-color: var(--loss) !important; background: linear-gradient(90deg, var(--loss-bg), transparent 45%), var(--void-2) !important; }
+.os-mood.os-neutral { border-left-color: var(--amber) !important; }
+.os-mood-text { color: var(--t2); font-variant-numeric: tabular-nums; }
+.os-mood-text strong { color: var(--t1); }
+
+/* ── 4. SURFACES — cards ───────────────────────────────────────────────── */
+.card, .card-glass, .terminal-panel, .sector-card, .terminal-strip,
+[data-theme="dark"] .card, [data-theme="dark"] .card-glass,
+[data-theme="dark"] .terminal-panel, [data-theme="dark"] .sector-card {
+  background:
+    linear-gradient(180deg, hsl(72 20% 95% / .028), transparent 38%),
+    var(--void-2) !important;
+  border: 1px solid var(--os-hairline) !important;
+  border-radius: var(--os-r-lg) !important;
+  box-shadow: var(--edge), 0 1px 0 hsl(0 0% 0% / .6), 0 18px 40px -22px hsl(0 0% 0% / .8) !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.card:hover, .card-glass:hover, .terminal-panel:hover, .sector-card:hover,
+[data-theme="dark"] .card:hover, [data-theme="dark"] .terminal-panel:hover, [data-theme="dark"] .sector-card:hover {
+  border-color: hsl(72 20% 95% / .16) !important;
+  box-shadow: var(--edge), 0 1px 0 hsl(0 0% 0% / .6), 0 22px 48px -22px hsl(0 0% 0% / .9) !important;
+}
+/* ember hairline across the top edge of every primary card */
+.card::after, .card-glass::after, .terminal-panel::before {
+  content: ''; position: absolute; inset: 0 18px auto 18px; height: 1px; width: auto;
+  background: linear-gradient(90deg, transparent, hsl(18 87% 54% / .55), transparent);
+  opacity: .55 !important; pointer-events: none; z-index: 5;
+}
+.terminal-panel { position: relative; }
+
+.terminal-panel-head .terminal-label, .c-title, .card h2, .card h3 {
+  font-family: var(--font-display);
+  font-weight: 700; letter-spacing: -.015em; color: var(--t1) !important;
+}
+.terminal-sub, .c-sub { color: var(--t3) !important; font-size: 12.5px; }
+
+/* inner tiles */
+.tape-cell, .tape-net, .signal-row, .terminal-meter, .terminal-summary-cell,
+.momentum-grid > *, .fno-grid > *, .signal-grid > *, .pressure-row, .detail-stat {
+  background: var(--void-1) !important;
+  border: 1px solid var(--os-hairline-soft) !important;
+  border-radius: var(--os-r-md) !important;
+  box-shadow: inset 0 1px 0 hsl(0 0% 0% / .5) !important;
+}
+.tape-cell .terminal-label, .terminal-summary-cell .terminal-label, .ds-label {
+  font-size: 10.5px !important; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+  color: var(--t3) !important; font-family: var(--font-body);
+}
+
+/* ── 5. HERO NUMBERS — the top figures ─────────────────────────────────── */
+.terminal-value, .num-xl, .num-l {
+  font-family: var(--font-display) !important;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1, 'ss01' 1;
+  letter-spacing: -.035em;
+  line-height: 1.02;
+}
+.terminal-value { font-size: clamp(34px, 3.4vw, 50px); white-space: nowrap; }
+.terminal-value small { font-size: .4em; font-weight: 700; letter-spacing: .04em; margin-left: .35em; color: var(--t3); text-shadow: none; text-transform: uppercase; }
+.terminal-value-sm { font-size: clamp(24px, 2.1vw, 32px); }
+.terminal-value.t-red, .terminal-value.neg   { color: var(--loss); text-shadow: 0 0 36px hsl(3 88% 62% / .28); }
+.terminal-value.t-green, .terminal-value.pos { color: var(--gain); text-shadow: 0 0 36px hsl(150 68% 52% / .26); }
+.t-green, .pos, .up, .bull { color: var(--gain); }
+.t-red, .neg, .down, .bear { color: var(--loss); }
+.signal-row strong {
+  font: 800 22px/1 var(--font-display); letter-spacing: -.03em;
+  font-variant-numeric: tabular-nums;
+}
+.signal-row span { color: var(--t3); font-weight: 600; }
+.signal-row em { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+
+.prov-chip, .mom-badge, .os-badge {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  border-radius: 6px !important;
+}
+.prov-chip { color: var(--amber) !important; background: var(--amber-bg) !important; border-color: hsl(38 92% 56% / .3) !important; }
+
+/* ── 6. METER + SIGNAL REPLAY ──────────────────────────────────────────── */
+.terminal-meter-labels { font-size: 12px; font-weight: 800; letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.terminal-meter-track { height: 10px !important; background: var(--void-3) !important; border-radius: 999px !important; overflow: hidden; display: flex; gap: 2px; }
+.meter-fii { background: var(--c-bear-grad) !important; border-radius: 999px 2px 2px 999px; }
+.meter-dii { background: var(--c-bull-grad) !important; border-radius: 2px 999px 999px 2px; }
+.sig-timeline { gap: 4px; }
+.sig-dot { width: 13px; height: 13px; border-radius: 3px; box-shadow: inset 0 0 0 1px hsl(0 0% 100% / .12); }
+.sig-q-bull   { background: var(--gain); }
+.sig-q-absorb { background: var(--amber); }
+.sig-q-fiionly{ background: var(--blue); }
+.os-lg.g { background: var(--gain); } .os-lg.r { background: var(--loss); } .os-lg.a { background: var(--amber); } .os-lg.b { background: var(--blue); }
+.sig-q-bear   { background: var(--loss); }
+
+/* ── 7. CONTROLS ───────────────────────────────────────────────────────── */
+.btn-x, .filter-btn, .terminal-mini-btn, .sniper-regen-btn,
+[data-theme="dark"] .btn-x, [data-theme="dark"] .filter-btn {
+  background: var(--void-3) !important;
+  border: 1px solid var(--os-hairline) !important;
+  color: var(--t1);
+  font-weight: 600; letter-spacing: -.005em;
+}
+.btn-x:hover, .filter-btn:hover, .terminal-mini-btn:hover { background: var(--void-4) !important; border-color: hsl(72 20% 95% / .18) !important; }
+.filter-btn.active, [data-theme="dark"] .filter-btn.active,
+.s-tab.active, [data-theme="dark"] .s-tab.active, .view-toggle button.active {
+  background: var(--paper) !important; color: var(--void-0) !important; border-color: transparent !important;
+}
+.btn-primary, .btn-x.primary, .alert-save-btn, .alert-enable-btn, .tour-next, .tour-card .btn-primary {
+  background: var(--ember) !important; color: hsl(336 41% 8%) !important; border-color: transparent !important; font-weight: 700;
+}
+.btn-primary:hover, .btn-x.primary:hover, .alert-save-btn:hover, .alert-enable-btn:hover { background: var(--ember-hi) !important; }
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+button:focus-visible, .tab:focus-visible, .s-tab:focus-visible, a:focus-visible {
+  outline: 2px solid var(--ember); outline-offset: 2px;
+}
+
+/* ── 8. TABLES ─────────────────────────────────────────────────────────── */
+.tbl-wrap, .terminal-table-wrap { background: var(--void-2) !important; border: 1px solid var(--os-hairline) !important; }
+th, [data-theme="dark"] th {
+  background: var(--void-3) !important; color: var(--t3) !important;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+td { font-variant-numeric: tabular-nums; }
+tbody tr:hover td { background: var(--void-3) !important; }
+
+/* ── 9. OVERLAYS ───────────────────────────────────────────────────────── */
+#sector-zoom-modal > *, #alert-settings-modal > *, .modal, .modal-content, .tour-card, .tour-tooltip,
+.iso-tip, [role="dialog"], [role="menu"], .os27-cust-sheet, .toast {
+  background: var(--void-3) !important;
+  border: 1px solid hsl(72 20% 95% / .12) !important;
+  box-shadow: 0 24px 64px hsl(0 0% 0% / .7) !important;
+}
+::-webkit-scrollbar-thumb { background: hsl(72 20% 95% / .1) !important; }
+::selection { background: hsl(18 87% 54% / .35); }
+
+@media (max-width: 720px) {
+  body::before { background-size: 40px 40px; }
+  .terminal-value { font-size: clamp(32px, 9vw, 42px); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }

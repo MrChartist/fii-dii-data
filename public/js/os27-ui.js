@@ -5,7 +5,6 @@
   <div class="os-topbar" role="banner">
     <a href="/" class="os-topbar-brand mc-topbar-brand" aria-label="Mr. Chartist — ${MCBrand.product.name} home">${MCBrand.lockup({size:'topbar'})}</a>
     <span class="os-live-chip" data-os-live><i></i><span>Live</span></span>
-    <button type="button" class="os-round-btn" onclick="toggleTheme()" aria-label="Toggle theme"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
     <a class="os-cta os-cta-sm" href="https://mrchartist.com" target="_blank" rel="noopener">Explore</a>
   </div>
 
@@ -32,9 +31,6 @@
     <div class="nav-divider"></div>
     <div class="nav-actions">
       <span class="os-live-chip" data-os-live title="Data status"><i></i><span>Live</span></span>
-      <button onclick="toggleTheme()" class="nav-icon-btn" title="Toggle theme" aria-label="Toggle theme">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-      </button>
       <div class="os-menu" id="navMore">
         <button type="button" class="nav-icon-btn os-menu-btn" aria-haspopup="true" aria-expanded="false" aria-label="More options" title="More">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
@@ -110,24 +106,14 @@
   }
   window.addEventListener('load', function () { setTimeout(deepLink, 400); });
 
-  /* theme fallback for pages without the dashboard script */
-  if (typeof window.toggleTheme !== 'function') {
-    window.toggleTheme = function () {
-      var h = doc.documentElement, d = h.getAttribute('data-theme') === 'dark';
-      h.setAttribute('data-theme', d ? 'light' : 'dark');
-      try { localStorage.setItem('theme', d ? 'light' : 'dark'); } catch (e) {}
-    };
-  }
-
   /* ---- 2. Move the old header controls into the single navbar (elements are moved, not recreated) ---- */
   var movedLive = null;
   function mergeHeader() {
     var src = $('#hdrControls'), navA = $('.tabs-wrap .nav-actions'), pop = $('#navMore .os-menu-pop');
     var chips = $$('[data-os-live]');
     if (!src) { chips.forEach(function (c) { c.parentNode.removeChild(c); }); return; }
-    var pill = $('#sPill'), theme = $('#btnTheme');
+    var pill = $('#sPill');
     chips.forEach(function (c) { c.parentNode.removeChild(c); });
-    if (theme && navA) { theme.className = 'nav-icon-btn'; theme.title = 'Toggle theme'; theme.setAttribute('aria-label', 'Toggle theme'); navA.insertBefore(theme, navA.firstChild); var old = $('.tabs-wrap .nav-actions > .nav-icon-btn:not(#btnTheme)'); if (old && !old.classList.contains('os-menu-btn')) old.parentNode.removeChild(old); }
     if (pill && navA) { pill.classList.add('os-live-pill'); navA.insertBefore(pill, navA.firstChild); movedLive = pill; }
     var order = ['#btnInstall', '#btnNotify', '#btnRefresh'];
     var labels = { '#btnInstall': 'Install app', '#btnNotify': 'Get alerts', '#btnRefresh': 'Force sync' };
@@ -287,7 +273,7 @@
     var KEY = 'os27-quotes', last = 0, timer = null, prev = {}, inflight = false;
     function fmt(n) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
     function ist() { var n = new Date(); return new Date(n.getTime() + 5.5 * 3600e3 + n.getTimezoneOffset() * 60e3); }
-    function live() { var d = ist(), m = d.getHours() * 60 + d.getMinutes(), w = d.getDay(); return w > 0 && w < 6 && m >= 540 && m <= 945; }
+    function live() { var d = ist(), m = d.getHours() * 60 + d.getMinutes(), w = d.getDay(); return w > 0 && w < 6 && m >= 555 && m <= 930; }
     function zone(v) { return v < 14 ? ['Low Fear', 'low'] : v < 20 ? ['Normal', 'normal'] : v < 30 ? ['Elevated', 'elevated'] : ['High Fear', 'high']; }
     function flash(el, dir) { if (!el) return; el.classList.remove('tick-up', 'tick-down'); void el.offsetWidth; el.classList.add(dir > 0 ? 'tick-up' : 'tick-down'); setTimeout(function () { el.classList.remove('tick-up', 'tick-down'); }, 1000); }
     function put(k, q, pe, ce, invert) {
@@ -296,7 +282,7 @@
       if (prev[k] != null && prev[k] !== q.price) flash(p, q.price > prev[k] ? 1 : -1);
       prev[k] = q.price;
       var pct = Number(q.pct) || 0, band = invert ? 0.5 : 0.05;
-      c.textContent = (pct >= 0 ? '▲ +' : '▼ ') + pct.toFixed(2) + '%';
+      var pf = Math.abs(pct).toFixed(2); c.textContent = pf === '0.00' ? '\u25AC 0.00%' : (pct > 0 ? '\u25B2 +' : '\u25BC \u2212') + pf + '%';
       c.className = 'ticker-change ' + (invert ? (pct > band ? 'down' : pct < -band ? 'up' : 'flat') : (pct > band ? 'up' : pct < -band ? 'down' : 'flat'));
     }
     function render(d, cached) {
@@ -305,7 +291,13 @@
       put('v', d.vix, '#tickerVixPrice', '#tickerVixChange', true);
       if (d.vix) { var z = zone(d.vix.price), ze = $('#tickerVixZone'); if (ze) { ze.textContent = z[0]; ze.className = 'vix-zone ' + z[1]; } }
       var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot');
-      if (ts) { var t = new Date(d.ts || Date.now()); ts.textContent = 'Updated ' + t.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + (d.stale ? ' (delayed)' : ''); ts.classList.toggle('cached', !!cached); }
+      if (ts) {
+        var t = new Date(d.ts || Date.now());
+        var hhmm = t.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' });
+        var state = live() ? 'Market open' : 'Market closed';
+        ts.textContent = state + ' \u00B7 ' + hhmm + ' IST' + (d.stale ? ' (delayed)' : '');
+        ts.classList.toggle('cached', !!cached);
+      }
       if (dot) dot.className = 'ticker-live-dot' + (cached || d.stale ? ' stale' : '');
       // Show the ticker only when real quotes exist; hide any quote that is missing.
       var box = $('#marketTicker'), any = false;
@@ -332,7 +324,7 @@
         .catch(function () {
           var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot'); if (dot) dot.className = 'ticker-live-dot stale';
           if (!ts) return;
-          if (/Updated/.test(ts.textContent)) { if (!/\(delayed\)$/.test(ts.textContent)) ts.textContent += ' (delayed)'; } else ts.textContent = 'Market data unavailable';
+          if (/IST/.test(ts.textContent)) { if (!/\(delayed\)$/.test(ts.textContent)) ts.textContent += ' (delayed)'; } else ts.textContent = 'Market data unavailable';
         })
         .then(function () { clearTimeout(to); inflight = false; schedule(); });
     }

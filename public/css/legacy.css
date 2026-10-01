@@ -534,14 +534,6 @@ header { display: flex; justify-content: space-between; align-items: center; gap
     linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.012));
   perspective: 900px;
 }
-[data-theme="light"] .pressure-list {
-  background:
-    linear-gradient(90deg, transparent 0 20%, rgb(0 0 0 / 0.07) 20.5%, transparent 21%),
-    linear-gradient(90deg, transparent 0 40%, rgb(0 0 0 / 0.055) 40.5%, transparent 41%),
-    linear-gradient(90deg, transparent 0 60%, rgb(0 0 0 / 0.048) 60.5%, transparent 61%),
-    linear-gradient(90deg, transparent 0 80%, rgb(0 0 0 / 0.04) 80.5%, transparent 81%),
-    linear-gradient(180deg, rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.16));
-}
 .pressure-summary {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

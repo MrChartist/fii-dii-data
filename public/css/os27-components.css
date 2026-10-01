@@ -377,7 +377,6 @@
   background: var(--c-well);
   perspective: none;
 }
-[data-theme="light"] .pressure-list { background: var(--c-well); }
 .pressure-row {
   grid-template-columns: 96px minmax(64px, auto) minmax(0, 1fr);
   gap: 12px;
