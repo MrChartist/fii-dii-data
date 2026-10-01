@@ -1,9 +1,9 @@
 /* Branding components. Parent logo stays monochrome (black on light, white on dark). Product accent = hsl(16 100% 60%). */
 :root { --mc-accent: hsl(16 100% 60%); }
 
-/* theme swap: dark theme is the default when no attribute is present */
+/* single dark identity: only the white-on-dark logo variants render */
 .mc-img { display: block; height: auto; }
-html[data-theme="light"] .mc-img--on-dark, html:not([data-theme="light"]) .mc-img--on-light { display: none !important; }
+.mc-img--on-light { display: none !important; }
 
 .mc-lockup { display: inline-flex; align-items: center; color: var(--t1); white-space: nowrap; }
 .mc-full { width: 132px; aspect-ratio: 714 / 210; }
@@ -18,13 +18,9 @@ html[data-theme="light"] .mc-img--on-dark, html:not([data-theme="light"]) .mc-im
   .mc-lockup--nav .mc-full { display: none !important; }
   .mc-lockup--nav .mc-sym { display: block !important; }
   .mc-lockup--nav .mc-sym.mc-img--on-light { display: none !important; }
-  html[data-theme="light"] .mc-lockup--nav .mc-sym.mc-img--on-light { display: block !important; }
-  html[data-theme="light"] .mc-lockup--nav .mc-sym.mc-img--on-dark { display: none !important; }
 }
 .mc-lockup--topbar .mc-sym { width: 34px; }
 .mc-lockup--topbar .mc-sym.mc-img--on-light { display: none !important; }
-html[data-theme="light"] .mc-lockup--topbar .mc-sym.mc-img--on-light { display: block !important; }
-html[data-theme="light"] .mc-lockup--topbar .mc-sym.mc-img--on-dark { display: none !important; }
 .mc-lockup--topbar .mc-lockup__sep { height: 18px; margin: 0 8px 0 2px; }
 .mc-lockup--topbar .mc-lockup__product { font-size: 14.5px; }
 .os-topbar .os-live-chip { flex: none; }

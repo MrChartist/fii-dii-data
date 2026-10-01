@@ -1,8 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" class="dark">
 <head>
-<script>/* Restore saved theme before first paint to avoid a flash */
-try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- SEO Meta Tags -->
@@ -166,8 +164,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
 <!-- PWA / Installability -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#050709">
 <!-- Mobile Web App tags -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -210,6 +207,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <link rel="stylesheet" href="/css/os27-polish.css?v=1">
 <link rel="stylesheet" href="/css/os27-ranges.css?v=1">
 <link rel="stylesheet" href="/css/os27-ui.css?v=1">
+<link rel="stylesheet" href="/css/terminal.css?v=1">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -249,9 +247,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         </button>
         <button onclick="togglePushNotifications()" class="hdr-btn" id="btnNotify" title="Get push alerts when new FII/DII data arrives">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> <span id="notifyLabel">Get Alerts</span>
-        </button>
-        <button onclick="toggleTheme()" class="hdr-btn" id="btnTheme">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg> Light Mode
         </button>
         <button onclick="fetchLiveNSE(true)" class="hdr-btn" id="btnRefresh">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 019-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg> Force Sync
@@ -1123,6 +1118,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="mom-badge" id="faoSentiment">—</div>
       </div>
   
+      <div class="fno-kpis" id="fnoKpis" aria-live="polite"></div>
+
       <div class="fno-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
         <!-- FII Column -->
         <div style="padding:16px; background:var(--l1); border-radius:10px; border:1px solid var(--sep2);">
@@ -1427,7 +1424,7 @@ async function exportDOM(element, namePrefix) {
     
     // Create a temporary wrapper to inject watermark
     const clone = element.cloneNode(true);
-    const _isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const _isLight = false;
     const watermark = document.createElement('div');
     watermark.className = 'mc-export-mark';
     const _wm = window.MCBrand ? MCBrand.logoFor(_isLight) : null;
@@ -1450,7 +1447,7 @@ async function exportDOM(element, namePrefix) {
     
     const targetEl = clone.parentNode === document.body ? clone : element;
 
-    const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
+    const isLightTheme = false;
     const canvas = await html2canvas(targetEl, {
       backgroundColor: isLightTheme ? '#F0EDE5' : '#0A0A0C',
       scale: 2, // High DPI
@@ -1593,7 +1590,14 @@ let yearlyData = [
 
 /* ── DOM RENDER UTILS ── */
 function fC(v) { return (v>0?'pos':'neg'); }
-function fmt(v) { return (v>0?'+':(v<0?'-':'')) + '₹' + Math.abs(v).toLocaleString('en-IN') + ' Cr'; }
+/* Fixed 2dp so figures never jump width (1,123.3 -> 1,123.30); true minus sign; no "-0.00" */
+function fmt(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return '--';
+  const a = Math.abs(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const neg = n < 0 && a !== '0.00';
+  return (neg ? '\u2212' : (n > 0 && a !== '0.00' ? '+' : '')) + '\u20B9' + a + ' Cr';
+}
 /* Escape untrusted strings (LLM output, scraped sector names, API errors)
    before they reach an innerHTML sink */
 function escapeHtml(s) {
@@ -1953,7 +1957,8 @@ function renderDashboard() {
   const setLatestMetric = (id, value, terminalClass, legacyClass) => {
     const target = document.getElementById(id);
     if (!target) return;
-    target.innerText = fmt(value);
+    // Unit rendered as a small suffix so the figure stays the hero (fmt output is numeric-only, safe for innerHTML)
+    target.innerHTML = fmt(value).replace(/ Cr$/, '<small>Cr</small>');
     target.className = `${target.closest('.terminal-shell') ? terminalClass : legacyClass} ${clr(value)}`;
   };
   setLatestMetric('lFii', latest.fn, 'terminal-value', 'num-xl');
@@ -2082,6 +2087,35 @@ function renderDashboard() {
     else if (score == 0) { sBadge.innerHTML = '<i class="os-dot"></i>Neutral'; sBadge.className = 'mom-badge os-badge neutral mb-neut'; }
     else if (score == -1) { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Mild'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
     else { sBadge.innerHTML = '<i class="os-dot"></i>Bearish: Strong'; sBadge.className = 'mom-badge os-badge bear mb-bear'; }
+
+
+    // Net-positioning KPI strip: FII net contracts with change vs previous F&O session
+    (function renderFnoKpis() {
+      const box = document.getElementById('fnoKpis');
+      if (!box) return;
+      const prev = dailyData.slice(dailyData.indexOf(latestFno) + 1).find(_hasRealFno);
+      const sgn = n => { const a = Math.abs(Math.round(n)).toLocaleString('en-IN'); return n === 0 ? '0' : (n < 0 ? '\u2212' : '+') + a; };
+      const net = (d, l, s) => (d[l] || 0) - (d[s] || 0);
+      const tiles = [
+        { k: 'Index Futures', v: net(latestFno, 'fii_idx_fut_long', 'fii_idx_fut_short'), p: prev && net(prev, 'fii_idx_fut_long', 'fii_idx_fut_short'), bull: 1,
+          r: latestFno.fii_idx_fut_short > 0 ? (latestFno.fii_idx_fut_long / latestFno.fii_idx_fut_short).toFixed(2) : null },
+        { k: 'Stock Futures', v: net(latestFno, 'fii_stk_fut_long', 'fii_stk_fut_short'), p: prev && net(prev, 'fii_stk_fut_long', 'fii_stk_fut_short'), bull: 1,
+          r: latestFno.fii_stk_fut_short > 0 ? (latestFno.fii_stk_fut_long / latestFno.fii_stk_fut_short).toFixed(2) : null },
+        { k: 'Index Calls', v: net(latestFno, 'fii_idx_call_long', 'fii_idx_call_short'), p: prev && net(prev, 'fii_idx_call_long', 'fii_idx_call_short'), bull: 1,
+          r: latestFno.fii_idx_call_short > 0 ? (latestFno.fii_idx_call_long / latestFno.fii_idx_call_short).toFixed(2) : null },
+        { k: 'Index Puts', v: net(latestFno, 'fii_idx_put_long', 'fii_idx_put_short'), p: prev && net(prev, 'fii_idx_put_long', 'fii_idx_put_short'), bull: -1,
+          r: latestFno.fii_idx_put_short > 0 ? (latestFno.fii_idx_put_long / latestFno.fii_idx_put_short).toFixed(2) : null }
+      ];
+      box.innerHTML = tiles.map(t => {
+        const dir = t.v === 0 ? 'flat' : ((t.v > 0) === (t.bull > 0) ? 'up' : 'down');   // long puts read bearish
+        const dl = prev ? t.v - t.p : null;
+        const dcls = dl === null || dl === 0 ? 'flat' : ((dl > 0) === (t.bull > 0) ? 'up' : 'down');
+        return '<div class="fno-kpi"><div class="fno-kpi-k">FII ' + t.k + ' · Net</div>' +
+          '<div class="fno-kpi-v ' + dir + '">' + sgn(t.v) + '</div>' +
+          '<div class="fno-kpi-f"><span class="' + dcls + '">' + (dl === null ? 'No prior session' : sgn(dl) + ' vs prev') + '</span>' +
+          (t.r ? '<span>L/S ' + t.r + '</span>' : '') + '</div></div>';
+      }).join('');
+    })();
 
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);
@@ -3107,7 +3141,7 @@ function renderDetailChart(idx, d) {
   
   const ctx = canvas.getContext('2d');
   // Theme lives in data-theme on <html>, not a body class
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const isDark = true;
   const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   const textColor = isDark ? '#a0a0a0' : '#666';
 
@@ -3172,7 +3206,7 @@ function renderMatrixChart() {
   if (!canvas || !dailyData.length || typeof Chart === 'undefined') return;
   
   const ctx = canvas.getContext('2d');
-  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  const isDark = true;
   const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   const textColor = isDark ? '#a0a0a0' : '#666';
 
@@ -3504,7 +3538,7 @@ function renderCumulativeChart(ctx, isLight, gridCol, tickCol, labelCol) {
 
 function renderHistoryChart() {
   if (typeof Chart === 'undefined') return; // chart lib failed to load — keep the page alive
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
   const tickCol = isLight ? 'rgba(0,15,8,0.5)' : 'rgba(240,237,229,0.5)';
   const labelCol = isLight ? 'rgba(0,15,8,0.8)' : 'rgba(240,237,229,0.8)';
@@ -3606,18 +3640,6 @@ function renderHistoryChart() {
   });
 }
 
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  try { localStorage.setItem('theme', isDark ? 'light' : 'dark'); } catch {}
-  document.getElementById('btnTheme').innerHTML = isDark
-    ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg> Dark Mode`
-    : `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg> Light Mode`;
-  renderHistoryChart();
-  if (chartSector) renderSectorChart();
-  renderCommandCenter();
-}
 
 
 
@@ -3723,7 +3745,7 @@ function openSectorModal(origIdx) {
   const ctx = document.getElementById('sz-chart').getContext('2d');
   if (sectorZoomChartInstance) sectorZoomChartInstance.destroy();
 
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const greenColor = isLight ? '#059669' : '#30b86a';
   const redColor = isLight ? '#DC2626' : '#d94848';
 
@@ -3848,7 +3870,7 @@ function drawSectorSparkline(canvasId, sectorObj) {
     chartData = [0, target]; // no history — straight line to the 1Y total
   }
 
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const greenColor = isLight ? '#059669' : '#30b86a';
   const redColor = isLight ? '#DC3545' : '#FF5252';
 
@@ -3935,7 +3957,7 @@ function renderSectorChart() {
   const canvas = document.getElementById('chSector');
   if (!canvas) return;
 
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const metric  = _secMetric;
   const ctype   = _secChartType;
 
@@ -4206,7 +4228,7 @@ function renderLsRatioChart() {
     nowEl.textContent = `Now: ${cur} (${zone})`;
   }
 
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const tickCol = isLight ? 'rgba(0,15,8,0.5)' : 'rgba(240,237,229,0.5)';
   const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
 
@@ -4245,7 +4267,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   const canvas = document.getElementById('chFnoHistory');
   if(!canvas) return;
   
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const isLight = false;
   const gridCol = isLight ? 'rgba(0,15,8,0.05)' : 'rgba(240,237,229,0.05)';
   const tickCol = isLight ? 'rgba(0,15,8,0.5)'  : 'rgba(240,237,229,0.5)';
   const labelCol= isLight ? 'rgba(0,15,8,0.8)'  : 'rgba(240,237,229,0.8)';

@@ -21,7 +21,7 @@
     } catch (e) { return null; }
   }
   function withAlpha(rgb, a) { return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')'; }
-  function isDark() { return root.getAttribute('data-theme') !== 'light'; }
+  function isDark() { return true; }
   function reduced() { return root.getAttribute('data-motion') === 'reduced'; }
 
   function tokens() {
@@ -89,7 +89,7 @@
   }
 
   var plugin = {
-    id: 'os27theme',
+    id: 'os27terminal',
     beforeUpdate: function (chart) {
       var t = tokens();
       try {
@@ -151,25 +151,14 @@
     retheme();
   }
   new MutationObserver(function () { retheme(); reapplyOverrides(); })
-    .observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-motion', 'data-density'] });
-  try {
-    var mq = window.matchMedia('(prefers-color-scheme: dark)');
-    (mq.addEventListener ? mq.addEventListener.bind(mq, 'change') : mq.addListener.bind(mq))(function () { onSystemChange(); retheme(); });
-  } catch (e) {}
+    .observe(root, { attributes: true, attributeFilter: ['data-motion', 'data-density'] });
 
   /* ---------- preferences ---------- */
-  var ACCENTS = {
-    blue:   { l: '#007AFF', d: '#0A84FF', n: 'Blue' },
-    indigo: { l: '#5856D6', d: '#5E5CE6', n: 'Indigo' },
-    teal:   { l: '#1C9DB5', d: '#40C8E0', n: 'Teal' },
-    orange: { l: '#E07B00', d: '#FF9F0A', n: 'Orange' },
-    pink:   { l: '#E0224F', d: '#FF375F', n: 'Pink' }
-  };
   var PALETTES = {
     gr: null,
     bo: { l: ['#0060DF', '#B85000'], d: ['#4DA3FF', '#FF9F0A'] }
   };
-  var DEF = { theme: 'manual', accent: 'blue', density: 'comfortable', motion: 'full', palette: 'gr' };
+  var DEF = { density: 'comfortable', motion: 'full', palette: 'gr' };
   var prefs = Object.assign({}, DEF);
 
   function load() {
@@ -184,12 +173,6 @@
   }
   function hexA(h, a) { var n = parseInt(h.slice(1), 16); return 'rgb(' + (n >> 16) + ' ' + ((n >> 8) & 255) + ' ' + (n & 255) + ' / ' + a + ')'; }
 
-  function applyAccent() {
-    var a = ACCENTS[prefs.accent];
-    if (!a || prefs.accent === 'blue') { setProps({ '--os-accent': null, '--os-accent-bg': null }); return; }
-    var c = isDark() ? a.d : a.l;
-    setProps({ '--os-accent': c, '--os-accent-bg': hexA(c, isDark() ? 0.22 : 0.12) });
-  }
   function applyPalette() {
     var p = PALETTES[prefs.palette];
     if (!p) { setProps({ '--os-bull': null, '--os-bear': null, '--os-bull-bg': null, '--os-bear-bg': null, '--green': null, '--red': null }); return; }
@@ -201,30 +184,12 @@
   }
   function applyDensity() { root.setAttribute('data-density', prefs.density); }
   function applyMotion() { root.setAttribute('data-motion', prefs.motion); }
-  function reapplyOverrides() { applyAccent(); applyPalette(); }
+  function reapplyOverrides() { applyPalette(); }
 
-  /* theme: reuse the app's own toggleTheme() and 'theme' storage key */
-  function sysTheme() { try { return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; } catch (e) { return 'dark'; } }
-  function setTheme(mode) {                       // 'auto' | 'light' | 'dark'
-    var want = mode === 'auto' ? sysTheme() : mode;
-    if (root.getAttribute('data-theme') !== want) {
-      if (typeof window.toggleTheme === 'function') {
-        try { window.toggleTheme(); } catch (e) {}
-      }
-      if (root.getAttribute('data-theme') !== want) root.setAttribute('data-theme', want);
-    }
-    try {
-      if (mode === 'auto') localStorage.removeItem('theme'); else localStorage.setItem('theme', want);
-    } catch (e) {}
-  }
-  function onSystemChange() { if (prefs.theme === 'auto') setTheme('auto'); }
-  function themeMode() { return prefs.theme === 'auto' ? 'auto' : (isDark() ? 'dark' : 'light'); }
 
   /* ---------- UI ---------- */
   var btn, sheet, backdrop, lastFocus;
   var GROUPS = [
-    { key: 'theme', label: 'Appearance', opts: [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']] },
-    { key: 'accent', label: 'Accent colour', swatches: true, opts: Object.keys(ACCENTS).map(function (k) { return [k, ACCENTS[k].n]; }) },
     { key: 'density', label: 'Density', opts: [['comfortable', 'Comfortable'], ['compact', 'Compact']] },
     { key: 'motion', label: 'Motion', opts: [['full', 'Full'], ['reduced', 'Reduced']] },
     { key: 'palette', label: 'Gain and loss colours', opts: [['gr', 'Green and red'], ['bo', 'Blue and orange']], hint: 'Blue and orange is easier to tell apart for colour-blind users.' }
@@ -257,7 +222,6 @@
       seg.dataset.key = g.key;
       g.opts.forEach(function (o) {
         var b = el('button', 'os27-seg-b'); b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.val = o[0];
-        if (g.swatches) { var s = el('i', 'os27-dot'); s.style.background = ACCENTS[o[0]].d; b.appendChild(s); }
         b.appendChild(el('span', null, o[1]));
         b.addEventListener('click', function () { choose(g.key, o[0]); });
         seg.appendChild(b);
@@ -281,7 +245,7 @@
   }
 
   function sync() {
-    var cur = { theme: themeMode(), accent: prefs.accent, density: prefs.density, motion: prefs.motion, palette: prefs.palette };
+    var cur = { density: prefs.density, motion: prefs.motion, palette: prefs.palette };
     sheet.querySelectorAll('.os27-seg').forEach(function (seg) {
       seg.querySelectorAll('.os27-seg-b').forEach(function (b) {
         var on = b.dataset.val === cur[seg.dataset.key];
@@ -290,19 +254,15 @@
     });
   }
   function choose(key, val) {
-    if (key === 'theme') { prefs.theme = val === 'auto' ? 'auto' : 'manual'; setTheme(val); }
-    else { prefs[key] = val; }
-    if (key === 'accent') applyAccent();
+    prefs[key] = val;
     if (key === 'density') applyDensity();
     if (key === 'motion') { applyMotion(); retheme(); }
     if (key === 'palette') { applyPalette(); retheme(); }
     save(); sync();
   }
   function reset() {
-    var wasAuto = prefs.theme === 'auto';
     prefs = Object.assign({}, DEF);
-    applyAccent(); applyPalette(); applyDensity(); applyMotion();
-    if (wasAuto) { try { localStorage.removeItem('theme'); } catch (e) {} }
+    applyPalette(); applyDensity(); applyMotion();
     save(); retheme(); sync();
   }
   function open() {
@@ -320,7 +280,6 @@
   function init() {
     load();
     applyDensity(); applyMotion();
-    if (prefs.theme === 'auto') setTheme('auto');
     reapplyOverrides();
     if (!document.getElementById('os27-cust-title')) build();
     retheme();
