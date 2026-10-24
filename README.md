@@ -114,13 +114,30 @@ Comprehensive documentation covering:
 | Technology | Usage |
 |-----------|-------|
 | **Node.js + Express** | Backend API server with cron-based NSE data fetching |
-| **HTML5** | Single-file monolithic dashboard |
-| **CSS3** | Custom properties, OLED dark mode, glassmorphism, ambient orbs |
-| **JavaScript** | Vanilla JS with Chart.js 3.9.1 |
+| **HTML5** | Single-file dashboard (`public/index.html`) plus `deals.html` |
+| **CSS3** | `css/mc.css` design system (tokens, chrome, components) + `css/mc-dashboard.css` (page sections). OLED dark default, warm light theme, safe-area aware |
+| **JavaScript** | Vanilla JS with Chart.js 3.9.1; shared chrome, motion, chart theming and range selector live in `public/js/mc-*.js` |
 | **Chart.js** | Interactive bar/line charts + sector sparklines |
 | **html2canvas** | Full-page screenshot export |
 | **node-cron** | Automated data fetching (6:00, 6:30, 7:00 PM IST Mon-Fri) |
-| **PWA** | Service Worker v5 + Web App Manifest |
+| **PWA** | Service Worker v15 (network-first, API bypass) + Web App Manifest with shortcuts |
+
+## 🎨 Design system
+
+The front end ships as two stylesheets and six small scripts, all brand-owned:
+
+| File | Purpose |
+|------|---------|
+| `public/css/mc.css` | Tokens (colour, type, radius, motion), base styles, navigation (top bar on desktop, iOS-style tab bar on phones), buttons, badges, cards, tables, popovers, modals, footer, deals page |
+| `public/css/mc-dashboard.css` | Home command center, F&O, Flow Analytics and Sectors sections, plus their phone layouts |
+| `public/js/mc-brand.js` | Brand registry: Mr. Chartist logo lockups, product name, tagline |
+| `public/js/mc-ui.js` | Navigation + footer templates, info popovers, menus, live quotes, toast, theme-color sync |
+| `public/js/mc-motion.js` | Sliding capsule, scroll reveal, count-ups, battery/data-saver hints |
+| `public/js/mc-charts.js` | Chart.js theming from CSS tokens and the Customise sheet (appearance, accent, density, motion, palette) |
+| `public/js/mc-ranges.js` | Chart range selector (1M/3M/6M/1Y/All) with empty-state handling and auto-fallback to the latest data |
+| `public/js/mc-deals.js` | Bulk & block deals page: filters, search, sortable columns, summary tiles |
+
+Theme tokens: the brand accent is `hsl(16 100% 60%)` ("Signal"), the Mr. Chartist logo stays monochrome, gains/losses use the `--os-bull` / `--os-bear` pair, and every surface derives from `--bg`, `--surface`, `--l1…--l4` and the hairline `--os-hairline`. Dark is the default; `html[data-theme="light"]` switches to the warm light palette.
 
 ## 📂 Project Structure
 
@@ -130,22 +147,21 @@ FII and DII data/
 ├── package.json                  # Dependencies & scripts
 ├── public/
 │   ├── index.html                # Main dashboard (single-file SPA)
-│   ├── manifest.json             # PWA manifest
+│   ├── deals.html                # Bulk & block deals page
+│   ├── manifest.json             # PWA manifest (icons, shortcuts)
 │   ├── sw.js                     # Service Worker (network-first, API bypass)
-│   ├── robots.txt                # Search engine crawler rules
-│   ├── sitemap.xml               # XML sitemap for SEO
-│   ├── brand/                # Mr. Chartist logo + app icons (see brand-source/)
-│   │   ├── icons/            # favicons, touch + PWA icons (Mr. Chartist symbol)
-│   │   ├── mr-chartist/      # approved Mr. Chartist logo (black/white)
-│   │   └── share/            # 1200x630 social card
+│   ├── robots.txt / sitemap.xml  # SEO
+│   ├── css/
+│   │   ├── mc.css                # Design system + chrome + components
+│   │   └── mc-dashboard.css      # Page sections
+│   ├── js/
+│   │   └── mc-*.js               # Brand, UI chrome, motion, charts, ranges, deals
+│   ├── vendor/                   # Self-hosted Chart.js + html2canvas
+│   ├── brand/                    # Mr. Chartist logo + app icons (see brand-source/)
 │   └── screenshots/              # Tab screenshots for README
-│       ├── 01_home_fii_dii_date.png
-│       ├── 02_fno_positions.png
-│       ├── 03_databases_matrices.png
-│       ├── 05_sectors.png
-│       └── 06_docs.png
 ├── scripts/
 │   ├── fetch_data.js             # NSE data fetcher + JSON storage
+│   ├── verify_terminal_ui.js     # Front-end contract test (npm run test:ui)
 │   ├── seed_history.js           # Historical data seeder
 │   └── seed_sectors.js           # Sector data seeder
 ├── data/

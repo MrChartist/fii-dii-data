@@ -23,6 +23,7 @@
 
   /* Main lockup: Mr. Chartist logo | FII & DII Data.
    * size: 'nav' (full logo >1360px, symbol below) | 'topbar' (symbol) | 'footer' (large logo + product name) */
+  B.tagline = 'Read the market before you trade it.';
   B.lockup = function (o) {
     var size = (o && o.size) || 'nav';
     return '<span class="mc-lockup mc-lockup--' + size + '">' +

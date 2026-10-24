@@ -1,4 +1,4 @@
-/* os27-ranges: additive trading-style range selector + empty-data state for Chart.js time-series charts.
+/* mc-ranges: trading-style range selector + empty-data state for Chart.js time-series charts.
    Pure plugin: never mutates chart data, only scales.x.min/max (and y display while empty). */
 (function () {
   'use strict';
@@ -6,7 +6,7 @@
 
   var RANGES = [['1M', 21], ['3M', 63], ['6M', 126], ['1Y', 252], ['All', 0]];
   var DEFAULT_K = 63, MIN_POINTS = 31, SKEY = 'os27.range.';
-  var state = {}; // canvas id -> k (0 = all)
+  var state = {}, chosen = {}; // canvas id -> k (0 = all); chosen: the user (or a saved session) picked it
   var MON = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
 
   function sget(id) { try { var v = sessionStorage.getItem(SKEY + id); return v == null ? null : parseInt(v, 10); } catch (e) { return null; } }
@@ -41,7 +41,7 @@
   }
   function kFor(id, n) {
     var k = state[id];
-    if (k == null) { k = sget(id); if (k == null || isNaN(k)) k = n > DEFAULT_K ? DEFAULT_K : 0; state[id] = k; }
+    if (k == null) { k = sget(id); if (k == null || isNaN(k)) k = n > DEFAULT_K ? DEFAULT_K : 0; else chosen[id] = true; state[id] = k; }
     return (k > 0 && k >= n) ? 0 : k;
   }
   function windowOf(chart, k) { // -> [lo, hi] inclusive indexes
@@ -113,7 +113,7 @@
   }
   function chartFor(id) { var c = document.getElementById(id); return c && Chart.getChart(c); }
   function setRange(id, k) {
-    state[id] = k; sset(id, k);
+    state[id] = k; chosen[id] = true; sset(id, k);
     var ch = chartFor(id); if (ch) ch.update('none');
   }
 
@@ -185,6 +185,12 @@
           }
         }
         var n = chart.data.labels.length, k = ranged ? kFor(id, n) : 0, w = windowOf(chart, k);
+        if (ranged && k && !chosen[id] && !hasData(chart, w[0], w[1]) && hasData(chart, 0, n - 1)) {
+          // default window has nothing to show (e.g. F&O lags cash data): open on the shortest range that reaches the latest data
+          var need = latestDataIndexFromEnd(chart), pick = 0;
+          for (var ri = 0; ri < RANGES.length - 1; ri++) if (RANGES[ri][1] >= need && RANGES[ri][1] < n) { pick = RANGES[ri][1]; break; }
+          state[id] = k = pick; w = windowOf(chart, k);
+        }
         chart._os27 = chart._os27 || { yd: yo ? yo.display : undefined };
         chart._os27.ranged = ranged;
         if (ranged) { if (k) { xo.min = xr.min = w[0]; xo.max = xr.max = w[1]; } else { xo.min = xr.min = undefined; xo.max = xr.max = undefined; } }

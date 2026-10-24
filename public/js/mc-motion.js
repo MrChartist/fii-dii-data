@@ -1,4 +1,4 @@
-/* os27-motion: additive motion layer. Observers + classes only; never touches app logic. */
+/* mc-motion: motion layer. Observers + classes only; never touches app logic. */
 (function () {
   'use strict';
   try {
@@ -199,7 +199,7 @@
 })();
 
 /* ── os27-perf: device / battery / visibility adaptivity ─────────────────────
-   Additive. Sets two attributes on <html> that css/os27.css reacts to:
+   Additive. Sets two attributes on <html> that css/mc.css reacts to:
      data-saver   present on data-saver, low battery, low memory / few cores or reduced-data
      data-hidden  present while the tab is hidden (CSS animations are paused)
    Nothing here touches app functions. */
