@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-loading>
 <head>
 <script>/* Restore saved theme before first paint to avoid a flash */
 try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
@@ -199,8 +199,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=4">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=4">
+<link rel="stylesheet" href="/css/mc.css?v=5">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=5">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -208,6 +208,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <script>window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>')</script>
 </head>
 <body>
+<a class="mc-skip" href="#t-hero">Skip to content</a>
 <div class="sticky-kpi" id="stickyKpi" aria-hidden="true"></div>
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
@@ -439,15 +440,23 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <div class="tape-cell">
             <div class="terminal-label"><span class="gloss" data-tip="Foreign Institutional Investors / Foreign Portfolio Investors — overseas funds buying or selling Indian equities. Net = buys minus sells in the cash market.">FII / FPI</span> Net</div>
             <div class="terminal-value t-red" id="lFii">--</div>
+            <div class="mc-ctx" id="lFiiCtx"></div>
           </div>
           <div class="tape-cell">
             <div class="terminal-label"><span class="gloss" data-tip="Domestic Institutional Investors — Indian mutual funds, insurers and banks. Often absorb FII selling, fueled by monthly SIP inflows.">DII</span> Net</div>
             <div class="terminal-value terminal-value-sm t-green" id="lDii">--</div>
+            <div class="mc-ctx" id="lDiiCtx"></div>
           </div>
           <div class="tape-cell tape-net">
             <div class="terminal-label" id="liqLabel">Combined Liquidity</div>
             <div class="terminal-value terminal-value-sm t-red" id="lNet">--</div>
           </div>
+        </div>
+        <div class="mc-periods" id="mcPeriods" aria-label="Period totals">
+          <div><span>FII month to date</span><strong id="mtdFii">--</strong></div>
+          <div><span>DII month to date</span><strong id="mtdDii">--</strong></div>
+          <div><span>FII year to date</span><strong id="ytdFii">--</strong></div>
+          <div><span>DII year to date</span><strong id="ytdDii">--</strong></div>
         </div>
         <div class="terminal-meter">
           <div class="terminal-meter-labels">
@@ -713,7 +722,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         </div>
         <div class="tbl-wrap">
           <table id="tblDailyArchive">
-            <thead><tr><th>Trading Date</th><th>FII Gross Buy</th><th>FII Gross Sell</th><th>FII Net</th><th>DII Gross Buy</th><th>DII Gross Sell</th><th>DII Net</th><th>Total Liquidity</th></tr></thead>
+            <thead><tr><th class="sortable" data-key="d" onclick="sortDaily('d')">Trading Date</th><th class="sortable" data-key="fb" onclick="sortDaily('fb')">FII Gross Buy</th><th class="sortable" data-key="fs" onclick="sortDaily('fs')">FII Gross Sell</th><th class="sortable" data-key="fn" onclick="sortDaily('fn')">FII Net</th><th class="sortable" data-key="db" onclick="sortDaily('db')">DII Gross Buy</th><th class="sortable" data-key="ds" onclick="sortDaily('ds')">DII Gross Sell</th><th class="sortable" data-key="dn" onclick="sortDaily('dn')">DII Net</th><th class="sortable" data-key="liq" onclick="sortDaily('liq')">Total Liquidity</th></tr></thead>
             <tbody id="tbDaily"></tbody>
             <tfoot id="tfDaily"></tfoot>
           </table>
@@ -721,6 +730,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         
         <!-- Pagination Controls -->
         <div id="pagination-controls">
+          <div class="mc-pagesize"><label for="pageSize">Rows</label><select id="pageSize" onchange="setPageSize(this.value)" aria-label="Rows per page"><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div>
           <div>
             Showing <span id="pag-start" style="color:var(--t1);">0</span> - <span id="pag-end" style="color:var(--t1);">0</span> of <span id="pag-total" style="color:var(--t1);">0</span> rows
           </div>
@@ -736,6 +746,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
       <!-- WEEKLY -->
       <div id="s-weekly" class="s-panel">
+        <div class="mc-toolbar"><p class="mc-note">Last 12 weeks, computed from the daily archive.</p><button type="button" class="mc-btn sm tinted" onclick="exportRollupCSV('weekly')">Download CSV</button></div>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Week Ending</th><th>FII Net</th><th>DII Net</th><th>Combined Liquidity</th><th>Weekly Trend Signal</th></tr></thead>
@@ -746,6 +757,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
       <!-- MONTHLY -->
       <div id="s-monthly" class="s-panel">
+        <div class="mc-toolbar"><p class="mc-note">Last 24 months. Months marked * are still in progress.</p><button type="button" class="mc-btn sm tinted" onclick="exportRollupCSV('monthly')">Download CSV</button></div>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Month & Year</th><th>FII Net</th><th>DII Net</th><th>Net Money Printer</th><th>Nifty Market Chg</th></tr></thead>
@@ -756,6 +768,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
       <!-- YEARLY -->
       <div id="s-yearly" class="s-panel">
+        <div class="mc-toolbar"><p class="mc-note">Calendar-year equity flows.</p><button type="button" class="mc-btn sm tinted" onclick="exportRollupCSV('yearly')">Download CSV</button></div>
         <div class="tbl-wrap">
           <table>
             <thead><tr><th>Calendar Year</th><th>FII Equities Net</th><th>DII Equities Net</th><th>Total Institutional Flow</th><th>Domestic Multiplier</th></tr></thead>
@@ -801,6 +814,10 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </div>
 
       <!-- Cards Grid -->
+      <div class="mc-glance" id="sectorGlance" hidden>
+        <div class="mc-glance-col"><span class="mc-eyebrow">Money moving in</span><div class="mc-glance-chips" id="glanceIn"></div></div>
+        <div class="mc-glance-col"><span class="mc-eyebrow">Money moving out</span><div class="mc-glance-chips" id="glanceOut"></div></div>
+      </div>
       <div id="sector-grid" class="sector-grid">
         <!-- Injected by JS -->
         <div style="text-align:center; padding:40px; color:var(--t4); grid-column:1/-1;">Loading sector data…</div>
@@ -904,6 +921,9 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <div style="font-size:11px; color:var(--t4); margin-top:4px;">Long vs Short positioning · Institutional sentiment derived from ratio analysis</div>
         </div>
         <div class="mom-badge" id="faoSentiment">—</div>
+      </div>
+      <p class="mc-read" id="fnoRead" hidden></p>
+      <div hidden>
       </div>
   
       <div class="fno-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
@@ -1154,6 +1174,7 @@ function switchMainTab(id) {
   // Activate matching tab button immediately for snappy feel
   const matchingTab = document.querySelector(`.tab[data-tab="${id}"]`);
   if (matchingTab) matchingTab.classList.add('active');
+  try { history.replaceState(null, '', id === 't-hero' ? location.pathname + location.search : '#' + id); } catch (e) {}
 
   const showTarget = () => {
     ALL_PANELS.forEach(pid => {
@@ -1572,6 +1593,39 @@ async function loadNsdlConfirm() {
   } catch { /* keep hidden */ }
 }
 
+/* Today in context: 20-session average, rank of today's move, month- and year-to-date totals */
+function renderFlowContext(latest) {
+  try {
+    const real = dailyData.filter(d => d.d !== 'N/A');
+    if (!real.length) return;
+    const last20 = real.slice(0, 20);
+    const avg = (arr, k) => arr.reduce((a, d) => a + (d[k] || 0), 0) / arr.length;
+    const rankLine = (k, v) => {
+      let n = 0;
+      for (let i = 1; i < real.length; i++) { if (v < 0 ? real[i][k] <= v : real[i][k] >= v) break; n++; }
+      const word = v < 0 ? 'selling' : 'buying';
+      return n >= 5 ? ` · ${n === real.length - 1 ? 'heaviest' : 'heaviest'} ${word} in ${n + 1} sessions` : '';
+    };
+    const ctx = (id, k, v) => {
+      const el = document.getElementById(id); if (!el) return;
+      const a = avg(last20, k);
+      el.innerHTML = `<span class="mc-ctx-k">20-session avg</span> <b class="${a >= 0 ? 't-green' : 't-red'}">${fmt(Math.round(a))}</b>${escapeHtml(rankLine(k, v))}`;
+    };
+    ctx('lFiiCtx', 'fn', latest.fn); ctx('lDiiCtx', 'dn', latest.dn);
+    const ld = parseNSEDate(latest.d); if (!ld) return;
+    const inMonth = real.filter(d => { const t = parseNSEDate(d.d); return t && t.getFullYear() === ld.getFullYear() && t.getMonth() === ld.getMonth(); });
+    const inYear = real.filter(d => { const t = parseNSEDate(d.d); return t && t.getFullYear() === ld.getFullYear(); });
+    const sum = (arr, k) => arr.reduce((a, d) => a + (d[k] || 0), 0);
+    const put = (id, v, n) => { const el = document.getElementById(id); if (!el) return; el.textContent = fmt(Math.round(v)); el.className = v >= 0 ? 't-green' : 't-red'; el.title = `${n} sessions`; };
+    put('mtdFii', sum(inMonth, 'fn'), inMonth.length); put('mtdDii', sum(inMonth, 'dn'), inMonth.length);
+    put('ytdFii', sum(inYear, 'fn'), inYear.length); put('ytdDii', sum(inYear, 'dn'), inYear.length);
+    const mon = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][ld.getMonth()];
+    const lab = document.querySelectorAll('#mcPeriods span');
+    if (lab[0]) lab[0].textContent = `FII ${mon} to date`; if (lab[1]) lab[1].textContent = `DII ${mon} to date`;
+    if (lab[2]) lab[2].textContent = `FII ${ld.getFullYear()} to date`; if (lab[3]) lab[3].textContent = `DII ${ld.getFullYear()} to date`;
+  } catch (e) { /* context is optional */ }
+}
+
 function renderDashboard() {
   recomputeRollups();
   renderSignalTimeline();
@@ -1641,6 +1695,8 @@ function renderDashboard() {
   };
   setLatestMetric('lFii', latest.fn, 'terminal-value', 'num-xl');
   setLatestMetric('lDii', latest.dn, 'terminal-value terminal-value-sm', 'num-l');
+  renderFlowContext(latest);
+  document.documentElement.removeAttribute('data-loading');
 
   // Phase 8: Dynamic hero card accent border
   const heroCard = document.getElementById('hero-card');
@@ -1929,6 +1985,22 @@ function renderSectorTape() {
   target.innerHTML = items.map(([label, name, value, color]) => `<div><span>${label}</span><strong title="${name}">${name}</strong><em style="color:${color}">${value}</em></div>`).join('');
 }
 
+/* One-sentence read of FII index-futures positioning, ranked against the loaded history */
+function renderFnoRead(f, real) {
+  const el = document.getElementById('fnoRead'); if (!el) return;
+  if (!real) { el.hidden = true; return; }
+  const L = Number(f.fii_idx_fut_long || 0), S = Number(f.fii_idx_fut_short || 0);
+  if (!L && !S) { el.hidden = true; return; }
+  const ratio = S ? L / S : Infinity;
+  const hist = dailyData.filter(d => (d.fii_idx_fut_long || 0) > 0 && (d.fii_idx_fut_short || 0) > 0).map(d => d.fii_idx_fut_long / d.fii_idx_fut_short);
+  const below = hist.filter(r => r < ratio).length, pct = hist.length ? Math.round(100 * below / hist.length) : null;
+  const net = L - S, side = net >= 0 ? 'net long' : 'net short';
+  const tone = ratio >= 1.5 ? 'firmly bullish' : ratio >= 1 ? 'mildly bullish' : ratio >= 0.5 ? 'cautious, hedged' : 'heavily hedged, bearish';
+  const where = pct == null ? '' : pct <= 20 ? `, among the most bearish ${100 - pct > 90 ? '' : ''}readings in the last ${hist.length} sessions` : pct >= 80 ? `, among the most bullish readings in the last ${hist.length} sessions` : ` (${pct}th percentile of the last ${hist.length} sessions)`;
+  el.innerHTML = `FIIs are <b>${side} ${Math.abs(net).toLocaleString('en-IN')}</b> index-futures contracts (${L.toLocaleString('en-IN')} long vs ${S.toLocaleString('en-IN')} short). Long/short ratio <b>${isFinite(ratio) ? ratio.toFixed(2) : '∞'}</b>: <b>${tone}</b>${escapeHtml(where)}.`;
+  el.hidden = false;
+}
+
 function renderCommandCenter() {
   if (!dailyData || !dailyData.length) return;
   const latest = dailyData[0];
@@ -1983,6 +2055,7 @@ function renderCommandCenter() {
   }
 
   renderSectorTape();
+  renderFnoRead(latestFno, _fnoReal);
 
   const recentBody = document.getElementById('cmd-recent-body');
   if (recentBody) {
@@ -2273,7 +2346,24 @@ let _activeBtnEl  = null;
 
 // Pagination state
 let currPageDaily = 1;
-const pageSizeDaily = 20;
+let pageSizeDaily = 20;
+let _dailySort = { key: null, dir: 'desc' };
+const DAILY_KEYS = ['d', 'fb', 'fs', 'fn', 'db', 'ds', 'dn', 'liq'];
+function applyDailySort(arr) {
+  const k = _dailySort.key; if (!k) return arr;
+  const dir = _dailySort.dir === 'asc' ? 1 : -1;
+  const val = d => k === 'd' ? (parseNSEDate(d.d) || 0) : k === 'liq' ? d.fn + d.dn : k === 'fs' ? -d.fs : k === 'ds' ? -d.ds : d[k];
+  return [...arr].sort((a, b) => (val(a) - val(b)) * dir);
+}
+function sortDaily(key) {
+  if (_dailySort.key === key) _dailySort.dir = _dailySort.dir === 'asc' ? 'desc' : 'asc';
+  else { _dailySort.key = key; _dailySort.dir = key === 'd' ? 'desc' : 'desc'; }
+  if (_dailySort.key === 'd' && _dailySort.dir === 'desc') _dailySort.key = null;
+  paginatedFilteredData = applyDailySort(window._lastFilteredDailyData || dailyData);
+  currPageDaily = 1; renderDailyTable();
+}
+function setPageSize(n) { pageSizeDaily = Math.max(5, parseInt(n, 10) || 20); currPageDaily = 1; try { localStorage.setItem('mc_pagesize', String(pageSizeDaily)); } catch (e) {} renderDailyTable(); }
+try { const ps = parseInt(localStorage.getItem('mc_pagesize') || '', 10); if (ps > 0) pageSizeDaily = ps; } catch (e) {}
 let paginatedFilteredData = [];
 window._lastFilteredDailyData = []; // Ensure it exists early
 
@@ -2305,8 +2395,8 @@ function filterDaily(type, btn) {
     return pass;
   });
 
-  paginatedFilteredData = filteredData;
   window._lastFilteredDailyData = filteredData;
+  paginatedFilteredData = applyDailySort(filteredData);
   currPageDaily = 1; // reset to page 1 on filter
   
   renderDailyTable();
@@ -2380,6 +2470,8 @@ function renderDailyTable() {
   });
 
   tb.innerHTML = html.join('');
+  document.querySelectorAll('#tblDailyArchive th.sortable').forEach(th => { const on = th.dataset.key === _dailySort.key; th.classList.toggle('sorted', on); th.classList.toggle('asc', on && _dailySort.dir === 'asc'); th.setAttribute('aria-sort', on ? (_dailySort.dir === 'asc' ? 'ascending' : 'descending') : 'none'); });
+  const psSel = document.getElementById('pageSize'); if (psSel && String(pageSizeDaily) !== psSel.value) psSel.value = String(pageSizeDaily);
 
   // Update pagination UI
   document.getElementById('pag-start').innerText = startIdx + 1;
@@ -2470,6 +2562,15 @@ function exportDailyCSV() {
   a.href = URL.createObjectURL(blob);
   a.download = `FII_DII_Daily_${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
+}
+
+function exportRollupCSV(kind) {
+  const sets = { weekly: [weeklyData, 'w', 'Week Ending'], monthly: [monthlyData, 'm', 'Month'], yearly: [yearlyData, 'y', 'Year'] };
+  const [data, key, label] = sets[kind] || sets.weekly;
+  const rows = (data || []).map(d => [String(d[key]).replace(/,/g, ' '), d.fn, d.dn, d.fn + d.dn].join(','));
+  const csv = [[label, 'FII Net (Cr)', 'DII Net (Cr)', 'Combined (Cr)'].join(','), ...rows].join('\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `FII_DII_${kind}_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
 }
 
 function _getShareText() {
@@ -3372,6 +3473,7 @@ function renderSectors() {
   }).join('');
 
   filterSectorCards(document.getElementById('sectorSearch')?.value || '');
+  renderSectorGlance();
 
   // Render the sparklines after injecting the DOM
   setTimeout(() => {
@@ -3380,6 +3482,17 @@ function renderSectors() {
       drawSectorSparkline(`sc-chart-${origIdx}`, s);
     });
   }, 50);
+}
+
+/* Rotation at a glance: the three biggest fortnight inflows and outflows, tap to open */
+function renderSectorGlance() {
+  const box = document.getElementById('sectorGlance'); if (!box || !SECTOR_DATA.length) return;
+  const sorted = [...SECTOR_DATA].sort((a, b) => b.fortnightCr - a.fortnightCr);
+  const chip = (s, dir) => `<button type="button" class="mc-chip capsule ${dir}" onclick="openSectorModal(${SECTOR_DATA.indexOf(s)})" title="${escapeHtml(s.name)}">${escapeHtml(s.name === 'Others' ? 'Unclassified' : s.name)} <b>${dir === 'bull' ? '+' : '−'}${_fmtCr(Math.abs(s.fortnightCr)).replace('+', '')}</b></button>`;
+  const ins = sorted.filter(s => s.fortnightCr > 0).slice(0, 3), outs = sorted.filter(s => s.fortnightCr < 0).slice(-3).reverse();
+  document.getElementById('glanceIn').innerHTML = ins.length ? ins.map(s => chip(s, 'bull')).join('') : '<span class="mc-note">None this fortnight</span>';
+  document.getElementById('glanceOut').innerHTML = outs.length ? outs.map(s => chip(s, 'bear')).join('') : '<span class="mc-note">None this fortnight</span>';
+  box.hidden = false;
 }
 
 /* Filter the sector cards by name (search box in the Sectors header) */
@@ -4678,11 +4791,11 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   // Market ticker polling now lives in js/mc-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
-<script src="/js/mc-brand.js?v=4" defer></script>
-<script src="/js/mc-ui.js?v=4" defer></script>
-<script src="/js/mc-motion.js?v=4" defer></script>
-<script src="/js/mc-charts.js?v=4" defer></script>
-<script src="/js/mc-ranges.js?v=4" defer></script>
+<script src="/js/mc-brand.js?v=5" defer></script>
+<script src="/js/mc-ui.js?v=5" defer></script>
+<script src="/js/mc-motion.js?v=5" defer></script>
+<script src="/js/mc-charts.js?v=5" defer></script>
+<script src="/js/mc-ranges.js?v=5" defer></script>
 </body>
 </html>
 
