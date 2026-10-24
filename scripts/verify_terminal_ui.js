@@ -34,7 +34,7 @@ const requiredMarkers = [
   ['cumulative vs NIFTY view', 'function renderCumulativeChart('],
   ['long-short ratio chart', 'function renderLsRatioChart()'],
   ['live rollup recompute', 'function recomputeRollups()'],
-  ['first-visit tour', 'function initTour()'],
+  ['first-visit tour', 'function initTour('],
   ['sticky KPI strip', 'id="stickyKpi"'],
   ['NSDL confirmation line', 'id="nsdlConfirm"'],
   ['design system stylesheet', '/css/mc.css'],

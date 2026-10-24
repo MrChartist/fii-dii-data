@@ -199,8 +199,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=5">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=5">
+<link rel="stylesheet" href="/css/mc.css?v=6">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=6">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -427,6 +427,9 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       <span class="os-badge neutral lg" id="osMoodBadge"><i class="os-dot"></i>Neutral</span>
       <p class="os-mood-text" id="osMoodText"><strong>Market Mood:</strong> Loading the latest session...</p>
     </div>
+    <nav class="mc-jump" aria-label="Jump to a section">
+      <a href="#cmd-cash-tape">01 Cash flow</a><a href="#cmd-signal-stack">02 Signals</a><a href="#cmd-momentum-stack">03 Momentum</a><a href="#cmd-fno-snapshot">04 F&amp;O</a><a href="#cmd-sector-rotation">05 Sectors</a><a href="#cmd-heatmap-rail">06 45-day</a><a href="#cmd-recent-sessions">07 Sessions</a>
+    </nav>
     <div class="terminal-command-grid">
       <section class="terminal-panel cmd-cash-tape" id="cmd-cash-tape">
         <div class="terminal-panel-head">
@@ -875,6 +878,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       <div class="sz-header">
         <div class="sz-title" id="sz-title">Sector Name</div>
         <div class="sz-alpha" id="sz-alpha">Alpha</div>
+        <button type="button" class="mc-btn sm" onclick="copySectorLink()" title="Copy a link that opens this sector"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Copy link</button>
       </div>
       <div class="sz-stats-row">
         <div class="sz-stat-pill">
@@ -3190,8 +3194,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 /* ── First-visit tour (3 steps, skippable, shown once) ── */
-function initTour() {
-  try { if (localStorage.getItem('tour_done')) return; } catch { return; }
+function replayTour() { try { localStorage.removeItem('tour_done'); } catch (e) {} initTour(true); }
+function initTour(force) {
+  try { if (!force && localStorage.getItem('tour_done')) return; } catch { if (!force) return; }
   const steps = [
     { t: '👋 Welcome to FII & DII Data', p: 'Every evening after market close, this dashboard shows whether Foreign Institutional Investors (FII) were net buyers or sellers of Indian equities — and whether Domestic Institutions (DII) absorbed the move. Green = buying, red = selling.' },
     { t: '📊 Go deeper in two taps', p: 'The F&O tab shows how institutions are positioned in derivatives (futures & options), Flow Analytics holds the full daily/weekly/monthly archive with filters and CSV export, and Sectors tracks where foreign money rotates fortnight by fortnight.' },
@@ -3215,7 +3220,7 @@ function initTour() {
   };
   const done = () => { overlay.remove(); try { localStorage.setItem('tour_done', '1'); } catch {} };
   render();
-  setTimeout(() => document.body.appendChild(overlay), 1200);
+  setTimeout(() => document.body.appendChild(overlay), force ? 50 : 1200);
 }
 
 // 3. Charts Render & Theme Logic
@@ -3522,6 +3527,7 @@ function openSectorModal(origIdx) {
 
   const modal = document.getElementById('sector-zoom-modal');
   document.getElementById('sz-title').innerText = s.name;
+  try { history.replaceState(null, '', '#t-sector?s=' + encodeURIComponent(s.name)); } catch (e) {}
   
   const alphaEl = document.getElementById('sz-alpha');
   if (s.alpha === null || s.alpha === undefined) {
@@ -3640,9 +3646,30 @@ function openSectorModal(origIdx) {
 
 function closeSectorModal() {
   const modal = document.getElementById('sector-zoom-modal');
+  if (!modal.classList.contains('active')) return;
   modal.classList.remove('active');
   document.body.style.overflow = '';
+  try { if (/^#t-sector\?/.test(location.hash)) history.replaceState(null, '', '#t-sector'); } catch (e) {}
 }
+function copySectorLink() {
+  const url = location.origin + location.pathname + location.hash;
+  const done = () => (window.mcToast || alert)('Link copied. It opens straight to this sector.');
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(done).catch(() => prompt('Copy this link', url)); else prompt('Copy this link', url);
+}
+/* open a sector from a shared link: /#t-sector?s=Financial%20Services */
+const _initialHash = location.hash || '';
+function openSectorFromHash() {
+  const m = /^#t-sector\?s=(.+)$/.exec(_initialHash); if (!m) return;
+  const name = decodeURIComponent(m[1]).toLowerCase();
+  let tries = 0;
+  const go = () => {
+    const idx = SECTOR_DATA.findIndex(x => x.name.toLowerCase() === name);
+    if (idx >= 0) { switchMainTab('t-sector'); try { renderSectors(); } catch (e) {} setTimeout(() => openSectorModal(idx), 350); }
+    else if (++tries < 40) setTimeout(go, 250);
+  };
+  go();
+}
+window.addEventListener('load', () => setTimeout(openSectorFromHash, 500));
 
 // Escape key to close modal
 document.addEventListener('keydown', (e) => {
@@ -4791,11 +4818,11 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   // Market ticker polling now lives in js/mc-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
-<script src="/js/mc-brand.js?v=5" defer></script>
-<script src="/js/mc-ui.js?v=5" defer></script>
-<script src="/js/mc-motion.js?v=5" defer></script>
-<script src="/js/mc-charts.js?v=5" defer></script>
-<script src="/js/mc-ranges.js?v=5" defer></script>
+<script src="/js/mc-brand.js?v=6" defer></script>
+<script src="/js/mc-ui.js?v=6" defer></script>
+<script src="/js/mc-motion.js?v=6" defer></script>
+<script src="/js/mc-charts.js?v=6" defer></script>
+<script src="/js/mc-ranges.js?v=6" defer></script>
 </body>
 </html>
 
