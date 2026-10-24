@@ -4,7 +4,8 @@
 <script>/* Restore saved theme before first paint to avoid a flash */
 try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
 <!-- SEO Meta Tags -->
 <title>FII & DII Data India | Live Institutional Flow Tracker - Mr Chartist</title>
 <meta name="description" content="Track real-time FII and DII institutional money flows in the Indian stock market. Live Nifty 50, Bank Nifty data, F&O positioning, sector-wise FPI allocation, flow heatmaps, daily/weekly/monthly matrices, and elite analytics by Mr. Chartist.">
@@ -166,13 +167,12 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
 <!-- PWA / Installability -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#000000">
 <!-- Mobile Web App tags -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="FII DII Data">
+<meta name="apple-mobile-web-app-title" content="FII &amp; DII">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/brand/icons/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/brand/icons/favicon-32.png">
@@ -197,19 +197,10 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 </script>
 
 <!-- Last Updated (for search engines) -->
-<meta name="revised" content="2026-05-13">
-<meta name="date" content="2026-05-13">
-<link rel="stylesheet" href="/css/brand.css?v=1">
-
-<link rel="stylesheet" href="/css/legacy.css?v=1">
-<link rel="stylesheet" href="/css/os27-core.css?v=1">
-<link rel="stylesheet" href="/css/os27-components.css?v=1">
-<link rel="stylesheet" href="/css/os27-content.css?v=1">
-<link rel="stylesheet" href="/css/os27-motion.css?v=1">
-<link rel="stylesheet" href="/css/os27-custom.css?v=1">
-<link rel="stylesheet" href="/css/os27-polish.css?v=1">
-<link rel="stylesheet" href="/css/os27-ranges.css?v=1">
-<link rel="stylesheet" href="/css/os27-ui.css?v=1">
+<meta name="revised" content="2026-10-24">
+<meta name="date" content="2026-10-24">
+<link rel="stylesheet" href="/css/mc.css?v=3">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=3">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -220,19 +211,14 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <div class="sticky-kpi" id="stickyKpi" aria-hidden="true"></div>
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
-  <div style="padding:40px; text-align:center; font-family:sans-serif; background:#F2F2F7; color:#1C1C1E; min-height:100vh;">
+  <div style="padding:40px; text-align:center; font-family:sans-serif; background:#000; color:#F5F4F1; min-height:100vh;">
     <h1>FII &amp; DII Data India — Institutional Money Flow Tracker</h1>
     <p>This dashboard requires JavaScript to display live institutional flow data, interactive charts, heatmaps, and sector analytics.</p>
     <p>Please enable JavaScript in your browser to use the full dashboard experience.</p>
     <p><strong>Key Features:</strong> Real-time FII/DII flows, F&amp;O derivatives positioning, sector-wise FPI allocation, 45-day heatmaps, daily/weekly/monthly/annual flow matrices.</p>
-    <p><a href="https://twitter.com/mr_chartist">Follow @mr_chartist on X</a> for daily market updates.</p>
+    <p><a href="https://twitter.com/mr_chartist" style="color:#FF5C33">Follow @mr_chartist on X</a> for daily market updates.</p>
   </div>
 </noscript>
-<!-- Premium Ambient Background -->
-<div class="ambient-orb ambient-orb-1"></div>
-<div class="ambient-orb ambient-orb-2"></div>
-
-<div class="logo-glow"></div>
 <div class="wrap panel-container" role="main">
 
   <header role="banner" class="terminal-product-row" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;border:0;margin:-1px">
@@ -445,7 +431,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         <div class="terminal-panel-head">
           <div>
             <div class="terminal-label">Cash Flow Tape</div>
-            <div class="terminal-sub"><span id="lDate">Loading latest session</span><span class="prov-chip gloss" id="provChip" data-tip="NSE evening figures are provisional. Custodian-confirmed numbers publish the next morning and can differ slightly.">PROVISIONAL</span></div>
+            <div class="terminal-sub"><span id="lDate">Loading latest session</span> <span class="prov-chip gloss" id="provChip" data-tip="NSE evening figures are provisional. Custodian-confirmed numbers publish the next morning and can differ slightly.">PROVISIONAL</span></div>
           </div>
           <div class="mom-badge os-hide os-badge neutral mb-neut" id="heroBadge" title="Overall direction of FII net cash flow for the latest session"><i class="os-dot"></i>Syncing</div>
         </div>
@@ -473,12 +459,10 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
             <div id="meterDII" class="meter-dii" style="width:50%"></div>
           </div>
         </div>
-        <div style="margin-top:14px;">
-          <div class="terminal-label" style="display:flex; justify-content:space-between; align-items:center;">
-            <span class="gloss" data-tip="Each square is one session, oldest to newest. Green = both buying · Amber = DII absorbing FII selling · Blue = FII buying alone · Red = both selling.">Signal Replay — last 30 sessions</span>
-            <span style="display:flex; gap:8px; font-size:9px; color:var(--t4); text-transform:none;">
-              <span><i class="os-lg g"></i>Both buy</span><span><i class="os-lg a"></i>Absorption</span><span><i class="os-lg b"></i>FII only</span><span><i class="os-lg r"></i>Both sell</span>
-            </span>
+        <div class="mc-replay">
+          <div class="mc-replay-head">
+            <span class="terminal-label gloss" data-tip="Each square is one session, oldest to newest. Green = both buying · Amber = DII absorbing FII selling · Blue = FII buying alone · Red = both selling.">Signal replay · last 30 sessions</span>
+            <span class="mc-replay-legend"><span><i class="os-lg g"></i>Both buy</span><span><i class="os-lg a"></i>DII absorbing</span><span><i class="os-lg b"></i>FII only</span><span><i class="os-lg r"></i>Both sell</span></span>
           </div>
           <div class="sig-timeline" id="signal-timeline"></div>
         </div>
@@ -599,27 +583,23 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
             <div class="terminal-label">45-Day Flow Matrix</div>
             <div class="terminal-sub">Daily FII and DII net buying and selling over the last 45 sessions</div>
           </div>
-          <div style="display:flex; gap:8px; align-items:center;">
-            <div class="iso-legend">
-              <span class="iso-legend-item"><span class="iso-dot" style="background:var(--green);"></span>Buy</span>
-              <span class="iso-legend-item"><span class="iso-dot" style="background:var(--red);"></span>Sell</span>
-              <span class="iso-legend-item" style="opacity:0.5;"><span class="iso-dot" style="background:var(--t4);"></span>Flat</span>
-            </div>
-          </div>
+          <span class="mc-replay-legend" aria-hidden="true"><span><i class="os-lg g"></i>Net buying</span><span><i class="os-lg r"></i>Net selling</span></span>
         </div>
 
-        <!-- 3D Isometric Flow Chart -->
+        <!-- 45-session bar matrix -->
         <div class="iso-matrix-wrap">
           <div class="iso-section">
             <div class="iso-section-label">FII / FPI FLOWS</div>
             <div class="iso-scene">
               <div class="iso-grid" id="fii-iso-grid"></div>
+              <div class="mc-axis" aria-hidden="true"><span>45 sessions ago</span><span>Latest</span></div>
             </div>
           </div>
           <div class="iso-section">
             <div class="iso-section-label">DII FLOWS</div>
             <div class="iso-scene">
               <div class="iso-grid" id="dii-iso-grid"></div>
+              <div class="mc-axis" aria-hidden="true"><span>45 sessions ago</span><span>Latest</span></div>
             </div>
           </div>
         </div>
@@ -658,180 +638,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </section>
     </div>
   </div>
-  <div class="legacy-home-stack" aria-hidden="true" style="display:none">
-  <!-- LATEST SNAPSHOT HERO -->
-  <div class="grid-hero">
-    <!-- Main Focus: Today/Latest -->
-    <div class="card-glass" id="hero-card">
-      <button class="cam-btn" style="right:56px;" onclick="exportDOM(this.parentNode, 'Latest_Session')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <button class="cam-btn" onclick="shareCard(this.parentNode, 'FII/DII Latest Session')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
-      <div class="c-head">
-        <div>
-          <div class="c-title" style="color:var(--t1); font-size:18px; margin-bottom:4px;">Latest Extracted Session</div>
-          <div style="display:flex; gap:12px; font-size:10px; font-weight:700; color:var(--green); margin-bottom:12px;">
-            <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Cash Synced</span>
-            <span style="display:flex; align-items:center; gap:3px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> F&O Synced</span>
-          </div>
-          <div class="c-sub" id="lDate" style="font-size:14px;">Friday, 13 March 2026</div>
-        </div>
-        <div class="mom-badge mb-bear" id="heroBadge">Aggressive Selling</div>
-      </div>
-      
-      <div class="hero-nums" style="display:flex; justify-content:space-between; margin-top:32px; align-items:flex-end;">
-        <div>
-          <div style="font-size:13px; color:var(--t4); font-weight:700; margin-bottom:6px; letter-spacing:0.5px;">FII / FPI NET</div>
-          <div class="num-xl t-red" id="lFii">-₹10,724 Cr</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:13px; color:var(--t4); font-weight:700; margin-bottom:6px; letter-spacing:0.5px;">DII NET</div>
-          <div class="num-l t-green" id="lDii">+₹9,977 Cr</div>
-        </div>
-      </div>
-
-      <!-- Flow Strength Meter -->
-      <div style="margin-top:24px; padding:16px; background:var(--bg); border:1px solid var(--sep2); border-radius:12px;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-          <span class="t-red" id="pFii">FII Aggression: 52%</span>
-          <span class="t-green" id="pDii">DII Support: 48%</span>
-        </div>
-        <div style="height:6px; width:100%; display:flex; border-radius:3px; overflow:hidden; background:var(--l1);">
-          <div id="meterFII" style="background:var(--red); width:52%; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-          <div id="meterDII" style="background:var(--green); width:48%; transition:width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-        </div>
-      </div>
-      
-      <div style="margin-top:24px; background:var(--bg); border-radius:12px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--sep2);">
-        <span id="liqLabel" style="font-size:13px; font-weight:700; color:var(--t3); text-transform:uppercase; letter-spacing:0.5px;">Combined Liquidity</span>
-        <span class="num-s t-red" id="lNet" style="font-size:20px;">-₹747 Cr</span>
-      </div>
-    </div>
-
-    <!-- Right Side: Mini Widgets -->
-    <div style="display:flex; flex-direction:column; gap:16px;">
-      
-      <!-- New Streak Widget -->
-      <div class="card" id="streak-card" style="padding:16px 20px; position:relative; overflow:hidden;">
-        <button class="cam-btn" style="right:46px;" onclick="exportDOM(this.parentNode, 'Streak')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-        <button class="cam-btn" onclick="shareCard(this.parentNode, 'FII/DII Streak Data')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg></button>
-        <!-- Animated border top -->
-        <div style="position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--red), var(--bg), var(--red)); background-size: 200% 200%; border-radius:3px 3px 0 0; animation: borderSweep 3s ease infinite;" id="streak-border"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Current FII Streak</div>
-            <div style="display:flex; align-items:center; gap:8px;">
-               <div class="status-dot" style="background:var(--red); box-shadow:0 0 8px var(--red);" id="streak-dot"></div>
-               <div class="num-m t-red" id="streak-val">—</div>
-            </div>
-          </div>
-          <div style="text-align:right;">
-             <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Streak Velocity</div>
-             <div class="num-s t-red" id="streak-vol">—</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Momentum Widget -->
-      <div class="card" id="mom-card" style="flex:1;">
-        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Momentum')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-        <div class="c-sub" style="margin-bottom:12px;">5-Day FII Net Velocity</div>
-        <div class="num-m t-red" id="vel5d" style="margin-bottom:8px;">—</div>
-        <div id="vel5dDesc" style="font-size:12px; color:var(--t3); line-height:1.5;">Computing…</div>
-      </div>
-      <!-- DII Streak Widget -->
-      <div class="card" id="dii-streak-card" style="padding:16px 20px; position:relative; overflow:hidden;">
-        <button class="cam-btn" onclick="exportDOM(this.parentNode, 'DII-Streak')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-        <!-- Animated border top -->
-        <div style="position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--green), var(--bg), var(--green)); background-size: 200% 200%; border-radius:3px 3px 0 0; animation: borderSweep 3s ease infinite;" id="dii-streak-border"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Current DII Streak</div>
-            <div style="display:flex; align-items:center; gap:8px;">
-               <div class="status-dot" style="background:var(--green); box-shadow:0 0 8px var(--green);" id="dii-streak-dot"></div>
-               <div class="num-m t-green" id="dii-streak-val">—</div>
-            </div>
-          </div>
-          <div style="text-align:right;">
-             <div class="c-sub" style="margin-bottom:4px; margin-top:0;">Streak Velocity</div>
-             <div class="num-s t-green" id="dii-streak-vol">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STRUCTURAL INSIGHT CARDS -->
-  <div class="grid-4" id="struct-cards">
-    <div class="card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight1')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-sub" style="margin-top:0;">FII 5-Yr Cumulative</div>
-      <div class="num-m t-red" style="margin:8px 0;">-₹11.01L Cr</div>
-      <div style="font-size:11px; color:var(--t4);">Historical allocation extraction</div>
-    </div>
-    <div class="card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight2')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-sub" style="margin-top:0;">DII 5-Yr Cumulative</div>
-      <div class="num-m t-green" style="margin:8px 0;">+₹20.45L Cr</div>
-      <div style="font-size:11px; color:var(--t4);">The domestic fortress</div>
-    </div>
-    <div class="card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight3')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-sub" style="margin-top:0;">SIP Monthly Run-Rate</div>
-      <div class="num-m t-purple" style="margin:8px 0;">₹26,500 Cr</div>
-      <div style="font-size:11px; color:var(--t4);">Retail structural backbone</div>
-    </div>
-    <div class="card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Insight4')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-sub" style="margin-top:0;">FII NSE500 Ownership</div>
-      <div class="num-m t-teal" style="margin:8px 0;">16.1%</div>
-      <div style="font-size:11px; color:var(--t4);">Down from 28% peak</div>
-    </div>
-  </div>
-
-
-
-
-
-  <!-- TAB: HEATMAP (NEW ELITE FEATURE) -->
-  <div class="grid-2" style="margin-bottom:32px;">
-    <div class="card" id="fii-heat-card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'FII_Heatmap')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-head"><div><div class="c-title">FII 45-Day Concentration Matrix</div><div class="c-sub">Visualizing the sell-off depth and density</div></div></div>
-      
-      <!-- Generated via JS -->
-      <div class="os-legend" role="note"><span class="os-legend-item"><i class="os-legend-dot bull"></i>Green = Bullish / net buying</span><span class="os-legend-item"><i class="os-legend-dot bear"></i>Red = Bearish / net selling</span></div>
-      <div id="fii-heatmap" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:32px;"></div>
-      
-      <div class="heatmap-legend" style="margin-top:32px; padding-top:20px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span>Extreme Dump <span style="opacity:0.6; font-size:10px; text-transform:lowercase; font-weight:600;">(≤ -5k+ Cr)</span></span>
-          <div style="display:flex; gap:4px;" title="Scale: 0 to -5,000+ Cr"><div class="cal-cell c-r4"></div><div class="cal-cell c-r3"></div><div class="cal-cell c-r2"></div><div class="cal-cell c-r1"></div></div>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div style="display:flex; gap:4px;" title="Scale: 0 to +5,000+ Cr"><div class="cal-cell c-g1"></div><div class="cal-cell c-g2"></div><div class="cal-cell c-g3"></div><div class="cal-cell c-g4"></div></div>
-          <span><span style="opacity:0.6; font-size:10px; text-transform:lowercase; font-weight:600;">(≥ +5k+ Cr)</span> Heavy Buying</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" id="dii-heat-card">
-      <button class="cam-btn" onclick="exportDOM(this.parentNode, 'DII_Heatmap')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px;"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg></button>
-      <div class="c-head"><div><div class="c-title">DII 45-Day Buffer Matrix</div><div class="c-sub">Visualizing domestic absorption</div></div></div>
-      
-      <div id="dii-heatmap" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:32px;"></div>
-      
-      <div class="heatmap-legend" style="margin-top:32px; padding-top:20px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <span>Light Activity <span style="opacity:0.6; font-size:10px; text-transform:lowercase; font-weight:600;">(± 1k Cr)</span></span>
-          <div style="display:flex; gap:4px;" title="Scale: -1k to +1k Cr"><div class="cal-cell c-r1"></div><div class="cal-cell c-g1"></div></div>
-        </div>
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div style="display:flex; gap:4px;" title="Scale: +1k to +5,000+ Cr"><div class="cal-cell c-g2"></div><div class="cal-cell c-g3"></div><div class="cal-cell c-g4"></div></div>
-          <span><span style="opacity:0.6; font-size:10px; text-transform:lowercase; font-weight:600;">(≥ +5k+ Cr)</span> Accumulation</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  </div><!-- /legacy-home-stack -->
   </div> <!-- /t-hero -->
 
   <div id="os-nav-mount" data-active="t-hero"></div>
@@ -839,44 +645,29 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   <!-- TAB: DATA MATRIX -->
   <div id="t-matrix" class="panel">
     <!-- Hero Banner -->
-    <div class="card hero-banner" style="margin-bottom:20px; text-align:center; padding:36px 32px; position:relative; overflow:hidden; border-left:4px solid var(--purple);">
-      <div style="font-size:36px; margin-bottom:12px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg></div>
-      <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Historical Flow Analytics <span id="flowLastUpdated" style="font-size:12px; font-weight:600; color:var(--t3); margin-left:12px; font-family:var(--font-mono); font-variant-numeric:tabular-nums; display:inline-block; vertical-align:middle; background:var(--bg); padding:4px 10px; border-radius:30px; border:1px solid var(--sep2);"></span></div>
-      <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Visualize institutional flow trends and explore the complete data matrix. Filter, sort, and track FII/DII activities across daily, weekly, monthly, and annual timeframes.</div>
+    <div class="card hero-banner">
+      <h2 class="hero-banner-title">Flow Analytics <span id="flowLastUpdated"></span></h2>
+      <p class="hero-banner-subtitle">The complete institutional flow archive. Chart the trend, then filter, expand and export daily, weekly, monthly and annual FII/DII records.</p>
     </div>
 
     <!-- Summary Stats Row -->
-    <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:20px;" id="matrix-stats-row">
-      <div class="card" style="padding:16px; text-align:center;">
-        <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">Total Sessions</div>
-        <div style="font-size:22px; font-weight:800; color:var(--t1); font-variant-numeric:tabular-nums;" id="mx-sessions">—</div>
-        <div style="font-size:10px; color:var(--t4); margin-top:4px;">in daily archive</div>
-      </div>
-      <div class="card" style="padding:16px; text-align:center;">
-        <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">Avg FII Daily Net</div>
-        <div style="font-size:18px; font-weight:800; font-variant-numeric:tabular-nums;" id="mx-avg-fii">—</div>
-        <div style="font-size:10px; color:var(--t4); margin-top:4px;">across all sessions</div>
-      </div>
-      <div class="card" style="padding:16px; text-align:center;">
-        <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">Avg DII Daily Net</div>
-        <div style="font-size:18px; font-weight:800; font-variant-numeric:tabular-nums;" id="mx-avg-dii">—</div>
-        <div style="font-size:10px; color:var(--t4); margin-top:4px;">across all sessions</div>
-      </div>
-      <div class="card" style="padding:16px; text-align:center;">
-        <div style="font-size:10px; font-weight:700; color:var(--t4); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:6px;">FII Bloodbath Days</div>
-        <div style="font-size:22px; font-weight:800; color:var(--red); font-variant-numeric:tabular-nums;" id="mx-bloodbath">—</div>
-        <div style="font-size:10px; color:var(--t4); margin-top:4px;">sessions &lt; -₹5k Cr</div>
-      </div>
+    <div class="mc-stat-grid" id="matrix-stats-row">
+      <div class="card mc-stat"><div class="mc-stat-label">Total sessions</div><div class="mc-stat-value" id="mx-sessions">—</div><div class="mc-stat-note">in the daily archive</div></div>
+      <div class="card mc-stat"><div class="mc-stat-label">Avg FII daily net</div><div class="mc-stat-value" id="mx-avg-fii">—</div><div class="mc-stat-note">across all sessions</div></div>
+      <div class="card mc-stat"><div class="mc-stat-label">Avg DII daily net</div><div class="mc-stat-value" id="mx-avg-dii">—</div><div class="mc-stat-note">across all sessions</div></div>
+      <div class="card mc-stat"><div class="mc-stat-label">FII bloodbath days</div><div class="mc-stat-value t-red" id="mx-bloodbath">—</div><div class="mc-stat-note">sessions below −₹5,000 Cr</div></div>
     </div>
 
-    <div class="card" style="padding:24px;" id="matrix-card">
+    <div class="card" id="matrix-card">
       <button class="cam-btn" onclick="exportDOM(this.parentNode, 'Data_Matrix')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg> Export</button>
       
-      <div style="margin-bottom: 24px;">
-        <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
-          <button class="terminal-mini-btn" id="btnFlowView" onclick="setFlowView(false)" style="opacity:1;">Period Flows</button>
-          <button class="terminal-mini-btn gloss" id="btnCumView" onclick="setFlowView(true)" style="opacity:.55;" data-tip="Running total of FII and DII net flows with the NIFTY 50 overlaid — the chart traders use to judge whether sustained institutional selling is dragging the index.">Σ Cumulative vs NIFTY</button>
-          <select id="cumRange" onchange="renderHistoryChart()" style="display:none; background:var(--l1); color:var(--t2); border:1px solid var(--sep2); border-radius:8px; padding:6px 10px; font-size:11px; font-weight:700;">
+      <div style="margin-bottom: 20px;">
+        <div class="mc-chart-head">
+          <div class="sub-tabs" style="margin-bottom:0;" role="group" aria-label="Chart view">
+            <button type="button" class="s-tab active" id="btnFlowView" onclick="setFlowView(false)">Period flows</button>
+            <button type="button" class="s-tab" id="btnCumView" onclick="setFlowView(true)" title="Running total of FII and DII net flows with the NIFTY 50 overlaid — the chart traders use to judge whether sustained institutional selling is dragging the index.">Cumulative vs NIFTY</button>
+          </div>
+          <select id="cumRange" onchange="renderHistoryChart()" style="display:none;" aria-label="Cumulative range">
             <option value="30">30 Sessions</option>
             <option value="90" selected>90 Sessions</option>
             <option value="250">1 Year</option>
@@ -884,17 +675,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           </select>
         </div>
         <div class="chart-canvas-wrap" style="height:320px; position:relative; width:100%;"><canvas id="chHistory"></canvas></div>
-        <div class="chart-legend" style="margin-top:12px; padding:12px; border-top:1px solid var(--sep2); display:flex; gap:20px; flex-wrap:wrap; align-items:center;">
-          <div style="display:flex; align-items:center; gap:6px;">
-            <div style="width:14px; height:14px; background:#FB3640; border-radius:3px;"></div>
-            <span style="font-size:12px; font-weight:700; color:var(--t2);">FII / FPI Net Flow</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:6px;">
-            <div style="width:14px; height:14px; background:#10B981; border-radius:3px;"></div>
-            <span style="font-size:12px; font-weight:700; color:var(--t2);">DII Net Flow</span>
-          </div>
-          <span style="margin-left:auto; font-size:11px; color:var(--t4); font-style:italic;">Hover bars for exact metrics.</span>
-        </div>
+        <div class="chart-legend"><span><i class="os-lg r"></i>FII / FPI net flow</span><span><i class="os-lg g"></i>DII net flow</span><span class="mc-note" style="margin-left:auto">Hover or tap a bar for exact values</span></div>
       </div>
 
       <div class="sub-tabs">
@@ -906,24 +687,23 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
       <!-- DAILY -->
       <div id="s-daily" class="s-panel active">
-        <div style="font-size:11px; color:var(--t4); font-weight:600; text-align:right; margin-bottom:12px;">Click any row to expand detailed breakdown</div>
-
         <div id="matrix-table-container">
-        <div class="filter-row" style="display:flex; gap:8px; margin-bottom:10px; overflow-x:auto; flex-wrap:wrap; align-items:center;">
-          <button class="filter-btn active" id="fBtn-all" onclick="filterDaily('all', this)">All Data</button>
-          <button class="filter-btn" onclick="filterDaily('fii_sell', this)">FII Bloodbath (&lt; -₹5k Cr)</button>
-          <button class="filter-btn" onclick="filterDaily('dii_buy', this)">DII Absorption (&gt; +₹5k Cr)</button>
-          <button class="filter-btn" onclick="filterDaily('divergence', this)">Extreme Divergence</button>
-        </div>
-        <div class="filter-row" style="display:flex; gap:8px; margin-bottom:12px; overflow-x:auto; flex-wrap:wrap; align-items:center;">
-          <label for="drFrom" style="font-size:11px; color:var(--t3); font-weight:600; letter-spacing:.5px;">FROM</label>
-          <input type="date" id="drFrom" aria-label="Filter from date" title="Filter rows from this date" onchange="filterDaily('daterange',null)" style="background:var(--l1); border:1px solid var(--sep2); color:var(--t1); border-radius:6px; padding:4px 8px; font-size:12px; cursor:pointer;">
-          <label for="drTo" style="font-size:11px; color:var(--t3); font-weight:600; letter-spacing:.5px;">TO</label>
-          <input type="date" id="drTo" aria-label="Filter to date" title="Filter rows to this date" onchange="filterDaily('daterange',null)" style="background:var(--l1); border:1px solid var(--sep2); color:var(--t1); border-radius:6px; padding:4px 8px; font-size:12px; cursor:pointer;">
-          <button onclick="clearDateRange()" style="padding:4px 10px; font-size:11px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#EF4444; border-radius:6px; cursor:pointer; font-weight:700;">✕ Clear</button>
-          <div style="margin-left:auto;">
-            <button onclick="exportDailyCSV()" style="display:flex; align-items:center; gap:5px; padding:5px 12px; font-size:11px; background:rgba(10,209,166,0.1); border:1px solid rgba(10,209,166,0.3); color:var(--blue); border-radius:6px; cursor:pointer; font-weight:700;">⬇ Download CSV</button>
+        <div class="mc-filters">
+          <div class="filter-row" role="group" aria-label="Quick filters">
+            <button type="button" class="filter-btn active" id="fBtn-all" onclick="filterDaily('all', this)">All sessions</button>
+            <button type="button" class="filter-btn" onclick="filterDaily('fii_sell', this)">FII bloodbath (&lt; −₹5k Cr)</button>
+            <button type="button" class="filter-btn" onclick="filterDaily('dii_buy', this)">DII absorption (&gt; +₹5k Cr)</button>
+            <button type="button" class="filter-btn" onclick="filterDaily('divergence', this)">Extreme divergence</button>
           </div>
+          <div class="filter-row mc-dates">
+            <div class="mc-field"><label for="drFrom">From</label><input type="date" id="drFrom" title="Filter rows from this date" onchange="filterDaily('daterange',null)"></div>
+            <div class="mc-field"><label for="drTo">To</label><input type="date" id="drTo" title="Filter rows to this date" onchange="filterDaily('daterange',null)"></div>
+            <div class="mc-actions" style="margin-left:auto; display:flex; gap:8px;">
+              <button type="button" class="mc-btn sm danger" onclick="clearDateRange()">Clear dates</button>
+              <button type="button" class="mc-btn sm tinted" onclick="exportDailyCSV()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Download CSV</button>
+            </div>
+          </div>
+          <p class="mc-note">Tap any row to expand the gross buy/sell breakdown for that session.</p>
         </div>
         <div class="tbl-wrap">
           <table id="tblDailyArchive">
@@ -934,14 +714,14 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
         </div>
         
         <!-- Pagination Controls -->
-        <div id="pagination-controls" style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; padding:12px; background:var(--l1); border:1px solid var(--sep2); border-radius:8px;">
-          <div style="font-size:12px; color:var(--t3); font-weight:600;">
+        <div id="pagination-controls">
+          <div>
             Showing <span id="pag-start" style="color:var(--t1);">0</span> - <span id="pag-end" style="color:var(--t1);">0</span> of <span id="pag-total" style="color:var(--t1);">0</span> rows
           </div>
           <div style="display:flex; gap:8px;">
-            <button class="filter-btn" id="btnPrevPage" onclick="changePage(-1)" style="padding:6px 12px; font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Prev</button>
+            <button class="filter-btn" id="btnPrevPage" onclick="changePage(-1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:4px;"><polyline points="15 18 9 12 15 6"></polyline></svg> Prev</button>
             <div id="pag-pages" style="display:flex; gap:4px; align-items:center;"></div>
-            <button class="filter-btn" id="btnNextPage" onclick="changePage(1)" style="padding:6px 12px; font-weight:600;">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-left:4px;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+            <button class="filter-btn" id="btnNextPage" onclick="changePage(1)">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-left:4px;"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
         </div>
         
@@ -985,35 +765,31 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
   <!-- TAB: SECTOR FLOW (NSDL Fortnightly FPI Data) -->
   <div id="t-sector" class="panel">
-    <div class="card" style="padding:24px; margin-bottom:16px;">
+    <div class="card">
 
       <!-- Header -->
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid var(--sep2); padding-bottom:16px; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+      <div class="mc-sec-head">
         <div>
-          <h2 style="font-size:18px; color:var(--t1); letter-spacing:-0.5px;">Sector-Wise FII / FPI Allocation</h2>
-          <div style="font-size:12px; color:var(--t4); margin-top:4px;">Source: NSDL Fortnightly FPI Reports · BSE 22-Sector Classification · via Screener.in (C-MOTS) · Updated twice a month</div>
+          <h2>Sector-wise FII / FPI allocation</h2>
+          <div class="mc-card-sub">Source: NSDL Fortnightly FPI Reports · BSE 22-Sector Classification · via Screener.in (C-MOTS) · Updated twice a month</div>
         </div>
-        <!-- Sort Buttons -->
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      </div>
+      <div class="mc-sec-tools">
+        <div class="mc-sort" role="group" aria-label="Sort sectors"><span class="mc-sort-label">Sort</span>
           <button class="filter-btn active" id="sec-sort-aum"   onclick="sortSectors('aum')">Total AUM</button>
           <button class="filter-btn"        id="sec-sort-fort"  onclick="sortSectors('fort')">Fortnight Δ</button>
           <button class="filter-btn"        id="sec-sort-1y"    onclick="sortSectors('1y')">1Y Net Flow</button>
           <button class="filter-btn"        id="sec-sort-alpha" onclick="sortSectors('alpha')">A–Z</button>
         </div>
+        <button class="mc-btn primary" onclick="window.toggleSectorChart()" id="btnToggleSecChart">View interactive chart</button>
       </div>
 
       <!-- Methodology Banner -->
-      <div class="methodology-banner" style="background:var(--l2); border:1px solid var(--sep2); border-left:4px solid var(--primary); border-radius:8px; padding:14px 18px; margin-bottom:24px; font-size:13px; color:var(--t3); line-height:1.6; display:flex; gap:12px; align-items:flex-start;">
-        <div style="font-size:16px; margin-top:2px;">ℹ️</div>
+      <div class="methodology-banner">
         <div>
           <strong style="color:var(--t1); display:block; margin-bottom:4px; font-size:14px;">How is this data calculated?</strong>
           SEBI mandates all Foreign Portfolio Investors (FPIs) to hold securities via Indian depositories (NSDL / CDSL). Every fortnight, depositories publish sector-wise Assets Under Custody (AUC). The <em>% of AUM</em> shown is each sector's share of the <strong>total FPI equity portfolio in India</strong>. Sectors are classified using BSE's Common Industry Classification. Flows show net FPI inflows/outflows per sector over the last 15-day reporting window and the rolling 12-month period.
         </div>
-      </div>
-
-      <!-- Sector Chart Toggle (Dropdown) -->
-      <div style="text-align: right; margin-bottom: 20px;">
-        <button class="btn-primary" onclick="window.toggleSectorChart()" id="btnToggleSecChart" style="padding: 10px 20px; font-weight: 700; border-radius: 8px;">View Interactive Sector Chart</button>
       </div>
 
       <!-- Cards Grid -->
@@ -1023,7 +799,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </div>
 
       <!-- ── SECTOR CHARTS ── -->
-      <div class="card" id="sec-chart-card" style="margin-top:24px; padding:20px; display: none;">
+      <div class="card" id="sec-chart-card" style="display: none;">
         <!-- Chart toolbar -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
           <div>
@@ -1056,10 +832,10 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </div>
 
       <!-- Legend -->
-      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--sep2); display:flex; gap:24px; flex-wrap:wrap; font-size:11px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:.5px;">
-        <span> Net Inflow (fortnight)</span>
-        <span> Net Outflow (fortnight)</span>
-        <span style="margin-left:auto; font-style:italic; font-weight:400; text-transform:none; font-size:11px;">Data updates every ~15 days. Last update date shown in card header.</span>
+      <div class="mc-sec-legend">
+        <span><i class="os-lg g"></i>Net Inflow (fortnight)</span>
+        <span><i class="os-lg r"></i>Net Outflow (fortnight)</span>
+        <span class="spacer-note" style="margin-left:auto">Updates every ~15 days · tap a sector for its history</span>
       </div>
     </div>
 
@@ -1103,16 +879,15 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
   <!-- TAB: F&O DERIVATIVES -->
   <div id="t-fno" class="panel">
     <!-- Hero Banner -->
-    <div class="card hero-banner" style="margin-bottom:20px; text-align:center; padding:36px 32px; position:relative; overflow:hidden; border-left:4px solid var(--green);">
-      <div style="font-size:36px; margin-bottom:12px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m9 12 6-6M9 12l6 6"/></svg></div>
-      <div class="hero-banner-title" style="font-size:22px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:6px;">Derivatives Positioning (F&O)</div>
-      <div class="hero-banner-subtitle" style="font-size:13px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">Participant-wise Open Interest analysis across Index Futures, Stock Futures, Index Calls & Puts. Decode the institutional sentiment through long/short ratios.</div>
+    <div class="card hero-banner">
+      <h2 class="hero-banner-title">Derivatives positioning (F&amp;O)</h2>
+      <p class="hero-banner-subtitle">Participant-wise open interest across index futures, stock futures, index calls and puts. Long/short ratios show how institutions are positioned, not just what they bought.</p>
     </div>
 
     <!-- F&O DERIVATIVES SECTION -->
-    <div class="card" style="margin-bottom:24px; padding:24px;">
+    <div class="card" style="margin-bottom:20px;">
       <button class="cam-btn" onclick="exportDOM(this.parentNode, 'FNO_Derivatives')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"></path><circle cx="12" cy="13" r="3"></circle></svg> Export</button>
-      <div class="fno-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--sep2); padding-bottom:14px; margin-bottom:20px;">
+      <div class="fno-header">
         <div>
           <div style="font-size:15px; font-weight:700; color:var(--t1); letter-spacing:-0.2px; display:flex; gap:10px; align-items:center;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-1px; margin-right:4px;"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="m9 12 6-6M9 12l6 6"/></svg> Open Interest Breakdown
@@ -1200,8 +975,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       
       <!-- EXTENDED HISTORY CHART (ALWAYS VISIBLE) -->
       <div id="fno-chart-container" style="display: block; padding-top: 32px; margin-top: 24px; border-top: 1px solid var(--sep2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap: wrap; gap: 10px;">
-          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;">Historical Institutional Positioning (Net Contracts)</div>
+        <div class="mc-chart-head">
+          <div class="mc-chart-title">Historical institutional positioning (net contracts)</div>
           <div class="sub-tabs" style="margin-bottom:0; overflow-x: auto; white-space: nowrap;">
             <div class="s-tab active" id="fno-tab-fii-fut" onclick="renderFnoHistoryChart('fii-fut')">FII Futures</div>
             <div class="s-tab" id="fno-tab-fii-call" onclick="renderFnoHistoryChart('fii-call')">FII Calls</div>
@@ -1216,136 +991,17 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
       <!-- FII LONG-SHORT RATIO TIME SERIES -->
       <div style="display:block; padding-top:32px; margin-top:24px; border-top:1px solid var(--sep2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; flex-wrap:wrap; gap:10px;">
-          <div style="font-size:14px; font-weight:800; color:var(--t1); text-transform:uppercase; letter-spacing:0.5px; opacity:0.9;"><span class="gloss" data-tip="FII index-futures long contracts ÷ short contracts. Above 1 = net long (bullish positioning). A single reading means little — extremes vs its own history are what matter.">FII Long-Short Ratio</span> (Index Futures)</div>
+        <div class="mc-chart-head" style="margin-bottom:6px;">
+          <div class="mc-chart-title"><span class="gloss" data-tip="FII index-futures long contracts ÷ short contracts. Above 1 = net long (bullish positioning). A single reading means little — extremes vs its own history are what matter.">FII Long-Short Ratio</span> (Index Futures)</div>
           <div style="font-size:11px; color:var(--t4);" id="lsRatioNow">—</div>
         </div>
-        <div style="font-size:11px; color:var(--t4); margin-bottom:14px;">Shaded band = 10th–90th percentile of the loaded history. Readings outside the band are positioning extremes.</div>
+        <p class="mc-chart-sub" style="margin-top:0">Shaded band = 10th–90th percentile of the loaded history. Readings outside the band are positioning extremes.</p>
         <div style="position:relative; height:260px;">
           <canvas id="chLsRatio"></canvas>
         </div>
       </div>
     </div>
   </div> <!-- /t-fno -->
-
-  <!-- TAB: DOCUMENTATION (removed) -->
-  <div id="t-docs" class="panel" style="display:none !important;">
-    <div style="max-width:960px; margin:0 auto; padding-bottom:40px;">
-
-      <!-- Hero Banner -->
-      <div class="card hero-banner" style="margin-bottom:24px; text-align:center; padding:48px 32px; position:relative; overflow:hidden;">
-        <div style="font-size:40px; margin-bottom:16px;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-        <div class="hero-banner-title" style="font-size:26px; font-weight:800; color:var(--t1); letter-spacing:-0.5px; margin-bottom:8px;">Dashboard User Manual & Methodology</div>
-        <div class="hero-banner-subtitle" style="font-size:14px; color:var(--t3); line-height:1.7; max-width:650px; margin:0 auto;">A comprehensive end-to-end guide on reading the flow indicators, understanding F&O position signals, and decoding the complex algorithms calculating Market Strength.</div>
-      </div>
-
-      <!-- Overview Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;"> 1. FII / DII Home Dashboard</h3>
-        <img src="screenshots/01_home_fii_dii_date.png" alt="Home Dashboard" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">The home dashboard provides an immediate snapshot of the primary liquidity flowing into or out of the Indian stock market. It relies on standard Daily Cash Market volume figures released by the NSE.</p>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Market Strength Gauge</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Aggregates the last 5 days of data, weighting FII Cash, DII Absorption, and Net Liquidity to generate a 0-100 score. A score <30 is a "Bear Regime" prioritizing defense, while >60 is a "Bull Regime" signaling strong institutional accumulation.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Stock Strength Meter</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">A 10-day analytical model factoring in FII/DII historical averages, momentum (ratio of positive to negative flow days), and absorption capacity. Predicts the short-to-medium term bias of the broader indices.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Streak & Velocity Tracking</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Monitors exactly how many consecutive days FIIs or DIIs have been buying/selling, allowing you to instantly visualize prolonged trends and identify exhaustion points in institutional capitulation.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Flow Heatmaps & Activity</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">GitHub-style daily block rendering to track activity intensity over 45 days. Darker green blocks represent daily buys > ₹5,000 Cr, while darker red signifies heavy distribution > ₹5,000 Cr.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- F&O Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;">🎲 2. F&O Positioning (Derivatives)</h3>
-        <img src="screenshots/02_fno_positions.png" alt="F&O Positioning" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">Instead of purely trusting Cash flow data, analyzing Futures & Options positioning gives you insight into the hedged direction professionals are betting on. DII footprint in options is minimal; FII rules this space.</p>
-        
-        <ul style="font-size:14px; color:var(--t3); line-height:1.8; list-style-type:none; padding-left:0; margin-bottom:16px;">
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Index Futures Ratio:</strong> Shows the sheer Long vs. Short contracts held by FIIs. A highly short-heavy position implies heavy hedging or bearish bets on benchmark indices like Nifty or Bank Nifty.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Options Long Calls:</strong> Technically a bullish position—buying the Right to purchase the index at higher dates.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Options Long Puts:</strong> Technically a bearish position—buying the Right to sell the index at lower levels. Extreme put writing/buying typically correlates with market corrections.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Momentum Sentiment Engine:</strong> A heuristic algorithm that weighs net futures, call options, and opposing put positions to summarize the net derivative bias (e.g., "Highly Bearish").</li>
-        </ul>
-      </div>
-
-      <!-- Databases & Matrices Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;">🗄️ 3. Historical Flow Databases & Matrices</h3>
-        <img src="screenshots/03_databases_matrices.png" alt="Databases & Matrices" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">A dedicated tabular data layer tracking institutional money across different timeframes. Features ultra-precise <code>tabular-nums</code> rendering for Bloomberg-terminal grade reading accuracy.</p>
-        
-        <ul style="font-size:14px; color:var(--t3); line-height:1.8; list-style-type:none; padding-left:0;">
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Daily (Last 15):</strong> Raw end-of-day gross buy, sell, and net numbers. Click "FII Bloodbath" or "DII Absorption" to rapidly filter structural anomaly days.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Data Export:</strong> Use the exact 'FROM' and 'TO' date selectors, and instantly jump out to a clean CSV via the "Download CSV" button for Excel modeling.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Weekly & Monthly Tracking:</strong> Groups aggregated capital to visualize broader macroeconomic trends pushing the Nifty index directionally.</li>
-        </ul>
-      </div>
-
-      <!-- Historical Trends Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;">📈 4. Historical Flow Trends (Interactive Charts)</h3>
-        <img src="screenshots/04_history.png" alt="Flow Trends" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">Visualizing capital injection is easier than reading raw matrices. This tab relies on a highly responsive HTML5 Canvas engine to plot exact FII (Blue) and DII (Green) multi-axis bars.</p>
-        
-        <ul style="font-size:14px; color:var(--t3); line-height:1.8; list-style-type:none; padding-left:0;">
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Timeframe Toggles:</strong> Switch seamlessly between Daily, Weekly, Monthly, and Annual charting visualizers at the click of a button.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Visual Convergence:</strong> Whenever the Blue bar (FIIs) and Green bar (DIIs) move in tandem above the horizontal axis, expect explosive market rallies.</li>
-        </ul>
-      </div>
-
-      <!-- Sectors Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;">🌐 5. Sector Analytics (NSDL Data)</h3>
-        <img src="screenshots/05_sectors.png" alt="Sector Analytics" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">Published completely independent of NSE, this data tracks actual equity portfolios held by Foreign Portfolio Investors inside Indian Depositories via NSDL/CDSL. It is reported fortnightly.</p>
-        
-        <ul style="font-size:14px; color:var(--t3); line-height:1.8; list-style-type:none; padding-left:0;">
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Total AUM %:</strong> Identifies which 22 BSE sectors hold the majority of foreign stock. Financials universally dominate, followed by IT.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Fortnight Divergence (Δ):</strong> Extremely valuable for spotting Sector Rotation. Shows in exactly which sectors FPIs pumped or dumped capital over the last 15 days.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">1-Year Accumulation:</strong> Shows the long-term thematic stock picking of FPIs. Consistent positive numbers here usually mean major re-rating in broader sector multiples.</li>
-          <li style="margin-bottom:10px;"><strong style="color:var(--t1);">Interactive Charting:</strong> Expand the interactive diagram using the dropdown to visualize exact AUM percentage vs. 15-day buying intensity.</li>
-        </ul>
-      </div>
-
-      <!-- Utilities Section -->
-      <div class="card" style="margin-bottom:24px; padding:24px;">
-        <h3 style="font-size:18px; color:var(--t1); margin-bottom:16px; border-bottom:1px solid var(--sep2); padding-bottom:12px;">⚙️ 6. Global Dashboard Utilities</h3>
-        <img src="screenshots/06_docs.png" alt="Dashboard Utilities" style="width:100%; border-radius:12px; border:1px solid var(--sep2); margin-bottom:20px; box-shadow: var(--card-shadow);">
-        <p style="font-size:14px; color:var(--t2); line-height:1.7; margin-bottom:16px;">The dashboard comes packed with built-in tools for elite analysts.</p>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px;">
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">High-RES Snapshots (📷)</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Hover over any block (Heatmaps, Tables, Charts) and click the camera icon to download a beautiful lossless watermark snapshot automatically adjusted for light/dark elements.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Dark / Light OLED Engine</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Click the "Dark Mode" button in the upper right. It instantly triggers a pure CSS OLED blackout state.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Post to 𝕏 / Auto-Draft</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Uses the daily numbers matrix to formulate a pre-written insight thread and instantly opens the Twitter composer.</span>
-          </div>
-          <div style="background:var(--l2); padding:16px; border-radius:10px; border:1px solid var(--sep2);">
-            <strong style="color:var(--t1); display:block; margin-bottom:6px;">Force Sync LIVE API</strong>
-            <span style="font-size:13px; color:var(--t3); line-height:1.6;">Connects directly to the backend pipeline to instantly pull the latest institutional flow data from NSE/NSDL.</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
 
   <!-- TAB: AI INSIGHTS (GROQ INTEGRATION) -->
   <div id="t-ai" class="panel">
@@ -1452,7 +1108,7 @@ async function exportDOM(element, namePrefix) {
 
     const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
     const canvas = await html2canvas(targetEl, {
-      backgroundColor: isLightTheme ? '#F0EDE5' : '#0A0A0C',
+      backgroundColor: isLightTheme ? '#F6F5F2' : '#000000',
       scale: 2, // High DPI
       useCORS: true,
       logging: false,
@@ -1470,7 +1126,7 @@ async function exportDOM(element, namePrefix) {
     if(btn) btn.style.display = 'flex'; // restore
   } catch (err) {
     console.error("Export failed", err);
-    alert("Export failed. Ensure you are not running into cross-origin canvas taint issues.");
+    (window.mcToast || alert)('Export failed. Please try again.');
   }
 }
 
@@ -2596,7 +2252,7 @@ window._lastFilteredDailyData = []; // Ensure it exists early
 
 function filterDaily(type, btn) {
   if (type && type !== 'daterange') {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#matrix-table-container .mc-filters .filter-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     _activeFilter = type;
     _activeBtnEl  = btn;
@@ -2749,7 +2405,7 @@ function renderDailyTotals(data) {
   const sumDs = data.reduce((s,d)=>s+d.ds,0);
   const sumDn = data.reduce((s,d)=>s+d.dn,0);
   const sumT  = sumFn + sumDn;
-  const st = `style="font-weight:900; font-size:12px; padding:10px 8px; border-top:2px solid var(--sep2); background:var(--l1);`;
+  const st = `style="`;
   tf.innerHTML = `<tr>
     <td ${st} color:var(--t2);">∑ ${data.length} days</td>
     <td ${st} color:var(--green);">${fmt(sumFb)}</td>
@@ -2863,7 +2519,7 @@ async function shareCard(element, label) {
     } catch(e) { /* fallback below */ }
   }
   // Fallback: copy to clipboard
-  navigator.clipboard.writeText(shareText).then(() => alert('Card data copied! Paste it anywhere to share.'));
+  navigator.clipboard.writeText(shareText).then(() => (window.mcToast || alert)('Copied. Paste it anywhere to share.'));
 }
 
 function postToX() { shareToX(); }
@@ -3439,8 +3095,8 @@ function setFlowView(cumulative) {
   const bF = document.getElementById('btnFlowView');
   const bC = document.getElementById('btnCumView');
   const rng = document.getElementById('cumRange');
-  if (bF) bF.style.opacity = cumulative ? '.55' : '1';
-  if (bC) bC.style.opacity = cumulative ? '1' : '.55';
+  if (bF) bF.classList.toggle('active', !cumulative);
+  if (bC) bC.classList.toggle('active', cumulative);
   if (rng) rng.style.display = cumulative ? '' : 'none';
   if (cumulative && !_niftyHist) {
     fetch('/api/nifty-history').then(r => r.ok ? r.json() : null).then(rows => {
@@ -3656,30 +3312,19 @@ function renderSectors() {
       : s.alpha > 0 ? `<span class="t-green">outperforming (${s.alpha}%)</span>` : `<span class="t-red">underperforming (${s.alpha}%)</span>`;
 
     const origIdx = SECTOR_DATA.indexOf(s);
-    return `<div class="sector-card" onclick="openSectorModal(${origIdx})">
+    const hasAlpha = !(s.alpha === null || s.alpha === undefined);
+    const alphaWord = hasAlpha ? (s.alpha > 0 ? 'outperforming' : 'underperforming') : 'not available';
+    const alphaVal = hasAlpha ? `<span class="${s.alpha > 0 ? 't-green' : 't-red'}" title="${alphaWord} the index by ${Math.abs(s.alpha)}%">${s.alpha > 0 ? '+' : '−'}${Math.abs(s.alpha)}%</span>` : '<span style="color:var(--t4)">n/a</span>';
+    return `<div class="sector-card" role="button" tabindex="0" aria-label="${escapeHtml(s.name)}: ${s.aumPct.toFixed(1)}% of AUM, fortnight ${fortStr}" onclick="openSectorModal(${origIdx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSectorModal(${origIdx});}">
       <div class="sc-head">
         <div class="sc-name" title="${escapeHtml(s.name)}">${escapeHtml(s.name)}</div>
-        <div class="sc-fortnight ${fortClass}">${fortStr}</div>
+        <div class="sc-fortnight ${fortClass}" title="Net FPI flow this fortnight">${fortStr}</div>
       </div>
-
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-        <div class="sc-aum-pct">${s.aumPct.toFixed(1)}% of AUM</div>
-        <div style="font-size:11px; color:var(--t4); font-weight:600;">FII Own: <span style="color:var(--t1);">${s.fiiOwn ?? '—'}${s.fiiOwn != null ? '%' : ''}</span></div>
-      </div>
-      
-      <div class="sc-chart-wrapper" style="margin: 16px 0;">
-        <canvas id="sc-chart-${origIdx}" width="100%" height="45"></canvas>
-      </div>
-
-      <div style="margin-top:auto; padding-top:12px; border-top:1px solid var(--sep2); display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <div style="font-size:10px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">1Y Structural Flow</div>
-          <div style="font-size:14px; font-weight:800; color:var(--t1); margin-top:2px;">${net1yStr.replace('+', '')}</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:10px; color:var(--t4); font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Momentum Alpha</div>
-          <div style="font-size:12px; font-weight:700; margin-top:2px;">${alphaStr}</div>
-        </div>
+      <div class="sc-meta"><span class="sc-aum-pct">${s.aumPct.toFixed(1)}% of AUM</span><span class="sc-own">FII own <b>${s.fiiOwn ?? '—'}${s.fiiOwn != null ? '%' : ''}</b></span></div>
+      <div class="sc-chart-wrapper"><canvas id="sc-chart-${origIdx}" width="100%" height="45"></canvas></div>
+      <div class="sc-foot">
+        <div><div class="sc-k">1Y structural flow</div><div class="sc-v">${net1yStr.replace('+', '')}</div></div>
+        <div class="sc-right"><div class="sc-k">Momentum alpha</div><div class="sc-v">${alphaVal}</div></div>
       </div>
     </div>`;
   }).join('');
@@ -4255,7 +3900,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   const brandGreen = getVar('--green') || '#059669';
   const brandRed   = getVar('--red') || '#DC2626';
 
-  // Load up to 252 sessions; the range selector (os27-ranges.js) picks the visible window
+  // Load up to 252 sessions; the range selector (mc-ranges.js) picks the visible window
   const slicedData = dailyData.filter(d => d.fii_idx_fut_long !== undefined).slice(0, 252).reverse();
   const labels = slicedData.map(d => {
     const p = d.d.split('-');
@@ -4966,14 +4611,14 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
     _marketTimerId = setTimeout(fetchMarketData, interval);
   }
 
-  // Market ticker polling now lives in js/os27-ui.js (single shared poll for Nifty, Sensex and VIX)
+  // Market ticker polling now lives in js/mc-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
-<script src="/js/brand.js?v=1" defer></script>
-<script src="/js/os27-ui.js?v=1" defer></script>
-<script src="/js/os27-motion.js?v=1" defer></script>
-<script src="/js/os27-charts.js?v=1" defer></script>
-<script src="/js/os27-ranges.js?v=1" defer></script>
+<script src="/js/mc-brand.js?v=3" defer></script>
+<script src="/js/mc-ui.js?v=3" defer></script>
+<script src="/js/mc-motion.js?v=3" defer></script>
+<script src="/js/mc-charts.js?v=3" defer></script>
+<script src="/js/mc-ranges.js?v=3" defer></script>
 </body>
 </html>
 

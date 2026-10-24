@@ -1,4 +1,4 @@
-/* os27-charts: additive Chart.js theming + customisation sheet. No app logic is altered. */
+/* mc-charts: Chart.js theming (tokens from mc.css) + the Customise sheet. No app logic is altered. */
 (function () {
   'use strict';
   var root = document.documentElement;
@@ -34,7 +34,7 @@
       font: cssVar('--font-body', "-apple-system,BlinkMacSystemFont,'SF Pro Text',Inter,system-ui,sans-serif"),
       bull: cssVar('--os-bull', dark ? '#30D158' : '#248A3D'),
       bear: cssVar('--os-bear', dark ? '#FF453A' : '#D70015'),
-      accent: cssVar('--os-accent', '#007AFF')
+      accent: cssVar('--mc-accent', '#FF5C33')
     };
   }
 
@@ -63,14 +63,14 @@
     var t = tokens(), D = Chart.defaults;
     var b = rgbOf(t.bull), r = rgbOf(t.bear);
     if (b) bullRGB = b; if (r) bearRGB = r;
-    D.font.family = t.font; D.font.size = 11;
+    D.font.family = t.font; D.font.size = 11; D.font.weight = '500';
     D.color = t.label; D.borderColor = t.hair;
     D.devicePixelRatio = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
     D.animation = D.animation || {};
     D.animation.duration = reduced() ? 0 : 450;
     D.animation.easing = 'easeOutBack';
     if (D.transitions && D.transitions.active) D.transitions.active.animation = { duration: reduced() ? 0 : 200 };
-    D.elements.bar.borderRadius = 6;
+    D.elements.bar.borderRadius = 4;
     D.elements.line.tension = 0.35;
     D.elements.line.borderWidth = 2;
     D.elements.point.hoverRadius = 5;
@@ -82,7 +82,7 @@
     P.legend.labels.boxWidth = 8; P.legend.labels.boxHeight = 8; P.legend.labels.color = t.label;
     Object.assign(P.tooltip, {
       backgroundColor: t.glass, titleColor: t.text, bodyColor: t.label,
-      borderColor: t.hair, borderWidth: 1, cornerRadius: 14, padding: 12,
+      borderColor: t.hair, borderWidth: 1, cornerRadius: 10, padding: 10,
       boxPadding: 4, usePointStyle: true, displayColors: false,
       titleFont: { weight: '600' }
     });
@@ -159,17 +159,17 @@
 
   /* ---------- preferences ---------- */
   var ACCENTS = {
-    blue:   { l: '#007AFF', d: '#0A84FF', n: 'Blue' },
-    indigo: { l: '#5856D6', d: '#5E5CE6', n: 'Indigo' },
-    teal:   { l: '#1C9DB5', d: '#40C8E0', n: 'Teal' },
-    orange: { l: '#E07B00', d: '#FF9F0A', n: 'Orange' },
-    pink:   { l: '#E0224F', d: '#FF375F', n: 'Pink' }
+    signal: { l: 'hsl(16 100% 52%)', d: 'hsl(16 100% 60%)', n: 'Signal' },
+    blue:   { l: '#2F6FEB', d: '#5B93FF', n: 'Blue' },
+    indigo: { l: '#5856D6', d: '#7B79F2', n: 'Indigo' },
+    teal:   { l: '#0B7A8A', d: '#4CC9DE', n: 'Teal' },
+    pink:   { l: '#D6336C', d: '#FF5C8A', n: 'Pink' }
   };
   var PALETTES = {
     gr: null,
     bo: { l: ['#0060DF', '#B85000'], d: ['#4DA3FF', '#FF9F0A'] }
   };
-  var DEF = { theme: 'manual', accent: 'blue', density: 'comfortable', motion: 'full', palette: 'gr' };
+  var DEF = { theme: 'manual', accent: 'signal', density: 'comfortable', motion: 'full', palette: 'gr' };
   var prefs = Object.assign({}, DEF);
 
   function load() {
@@ -186,9 +186,9 @@
 
   function applyAccent() {
     var a = ACCENTS[prefs.accent];
-    if (!a || prefs.accent === 'blue') { setProps({ '--os-accent': null, '--os-accent-bg': null }); return; }
+    if (!a || prefs.accent === 'signal') { setProps({ '--os-accent': null, '--os-accent-bg': null, '--mc-accent': null, '--mc-accent-strong': null, '--mc-accent-soft': null, '--mc-accent-ring': null, '--primary': null, '--primary-hover': null }); return; }
     var c = isDark() ? a.d : a.l;
-    setProps({ '--os-accent': c, '--os-accent-bg': hexA(c, isDark() ? 0.22 : 0.12) });
+    setProps({ '--os-accent': c, '--os-accent-bg': hexA(c, isDark() ? 0.22 : 0.12), '--mc-accent': c, '--mc-accent-strong': c, '--mc-accent-soft': hexA(c, 0.14), '--mc-accent-ring': hexA(c, 0.45), '--primary': c, '--primary-hover': c });
   }
   function applyPalette() {
     var p = PALETTES[prefs.palette];

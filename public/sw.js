@@ -5,33 +5,28 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v14';
+const CACHE_NAME = 'mrchartist-v15';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/css/legacy.css',
-  '/css/os27-core.css',
-  '/css/os27-components.css',
-  '/css/os27-content.css',
-  '/css/os27-motion.css',
-  '/js/os27-motion.js',
-  '/css/os27-custom.css',
-  '/css/os27-polish.css',
-  '/js/os27-charts.js',
-  '/css/os27-ranges.css',
-  '/js/os27-ranges.js',
-  '/css/os27-ui.css',
-  '/js/os27-ui.js',
   '/deals.html',
-  '/js/os27-deals.js',
+  '/css/mc.css',
+  '/css/mc-dashboard.css',
+  '/js/mc-brand.js',
+  '/js/mc-ui.js',
+  '/js/mc-motion.js',
+  '/js/mc-charts.js',
+  '/js/mc-ranges.js',
+  '/js/mc-deals.js',
+  '/vendor/chart-3.9.1.min.js',
   '/manifest.json',
-  '/css/brand.css',
-  '/js/brand.js',
   '/favicon.ico',
   '/brand/icons/icon-192.png',
   '/brand/icons/icon-512.png',
   '/brand/mr-chartist/logo-horizontal-black.svg',
-  '/brand/mr-chartist/logo-horizontal-white.svg'
+  '/brand/mr-chartist/logo-horizontal-white.svg',
+  '/brand/mr-chartist/symbol-black.svg',
+  '/brand/mr-chartist/symbol-white.svg'
 ];
 
 // Install: Pre-cache the shell

@@ -1,50 +1,47 @@
-/* os27-ui: shared chrome (navbar + footer), info popovers, menus, docking. Additive: no app logic is altered. */
+/* mc-ui: shared chrome (navigation + footer), info popovers, menus, docking, live quotes, toast, theme-color sync. Additive: no app logic is altered. */
 (function () {
   'use strict';
-  var NAV = `  <!-- TOP BAR (mobile) -->
+  var ICON = {
+    flows: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg>',
+    fno: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>',
+    analytics: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>',
+    sectors: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>',
+    deals: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3h16v18l-3-2-2.5 2L12 19l-2.5 2L7 19l-3 2z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg>',
+    moon: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>',
+    more: '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>',
+    arrow: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>',
+    tg: '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>'
+  };
+  var TABS = [['t-hero', 'FII/DII', ICON.flows, "switchMainTab('t-hero')"], ['t-fno', 'F&amp;O', ICON.fno, "switchMainTab('t-fno')"], ['t-matrix', 'Analytics', ICON.analytics, "switchMainTab('t-matrix')"], ['t-sector', 'Sectors', ICON.sectors, "switchMainTab('t-sector'); renderSectors(); renderSectorChart();"]];
+  var tabHtml = TABS.map(function (t) { return '<div class="tab' + (t[0] === 't-hero' ? ' active' : '') + '" data-tab="' + t[0] + '" onclick="' + t[3] + '">' + t[2] + ' <span class="tab-txt">' + t[1] + '</span></div>'; }).join('\n    ') +
+    '\n    <a class="tab" data-tab="deals" href="/deals.html">' + ICON.deals + ' <span class="tab-txt">Deals</span></a>';
+  var NAV = `  <!-- TOP BAR (phones) -->
   <div class="os-topbar" role="banner">
     <a href="/" class="os-topbar-brand mc-topbar-brand" aria-label="Mr. Chartist — ${MCBrand.product.name} home">${MCBrand.lockup({size:'topbar'})}</a>
     <span class="os-live-chip" data-os-live><i></i><span>Live</span></span>
-    <button type="button" class="os-round-btn" onclick="toggleTheme()" aria-label="Toggle theme"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg></button>
+    <button type="button" class="os-round-btn" onclick="toggleTheme()" aria-label="Toggle light or dark theme">${ICON.moon}</button>
     <a class="os-cta os-cta-sm" href="https://mrchartist.com" target="_blank" rel="noopener">Explore</a>
   </div>
 
-  <!-- TABS (FLOATING ISLAND NAV) -->
+  <!-- NAVIGATION (top bar on desktop, tab bar on phones) -->
   <nav class="tabs-wrap" role="navigation" aria-label="Dashboard sections">
     <a href="/" class="nav-brand" title="Mr. Chartist — FII &amp; DII Data" aria-label="Mr. Chartist — ${MCBrand.product.name} home">${MCBrand.lockup({size:'nav'})}</a>
-        <div class="nav-divider"></div>
-    <div class="tab active" data-tab="t-hero" onclick="switchMainTab('t-hero')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12"/><path d="M6 8h12"/><path d="m6 13 8.5 8"/><path d="M6 13h3"/><path d="M9 13c6.667 0 6.667-10 0-10"/></svg> <span class="tab-txt">FII/DII</span>
-    </div>
-    <div class="tab" data-tab="t-fno" onclick="switchMainTab('t-fno')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z"/><path d="m7 16.5-4.74-2.85"/><path d="m7 16.5 5-3"/><path d="M7 16.5v5.17"/><path d="M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z"/><path d="m17 16.5-5-3"/><path d="m17 16.5 4.74-2.85"/><path d="M17 16.5v5.17"/><path d="M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z"/><path d="M12 8 7.26 5.15"/><path d="m12 8 4.74-2.85"/><path d="M12 13.5V8"/></svg> <span class="tab-txt">F&amp;O</span>
-    </div>
-    <div class="tab" data-tab="t-matrix" onclick="switchMainTab('t-matrix')">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> <span class="tab-txt">Analytics</span>
-    </div>
-    <div class="tab" data-tab="t-sector" onclick="switchMainTab('t-sector'); renderSectors(); renderSectorChart();">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> <span class="tab-txt">Sectors</span>
-    </div>
-    <a class="tab" data-tab="deals" href="/deals.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h16v18l-3-2-2.5 2L12 19l-2.5 2L7 19l-3 2z"/><path d="M8 8h8M8 12h8M8 16h4"/></svg> <span class="tab-txt">Deals</span>
-    </a>
-
+    <div class="nav-divider"></div>
+    ${tabHtml}
     <div class="nav-divider"></div>
     <div class="nav-actions">
       <span class="os-live-chip" data-os-live title="Data status"><i></i><span>Live</span></span>
-      <button onclick="toggleTheme()" class="nav-icon-btn" title="Toggle theme" aria-label="Toggle theme">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-      </button>
+      <button onclick="toggleTheme()" class="nav-icon-btn" title="Toggle theme" aria-label="Toggle light or dark theme">${ICON.moon}</button>
       <div class="os-menu" id="navMore">
-        <button type="button" class="nav-icon-btn os-menu-btn" aria-haspopup="true" aria-expanded="false" aria-label="More options" title="More">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
-        </button>
+        <button type="button" class="nav-icon-btn os-menu-btn" aria-haspopup="true" aria-expanded="false" aria-label="More options" title="More">${ICON.more}</button>
         <div class="os-menu-pop" role="menu" hidden>
-          <a role="menuitem" href="https://t.me/fiidiidatalivebot" target="_blank" rel="noopener" class="nav-tg-btn" id="navTgBtn" title="Get Telegram Alerts"><svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>Alerts on Telegram</a>
-          <a role="menuitem" href="https://t.me/official_mrchartist" target="_blank" rel="noopener" class="nav-channel-btn" id="navChannelBtn" title="Join our Telegram Channel for market updates"><svg viewBox="0 0 24 24" width="14" height="14" fill="#fff"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>Telegram Channel</a>
+          <a role="menuitem" href="https://t.me/fiidiidatalivebot" target="_blank" rel="noopener" class="nav-tg-btn" id="navTgBtn" title="Get Telegram alerts">${ICON.tg}Alerts on Telegram</a>
+          <a role="menuitem" href="https://t.me/official_mrchartist" target="_blank" rel="noopener" class="nav-channel-btn" id="navChannelBtn" title="Join the Telegram channel">${ICON.tg}Telegram channel</a>
+          <div class="os-menu-sep" role="separator"></div>
+          <a role="menuitem" href="https://mrchartist.com" target="_blank" rel="noopener" class="os-menu-link">${ICON.arrow}More from Mr. Chartist</a>
         </div>
       </div>
-      <a class="os-cta" href="https://mrchartist.com" target="_blank" rel="noopener">Explore Products</a>
+      <a class="os-cta" href="https://mrchartist.com" target="_blank" rel="noopener">Explore ${ICON.arrow}</a>
     </div>
   </nav>`;
   var FOOT = `<footer class="os-footer">
@@ -52,17 +49,22 @@
     <div class="os-footer-grid">
       <div class="os-fbrand">
         <div class="os-fbrand-name">${MCBrand.lockup({size:'footer'})}</div>
-        <p>India's most comprehensive real-time tracker for FII and DII institutional money flows.</p>
+        <p>Daily FII and DII cash flows, derivatives positioning, sector rotation and large deals for Indian equities, in one place. Free, fast and updated every evening after the close.</p>
+        <p class="os-ftag">${MCBrand.tagline || 'Read the market before you trade it.'}</p>
       </div>
-      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Products</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Explore the ecosystem</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Investology</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Candlestick Book</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Scanner Pro</a></li><li><a href="/">FII/DII Data</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">IPO Decode</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">OptionsDesk</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradeBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">NISM Exams</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">FundaDesk</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M9 4v16M14 6v14M19 8v12"/></svg>Resources</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Research Hub</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">ChartBook Archive</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Sector Reports</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Free Tools &amp; Calculators</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8h14M5 8l-3 7a3 3 0 0 0 6 0zM19 8l-3 7a3 3 0 0 0 6 0z"/></svg>Legal</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">SEBI Registration</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Disclaimer</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Privacy Policy</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Terms of Service</a></li></ul></div><div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>Connect</h4><ul><li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener">Twitter / X</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">LinkedIn</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradingView</a></li><li><a href="https://github.com/MrChartist" target="_blank" rel="noopener">GitHub</a></li></ul></div>
+      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Dashboard</h4><ul><li><a href="/#t-hero">FII/DII flows</a></li><li><a href="/#t-fno">F&amp;O positioning</a></li><li><a href="/#t-matrix">Flow analytics</a></li><li><a href="/#t-sector">Sector rotation</a></li><li><a href="/deals.html">Bulk &amp; block deals</a></li><li><a href="https://t.me/fiidiidatalivebot" target="_blank" rel="noopener">Telegram alerts</a></li></ul></div>
+      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M9 4v16M14 6v14M19 8v12"/></svg>Mr. Chartist</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Ecosystem</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Investology</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Weekly ChartBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Scanner Pro</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">OptionsDesk</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradeBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">NISM exams</a></li></ul></div>
+      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8h14M5 8l-3 7a3 3 0 0 0 6 0zM19 8l-3 7a3 3 0 0 0 6 0z"/></svg>Legal</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">SEBI registration</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Investor charter</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Disclaimer</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Privacy policy</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Terms of service</a></li></ul></div>
+      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>Connect</h4><ul><li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener">X / Twitter</a></li><li><a href="https://t.me/official_mrchartist" target="_blank" rel="noopener">Telegram</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">LinkedIn</a></li><li><a href="https://github.com/MrChartist" target="_blank" rel="noopener">GitHub</a></li></ul></div>
     </div>
     <div class="os-wordmark" aria-hidden="true">FII &amp; DII Data.</div>
     <section class="os-sebi" aria-label="SEBI registration">
       <h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>SEBI Registered Research Analyst &mdash; INH000015297</h3>
       <div class="os-sebi-grid">
-        <dl><div><dt>Trade Name:</dt><dd>INVESTOLOGY</dd></div><div><dt>Registration No:</dt><dd>INH000015297</dd></div><div><dt>Validity:</dt><dd>Mar 01, 2024 &mdash; Perpetual</dd></div></dl>
-        <dl><div class="os-addr"><dt>Office Address:</dt><dd>Office No. 19, 1st Floor Poonam Estate Cluster II, BLDG NO.7, 8, 9 OPP. SURYA SHOPPING CENTER MIRA ROAD EAST, THANE, MAHARASHTRA, 401107</dd></div></dl>
+        <dl><div><dt>Trade name:</dt><dd>INVESTOLOGY</dd></div><div><dt>Registration no:</dt><dd>INH000015297</dd></div><div><dt>Validity:</dt><dd>Mar 01, 2024 &mdash; Perpetual</dd></div></dl>
+        <dl><div class="os-addr"><dt>Office address:</dt><dd>Office No. 19, 1st Floor, Poonam Estate Cluster II, Bldg No. 7, 8, 9, Opp. Surya Shopping Center, Mira Road East, Thane, Maharashtra 401107</dd></div></dl>
       </div>
+      <p class="os-fdisc">Investments in securities markets are subject to market risks. Read all related documents carefully before investing. Registration granted by SEBI and certification from NISM in no way guarantee performance or provide any assurance of returns. The data on this page is sourced from NSE and NSDL publications and is provided for information only, not as investment advice.</p>
     </section>
     <div class="os-fbottom">
       <p>&copy; 2024&ndash;2026 Mr. Chartist (Investology) &middot; Personal use only, all rights reserved.</p>
@@ -268,14 +270,12 @@
     var lg = null; $$('#t-sector > .card > div').forEach(function (d) { if (/Net Inflow \(fortnight\)/.test(d.textContent) && d.children.length === 3) lg = d; });
     attach(lg, sec, 'Legend and update schedule', 'Legend');
     attach($('#sec-chart-explainer'), $('#sec-chart-card > div > div > div'), 'About this chart', 'About this chart');
-    ['#t-matrix', '#t-fno'].forEach(function (p) { attach($(p + ' .hero-banner-subtitle'), $(p + ' .hero-banner-title'), 'About this page', 'About this page'); });
     var lg1 = $$('.os-legend'), hm = $$('.heatmap-legend');
     attach(lg1[0], $('#cmd-cash-tape .terminal-label'), 'Colour guide', 'Colour guide');
     var ft = $$('#t-hero .c-title');
     var fiiT = ft.filter(function (e) { return /FII 45-Day/.test(e.textContent); })[0], diiT = ft.filter(function (e) { return /DII 45-Day/.test(e.textContent); })[0];
     attach(hm[0], fiiT, 'Heatmap scale', 'Heatmap scale');
     attach(hm[1], diiT, 'Heatmap scale', 'Heatmap scale');
-    var cv = $('#btnFlowView'); attach($('.chart-legend'), cv && cv.parentNode, 'Chart legend', 'Chart legend');
     scanTexts(); relabel();
     var t = null; new MutationObserver(function () { clearTimeout(t); t = setTimeout(function () { scanTexts(); relabel(); }, 250); }).observe(doc.body, { childList: true, subtree: true });
   }
@@ -341,6 +341,21 @@
     poll();
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTicker); else initTicker();
+
+  /* ---- 7. Toast, theme-color sync (Safari tab tint / Android status bar), standalone flag ---- */
+  var toastT = null;
+  window.mcToast = function (msg) {
+    var t = $('.mc-toast'); if (!t) { t = doc.createElement('div'); t.className = 'mc-toast'; t.setAttribute('role', 'status'); doc.body.appendChild(t); }
+    t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2200);
+  };
+  function syncThemeColor() {
+    var light = doc.documentElement.getAttribute('data-theme') === 'light';
+    var m = $('meta[name="theme-color"]'); if (!m) { m = doc.createElement('meta'); m.name = 'theme-color'; doc.head.appendChild(m); }
+    m.setAttribute('content', light ? '#F6F5F2' : '#000000');
+  }
+  syncThemeColor();
+  new MutationObserver(syncThemeColor).observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  try { if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) doc.documentElement.setAttribute('data-standalone', ''); } catch (e) {}
 })();
 
 /* F&O Snapshot: one verdict badge + a clear stale-data notice (additive, reads existing text only) */
