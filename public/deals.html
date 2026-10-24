@@ -4,59 +4,88 @@
 <script>try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
 <title>NSE Bulk &amp; Block Deals Today | FII &amp; DII Data | Mr. Chartist</title>
-<meta name="description" content="Latest NSE bulk and block deals: which stocks large investors bought or sold, with client name, quantity and average price. By Mr. Chartist.">
+<meta name="description" content="Latest NSE bulk and block deals: which stocks large investors bought or sold, with client name, quantity, average price and deal value. By Mr. Chartist.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://fii-diidata.mrchartist.com/deals.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NSE Bulk &amp; Block Deals Today | FII &amp; DII Data">
+<meta property="og:description" content="Which stocks large investors bought or sold today on NSE, with client, quantity, price and deal value.">
+<meta property="og:image" content="https://mrchartist.com/fii-dii-data/brand/share/og-fii-dii-data.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mr_chartist">
 <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FII &amp; DII">
 <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
 <link rel="icon" type="image/svg+xml" href="/brand/icons/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/brand/icons/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/brand/icons/favicon-16.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/brand/icons/icon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/brand/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="/css/legacy.css?v=1">
-<link rel="stylesheet" href="/css/os27-core.css?v=1">
-<link rel="stylesheet" href="/css/os27-components.css?v=1">
-<link rel="stylesheet" href="/css/os27-content.css?v=1">
-<link rel="stylesheet" href="/css/os27-motion.css?v=1">
-<link rel="stylesheet" href="/css/os27-custom.css?v=1">
-<link rel="stylesheet" href="/css/os27-polish.css?v=1">
-<link rel="stylesheet" href="/css/os27-ui.css?v=1">
-<link rel="stylesheet" href="/css/brand.css?v=1">
+<link rel="stylesheet" href="/css/mc.css?v=3">
 </head>
 <body>
-<div class="ambient-orb ambient-orb-1"></div>
-<div class="ambient-orb ambient-orb-2"></div>
 <div id="os-nav-mount" data-active="deals"></div>
 <div class="wrap" role="main">
   <div class="os-page-head">
-    <h1 class="os-page-title">Bulk &amp; Block Deals</h1>
-    <p class="os-page-sub" id="deals-summary">Large single-client trades on NSE. They show which stocks big players are buying or selling.</p>
+    <div>
+      <h1 class="os-page-title">Bulk &amp; block deals</h1>
+      <p class="os-page-sub" id="deals-summary">Large single-client trades on NSE. They show which stocks big players are buying or selling.</p>
+    </div>
+    <span class="mc-chip" id="ld-date" hidden></span>
   </div>
+
+  <div class="mc-kpis" id="deals-kpis" hidden>
+    <div class="card mc-stat"><div class="mc-stat-label">Deals listed</div><div class="mc-stat-value" id="dk-count">—</div><div class="mc-stat-note" id="dk-count-note">bulk and block</div></div>
+    <div class="card mc-stat"><div class="mc-stat-label">Value traded</div><div class="mc-stat-value" id="dk-value">—</div><div class="mc-stat-note">quantity × average price</div></div>
+    <div class="card mc-stat"><div class="mc-stat-label">Buy vs sell</div><div class="mc-stat-value" id="dk-side">—</div><div class="mc-stat-note">deal count by side</div></div>
+    <div class="card mc-stat"><div class="mc-stat-label">Largest deal</div><div class="mc-stat-value" id="dk-top">—</div><div class="mc-stat-note" id="dk-top-note">by value</div></div>
+  </div>
+
   <div class="os-deals-bar">
     <div class="os-seg" id="deals-filter" role="group" aria-label="Filter deals by type">
-      <button type="button" class="os-seg-btn active" data-deal="all" aria-pressed="true">All</button>
-      <button type="button" class="os-seg-btn" data-deal="Bulk" aria-pressed="false">Bulk</button>
-      <button type="button" class="os-seg-btn" data-deal="Block" aria-pressed="false">Block</button>
+      <button type="button" class="os-seg-btn active" data-deal="all" aria-pressed="true">All <span class="count" data-count="all"></span></button>
+      <button type="button" class="os-seg-btn" data-deal="Bulk" aria-pressed="false">Bulk <span class="count" data-count="Bulk"></span></button>
+      <button type="button" class="os-seg-btn" data-deal="Block" aria-pressed="false">Block <span class="count" data-count="Block"></span></button>
     </div>
-    <span class="os-muted" id="ld-date"></span>
+    <label class="mc-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="deals-search" placeholder="Search symbol or client" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Search deals by symbol or client">
+    </label>
   </div>
+
   <div class="card os-deals-card" id="large-deals-card">
     <div class="tbl-wrap">
       <table class="os-deals-table">
-        <thead><tr><th>Date</th><th>Type</th><th>Symbol</th><th>Client</th><th>Side</th><th class="num">Qty</th><th class="num">Avg price</th></tr></thead>
+        <thead><tr>
+          <th class="sortable" data-sort="date">Date</th>
+          <th class="sortable" data-sort="type">Type</th>
+          <th class="sortable" data-sort="symbol">Symbol</th>
+          <th class="sortable" data-sort="client">Client</th>
+          <th class="sortable" data-sort="side">Side</th>
+          <th class="num sortable" data-sort="qty">Qty</th>
+          <th class="num sortable" data-sort="price">Avg price</th>
+          <th class="num sortable sorted" data-sort="value">Value</th>
+        </tr></thead>
         <tbody id="tbLargeDeals"></tbody>
       </table>
     </div>
+    <div class="os-deals-more" id="deals-more" hidden><button type="button" class="mc-btn" id="deals-more-btn">Show more</button></div>
   </div>
   <div class="os-empty" id="deals-empty" hidden></div>
-  <p class="os-note"><strong>Bulk deal:</strong> one client trades more than 0.5% of a company's shares in a day. <strong>Block deal:</strong> a single negotiated trade of at least &#8377;10 Cr in a special window.</p>
+  <p class="os-note"><strong>Bulk deal:</strong> one client trades more than 0.5% of a company's shares in a day. <strong>Block deal:</strong> a single negotiated trade of at least &#8377;10 Cr in a special window. Deal value is quantity × average price, shown in crores.</p>
 </div>
 <div id="os-footer-mount"></div>
-<script src="/js/brand.js?v=1" defer></script>
-<script src="/js/os27-ui.js?v=1" defer></script>
-<script src="/js/os27-deals.js?v=1" defer></script>
+<script src="/js/mc-brand.js?v=3" defer></script>
+<script src="/js/mc-ui.js?v=3" defer></script>
+<script src="/js/mc-deals.js?v=3" defer></script>
 </body>
 </html>

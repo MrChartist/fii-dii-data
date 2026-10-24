@@ -3,6 +3,7 @@ const path = require('path');
 
 const indexPath = path.join(__dirname, '..', 'public', 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
+const dealsHtml = fs.readFileSync(path.join(__dirname, '..', 'public', 'deals.html'), 'utf8');
 
 const requiredMarkers = [
   ['terminal theme class', 'terminal-shell'],
@@ -35,14 +36,20 @@ const requiredMarkers = [
   ['live rollup recompute', 'function recomputeRollups()'],
   ['first-visit tour', 'function initTour()'],
   ['sticky KPI strip', 'id="stickyKpi"'],
-  ['bulk/block deals panel', 'id="large-deals-card"'],
   ['NSDL confirmation line', 'id="nsdlConfirm"'],
-  ['data & API page link', '/data-api.html'],
+  ['design system stylesheet', '/css/mc.css'],
+  ['dashboard stylesheet', '/css/mc-dashboard.css'],
+  ['shared chrome script', '/js/mc-ui.js'],
+  ['safe-area viewport', 'viewport-fit=cover'],
   ['self-hosted chart.js', '/vendor/chart-3.9.1.min.js'],
   ['HTML escaping helper', 'function escapeHtml(']
 ];
 
 const missing = requiredMarkers.filter(([, marker]) => !html.includes(marker));
+if (!dealsHtml.includes('id="large-deals-card"')) missing.push(['bulk/block deals panel (deals.html)', 'id="large-deals-card"']);
+for (const f of ['css/mc.css', 'css/mc-dashboard.css', 'js/mc-ui.js', 'js/mc-brand.js', 'js/mc-charts.js', 'js/mc-motion.js', 'js/mc-ranges.js', 'js/mc-deals.js']) {
+  if (!fs.existsSync(path.join(__dirname, '..', 'public', f))) missing.push(['front-end file', f]);
+}
 
 if (html.includes('FLOWMATRIX')) {
   missing.push(['legacy nav brand still visible', 'FLOWMATRIX must be removed']);
