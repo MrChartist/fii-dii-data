@@ -199,8 +199,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=3">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=3">
+<link rel="stylesheet" href="/css/mc.css?v=4">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=4">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
@@ -698,6 +698,12 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <div class="filter-row mc-dates">
             <div class="mc-field"><label for="drFrom">From</label><input type="date" id="drFrom" title="Filter rows from this date" onchange="filterDaily('daterange',null)"></div>
             <div class="mc-field"><label for="drTo">To</label><input type="date" id="drTo" title="Filter rows to this date" onchange="filterDaily('daterange',null)"></div>
+            <div class="mc-presets" role="group" aria-label="Quick ranges">
+              <button type="button" class="mc-btn mc-preset" onclick="setDatePreset(7, this)">1W</button>
+              <button type="button" class="mc-btn mc-preset" onclick="setDatePreset(30, this)">1M</button>
+              <button type="button" class="mc-btn mc-preset" onclick="setDatePreset(90, this)">3M</button>
+              <button type="button" class="mc-btn mc-preset" onclick="setDatePreset('ytd', this)">YTD</button>
+            </div>
             <div class="mc-actions" style="margin-left:auto; display:flex; gap:8px;">
               <button type="button" class="mc-btn sm danger" onclick="clearDateRange()">Clear dates</button>
               <button type="button" class="mc-btn sm tinted" onclick="exportDailyCSV()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>Download CSV</button>
@@ -781,6 +787,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <button class="filter-btn"        id="sec-sort-1y"    onclick="sortSectors('1y')">1Y Net Flow</button>
           <button class="filter-btn"        id="sec-sort-alpha" onclick="sortSectors('alpha')">A–Z</button>
         </div>
+        <label class="mc-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="sectorSearch" placeholder="Find a sector" autocomplete="off" aria-label="Find a sector" oninput="filterSectorCards(this.value)"></label>
+        <span class="mc-sec-count" id="sectorCount"></span>
         <button class="mc-btn primary" onclick="window.toggleSectorChart()" id="btnToggleSecChart">View interactive chart</button>
       </div>
 
@@ -1476,6 +1484,25 @@ function renderSignalTimeline() {
   }).join('');
 }
 
+/* Open a session from the home table inside Flow Analytics, expanded */
+function openSession(dateStr) {
+  switchMainTab('t-matrix');
+  setTimeout(() => {
+    try {
+      clearDateRange();
+      const allBtn = document.getElementById('fBtn-all');
+      filterDaily('all', allBtn);
+      const idx = paginatedFilteredData.findIndex(r => r.d === dateStr);
+      if (idx < 0) return;
+      currPageDaily = Math.floor(idx / pageSizeDaily) + 1;
+      renderDailyTable();
+      toggleRowDetail(idx);
+      const row = document.querySelector(`tr[data-row-idx="${idx}"]`);
+      if (row) row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (e) { /* navigation only */ }
+  }, 320);
+}
+
 /* ── Sticky KPI strip — headline numbers follow the user down the page ── */
 let _stickyKpiWired = false;
 function renderStickyKpi() {
@@ -1962,7 +1989,7 @@ function renderCommandCenter() {
     recentBody.innerHTML = dailyData.slice(0, 12).map(d => {
       const total = d.fn + d.dn;
       const score = getFlowScore([d, d], 1);
-      return `<tr>
+      return `<tr onclick="openSession('${escapeHtml(d.d)}')" title="Open this session in Flow Analytics">
         <td>${d.d}</td>
         <td class="${fC(d.fn)}">${fmt(d.fn)}</td>
         <td class="${fC(d.dn)}">${fmt(d.dn)}</td>
@@ -2388,7 +2415,22 @@ function dateInputToNSE(val) {
   return `${d}-${months[parseInt(m,10)-1]}-${y}`;
 }
 
+/* Quick date presets for the daily archive: last N days or year-to-date, anchored on the latest session */
+function setDatePreset(span, btn) {
+  const latest = dailyData[0] && parseNSEDate(dailyData[0].d);
+  if (!latest) return;
+  const pad = n => String(n).padStart(2, '0');
+  const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const from = new Date(latest);
+  if (span === 'ytd') { from.setMonth(0, 1); } else { from.setDate(from.getDate() - span); }
+  const f = document.getElementById('drFrom'), t = document.getElementById('drTo');
+  if (f) f.value = iso(from);
+  if (t) t.value = iso(latest);
+  document.querySelectorAll('.mc-preset').forEach(b => b.classList.toggle('active', b === btn));
+  filterDaily('daterange', null);
+}
 function clearDateRange() {
+  document.querySelectorAll('.mc-preset').forEach(b => b.classList.remove('active'));
   document.getElementById('drFrom').value = '';
   document.getElementById('drTo').value   = '';
   filterDaily(_activeFilter, _activeBtnEl);
@@ -3329,6 +3371,8 @@ function renderSectors() {
     </div>`;
   }).join('');
 
+  filterSectorCards(document.getElementById('sectorSearch')?.value || '');
+
   // Render the sparklines after injecting the DOM
   setTimeout(() => {
     data.forEach((s) => { // Use original index for canvas ID mapping
@@ -3336,6 +3380,26 @@ function renderSectors() {
       drawSectorSparkline(`sc-chart-${origIdx}`, s);
     });
   }, 50);
+}
+
+/* Filter the sector cards by name (search box in the Sectors header) */
+function filterSectorCards(q) {
+  const grid = document.getElementById('sector-grid'); if (!grid) return;
+  const needle = String(q || '').trim().toLowerCase();
+  let shown = 0, total = 0;
+  grid.querySelectorAll('.sector-card').forEach(card => {
+    total++;
+    const name = (card.querySelector('.sc-name')?.textContent || '').toLowerCase();
+    const hit = !needle || name.includes(needle);
+    card.hidden = !hit; if (hit) shown++;
+  });
+  let empty = grid.querySelector('.mc-sec-empty');
+  if (!shown && total) {
+    if (!empty) { empty = document.createElement('div'); empty.className = 'mc-sec-empty'; grid.appendChild(empty); }
+    empty.textContent = `No sector matches "${q.trim()}".`;
+  } else if (empty) empty.remove();
+  const c = document.getElementById('sectorCount');
+  if (c) c.textContent = total ? (needle ? `${shown} of ${total} sectors` : `${total} sectors`) : '';
 }
 
 let sectorZoomChartInstance = null;
@@ -4614,11 +4678,11 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   // Market ticker polling now lives in js/mc-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
-<script src="/js/mc-brand.js?v=3" defer></script>
-<script src="/js/mc-ui.js?v=3" defer></script>
-<script src="/js/mc-motion.js?v=3" defer></script>
-<script src="/js/mc-charts.js?v=3" defer></script>
-<script src="/js/mc-ranges.js?v=3" defer></script>
+<script src="/js/mc-brand.js?v=4" defer></script>
+<script src="/js/mc-ui.js?v=4" defer></script>
+<script src="/js/mc-motion.js?v=4" defer></script>
+<script src="/js/mc-charts.js?v=4" defer></script>
+<script src="/js/mc-ranges.js?v=4" defer></script>
 </body>
 </html>
 
