@@ -39,6 +39,7 @@
           <a role="menuitem" href="https://t.me/official_mrchartist" target="_blank" rel="noopener" class="nav-channel-btn" id="navChannelBtn" title="Join the Telegram channel">${ICON.tg}Telegram channel</a>
           <div class="os-menu-sep" role="separator"></div>
           <a role="menuitem" href="https://mrchartist.com" target="_blank" rel="noopener" class="os-menu-link">${ICON.arrow}More from Mr. Chartist</a>
+          <button type="button" role="menuitem" class="os-menu-item os-menu-link" onclick="if(window.replayTour){replayTour()}else{location.href='/'}"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4"/><path d="M12 17h.01"/></svg>How to read this</button>
           <button type="button" role="menuitem" class="os-menu-item os-menu-link" onclick="mcToast('Shortcuts: 1-5 sections · t theme · / search · ? help')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>Keyboard shortcuts</button>
         </div>
       </div>
@@ -106,7 +107,7 @@
 
   /* deep links: /#t-fno etc. */
   function deepLink() {
-    var id = (location.hash || '').replace('#', '');
+    var id = (location.hash || '').replace('#', '').replace(/\?.*$/, '');
     if (!/^t-(hero|fno|matrix|sector)$/.test(id) || typeof window.switchMainTab !== 'function') return;
     window.switchMainTab(id);
     if (id === 't-sector') { try { window.renderSectors(); window.renderSectorChart(); } catch (e) {} }
@@ -394,6 +395,28 @@
     new MutationObserver(sync).observe(pill, { attributes: true, childList: true, subtree: true, characterData: true }); sync();
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initNotice); else initNotice();
+
+  /* ---- 11. Status tooltip + iOS "Add to Home Screen" hint (Safari has no install prompt) ---- */
+  function initStatusTitle() {
+    var pill = $('#sPill'), txt = $('#sTxt'); if (!pill || !txt) return;
+    function sync() { var t = (txt.textContent || '').replace(/\s+/g, ' ').trim(); if (t) pill.title = t.charAt(0) + t.slice(1).toLowerCase(); }
+    new MutationObserver(sync).observe(txt, { childList: true, characterData: true, subtree: true }); sync();
+  }
+  function initIosHint() {
+    try {
+      var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var safari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua);
+      var standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+      if (!ios || !safari || standalone || localStorage.getItem('mc_ios_hint')) return;
+      var visits = parseInt(localStorage.getItem('mc_visits') || '0', 10) + 1; localStorage.setItem('mc_visits', String(visits));
+      if (visits < 2) return;
+      var h = doc.createElement('div'); h.className = 'mc-ioshint'; h.setAttribute('role', 'status');
+      h.innerHTML = '<div><strong>Add FII &amp; DII to your Home Screen</strong><span>Tap <b>Share</b> then <b>Add to Home Screen</b> for the full-screen app with no browser bars.</span></div><button type="button" class="mc-btn sm" aria-label="Dismiss">Got it</button>';
+      h.querySelector('button').addEventListener('click', function () { h.remove(); try { localStorage.setItem('mc_ios_hint', '1'); } catch (e) {} });
+      doc.body.appendChild(h);
+    } catch (e) {}
+  }
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', initStatusTitle); doc.addEventListener('DOMContentLoaded', initIosHint); } else { initStatusTitle(); initIosHint(); }
 })();
 
 /* F&O Snapshot: one verdict badge + a clear stale-data notice (additive, reads existing text only) */
