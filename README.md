@@ -137,7 +137,7 @@ The front end ships as two stylesheets and six small scripts, all brand-owned:
 | `public/js/mc-ranges.js` | Chart range selector (1M/3M/6M/1Y/All) with empty-state handling and auto-fallback to the latest data |
 | `public/js/mc-deals.js` | Bulk & block deals page: filters, search, sortable columns, summary tiles |
 
-Theme tokens: the brand accent is `hsl(16 100% 60%)` ("Signal"), the Mr. Chartist logo stays monochrome, gains/losses use the `--os-bull` / `--os-bear` pair, and every surface derives from `--bg`, `--surface`, `--l1…--l4` and the hairline `--os-hairline`. Dark is the default; `html[data-theme="light"]` switches to the warm light palette.
+Visual language: Liquid Glass in the spirit of the latest iOS and macOS. Surfaces are translucent (`--glass-fill`, about 20% fill in dark) with `backdrop-filter` blur and specular rim highlights over a fixed ambient colour field (`--orb-1…4`). Navigation is a floating capsule on desktop and a floating dock on phones, matching mrchartist.com. The brand accent is `hsl(16 100% 60%)` ("Signal"), the logo stays monochrome, gains/losses use `--os-bull` / `--os-bear`, headings use Plus Jakarta Sans and numerals use Inter with tabular figures. Dark is the default; `html[data-theme="light"]` switches to the paper palette. Browsers without `backdrop-filter` and users with reduced transparency get solid surfaces.
 
 ## 📂 Project Structure
 
