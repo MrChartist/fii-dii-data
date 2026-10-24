@@ -27,7 +27,7 @@
   function rowHtml(d) {
     var buy = isBuy(d);
     return '<tr><td class="dt">' + esc(d.date || asOn || '—') + '</td><td><span class="os-tag ' + (d.type === 'Block' ? 'block' : 'bulk') + '">' + d.type + '</span></td>' +
-      '<td class="sym">' + esc(d.symbol) + '</td><td class="cli" title="' + esc(d.client) + '">' + esc(d.client) + '</td>' +
+      '<td class="sym"><a class="mc-sym" href="https://www.tradingview.com/chart/?symbol=NSE%3A' + encodeURIComponent(d.symbol) + '" target="_blank" rel="noopener" title="Open ' + esc(d.symbol) + ' on TradingView">' + esc(d.symbol) + '</a></td><td class="cli" title="' + esc(d.client) + '">' + esc(d.client) + '</td>' +
       '<td class="' + (buy ? 'pos' : 'neg') + '">' + (buy ? 'Buy' : 'Sell') + '</td>' +
       '<td class="num">' + inr(d.qty) + '</td><td class="num">₹' + inr(d.price) + '</td><td class="num">' + cr(d.value) + '</td></tr>';
   }
@@ -59,6 +59,15 @@
     $('#dk-side').innerHTML = '<span class="pos">' + buys + '</span> <span style="color:var(--t4)">/</span> <span class="neg">' + sells + '</span>';
     $('#dk-top').textContent = top.symbol; $('#dk-top-note').textContent = cr(top.value) + ' · ' + (isBuy(top) ? 'bought' : 'sold') + ' by ' + (top.client || '').toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
     box.hidden = false;
+  }
+  function active() {
+    var box = $('#deals-active'); if (!box) return;
+    var m = {}; rows.forEach(function (r) { m[r.symbol] = (m[r.symbol] || 0) + 1; });
+    var top = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; }).slice(0, 6).filter(function (k) { return m[k] > 1; });
+    if (!top.length) { box.hidden = true; return; }
+    box.innerHTML = '<span class="mc-eyebrow">Most active</span>' + top.map(function (k) { return '<button type="button" class="mc-chip capsule" data-sym="' + esc(k) + '">' + esc(k) + ' <b>' + m[k] + '</b></button>'; }).join('');
+    box.hidden = false;
+    box.querySelectorAll('[data-sym]').forEach(function (b) { b.addEventListener('click', function () { var f = $('#deals-search'); var v = b.getAttribute('data-sym'); query = (query.trim().toUpperCase() === v) ? '' : v; f.value = query; shown = 0; render(); }); });
   }
   function counts() {
     var c = { all: rows.length, Bulk: 0, Block: 0 };
@@ -94,6 +103,6 @@
       if (data.fetched_at) { try { t = ' · updated ' + new Date(data.fetched_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) + ' IST'; } catch (e) {} }
       var chip = $('#ld-date'); if (asOn) { chip.textContent = 'As on ' + asOn + t; chip.hidden = false; }
     }
-    counts(); summarise(); render();
+    counts(); summarise(); active(); render();
   }).catch(function () { counts(); render(); });
 })();
