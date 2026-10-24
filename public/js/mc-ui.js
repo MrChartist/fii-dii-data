@@ -356,6 +356,18 @@
   syncThemeColor();
   new MutationObserver(syncThemeColor).observe(doc.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   try { if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) doc.documentElement.setAttribute('data-standalone', ''); } catch (e) {}
+
+  /* ---- 8. Back to top (appears after a screen of scrolling) ---- */
+  function initTop() {
+    var b = doc.createElement('button'); b.type = 'button'; b.className = 'mc-top'; b.setAttribute('aria-label', 'Back to top');
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>';
+    b.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    doc.body.appendChild(b);
+    var on = false;
+    function sync() { var want = window.scrollY > innerHeight * 1.2; if (want !== on) { on = want; b.classList.toggle('show', on); } }
+    window.addEventListener('scroll', sync, { passive: true }); sync();
+  }
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTop); else initTop();
 })();
 
 /* F&O Snapshot: one verdict badge + a clear stale-data notice (additive, reads existing text only) */
