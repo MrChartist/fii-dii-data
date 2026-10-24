@@ -27,6 +27,8 @@
 | **Today in context** | 20-session averages, rank of today's move, month-to-date and year-to-date totals on the cash tape |
 | **Plain-English reads** | One-line interpretation of FII index-futures positioning ranked against history; sector rotation at a glance |
 | **Keyboard shortcuts** | 1-5 jump between sections, t toggles theme, / focuses search, ? shows help |
+| **Shareable links** | The URL follows the active section; sector links such as `/#t-sector?s=Financial%20Services` open that sector directly (Copy link in the sector view) |
+| **Easy access** | Section jump strip on phones, replayable guided tour, iOS Add-to-Home-Screen hint, high-contrast and reduced-transparency support |
 | **Interactive Charts** | Chart.js-powered flow visualizations with timeframe toggles |
 | **Sector Allocation** | NSDL fortnightly FPI sector data with sparkline trends & zoom modal |
 | **Dark / Light Mode** | OLED black dark mode & clean light theme |
