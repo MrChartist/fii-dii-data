@@ -963,3 +963,22 @@ html[data-loading] .terminal-value, html[data-loading] .signal-row strong, html[
   background: linear-gradient(90deg, var(--os-fill) 0%, var(--os-fill-2) 50%, var(--os-fill) 100%); background-size: 200% 100%; animation: mc-skel 1.4s ease-in-out infinite;
 }
 @keyframes mc-skel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ── 17. Access and ease of use: jump strip, iOS hint, high contrast ── */
+.mc-jump { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 2px; margin: -2px -2px calc(var(--gap-card) - 4px); }
+.mc-jump::-webkit-scrollbar { display: none; }
+.mc-jump a { flex: none; display: inline-flex; align-items: center; height: 30px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--ctl-border); background: var(--ctl-sheen), var(--ctl-bg); color: var(--t2); font: 600 11.5px/1 var(--font-body); letter-spacing: .02em; text-decoration: none; white-space: nowrap; }
+.mc-jump a:hover { color: var(--t1); background: var(--ctl-sheen), var(--ctl-hover); }
+@media (min-width: 769px) { .mc-jump { display: none; } }
+.terminal-panel { scroll-margin-top: calc(var(--os-topbar-h) + env(safe-area-inset-top, 0px) + 24px); }
+@media (min-width: 769px) { .terminal-panel { scroll-margin-top: calc(var(--os-nav-top) + var(--os-nav-h) + 16px); } }
+.mc-ioshint { position: fixed; left: 12px; right: 12px; bottom: calc(var(--os-dock-h) + env(safe-area-inset-bottom, 0px) + 22px); z-index: 960; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r-compact); background: var(--glass-bg); border: 1px solid var(--glass-border); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); box-shadow: var(--card-highlight), var(--os-shadow-3); animation: os-sheet .4s var(--os-spring-pop); }
+.mc-ioshint > div { flex: 1; min-width: 0; }
+.mc-ioshint strong { display: block; font: 700 13.5px/1.3 var(--font-display); letter-spacing: -.02em; color: var(--t1); }
+.mc-ioshint span { display: block; margin-top: 3px; font: 450 12px/1.45 var(--font-body); color: var(--t3); }
+.mc-ioshint span b { color: var(--t1); font-weight: 600; }
+.sz-header .mc-btn { margin-left: auto; }
+@media (prefers-contrast: more) {
+  :root, html[data-theme="light"], html:not([data-theme="light"]) { --os-hairline: color-mix(in srgb, currentColor 40%, transparent); --glass-border: color-mix(in srgb, currentColor 45%, transparent); --t3: var(--t2); --t4: var(--t2); }
+  .card, .terminal-panel, .sector-card, .tabs-wrap, .os-topbar { border-width: 1.5px; }
+}
