@@ -919,3 +919,47 @@ html[data-saver] *, html[data-hidden] * { animation-play-state: paused !importan
   .wrap { padding: 0; width: 100%; }
   .card, .terminal-panel, .sector-card { break-inside: avoid; box-shadow: none; }
 }
+
+/* ── 16. Round-3 features: context notes, period totals, sorting, glance chips, notices, skeletons ── */
+.mc-skip { position: absolute; left: 12px; top: -60px; z-index: 2000; padding: 10px 14px; border-radius: 999px; background: var(--t1); color: var(--bg); font: 600 13px/1 var(--font-body); }
+.mc-skip:focus { top: calc(var(--os-nav-top) + 6px); outline: 2px solid var(--mc-accent); }
+.mc-ctx { margin-top: 6px; font: 500 11.5px/1.4 var(--font-body); color: var(--t3); }
+.mc-ctx:empty { display: none; }
+.mc-ctx-k { color: var(--t4); }
+.mc-ctx b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.mc-periods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap-tile); margin-top: var(--gap-tile); }
+.mc-periods > div { padding: 8px 12px; border-radius: var(--r-inner); background: var(--l1); border: 1px solid var(--os-hairline-soft); min-width: 0; }
+.mc-periods span { display: block; font: 600 10px/1.2 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--t4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-periods strong { display: block; margin-top: 3px; font: 800 14px/1.2 var(--font-numeric); letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 640px) { .mc-periods { grid-template-columns: 1fr 1fr; } }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--t1); }
+th.sortable.sorted { color: var(--t1); }
+th.sortable.sorted::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+th.sortable.sorted.asc::after { transform: rotate(-135deg) translateY(-1px); }
+.mc-pagesize { display: inline-flex; align-items: center; gap: 8px; }
+.mc-pagesize label { font: 600 11px/1 var(--font-body); letter-spacing: .06em; text-transform: uppercase; color: var(--t4); }
+.mc-pagesize select { height: 30px; padding: 0 26px 0 10px; font-size: 12px; }
+.mc-toolbar .mc-note { margin: 0; flex: 1; }
+.mc-glance { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap-compact); margin-bottom: var(--gap-card); }
+.mc-glance-col { padding: 10px 12px; border-radius: var(--r-inner); background: var(--l1); border: 1px solid var(--os-hairline-soft); min-width: 0; }
+.mc-glance-col .mc-eyebrow { display: block; margin-bottom: 8px; }
+.mc-glance-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mc-glance-chips .mc-chip { cursor: pointer; max-width: 100%; }
+.mc-glance-chips .mc-chip b { font-family: var(--font-numeric); font-variant-numeric: tabular-nums; }
+.mc-glance-chips .mc-chip:hover { filter: brightness(1.1); }
+@media (max-width: 640px) { .mc-glance { grid-template-columns: 1fr; } }
+.mc-read { margin: 0 0 var(--gap-card); padding: 10px 14px; border-radius: var(--r-inner); background: var(--l1); border: 1px solid var(--os-hairline-soft); border-left: 3px solid var(--mc-accent); font: 450 13px/1.6 var(--font-body); color: var(--t2); }
+.mc-read b { color: var(--t1); font-weight: 700; font-variant-numeric: tabular-nums; }
+.mc-notice { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 var(--gap-card); padding: 10px 14px; border-radius: var(--r-compact); background: var(--os-neutral-bg); border: 1px solid color-mix(in srgb, var(--os-neutral) 40%, transparent); color: var(--t1); font: 500 13px/1.4 var(--font-body); }
+.mc-active { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; margin: 0 0 var(--gap-card); }
+.mc-active .mc-chip { cursor: pointer; }
+.mc-active .mc-chip b { font-family: var(--font-numeric); color: var(--t3); font-weight: 600; }
+.mc-sym { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--t4); }
+.mc-sym:hover { color: var(--mc-accent); border-bottom-color: var(--mc-accent); }
+/* skeletons while the first data load is in flight */
+html[data-loading] .terminal-value, html[data-loading] .signal-row strong, html[data-loading] .momentum-grid strong, html[data-loading] .sector-tape strong, html[data-loading] .pressure-row strong, html[data-loading] .mc-periods strong, html[data-loading] #lDate, html[data-loading] #cmd-recent-body td {
+  color: transparent !important; text-shadow: none !important; position: relative; border-radius: 8px;
+  background: linear-gradient(90deg, var(--os-fill) 0%, var(--os-fill-2) 50%, var(--os-fill) 100%); background-size: 200% 100%; animation: mc-skel 1.4s ease-in-out infinite;
+}
+@keyframes mc-skel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }

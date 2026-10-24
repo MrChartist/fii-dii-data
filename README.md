@@ -23,7 +23,10 @@
 | **Real-Time FII/DII Flows** | Latest net buy/sell data with flow strength meter |
 | **45-Day Heatmaps** | GitHub-style concentration matrices for FII sell-off depth & DII absorption |
 | **F&O Derivatives** | Participant-wise Open Interest (Long vs Short ratio bars) |
-| **Multi-Timeframe Tables** | Daily, Weekly, Monthly & Annual archives with magnitude bars + expandable rows |
+| **Multi-Timeframe Tables** | Daily, Weekly, Monthly & Annual archives with magnitude bars, expandable rows, sortable columns, page-size control, quick date presets and CSV export for every timeframe |
+| **Today in context** | 20-session averages, rank of today's move, month-to-date and year-to-date totals on the cash tape |
+| **Plain-English reads** | One-line interpretation of FII index-futures positioning ranked against history; sector rotation at a glance |
+| **Keyboard shortcuts** | 1-5 jump between sections, t toggles theme, / focuses search, ? shows help |
 | **Interactive Charts** | Chart.js-powered flow visualizations with timeframe toggles |
 | **Sector Allocation** | NSDL fortnightly FPI sector data with sparkline trends & zoom modal |
 | **Dark / Light Mode** | OLED black dark mode & clean light theme |

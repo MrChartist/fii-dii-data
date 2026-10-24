@@ -39,6 +39,7 @@
           <a role="menuitem" href="https://t.me/official_mrchartist" target="_blank" rel="noopener" class="nav-channel-btn" id="navChannelBtn" title="Join the Telegram channel">${ICON.tg}Telegram channel</a>
           <div class="os-menu-sep" role="separator"></div>
           <a role="menuitem" href="https://mrchartist.com" target="_blank" rel="noopener" class="os-menu-link">${ICON.arrow}More from Mr. Chartist</a>
+          <button type="button" role="menuitem" class="os-menu-item os-menu-link" onclick="mcToast('Shortcuts: 1-5 sections · t theme · / search · ? help')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>Keyboard shortcuts</button>
         </div>
       </div>
       <a class="os-cta" href="https://mrchartist.com" target="_blank" rel="noopener">Explore ${ICON.arrow}</a>
@@ -368,6 +369,31 @@
     window.addEventListener('scroll', sync, { passive: true }); sync();
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTop); else initTop();
+
+  /* ---- 9. Keyboard shortcuts: 1-5 sections, t theme, / search, ? help ---- */
+  var KEYS = { '1': 't-hero', '2': 't-fno', '3': 't-matrix', '4': 't-sector' };
+  function typing(e) { var t = e.target; return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
+  doc.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey || typing(e)) return;
+    var k = e.key;
+    if (KEYS[k]) { if (typeof window.switchMainTab === 'function') { window.switchMainTab(KEYS[k]); if (KEYS[k] === 't-sector') { try { window.renderSectors(); window.renderSectorChart(); } catch (x) {} } } else location.href = '/#' + KEYS[k]; e.preventDefault(); }
+    else if (k === '5') { location.href = '/deals.html'; }
+    else if (k === 't' || k === 'T') { if (typeof window.toggleTheme === 'function') window.toggleTheme(); }
+    else if (k === '/') { var f = $('#deals-search') || $('#t-sector.active #sectorSearch') || $('#sectorSearch'); if (f) { if (f.id === 'sectorSearch' && typeof window.switchMainTab === 'function') { window.switchMainTab('t-sector'); try { window.renderSectors(); } catch (x) {} } setTimeout(function () { f.focus(); }, 60); e.preventDefault(); } }
+    else if (k === '?') { window.mcToast('Shortcuts: 1-5 sections · t theme · / search · ? help'); }
+  });
+
+  /* ---- 10. Sync notice: when live NSE sync fails, say so and offer a retry ---- */
+  function initNotice() {
+    var pill = $('#sPill'), txt = $('#sTxt'); if (!pill || !txt) return;
+    var bar = doc.createElement('div'); bar.className = 'mc-notice'; bar.hidden = true; bar.setAttribute('role', 'status');
+    bar.innerHTML = '<span>Live NSE sync is unavailable right now. You are seeing the last saved archive.</span><button type="button" class="mc-btn sm">Retry</button>';
+    bar.querySelector('button').addEventListener('click', function () { if (typeof window.fetchLiveNSE === 'function') window.fetchLiveNSE(true); });
+    var tk = $('#marketTicker'); if (tk && tk.parentNode) tk.parentNode.insertBefore(bar, tk.nextSibling); else doc.body.insertBefore(bar, doc.body.firstChild);
+    function sync() { var t = (txt.textContent || '').toUpperCase(); bar.hidden = !(pill.classList.contains('err') && /ARCHIVE|OFFLINE/.test(t)); }
+    new MutationObserver(sync).observe(pill, { attributes: true, childList: true, subtree: true, characterData: true }); sync();
+  }
+  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initNotice); else initNotice();
 })();
 
 /* F&O Snapshot: one verdict badge + a clear stale-data notice (additive, reads existing text only) */
