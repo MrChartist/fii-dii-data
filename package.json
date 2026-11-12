@@ -1,7 +1,7 @@
 {
   "name": "fii-dii-dashboard",
   "version": "2.0.0",
-  "description": "FII & DII Data India — Live Institutional Flow Tracker by Mr. Chartist",
+  "description": "FII & DII Data India — Daily Institutional Flow Tracker by Mr. Chartist",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

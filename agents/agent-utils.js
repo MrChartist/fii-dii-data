@@ -211,7 +211,23 @@ const REGIME_LABELS = {
     'STRONG_BEARISH': 'STRONG BEARISH'
 };
 
+const REGIME_NOTES = {
+    // Descriptions of what the flow data shows — deliberately NOT instructions.
+    // These go out to the public channel and the API; telling readers how to
+    // size, hedge or short would be unsolicited investment advice.
+    'STRONG_BULLISH':  'Institutions are net buyers on both sides; flows are broadly supportive.',
+    'MILD_BULLISH':    'Net institutional buying, with domestic support outweighing foreign selling.',
+    'NEUTRAL':         'Foreign and domestic flows are roughly offsetting; no clear institutional bias.',
+    'MILD_BEARISH':    'Foreign selling is persistent and only partly absorbed by domestic buying.',
+    'STRONG_BEARISH':  'Heavy foreign selling with weak domestic absorption; flows are a headwind.'
+};
+// Always derive the note from the regime key: text stored in older state files
+// may still carry the previous advice-style wording.
+function regimeNote(regime) { return REGIME_NOTES[regime] || ''; }
+
 module.exports = {
+    REGIME_NOTES,
+    regimeNote,
     // State
     getState,
     setState,
