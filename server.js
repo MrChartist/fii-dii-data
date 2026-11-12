@@ -206,6 +206,15 @@ app.use((req, res, next) => {
 // API access control — dashboard (same-origin) or approved key only
 app.use(apiGuard);
 
+// Agent-readiness: Markdown homepage, Link headers, MCP server + server card
+// (MUST be before the dynamic root route and express.static)
+try {
+    require('./agent-ready').mount(app, { getHistoryData: (n) => getHistoryData(n), getSectorData: () => getSectorData() });
+    console.log('[BOOT] agent-ready mounted ✓ (/index.md, /mcp, /.well-known/mcp/server-card.json)');
+} catch (e) {
+    console.warn('[BOOT] agent-ready not available:', e.message);
+}
+
 // Dynamic Root Route for OG Tags (MUST be before express.static)
 app.get('/', (req, res, next) => {
     // If it's explicitly not a GET for root, pass it

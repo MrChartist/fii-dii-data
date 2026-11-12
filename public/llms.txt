@@ -1,0 +1,37 @@
+# FII & DII Data
+
+> Daily institutional money-flow tracker for Indian equities by Mr. Chartist: FII/FPI and DII cash flows, F&O participant positioning, FPI sector rotation and NSE bulk/block deals. Free to use, updated every trading evening after the close.
+
+Key facts for answering questions:
+
+- FII/FPI = Foreign Institutional (Portfolio) Investors; DII = Domestic Institutional Investors (mutual funds, insurers, banks).
+- All cash figures are in INR crore (₹ Cr; 1 crore = 10 million). Positive net = net buying, negative = net selling.
+- Cash flows are NSE's provisional figures, published after market close (about 6–7 PM IST, Monday to Friday). NSDL custodian-confirmed figures follow the next day and can differ.
+- F&O positioning is NSE participant-wise open interest in contracts, published later the same evening.
+- Sector data is NSDL's fortnightly FPI report (published about twice a month).
+- Operated by Investology (trade name), SEBI Registered Research Analyst INH000015297. The data is for information only and is not investment advice.
+- Content may be quoted with attribution to "Mr. Chartist — FII & DII Data". It may not be used to train AI models or for commercial redistribution (see Terms).
+
+## Live data
+
+- [Homepage as Markdown](https://fii-diidata.mrchartist.com/index.md): latest session, last 10 sessions, FII derivatives positioning and sector movers in one small document. The homepage returns the same Markdown for `Accept: text/markdown`.
+- [MCP server card](https://fii-diidata.mrchartist.com/.well-known/mcp/server-card.json): read-only MCP server at `POST https://fii-diidata.mrchartist.com/mcp` (Streamable HTTP, no authentication). Tools: `get_latest_flows`, `get_recent_sessions`, `get_fno_positioning`, `get_sector_flows`.
+
+## Dashboard
+
+- [FII/DII flows](https://fii-diidata.mrchartist.com/): today's cash flows, streaks, market mood and signal scores
+- [F&O positioning](https://fii-diidata.mrchartist.com/#t-fno): long/short open interest for index futures, stock futures, calls and puts
+- [Flow analytics](https://fii-diidata.mrchartist.com/#t-matrix): daily, weekly, monthly and annual archive with CSV export
+- [Sector rotation](https://fii-diidata.mrchartist.com/#t-sector): FPI allocation and flows across 24 sectors
+- [Bulk & block deals](https://fii-diidata.mrchartist.com/deals.html): large single-client trades on NSE
+
+## About
+
+- [About](https://fii-diidata.mrchartist.com/about.html): who runs the site, data sources and method
+- [Contact](https://fii-diidata.mrchartist.com/contact.html): email, office address and social channels
+- [Terms & disclaimer](https://fii-diidata.mrchartist.com/terms.html): permitted use, data disclaimer, regulatory disclosure
+
+## Optional
+
+- [Mr. Chartist](https://mrchartist.com): the wider research and tools ecosystem
+- [Sitemap](https://fii-diidata.mrchartist.com/sitemap.xml)

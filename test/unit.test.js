@@ -80,3 +80,44 @@ test('NSDL daily parser reads net (not gross purchases) and ignores the derivati
         date: '12-Nov-2026', equity_net: 14693.72, debt_net: 1295.24, hybrid_net: 44.45, total_net: 16028.21
     });
 });
+
+test('agent-ready: Markdown, MCP protocol and server card', () => {
+    const ar = require('../agent-ready');
+    const { getHistoryData, getSectorData } = require('../scripts/fetch_data');
+    const views = ar.createViews({ getHistoryData, getSectorData });
+
+    const md = ar.buildMarkdown(views);
+    assert.match(md, /^# FII & DII Data/);
+    assert.match(md, /## Latest session: \d{2}-[A-Z][a-z]{2}-\d{4}/);
+    assert.doesNotMatch(md, /-₹0 Cr|NaN|undefined/);
+
+    const rpc = (m) => ar.handleRpc(views, { jsonrpc: '2.0', ...m });
+    const init = rpc({ id: 1, method: 'initialize', params: { protocolVersion: '2025-06-18' } });
+    assert.strictEqual(init.result.protocolVersion, '2025-06-18');
+    assert.ok(init.result.capabilities.tools);
+    assert.strictEqual(rpc({ method: 'notifications/initialized' }), null);
+    const names = rpc({ id: 2, method: 'tools/list' }).result.tools.map(t => t.name);
+    assert.deepStrictEqual(names, ['get_latest_flows', 'get_recent_sessions', 'get_fno_positioning', 'get_sector_flows']);
+    // The archive must stay capped no matter what is asked for
+    const many = rpc({ id: 3, method: 'tools/call', params: { name: 'get_recent_sessions', arguments: { days: 100000 } } });
+    assert.ok(many.result.structuredContent.sessions.length <= 30);
+    assert.strictEqual(rpc({ id: 4, method: 'tools/call', params: { name: 'nope' } }).error.code, -32602);
+    assert.strictEqual(rpc({ id: 5, method: 'resources/list' }).error.code, -32601);
+
+    const card = ar.serverCard();
+    assert.ok(card.name && card.version && card.capabilities.tools);
+    assert.match(card.endpoint, /^https:\/\/.+\/mcp$/);
+});
+
+test('agent-ready static files', () => {
+    const pub = (f) => fs.readFileSync(path.join(__dirname, '..', 'public', f), 'utf8');
+    assert.match(pub('robots.txt'), /^Content-Signal: .*ai-train=no/m);
+    assert.match(pub('llms.txt'), /^# FII & DII Data\n\n> /);
+    const html = pub('index.html');
+    assert.strictEqual((html.match(/<h1[\s>]/g) || []).length, 1, 'exactly one <h1> on the homepage');
+    for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(m[1]);
+    for (const f of ['about.html', 'contact.html', 'terms.html']) {
+        assert.strictEqual((pub(f).match(/<h1[\s>]/g) || []).length, 1, f);
+        assert.ok(pub('js/mc-ui.js').includes('href="/' + f), 'footer links ' + f);
+    }
+});
