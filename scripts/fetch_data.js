@@ -1,7 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { parse } = require('csv-parse/sync');
 
 // ── Configuration ───────────────────────────────────────────────────────────
 const CONFIG = {
@@ -27,14 +26,26 @@ let nseCookies = "";
 
 // ── JSON Storage (replaces SQLite) ──────────────────────────────────────────
 
-function readJSON(filename, defaultVal) {
+// strict = true: a file that exists but cannot be parsed THROWS instead of
+// returning the default. Write paths must use it — otherwise a truncated or
+// conflict-marked history.json reads as [] and is then overwritten with a
+// single row, destroying the archive.
+function readJSON(filename, defaultVal, strict = false) {
+    const p = path.join(CONFIG.DATA_DIR, filename);
+    if (!fs.existsSync(p)) return defaultVal;
     try {
-        const p = path.join(CONFIG.DATA_DIR, filename);
-        if (!fs.existsSync(p)) return defaultVal;
         return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch {
+    } catch (err) {
+        if (strict) throw new Error(`${filename} is unreadable (${err.message}) — refusing to overwrite it`);
         return defaultVal;
     }
+}
+
+const NSE_DATE_RE = /^\d{2}-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$/;
+// "14,967.82" → 14967.82 (parseFloat alone would stop at the comma and store 14)
+function num(v) {
+    const n = parseFloat(String(v ?? '').replace(/,/g, ''));
+    return Number.isFinite(n) ? n : NaN;
 }
 
 function writeJSON(filename, data) {
@@ -94,6 +105,8 @@ async function withRetry(fn, label) {
             return await fn();
         } catch (err) {
             lastError = err;
+            // A 404 means "not published" — retrying only burns time
+            if (err.response && err.response.status === 404) break;
             if (attempt < CONFIG.RETRY.attempts) {
                 const delay = CONFIG.RETRY.baseDelayMs * attempt;
                 console.warn(`  ⚠️  ${label} failed (attempt ${attempt}/${CONFIG.RETRY.attempts}): ${err.message}. Retrying in ${delay}ms…`);
@@ -131,6 +144,8 @@ async function fetchNSE() {
             });
             const data = response.data;
             if (Array.isArray(data) && data.length > 0) return data;
+            // 200 with a non-array body is NSE's block page — get a new session
+            await refreshNSESession();
         } catch (err) {
             console.warn(`  ⚠️ Direct NSE fetch failed: ${err.message}. Trying proxy...`);
             // Cookies may have gone stale — refresh so the next retry gets a clean session
@@ -141,7 +156,9 @@ async function fetchNSE() {
         const safeUrl = `${CONFIG.NSE_API}?t=${Date.now()}`;
         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(safeUrl)}`;
         const pRes = await axios.get(proxyUrl, { timeout: CONFIG.TIMEOUTS.cash });
-        const parsed = pRes.data && pRes.data.contents ? JSON.parse(pRes.data.contents) : null;
+        let parsed = null;
+        try { parsed = pRes.data && pRes.data.contents ? JSON.parse(pRes.data.contents) : null; }
+        catch { throw new Error("NSE proxy returned a non-JSON body"); }
         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
 
         throw new Error("NSE API & Proxy both returned empty or non-array response");
@@ -161,8 +178,8 @@ async function fetchFaoOi(dateStr) {
 
     const datePart = `${day}${month}${year}`;
     const urls = [
-        `${CONFIG.FAO_BASE}/fao_participant_oi_${datePart}_b.csv`,
         `${CONFIG.FAO_BASE}/fao_participant_oi_${datePart}.csv`,
+        `${CONFIG.FAO_BASE}/fao_participant_oi_${datePart}_b.csv`,
     ];
 
     for (const url of urls) {
@@ -171,7 +188,9 @@ async function fetchFaoOi(dateStr) {
                 () => axios.get(url, { headers: { ...HEADERS, Cookie: nseCookies }, timeout: CONFIG.TIMEOUTS.fao }),
                 `F&O CSV (${url})`
             );
-            if (response.data && response.data.length > 0) return response.data;
+            // Only accept a body that actually parses — an HTML error page
+            // served with 200 must not end the search
+            if (typeof response.data === 'string' && parseFao(response.data).FII) return response.data;
         } catch { /* Try next */ }
     }
     return null;
@@ -186,39 +205,43 @@ function parseFao(csvText) {
     if (!csvText) return faoData;
 
     try {
-        const lines = csvText.trim().split('\n');
-        if (lines.length < 2) return faoData;
-        const clean = lines.filter(l => l.trim() && !l.startsWith(','));
+        // NSE prefixes the file with a title row whose doubled quotes
+        // (""Participant wise Open Interest ... as on Jun 11, 2026"") are not
+        // valid CSV, so a strict parser rejects the whole file. Skip everything
+        // before the real header row and split the plain numeric rows by hand.
+        const lines = String(csvText).replace(/^\uFEFF/, '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const headerIdx = lines.findIndex(l => /^"?\s*client\s*type/i.test(l));
+        if (headerIdx < 0) return faoData;
 
-        const records = parse(clean.join('\n'), {
-            columns: true,
-            skip_empty_lines: true,
-            trim: true,
-            relax_column_count: true,
-            relax_quotes: true
-        });
+        const cells = (line) => line.split(',').map(c => c.replace(/^"+|"+$/g, '').trim());
+        const norm = (h) => h.toLowerCase().replace(/\s+/g, ' ').trim();
+        const header = cells(lines[headerIdx]).map(norm);
+        const col = (name) => header.indexOf(norm(name));
+        const COLS = {
+            idx_fut_long: col('Future Index Long'),     idx_fut_short: col('Future Index Short'),
+            stk_fut_long: col('Future Stock Long'),     stk_fut_short: col('Future Stock Short'),
+            idx_call_long: col('Option Index Call Long'), idx_call_short: col('Option Index Call Short'),
+            idx_put_long: col('Option Index Put Long'),   idx_put_short: col('Option Index Put Short'),
+        };
+        // A renamed/missing column must fail loudly rather than store zeros
+        const missing = Object.entries(COLS).filter(([, i]) => i < 0).map(([k]) => k);
+        if (missing.length) {
+            console.error(`Error parsing F&O CSV: missing column(s) ${missing.join(', ')}`);
+            return faoData;
+        }
 
         const getInt = (val) => {
-            if (!val) return 0;
-            const n = parseInt(String(val).trim().replace(/,/g, ''), 10);
+            const n = parseInt(String(val ?? '').replace(/,/g, ''), 10);
             return isNaN(n) ? 0 : n;
         };
 
-        for (const row of records) {
-            const clientType = (row['Client Type'] || "").trim().toUpperCase();
-            if (!clientType.includes("FII") && !clientType.includes("DII")) continue;
-
-            const key = clientType.includes("FII") ? "FII" : "DII";
-            faoData[key] = {
-                idx_fut_long:   getInt(row['Future Index Long']),
-                idx_fut_short:  getInt(row['Future Index Short']),
-                stk_fut_long:   getInt(row['Future Stock Long']),
-                stk_fut_short:  getInt(row['Future Stock Short']),
-                idx_call_long:  getInt(row['Option Index Call Long']),
-                idx_call_short: getInt(row['Option Index Call Short']),
-                idx_put_long:   getInt(row['Option Index Put Long']),
-                idx_put_short:  getInt(row['Option Index Put Short']),
-            };
+        for (const line of lines.slice(headerIdx + 1)) {
+            const row = cells(line);
+            const clientType = (row[0] || '').toUpperCase();
+            const key = /\bFII\b|\bFPI\b/.test(clientType) ? 'FII' : /\bDII\b/.test(clientType) ? 'DII' : null;
+            if (!key) continue;
+            faoData[key] = {};
+            for (const [field, i] of Object.entries(COLS)) faoData[key][field] = getInt(row[i]);
         }
     } catch (e) {
         console.error("Error parsing F&O CSV:", e.message);
@@ -228,9 +251,14 @@ function parseFao(csvText) {
 
 // ── Validate data ────────────────────────────────────────────────────────────
 function validateData(data) {
-    if (!data.date) return false;
+    if (!data || !NSE_DATE_RE.test(data.date || '')) return false;
     const fields = ['fii_buy','fii_sell','fii_net','dii_buy','dii_sell','dii_net'];
-    return fields.every(f => isFinite(data[f]));
+    if (!fields.every(f => Number.isFinite(data[f]))) return false;
+    // Both participants must have traded, and net must reconcile with buy − sell
+    if (!(data.fii_buy > 0 && data.fii_sell > 0 && data.dii_buy > 0 && data.dii_sell > 0)) return false;
+    if (Math.abs(data.fii_buy - data.fii_sell - data.fii_net) > 1) return false;
+    if (Math.abs(data.dii_buy - data.dii_sell - data.dii_net) > 1) return false;
+    return true;
 }
 
 // True when a row actually carries F&O participant-OI data
@@ -288,21 +316,25 @@ function applyFao(out, fao) {
 // nothing is missing (rows that already have F&O make no HTTP calls).
 // Returns the list of dates that were filled.
 async function backfillMissingFao(maxAttempts = 25) {
-    const history = readJSON('history.json', []);
+    const history = readJSON('history.json', [], true);
     if (!history.length) return [];
     // Newest first. Every cash-only row is a candidate (older gaps used to be
     // skipped forever because only the 4 latest rows were tried); attempts per
     // run are capped so a blocked NSE session does not turn into a hammering loop.
     const recent = [...history].sort((a, b) => compareDates(b.date, a.date));
     const filled = [];
-    let attempts = 0;
+    let attempts = 0, misses = 0;
     if (!nseCookies) await refreshNSESession();
     for (const row of recent) {
-        if (row._source !== 'fetch-pipeline' || rowHasFao(row)) continue;
+        if (!['fetch-pipeline', 'live-fetch'].includes(row._source) || rowHasFao(row)) continue;
         if (attempts++ >= maxAttempts) break;
+        // Several misses in a row means NSE is blocking us (or the files are
+        // gone) — stop instead of grinding through every remaining date
+        if (misses >= 4) break;
         let csv = null;
         try { csv = await fetchFaoOi(row.date); } catch { /* not published yet */ }
-        if (!csv) { await refreshNSESession(); continue; }
+        if (!csv) { misses++; if (misses === 1) await refreshNSESession(); continue; }
+        misses = 0;
         const fao = parseFao(csv);
         if (applyFao(row, fao) && rowHasFao(row)) {
             row._fao_summary = buildFaoSummary(row);
@@ -338,19 +370,27 @@ async function transformData(rawCash, rawFaoCsv) {
         sentiment_score: 50,
     };
 
+    let fiiDate = "", diiDate = "";
     for (const row of rawCash) {
         const cat = (row.category || "").toUpperCase();
         if (cat.includes("FII") || cat.includes("FPI")) {
-            out.fii_buy = parseFloat(row.buyValue || 0);
-            out.fii_sell = parseFloat(row.sellValue || 0);
-            out.fii_net = parseFloat(row.netValue || 0);
-            out.date = row.date || "";
+            out.fii_buy = num(row.buyValue);
+            out.fii_sell = num(row.sellValue);
+            out.fii_net = num(row.netValue);
+            fiiDate = row.date || "";
         } else if (cat.includes("DII")) {
-            out.dii_buy = parseFloat(row.buyValue || 0);
-            out.dii_sell = parseFloat(row.sellValue || 0);
-            out.dii_net = parseFloat(row.netValue || 0);
+            out.dii_buy = num(row.buyValue);
+            out.dii_sell = num(row.sellValue);
+            out.dii_net = num(row.netValue);
+            diiDate = row.date || "";
         }
     }
+    // NSE occasionally publishes one participant before the other; never
+    // stitch two different sessions into one row
+    if (!fiiDate || !diiDate || fiiDate !== diiDate) {
+        throw new Error(`NSE response incomplete (FII date "${fiiDate}", DII date "${diiDate}")`);
+    }
+    out.date = fiiDate;
 
     if (out.date && rawFaoCsv) {
         applyFao(out, parseFao(rawFaoCsv));
@@ -368,8 +408,11 @@ function updateSitemap() {
         if (fs.existsSync(sitemapPath)) {
             let content = fs.readFileSync(sitemapPath, 'utf8');
             const today = new Date().toISOString().split('T')[0];
-            content = content.replace(/<lastmod>.*?<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
-            fs.writeFileSync(sitemapPath, content, 'utf8');
+            const next = content.replace(/<lastmod>.*?<\/lastmod>/g, `<lastmod>${today}</lastmod>`);
+            if (next === content) return;
+            const tmp = sitemapPath + '.tmp';
+            fs.writeFileSync(tmp, next, 'utf8');
+            fs.renameSync(tmp, sitemapPath);
         }
     } catch (err) {
         console.error("  ❌ Failed to update sitemap:", err.message);
@@ -377,7 +420,7 @@ function updateSitemap() {
 }
 
 function saveToHistory(data) {
-    const history = readJSON('history.json', []);
+    const history = readJSON('history.json', [], true);
     const existingIdx = history.findIndex(r => r.date === data.date);
     if (existingIdx >= 0) {
         history[existingIdx] = data;
@@ -437,12 +480,23 @@ async function fetchAndProcessData() {
 
         if (!validateData(data)) throw new Error(`Validation failed for ${data.date}`);
 
+        // Nothing new: same cash figures and F&O still unpublished. Without
+        // this every scheduled run rewrote the row (new _updated_at), bumped
+        // the sitemap and produced a no-op "data update" commit.
+        const CASH = ['fii_buy', 'fii_sell', 'fii_net', 'dii_buy', 'dii_sell', 'dii_net'];
+        if (existing && !rowHasFao(data) && CASH.every(k => existing[k] === data[k])) {
+            console.log(`ℹ️ ${targetDate}: cash unchanged, F&O not published yet. Skipping store.`);
+            logFetch({ success: true, date: targetDate, action: "skipped", reason: "fao_pending" });
+            return { ...existing, _skipped: true };
+        }
+        const isNewDate = !history.some(r => r.date === data.date);
+
         // Enrich with F&O summary for notification payloads (only when F&O is real)
         if (rowHasFao(data)) data._fao_summary = buildFaoSummary(data);
 
         saveToHistory(data);
         writeJSON('latest.json', data);
-        updateSitemap();
+        if (isNewDate) updateSitemap();
 
         console.log(`✅ Updated: ${data.date} (FII Net: ${data.fii_net})`);
         logFetch({ success: true, date: data.date, action: "updated" });
@@ -459,4 +513,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao };
+module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };

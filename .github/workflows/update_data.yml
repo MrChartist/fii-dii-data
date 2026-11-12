@@ -15,6 +15,7 @@ concurrency:
 jobs:
   update-fii-dii-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write           # needed to commit data files back to repo
 
@@ -25,7 +26,7 @@ jobs:
       - name: 🟢 Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: 📦 Install dependencies
@@ -37,15 +38,37 @@ jobs:
         # Script exits with code 1 on critical failure — this step will fail
         # and prevent corrupt data from being committed.
 
+      - name: 🏦 Refresh NSDL sector & FPI data
+        # Fortnightly/daily NSDL files; a slow or blocked NSDL must not hold
+        # up the NSE update, so this step is allowed to fail.
+        continue-on-error: true
+        timeout-minutes: 6
+        run: node scripts/fetch_nsdl.js
+
+      - name: 🔎 Verify data integrity
+        if: steps.fetch.outcome == 'success'
+        run: npm run test:data
+
       - name: 💾 Commit updated data
         if: steps.fetch.outcome == 'success'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/latest.json data/history.json data/fetch-log.json public/sitemap.xml
+          git add data/latest.json data/history.json data/fetch-log.json public/sitemap.xml \
+            data/sector_latest.json data/sector_history.json data/sectors.json data/fpi_daily.json
           if git diff --staged --quiet; then
             echo "ℹ️ No new data today (market likely closed)."
-          else
-            git commit -m "data: auto-update $(date +'%d-%b-%Y %H:%M UTC')"
-            git push
+            exit 0
           fi
+          git commit -m "data: auto-update $(date +'%d-%b-%Y %H:%M UTC')"
+          # main may have moved while the fetch ran — rebase and retry instead
+          # of losing this run's data to a non-fast-forward rejection
+          for attempt in 1 2 3 4; do
+            if git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Push attempt ${attempt} failed — retrying…"
+            sleep $((attempt * 5))
+          done
+          echo "::error::Could not push the data update after 4 attempts"
+          exit 1

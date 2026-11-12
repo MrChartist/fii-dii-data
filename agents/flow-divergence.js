@@ -62,8 +62,8 @@ function analyzeDivergence(history30) {
     const diSellDays = recent10.filter(d => d.dii_net < 0).length;
 
     // DII absorption percentage of FII selling
-    const absorptionPct = Math.abs(recentFII) > 0
-        ? Math.round(Math.abs(recentDII) / Math.abs(recentFII) * 100)
+    const absorptionPct = (recentFII < 0 && recentDII > 0)
+        ? Math.round(recentDII / -recentFII * 100)
         : 0;
 
     // Historical divergence percentile
@@ -163,8 +163,8 @@ async function run() {
         // spams the channel with identical signals
         if (analysis.signal !== lastSignal) {
             const alert = buildDivergenceAlert(analysis);
-            await sendTelegramAlert(alert);
-            alertsSent++;
+            const sendResult = await sendTelegramAlert(alert);
+            if (sendResult?.sent) alertsSent++;
             console.log(`[${AGENT_NAME}] ${SIGNALS[analysis.signal].emoji} ${analysis.signal} detected`);
         }
     }

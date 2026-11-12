@@ -271,3 +271,13 @@
 #synth-terminal { border-radius: var(--r-md) !important; }
 .agent-row .agent-share-btn { opacity: 0; transition: opacity .2s; }
 .agent-row:hover .agent-share-btn { opacity: 1 !important; }
+
+/* ── Data freshness & archive gaps ── */
+.mc-stale { margin: 0 0 var(--gap-card); padding: 11px 14px; border-radius: var(--r-compact); background: var(--os-neutral-bg); border: 1px solid color-mix(in srgb, var(--os-neutral) 45%, transparent); color: var(--t1); font: 450 13.5px/1.5 var(--font-body); }
+.mc-stale b { font-weight: 650; }
+.mc-stale[hidden] { display: none; }
+#sPill[data-feed="stale"] .status-dot { background: var(--os-neutral); box-shadow: 0 0 0 3px var(--os-neutral-bg); animation: none; }
+.tabs-wrap #sPill[data-feed="stale"] #sTxt::after, .os-topbar #sPill[data-feed="stale"] #sTxt::after { content: "Delayed"; }
+.mom-badge.is-stale { opacity: .6; filter: saturate(.4); }
+.sig-gap { flex: none; width: 2px; align-self: stretch; margin: 0 3px; border-radius: 1px; background: repeating-linear-gradient(to bottom, var(--t4) 0 2px, transparent 2px 4px); }
+tr.row-gap td { text-align: center; padding: 7px 12px; font: 500 11.5px/1.3 var(--font-body); color: var(--t3); background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--t4) 12%, transparent) 6px 12px); border-block: 1px dashed var(--sep2); }

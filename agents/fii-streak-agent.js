@@ -46,7 +46,9 @@ function calculateStreaks(history) {
 
         if (streak === 0) return null;
 
-        const absorptionPct = Math.abs(cumulativeFII) > 0
+        // Absorption = how much of one side's flow the DIIs took the other side
+        // of. DIIs moving in the SAME direction as FIIs is not absorption.
+        const absorptionPct = (cumulativeFII !== 0 && Math.sign(cumulativeDII) === -Math.sign(cumulativeFII))
             ? Math.round(Math.abs(cumulativeDII) / Math.abs(cumulativeFII) * 100)
             : 0;
 

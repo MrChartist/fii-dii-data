@@ -44,7 +44,7 @@ function hasValidKey(req) {
 }
 function hostOf(u) { try { return new URL(u).hostname.toLowerCase(); } catch { return ''; } }
 function isAllowedHost(h) {
-    return OWN_HOSTS.includes(h) || (!IS_PROD && DEV_HOSTS.includes(h)) || DEV_HOSTS.includes(h) && !IS_PROD;
+    return OWN_HOSTS.includes(h) || (!IS_PROD && DEV_HOSTS.includes(h));
 }
 function isOwnBrowser(req) {
     const site = req.headers['sec-fetch-site'];
@@ -67,13 +67,17 @@ function limited(ip) {
 }
 
 function apiGuard(req, res, next) {
-    if (!req.path.startsWith('/api/')) return next();
+    // Express matches routes case-insensitively and ignores duplicate slashes,
+    // so normalise before testing — otherwise /API/agents/run-all walks past
+    // every check below and still reaches the handler.
+    const p = req.path.toLowerCase().replace(/\/{2,}/g, '/');
+    if (!p.startsWith('/api/')) return next();
     res.setHeader('Cache-Control', res.getHeader('Cache-Control') || 'no-store');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
-    if (SELF_AUTH.some(r => r.test(req.path))) return next();
+    if (SELF_AUTH.some(r => r.test(p))) return next();
 
     const keyOk = hasValidKey(req);
-    const admin = ADMIN_ROUTES.some(r => r.test(req.path));
+    const admin = ADMIN_ROUTES.some(r => r.test(p));
     if (admin) {
         if (keyOk) return next();
         return res.status(404).json({ error: 'Not found' });   // do not reveal these exist

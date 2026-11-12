@@ -105,8 +105,8 @@ async function run() {
                 msg += `\n<b>Context:</b> ${conf.action}\n`;
                 msg += `\n<a href="https://mrchartist.com/fii-dii-data/">View Live Dashboard</a>`;
 
-                await sendTelegramAlert(msg);
-                alerts_sent++;
+                const sendResult = await sendTelegramAlert(msg);
+                if (sendResult?.sent) alerts_sent++;
 
                 state[`last_${conf.type}_date`] = todayStr;
                 state.latest_signal = conf.type;

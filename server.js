@@ -1109,7 +1109,7 @@ app.post('/api/agents/run/:agent', async (req, res) => {
     try {
         if (!agentRunner) return res.status(503).json({ error: 'Agent system not available' });
         const agentName = req.params.agent;
-        if (!agentRunner.AGENTS[agentName]) {
+        if (!Object.prototype.hasOwnProperty.call(agentRunner.AGENTS, agentName)) {
             return res.status(404).json({ error: `Unknown agent: ${agentName}`, available: Object.keys(agentRunner.AGENTS) });
         }
         // Return immediately, run in background
@@ -1239,7 +1239,19 @@ app.post('/api/telegram/watchdog', async (req, res) => {
 });
 
 // Telegram webhook (alternative to polling)
+// Telegram echoes the secret_token registered in setWebhook on every delivery.
+// Without that check anyone could POST forged updates (subscribe arbitrary chat
+// IDs, unsubscribe real ones, make the bot message any chat), so the endpoint
+// stays closed unless TELEGRAM_WEBHOOK_SECRET is configured.
+const TG_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || '';
+function _webhookSecretOk(req) {
+    if (!TG_WEBHOOK_SECRET) return false;
+    const got = Buffer.from(String(req.get('x-telegram-bot-api-secret-token') || ''));
+    const want = Buffer.from(TG_WEBHOOK_SECRET);
+    return got.length === want.length && require('crypto').timingSafeEqual(got, want);
+}
 app.post('/api/telegram/webhook', async (req, res) => {
+    if (!_webhookSecretOk(req)) return res.sendStatus(403);
     if (!telegram || !TG_TOKEN) return res.sendStatus(200);
     try {
         const result = telegram.processUpdate(req.body);
@@ -1261,6 +1273,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
 // bot's update stream (and every user's chat ID) to a server they control.
 app.post('/api/telegram/setup-webhook', async (req, res) => {
     if (!TG_TOKEN) return res.status(400).json({ error: 'TELEGRAM_BOT_TOKEN not set' });
+    if (!TG_WEBHOOK_SECRET) return res.status(400).json({ error: 'TELEGRAM_WEBHOOK_SECRET not set — the webhook cannot be authenticated without it' });
     try {
         const baseUrl = req.body.url || `https://mrchartist.com/fii-dii-data`;
         let host;
@@ -1272,7 +1285,8 @@ app.post('/api/telegram/setup-webhook', async (req, res) => {
         const webhookUrl = `${baseUrl}/api/telegram/webhook`;
         const resp = await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook`, {
             url: webhookUrl,
-            allowed_updates: ['message']
+            allowed_updates: ['message'],
+            secret_token: TG_WEBHOOK_SECRET
         });
         res.json({ success: true, webhook_url: webhookUrl, telegram_response: resp.data });
     } catch (err) {
@@ -1286,7 +1300,8 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`[BOOT] ✅ Server running on port ${PORT}`);
 
     // ── Telegram Polling (if no webhook configured) ────────────────────────
-    if (telegram && TG_TOKEN && axios) {
+    // Webhook mode (TELEGRAM_USE_WEBHOOK=1) and polling are mutually exclusive
+    if (telegram && TG_TOKEN && axios && process.env.TELEGRAM_USE_WEBHOOK !== '1') {
         let lastUpdateId = 0;
         let isPolling = false;
 

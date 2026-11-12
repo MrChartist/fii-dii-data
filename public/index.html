@@ -200,10 +200,11 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
 <link rel="stylesheet" href="/css/mc.css?v=6">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=6">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=7">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/vendor/html2canvas-1.4.1.min.js"></script>
 <script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
+<script src="/js/mc-freshness.js?v=7"></script>
 <script src="/vendor/chart-3.9.1.min.js"></script>
 <script>window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>')</script>
 </head>
@@ -423,6 +424,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </div>
     </section>
 
+    <div class="mc-stale" id="mcStale" role="alert" hidden></div>
     <div class="os-mood os-neutral" id="osMood" role="status" aria-live="polite">
       <span class="os-badge neutral lg" id="osMoodBadge"><i class="os-dot"></i>Neutral</span>
       <p class="os-mood-text" id="osMoodText"><strong>Market Mood:</strong> Loading the latest session...</p>
@@ -1199,6 +1201,11 @@ function switchMainTab(id) {
       const mode = activeHist ? activeHist.id.replace('hc-m-', '') : 'daily';
       if (typeof renderHistoryChart === 'function') setTimeout(() => renderHistoryChart(mode), 50);
     }
+    if (id === 't-sector') {
+      // Deep links, keyboard shortcuts and in-page buttons all land here, so
+      // the tab must not depend on its caller to draw the board
+      try { if (typeof renderSectors === 'function') renderSectors(); if (typeof renderSectorChart === 'function') renderSectorChart(); } catch (e) {}
+    }
     if (id === 't-fno') {
       if (typeof renderFnoHistoryChart === 'function') setTimeout(() => renderFnoHistoryChart('fii-fut'), 50);
       if (typeof renderLsRatioChart === 'function') setTimeout(() => renderLsRatioChart(), 80);
@@ -1505,7 +1512,9 @@ function renderSignalTimeline() {
     else if (s.fn < 0 && s.dn >= 0)  { cls = 'sig-q-absorb';  label = 'DII absorbing FII selling'; }
     else if (s.fn >= 0 && s.dn < 0)  { cls = 'sig-q-fiionly'; label = 'FII buying, DII selling'; }
     else                             { cls = 'sig-q-bear';    label = 'Both selling'; }
-    return `<div class="sig-dot ${cls}" title="${escapeHtml(s.d)} — ${label} · FII ${fmt(s.fn)} · DII ${fmt(s.dn)}"></div>`;
+    const i = dailyData.indexOf(s);
+    const gap = gapAfter(i) ? `<div class="sig-gap" title="Sessions between ${escapeHtml(dailyData[i + 1].d)} and ${escapeHtml(s.d)} are missing from the archive"></div>` : '';
+    return `${gap}<div class="sig-dot ${cls}" title="${escapeHtml(s.d)} — ${label} · FII ${fmt(s.fn)} · DII ${fmt(s.dn)}"></div>`;
   }).join('');
 }
 
@@ -1592,7 +1601,9 @@ async function loadNsdlConfirm() {
     const el = document.getElementById('nsdlConfirm');
     if (!el) return;
     const v = row.equity_net;
-    el.innerHTML = `🏛️ NSDL custodian-confirmed (${escapeHtml(row.date)}): FPI equity net <b style="color:${v >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(v)}</b> · <span class="gloss" data-tip="Depository-settled figures from NSDL. They lag the provisional exchange numbers by a day but are the confirmed record, and include flows NSE cash data misses.">why this differs</span>`;
+    // A months-old confirmation next to today's number reads as if it confirmed it
+    if (window.MCFresh && dailyData.length && Math.abs(MCFresh.daysApart(dailyData[0].d, row.date)) > 6) return;
+    el.innerHTML = `🏛️ NSDL custodian-confirmed (reported ${escapeHtml(row.date)}): FPI equity net <b style="color:${v >= 0 ? 'var(--green)' : 'var(--red)'}">${fmt(v)}</b> · <span class="gloss" data-tip="Depository-settled figures from NSDL. They lag the provisional exchange numbers by a day but are the confirmed record, and include flows NSE cash data misses.">why this differs</span>`;
     el.style.display = 'block';
   } catch { /* keep hidden */ }
 }
@@ -1630,12 +1641,46 @@ function renderFlowContext(latest) {
   } catch (e) { /* context is optional */ }
 }
 
+/* ── Data freshness ──
+   Says plainly when the feed has fallen behind, instead of showing "Live"
+   next to weeks-old figures. */
+function applyFreshness() {
+  if (!window.MCFresh || !dailyData.length || dailyData[0].d === 'N/A') return;
+  const f = MCFresh.assess(dailyData[0].d);
+  document.documentElement.setAttribute('data-feed', f.status);
+  const pill = document.getElementById('sPill');
+  if (pill) pill.setAttribute('data-feed', f.status);
+  const bar = document.getElementById('mcStale');
+  if (bar) {
+    if (f.status === 'stale') {
+      const when = f.latest.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+      bar.innerHTML = `<b>Data feed delayed.</b> The latest session here is <b>${escapeHtml(when)}</b>, about ${f.behind} trading sessions behind. The figures below describe that day, not the current market.`;
+      bar.hidden = false;
+    } else { bar.hidden = true; }
+  }
+  // "Provisional" only applies to the freshly published evening figures
+  const provChip = document.getElementById('provChip');
+  if (provChip) provChip.style.display = f.behind <= 1 ? 'inline-block' : 'none';
+}
+
+/* Sessions that follow a hole in the archive (more than a long weekend).
+   Streaks must not be counted across them. */
+function gapAfter(i) {
+  return !!(window.MCFresh && dailyData[i] && dailyData[i + 1] && MCFresh.isGap(dailyData[i].d, dailyData[i + 1].d));
+}
+
+/* How far F&O trails the newest cash session. NSE normally publishes it a few
+   hours later; anything beyond a couple of sessions is stale, not "pending". */
+function fnoLag(latestFno) {
+  const idx = dailyData.indexOf(latestFno);
+  return idx < 0 ? 0 : idx;
+}
+
 function renderDashboard() {
   recomputeRollups();
   renderSignalTimeline();
   renderStickyKpi();
-  const provChip = document.getElementById('provChip');
-  if (provChip && dailyData.length && dailyData[0].d !== 'N/A') provChip.style.display = 'inline-block';
+  applyFreshness();
   const latest = dailyData[0];
 
   // Calculate Flow Streak
@@ -1643,6 +1688,7 @@ function renderDashboard() {
   let sType = latest.fn > 0 ? 'buy' : 'sell';
   let sVol = latest.fn;
   for(let i=1; i<dailyData.length; i++) {
+     if (gapAfter(i - 1)) break; // missing sessions — the run cannot be verified past here
      if(sType === 'sell' && dailyData[i].fn < 0) { streakCount++; sVol += dailyData[i].fn; }
      else if(sType === 'buy' && dailyData[i].fn > 0) { streakCount++; sVol += dailyData[i].fn; }
      else break;
@@ -1670,6 +1716,7 @@ function renderDashboard() {
   let diiSType = latest.dn > 0 ? 'buy' : 'sell';
   let diiSVol = latest.dn;
   for (let i = 1; i < dailyData.length; i++) {
+    if (gapAfter(i - 1)) break;
     if (diiSType === 'sell' && dailyData[i].dn < 0) { diiStreakCount++; diiSVol += dailyData[i].dn; }
     else if (diiSType === 'buy' && dailyData[i].dn > 0) { diiStreakCount++; diiSVol += dailyData[i].dn; }
     else break;
@@ -1829,9 +1876,14 @@ function renderDashboard() {
     // Date Update for F&O Header
     const fnoDt = parseNSEDate(latestFno.d);
     let fnoDtStr = fnoDt ? fnoDt.toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) : latestFno.d;
-    document.getElementById('fnoDate').innerText = fnoIsStale
-      ? `Data for: ${fnoDtStr} · F&O for ${latest.d} pending (NSE publishes it later)`
-      : `Data for: ${fnoDtStr}`;
+    const _lag = fnoLag(latestFno);
+    document.getElementById('fnoDate').innerText = !fnoIsStale
+      ? `Data for: ${fnoDtStr}`
+      : _lag <= 2
+        ? `Data for: ${fnoDtStr} · F&O for ${latest.d} pending (NSE publishes it later)`
+        : `Stale: last F&O is ${fnoDtStr}, ${_lag} sessions behind cash`;
+    sBadge.classList.toggle('is-stale', _lag > 2);
+    if (_lag > 2) sBadge.title = `Positioning as of ${latestFno.d} — ${_lag} sessions old. ` + _fsT;
 
     // F&O Historical Chart
     if (typeof renderFnoHistoryChart === 'function') {
@@ -2000,8 +2052,15 @@ function renderFnoRead(f, real) {
   const below = hist.filter(r => r < ratio).length, pct = hist.length ? Math.round(100 * below / hist.length) : null;
   const net = L - S, side = net >= 0 ? 'net long' : 'net short';
   const tone = ratio >= 1.5 ? 'firmly bullish' : ratio >= 1 ? 'mildly bullish' : ratio >= 0.5 ? 'cautious, hedged' : 'heavily hedged, bearish';
-  const where = pct == null ? '' : pct <= 20 ? `, among the most bearish ${100 - pct > 90 ? '' : ''}readings in the last ${hist.length} sessions` : pct >= 80 ? `, among the most bullish readings in the last ${hist.length} sessions` : ` (${pct}th percentile of the last ${hist.length} sessions)`;
-  el.innerHTML = `FIIs are <b>${side} ${Math.abs(net).toLocaleString('en-IN')}</b> index-futures contracts (${L.toLocaleString('en-IN')} long vs ${S.toLocaleString('en-IN')} short). Long/short ratio <b>${isFinite(ratio) ? ratio.toFixed(2) : '∞'}</b>: <b>${tone}</b>${escapeHtml(where)}.`;
+  // Rank is relative; the tone above is absolute. Word the rank so the two
+  // never contradict each other ("bearish … among the most bullish readings").
+  const n = hist.length;
+  const where = pct == null || n < 20 ? ''
+    : pct <= 20 ? (ratio < 1 ? `, among the most bearish readings in the last ${n} sessions` : `, though one of the least long readings in the last ${n} sessions`)
+    : pct >= 80 ? (ratio >= 1 ? `, among the most bullish readings in the last ${n} sessions` : `, though the short bias is among the lightest in the last ${n} sessions`)
+    : ` (${pct}th percentile of the last ${n} sessions)`;
+  const asOf = fnoLag(f) > 0 ? `As of ${escapeHtml(f.d)}: ` : '';
+  el.innerHTML = `${asOf}FIIs are <b>${side} ${Math.abs(net).toLocaleString('en-IN')}</b> index-futures contracts (${L.toLocaleString('en-IN')} long vs ${S.toLocaleString('en-IN')} short). Long/short ratio <b>${isFinite(ratio) ? ratio.toFixed(2) : '∞'}</b>: <b>${tone}</b>${escapeHtml(where)}.`;
   el.hidden = false;
 }
 
@@ -2027,8 +2086,10 @@ function renderCommandCenter() {
   set('cmd-market-label', market.label, market.color);
   set('cmd-stock-score', stock.score, stock.color);
   set('cmd-stock-label', stock.label, stock.color);
-  set('cmd-fno-score', fno.score, fno.color);
-  set('cmd-fno-label', fno.label, fno.color);
+  // A positioning read that is several sessions old is context, not a signal
+  const _fnoLag = fnoLag(latestFno), _fnoStale = _fnoLag > 2;
+  set('cmd-fno-score', fno.score, _fnoStale ? 'var(--t4)' : fno.color);
+  set('cmd-fno-label', _fnoStale ? `STALE · ${fno.label} AS OF ${latestFno.d}` : fno.label, _fnoStale ? 'var(--t3)' : fno.color);
   set('cmd-ai-regime', document.getElementById('ai-active-regime')?.innerText || '--');
   set('cmd-ai-desc', document.getElementById('ai-regime-desc')?.innerText || 'Optional signal');
 
@@ -2039,12 +2100,12 @@ function renderCommandCenter() {
   set('cmd-divergence-count', `Divergence ${divergence}`);
 
   const _fnoReal = latestFno && ((latestFno.fii_idx_fut_long || 0) !== 0 || (latestFno.fii_idx_fut_short || 0) !== 0);
-  set('cmd-fno-date', !_fnoReal ? 'F&O data pending' : (latestFno.d !== latest.d ? `F&O: ${latestFno.d} (${latest.d} pending)` : `F&O data: ${latestFno.d}`));
+  set('cmd-fno-date', !_fnoReal ? 'F&O data pending' : (latestFno.d !== latest.d ? (_fnoStale ? `Stale: F&O last seen ${latestFno.d} (${_fnoLag} sessions behind)` : `F&O: ${latestFno.d} (${latest.d} pending)`) : `F&O data: ${latestFno.d}`));
   const signedContracts = (value) => `${Number(value || 0) >= 0 ? '+' : ''}${Number(value || 0).toLocaleString('en-IN')}`;
   const futNet = Number(latestFno.fii_idx_fut_long || 0) - Number(latestFno.fii_idx_fut_short || 0);
   const callNet = Number(latestFno.fii_idx_call_long || 0) - Number(latestFno.fii_idx_call_short || 0);
   const putNet = Number(latestFno.fii_idx_put_long || 0) - Number(latestFno.fii_idx_put_short || 0);
-  set('cmd-fno-direction', fno.label, fno.color);
+  set('cmd-fno-direction', _fnoStale ? `${fno.label} (stale)` : fno.label, _fnoStale ? 'var(--t3)' : fno.color);
   // Net long calls = bullish, net long puts = bearish — so the bullish tilt is call MINUS put
   set('cmd-fno-callput', `${signedContracts(callNet)} / ${signedContracts(putNet)}`, callNet - putNet >= 0 ? 'var(--green)' : 'var(--red)');
   set('cmd-fno-net', signedContracts(futNet), futNet >= 0 ? 'var(--green)' : 'var(--red)');
@@ -2458,6 +2519,10 @@ function renderDailyTable() {
       `<td class="${fC(totalLiq)}">${fmt(totalLiq)}</td>` +
       `</tr>`;
     
+    // Flag holes in the archive so adjacent rows are not read as consecutive sessions
+    const _di = dailyData.indexOf(d);
+    const gapRow = (_di >= 0 && gapAfter(_di) && paginatedFilteredData[actIdx + 1] === dailyData[_di + 1])
+      ? `<tr class="row-gap"><td colspan="8">No data for the sessions between ${escapeHtml(dailyData[_di + 1].d)} and ${escapeHtml(d.d)}</td></tr>` : '';
     const detailRow = `<tr class="row-detail-panel" id="detail-${actIdx}"><td colspan="8">` +
       `<div class="row-detail-inner">` +
         `<div class="detail-chart-wrap"><canvas id="detailChart-${actIdx}"></canvas></div>` +
@@ -2470,7 +2535,7 @@ function renderDailyTable() {
       `</div>` +
       `</td></tr>`;
     
-    return mainRow + detailRow;
+    return mainRow + detailRow + gapRow;
   });
 
   tb.innerHTML = html.join('');
@@ -4051,7 +4116,7 @@ function renderLsRatioChart() {
   const nowEl = document.getElementById('lsRatioNow');
   if (nowEl) {
     const cur = ratios[ratios.length - 1];
-    const zone = cur > p90 ? '🔥 above 90th pctile' : cur < p10 ? '🧊 below 10th pctile' : 'within normal band';
+    const zone = cur >= p90 ? 'top 10% of readings, unusually long' : cur <= p10 ? 'bottom 10% of readings, unusually short' : 'within normal band';
     nowEl.textContent = `Now: ${cur} (${zone})`;
   }
 

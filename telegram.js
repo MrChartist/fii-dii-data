@@ -53,6 +53,7 @@ async function checkUserThresholdAlerts(data, token, axios) {
     const prefs = loadAlertPrefs();
     const fn = data.fii_net || 0;
     let sent = 0;
+    const alerted = [];
     for (const [chatId, p] of Object.entries(prefs)) {
         const thr = p && p.fii_threshold;
         if (!thr || Math.abs(fn) < thr) continue;
@@ -64,9 +65,15 @@ async function checkUserThresholdAlerts(data, token, axios) {
             `Manage: /alert off · /alert &lt;amount&gt;\n` +
             `🌐 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
         const ok = await sendMessage(chatId, msg, token, axios);
-        if (ok) { p.last_alerted_date = data.date; sent++; }
+        if (ok) { alerted.push(chatId); sent++; }
     }
-    if (sent) saveAlertPrefs(prefs);
+    if (sent) {
+        // Re-read before writing: /alert commands handled while the sends were
+        // in flight would otherwise be overwritten by this stale snapshot.
+        const fresh = loadAlertPrefs();
+        for (const id of alerted) if (fresh[id]) fresh[id].last_alerted_date = data.date;
+        saveAlertPrefs(fresh);
+    }
     return sent;
 }
 
@@ -81,8 +88,13 @@ function addChatId(chatId) {
 }
 
 function removeChatId(chatId) {
-    const ids = loadChatIds().filter(id => id !== chatId);
+    // Compare as strings: alert-pref keys are strings, stored subscriber IDs are numbers
+    const ids = loadChatIds().filter(id => String(id) !== String(chatId));
     saveChatIds(ids);
+    try {
+        const prefs = loadAlertPrefs();
+        if (prefs[chatId]) { delete prefs[chatId]; saveAlertPrefs(prefs); }
+    } catch { /* prefs are optional */ }
 }
 
 async function sendMessage(chatId, text, token, axios) {
@@ -178,11 +190,15 @@ function processUpdate(update) {
 
     const chatId = msg.chat.id;
     // Strip "@BotName" suffix so group commands like /latest@FlowMatrixBot work
-    const text = msg.text.trim().toLowerCase().split('@')[0];
+    // (only the suffix on the command itself — "/alert@Bot 5000" keeps its argument)
+    const text = msg.text.trim().toLowerCase().replace(/^(\/\w+)@\w+/, '$1');
+    // In groups, stay silent unless addressed with a command
+    if (!text.startsWith('/') && msg.chat.type && msg.chat.type !== 'private') return null;
     const userName = escapeHtml(msg.from?.first_name || 'Investor');
 
     // ── /start ───────────────────────────────────────────────────────────────
-    if (text === '/start') {
+    // Deep links (t.me/bot?start=xyz) arrive as "/start xyz"
+    if (text === '/start' || text.startsWith('/start ')) {
         const isNew = addChatId(chatId);
         const welcome = isNew
             ? `\u2728 <b>Welcome to FII & DII Data, ${userName}!</b>\n\nYou're now subscribed to institutional flow intelligence.\n\n<b>What you'll receive:</b>\n\ud83d\udcca Cash Flow Updates (FII/DII daily)\n\ud83d\udcc8 F&O Derivatives Positioning\n\ud83c\udfe6 Sector Rotation (NSDL data)\n\ud83e\udde0 AI Regime Classification\n\ud83d\udd25 Streak & Extreme Flow Alerts\n\u26a1 Contrarian Divergence Signals\n\ud83c\udf05 Morning Pre-Market Briefs\n\ud83d\udcc5 Weekly Institutional Digests\n\n<b>Commands:</b>\n/latest \u2014 Get today's full report\n/fno \u2014 F&O derivatives positioning\n/sector \u2014 Sector rotation data\n/regime \u2014 Current market regime\n/help \u2014 All commands\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Live Dashboard</a>`
@@ -250,7 +266,7 @@ function processUpdate(update) {
         reply += `${rEmoji[r.regime] || '\u26aa'} <b>${(r.regime || 'NEUTRAL').replace(/_/g, ' ')}</b>\n`;
         if (r.since) reply += `Since: ${r.since}\n`;
         if (r.vix) reply += `VIX: <b>${r.vix}</b>\n`;
-        if (r.fii_cumulative_10d) reply += `FII 10d: ${r.fii_cumulative_10d >= 0 ? '+' : ''}\u20b9${Math.abs(r.fii_cumulative_10d).toLocaleString('en-IN')} Cr\n`;
+        if (r.fii_cumulative_10d) reply += `FII 10d: ${r.fii_cumulative_10d >= 0 ? '+' : '-'}\u20b9${Math.abs(r.fii_cumulative_10d).toLocaleString('en-IN')} Cr\n`;
         if (r.recommendation) reply += `\n\ud83d\udca1 <i>${r.recommendation}</i>`;
         reply += `\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
         return { chatId, reply };
@@ -331,7 +347,13 @@ function processUpdate(update) {
     if (text === '/weekly' || text === '/digest') {
         const ctx = getOnDemandMessages();
         if (!ctx) return { chatId, reply: '\u26a0\ufe0f Data not available.' };
-        const history = ctx.getHistoryData ? ctx.getHistoryData(5) : [];
+        // Break down the same sessions the stored totals cover; if the digest
+        // is from an older week than the newest data, omit the table rather
+        // than print this week's rows under last week's header.
+        const n = (ctx.weeklyDigest && ctx.weeklyDigest.trading_days) || 5;
+        let history = ctx.getHistoryData ? ctx.getHistoryData(n) : [];
+        const digestSession = ctx.weeklyDigest && ctx.weeklyDigest.last_session_date;
+        if (!digestSession || !history.length || history[0].date !== digestSession) history = [];
         return { chatId, reply: ctx.tgMessages.buildWeeklyDigestMessage(ctx.weeklyDigest, ctx.regime, ctx.streak, history) };
     }
 

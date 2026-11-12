@@ -142,8 +142,18 @@ ${sectorSection}
 // ── Main Agent Logic ─────────────────────────────────────────────────────────
 
 async function run() {
-    // Get last 5 trading days
-    const history = getHistory(5);
+    // Sessions of the latest trading WEEK (Mon–Fri of the newest session).
+    // "Last 5 rows" spills into the previous week whenever a holiday shortens it.
+    const { parseDate } = require('./agent-utils');
+    const recent = getHistory(10);
+    let history = recent.slice(0, 5);
+    const newest = recent.length ? parseDate(recent[0].date) : null;
+    if (newest) {
+        const monday = new Date(newest);
+        monday.setDate(newest.getDate() - ((newest.getDay() + 6) % 7));
+        monday.setHours(0, 0, 0, 0);
+        history = recent.filter(d => { const t = parseDate(d.date); return t && t >= monday; });
+    }
     if (history.length === 0) {
         return { items_found: 0, alerts_sent: 0, message: 'No history data available' };
     }
@@ -183,6 +193,7 @@ async function run() {
     // Update state
     setState(AGENT_NAME, {
         last_digest_date: new Date().toISOString(),
+        last_session_date: history[0]?.date || null,
         last_digest_week: weekKey,
         weekly_fii: digest.weeklyFII,
         weekly_dii: digest.weeklyDII,

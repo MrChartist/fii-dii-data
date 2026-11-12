@@ -355,65 +355,81 @@ function parseDailyTrends(html, isMonthly = false) {
         if (cells.length >= 3) rows.push(cells);
     }
 
+    // Layout of the investment table (one block per reporting date):
+    //   [date, "Equity", "Stock Exchange", purchases, sales, net, usd, fx]
+    //   ["Primary market & others", purchases, sales, net, usd]
+    //   ["Sub-total", purchases, sales, net, usd]            ← category net
+    //   ["Debt-General Limit", "Stock Exchange", …] … ["Sub-total", …]
+    //   … Hybrid / Mutual Funds / AIFs …
+    //   ["Total", purchases, sales, net, usd]
+    // A second table (derivative products) follows and also starts with a
+    // date row; it must not be read as another day of cash investment.
+    // Accounting negatives are written "(1.19)".
+    const NUM_RE = /^\(?-?[\d,]+(\.\d+)?\)?$/;
+    const toNum = (c) => {
+        const t = String(c).trim();
+        const n = parseFloat(t.replace(/[(),]/g, ''));
+        return /^\(.*\)$/.test(t) ? -n : n;
+    };
+    const numbers = (row) => row.filter(c => NUM_RE.test(String(c).trim())).map(toNum);
+    const DATE_RE = /^\d{1,2}-[a-zA-Z]{3}-\d{4}$/;
+    const categoryOf = (text) => {
+        const l = text.toLowerCase();
+        if (l.includes('debt')) return 'debt';
+        if (l.includes('hybrid')) return 'hybrid';
+        if (l.includes('mutual fund')) return 'mf';
+        if (l.includes('aif')) return 'aif';
+        if (l.includes('equity')) return 'equity';
+        return null;
+    };
+
     const dailyData = [];
     let curDay = null;
-    let mode = 'equity';
+    let mode = null;
+    let headers = 0;
 
     for (const row of rows) {
         const label = row[0].trim();
         const lower = label.toLowerCase();
-        
-        // Skip total/subtotal rows — they can appear between date blocks, so
-        // breaking here would drop every later day in the table
-        if (lower === 'total') continue;
 
-        // Skip irrelevant top rows
-        if (/date|month|year|category|sr\./i.test(label) && !/^\d+\-/.test(label)) continue;
-        
-        // New Date Row identifies the start of Equity for that day
-        if (/^\d{1,2}-[a-zA-Z]{3}-\d{4}$/.test(label)) {
-            if (curDay) dailyData.push(curDay);
-            curDay = {
-                date: label,
-                equity_net: 0, debt_net: 0, hybrid_net: 0, total_net: 0
-            };
-            mode = 'equity';
+        if (lower.startsWith('reporting date')) {
+            // The second header belongs to the derivatives table — stop there
+            if (++headers > 1 || row.some(c => /derivative/i.test(c))) break;
+            continue;
         }
-        
+
+        if (DATE_RE.test(label)) {
+            if (curDay) dailyData.push(curDay);
+            curDay = { date: label, equity_net: 0, debt_net: 0, hybrid_net: 0, total_net: 0, _hasTotal: false };
+            mode = categoryOf(row[1] || '') || 'equity';
+            continue;
+        }
         if (!curDay) continue;
 
-        if (lower.includes('debt-general')) mode = 'debt';
-        else if (lower.includes('debt-vrr') || lower.includes('debt-far')) mode = 'debt';
-        else if (lower.includes('hybrid')) mode = 'hybrid';
-        else if (lower.includes('mutual funds')) mode = 'mf';
-        else if (lower.includes('aifs')) mode = 'aif';
-
-        const nums = row.slice(1).map(parseNum);
-        const net = nums[2] || 0; // The 3rd value is exactly Net Investment
-        
-        // We sum the main category rows directly (date row, debt categories, hybrid, aifs)
-        if (
-            /^\d{1,2}-[a-zA-Z]{3}-\d{4}$/.test(label) || 
-            lower.includes('debt-general') ||
-            lower.includes('debt-vrr') ||
-            lower.includes('debt-far') ||
-            lower.includes('hybrid') ||
-            lower.includes('aifs')
-        ) {
-            if (mode === 'equity') curDay.equity_net += net;
-            else if (mode === 'debt') curDay.debt_net += net;
-            else if (mode === 'hybrid') curDay.hybrid_net += net;
-            // AIF rows have no bucket of their own — they only roll into the
-            // unconditional total below (adding here would double-count them)
-
-            curDay.total_net += net;
+        if (lower === 'sub-total') {
+            const net = numbers(row)[2];
+            if (Number.isFinite(net)) {
+                if (mode === 'equity') curDay.equity_net += net;
+                else if (mode === 'debt') curDay.debt_net += net;
+                else if (mode === 'hybrid') curDay.hybrid_net += net;
+                if (!curDay._hasTotal) curDay.total_net += net;
+            }
+            continue;
         }
+        if (lower === 'total') {
+            const net = numbers(row)[2];
+            if (Number.isFinite(net)) { curDay.total_net = net; curDay._hasTotal = true; }
+            continue;
+        }
+        const cat = categoryOf(label);
+        if (cat) mode = cat;
     }
-    
+
     if (curDay) dailyData.push(curDay);
-    
+
     // Clean up floats
     dailyData.forEach(d => {
+        delete d._hasTotal;
         d.equity_net = Math.round(d.equity_net * 100) / 100;
         d.debt_net = Math.round(d.debt_net * 100) / 100;
         d.hybrid_net = Math.round(d.hybrid_net * 100) / 100;
@@ -570,9 +586,14 @@ async function fetchAllNSDL() {
         // Compile the final UI-ready sectors.json
         compileSectorsJson(updatedHistory);
     } else {
-        console.warn('[NSDL] No sector data retrieved. Using mock data for demo.');
-        const mockData = buildMockSectorData();
-        writeJSON('sector_latest.json', mockData);
+        // Never replace real data with the demo set — a transient NSDL outage
+        // used to overwrite sector_latest.json with hard-coded mock figures.
+        if (readJSON('sector_latest.json', null)) {
+            console.warn('[NSDL] No sector data retrieved. Keeping the existing snapshot.');
+        } else {
+            console.warn('[NSDL] No sector data retrieved and none on disk. Writing demo data.');
+            writeJSON('sector_latest.json', buildMockSectorData());
+        }
     }
 
     // 2. Daily trends
@@ -648,6 +669,8 @@ module.exports = {
     fetchAllNSDL,
     fetchFortnightlySectorData,
     fetchDailyTrends,
+    compileSectorsJson,
+    parseDailyTrends,
     fetchYearlyData,
     buildMockSectorData,
     getAvailableFortnightDates,
