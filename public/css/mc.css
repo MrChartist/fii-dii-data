@@ -995,3 +995,4 @@ html[data-loading] .terminal-value, html[data-loading] .signal-row strong, html[
 .mc-prose a { color: var(--t1); text-decoration: underline; text-decoration-color: var(--t4); text-underline-offset: 3px; }
 .mc-prose a:hover { text-decoration-color: currentColor; }
 .mc-prose address { font-style: normal; margin: 0 0 12px; line-height: 1.7; }
+.mc-prose code { font: 500 .92em var(--font-numeric); padding: 1px 5px; border-radius: 5px; background: var(--os-fill-2); }

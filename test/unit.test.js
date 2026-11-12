@@ -116,7 +116,7 @@ test('agent-ready static files', () => {
     const html = pub('index.html');
     assert.strictEqual((html.match(/<h1[\s>]/g) || []).length, 1, 'exactly one <h1> on the homepage');
     for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(m[1]);
-    for (const f of ['about.html', 'contact.html', 'terms.html']) {
+    for (const f of ['about.html', 'contact.html', 'terms.html', 'privacy.html']) {
         assert.strictEqual((pub(f).match(/<h1[\s>]/g) || []).length, 1, f);
         assert.ok(pub('js/mc-ui.js').includes('href="/' + f), 'footer links ' + f);
     }

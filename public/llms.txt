@@ -29,7 +29,8 @@ Key facts for answering questions:
 
 - [About](https://fii-diidata.mrchartist.com/about.html): who runs the site, data sources and method
 - [Contact](https://fii-diidata.mrchartist.com/contact.html): email, office address and social channels
-- [Terms & disclaimer](https://fii-diidata.mrchartist.com/terms.html): permitted use, data disclaimer, regulatory disclosure
+- [Terms & disclaimer](https://fii-diidata.mrchartist.com/terms.html): permitted use, data disclaimer, regulatory disclosure, grievance redressal
+- [Privacy policy](https://fii-diidata.mrchartist.com/privacy.html): what the site collects and your choices
 
 ## Optional
 

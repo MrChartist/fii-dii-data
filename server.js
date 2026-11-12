@@ -41,7 +41,7 @@ try {
     const VAPID_PUBLIC  = 'BDM4u63dFxAAA68MTP3W4mTxV3MZk7unyFQufGv6j3DhCFqf7T5lsp85zvQSSqX2sVrcLsrMhRvyiTZhS8BnsJw';
     const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
     if (!VAPID_PRIVATE) { console.warn('[BOOT] VAPID_PRIVATE_KEY not set — push notifications disabled'); webpush = null; }
-    else { webpush.setVapidDetails('mailto:contact@mrchartist.com', VAPID_PUBLIC, VAPID_PRIVATE); console.log('[BOOT] web-push loaded ✓'); }
+    else { webpush.setVapidDetails('mailto:rohit@mrchartist.com', VAPID_PUBLIC, VAPID_PRIVATE); console.log('[BOOT] web-push loaded ✓'); }
 } catch (e) {
     console.warn('[BOOT] web-push not available:', e.message);
 }
@@ -882,12 +882,14 @@ app.get('/api/agents/synthesis', async (req, res) => {
         const diiNet = latestData?.dii_net || 0;
         const date = latestData?.date || 'N/A';
 
-        const systemPrompt = `You are the Lead Institutional Analyst AI for 'Mr. Chartist' — India's top FII/DII data terminal.
+        const systemPrompt = `You write the daily flow summary for 'Mr. Chartist — FII & DII Data', a dashboard of Indian institutional flow data.
+
+Rules: describe what the published data shows and how it changed. Do NOT give buy, sell or hold advice, position-sizing or hedging suggestions, price targets or predictions, and do not address the reader as 'you'.
 
 Your output format is EXACTLY:
 Line 1: A bold, punchy 8-12 word headline (no markdown, no asterisks, just raw text).
 Line 2: Empty line.
-Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Professional hedge fund tone. No fluff, no disclaimers, no greetings. Reference specific numbers. LEAD with what CHANGED versus the previous session (acceleration, reversal, divergence) — readers already know the static picture.
+Lines 3-6: A tight 2-3 sentence institutional analysis paragraph. Neutral, factual analyst tone. No fluff, no greetings. Reference specific numbers. LEAD with what CHANGED versus the previous session (acceleration, reversal, divergence) — readers already know the static picture.
 
 Data State (${date}):
 - FII Net: ${fiiNet >= 0 ? '+' : ''}${fiiNet} Cr | DII Net: ${diiNet >= 0 ? '+' : ''}${diiNet} Cr
@@ -950,7 +952,7 @@ app.get('/api/agents/regime', (req, res) => {
             fii_streak: state.fii_streak || 0,
             dii_absorption_pct: state.dii_absorption_pct || 0,
             vix: state.vix || 0,
-            recommendation: state.recommendation || '',
+            recommendation: require('./agents/agent-utils').regimeNote(state.regime),
             fii_cumulative_10d: state.fii_cumulative_10d || 0,
             dii_cumulative_10d: state.dii_cumulative_10d || 0,
             last_updated: state._updated_at || null

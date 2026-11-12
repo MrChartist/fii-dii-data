@@ -20,13 +20,7 @@ const AGENT_NAME = 'regime-classifier';
 
 // ── Regime Recommendations ───────────────────────────────────────────────────
 
-const RECOMMENDATIONS = {
-    'STRONG_BULLISH':  'Risk-on environment. Favor momentum strategies, increase position sizes.',
-    'MILD_BULLISH':    'Cautiously optimistic. Standard position sizing, favor quality setups.',
-    'NEUTRAL':         'Mixed signals. Reduce exposure, wait for clarity before committing.',
-    'MILD_BEARISH':    'Defensive posture. Tighten stops, reduce new entries, hedge existing positions.',
-    'STRONG_BEARISH':  'Reduce risk, tighten stops. Favor hedging and short-selling strategies.'
-};
+const { REGIME_NOTES: RECOMMENDATIONS } = require('./agent-utils');
 
 // ── Regime Classifier ────────────────────────────────────────────────────────
 
@@ -114,11 +108,7 @@ ${prevEmoji} ${prevLabel} → ${newEmoji} ${newLabel}
 💡 Recommendation:
   ${RECOMMENDATIONS[newRegime]}
 
-💡 Ecosystem Impact:
-  📌 Corporate Decode: ${newRegime.includes('BEARISH') ? 'Filtering for defensive filings' : 'Standard filing alerts'}
-  📌 OptionsDesk: ${newRegime.includes('BEARISH') ? 'GEX sensitivity increased' : 'Normal GEX parameters'}
-  📌 TradeBook: ${newRegime.includes('BEARISH') ? 'Risk limits tightened' : 'Standard risk limits'}
-  📌 Scanner: ${newRegime.includes('BEARISH') ? 'Prioritizing short-selling setups' : 'Standard breakout scans'}
+ℹ️ Rule-based reading of published NSE flow data. Not investment advice.
 
 🤖 Regime Classifier Agent
 @Mr_Chartist`;

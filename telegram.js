@@ -267,7 +267,7 @@ function processUpdate(update) {
         if (r.since) reply += `Since: ${r.since}\n`;
         if (r.vix) reply += `VIX: <b>${r.vix}</b>\n`;
         if (r.fii_cumulative_10d) reply += `FII 10d: ${r.fii_cumulative_10d >= 0 ? '+' : '-'}\u20b9${Math.abs(r.fii_cumulative_10d).toLocaleString('en-IN')} Cr\n`;
-        if (r.recommendation) reply += `\n\ud83d\udca1 <i>${r.recommendation}</i>`;
+        { const note = require('./agents/agent-utils').regimeNote(r.regime); if (note) reply += `\n\ud83d\udca1 <i>${note}</i>`; }
         reply += `\n\n\ud83c\udf10 <a href="https://mrchartist.com/fii-dii-data">Open Dashboard</a>`;
         return { chatId, reply };
     }

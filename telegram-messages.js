@@ -2,7 +2,7 @@
 // Each function returns a formatted HTML string for Telegram
 // All messages include FII & DII Data branding header + footer
 
-const { fmtCr, REGIME_EMOJI, REGIME_LABELS } = require('./agents/agent-utils');
+const { fmtCr, REGIME_EMOJI, REGIME_LABELS, regimeNote } = require('./agents/agent-utils');
 
 const BRAND = '📊 𝗙𝗜𝗜 & 𝗗𝗜𝗜 𝗗𝗮𝘁𝗮';
 const LINE  = '━━━━━━━━━━━━━━━━━━━━';
@@ -25,7 +25,8 @@ function footer() {
     return `\n${LINE}\n` +
         `${BRAND} · <b>by Mr. Chartist</b>\n` +
         `🌐 <a href="https://mrchartist.com/fii-dii-data">Open Live Dashboard</a>\n` +
-        `📢 <a href="https://t.me/official_mrchartist">Join @official_mrchartist</a>`;
+        `📢 <a href="https://t.me/official_mrchartist">Join @official_mrchartist</a>\n` +
+        `<i>Provisional NSE/NSDL data, for information only. Not investment advice. SEBI RA INH000015297.</i>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -70,7 +71,7 @@ function buildCashFlowMessage(data, regime, streak, flowStrength) {
         msg += `  📍 Regime: ${emoji} <b>${label}</b>`;
         if (regime.vix) msg += `  ·  VIX: ${regime.vix}`;
         msg += `\n`;
-        if (regime.recommendation) msg += `  💡 <i>${regime.recommendation}</i>\n`;
+        { const note = regimeNote(regime.regime); if (note) msg += `  💡 <i>${note}</i>\n`; }
     }
 
     if (streak) {
@@ -378,7 +379,7 @@ function buildMorningBriefMessage(latest, regime, streak, flowDiv) {
         msg += `    ${emoji} <b>${label}</b>`;
         if (regime.vix) msg += `  ·  VIX: ${regime.vix}`;
         msg += `\n`;
-        if (regime.recommendation) msg += `    💡 <i>${regime.recommendation}</i>\n`;
+        { const note = regimeNote(regime.regime); if (note) msg += `    💡 <i>${note}</i>\n`; }
     }
 
     if (streak) {
