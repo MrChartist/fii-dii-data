@@ -281,3 +281,23 @@
 .mom-badge.is-stale { opacity: .6; filter: saturate(.4); }
 .sig-gap { flex: none; width: 2px; align-self: stretch; margin: 0 3px; border-radius: 1px; background: repeating-linear-gradient(to bottom, var(--t4) 0 2px, transparent 2px 4px); }
 tr.row-gap td { text-align: center; padding: 7px 12px; font: 500 11.5px/1.3 var(--font-body); color: var(--t3); background: repeating-linear-gradient(135deg, transparent 0 6px, color-mix(in srgb, var(--t4) 12%, transparent) 6px 12px); border-block: 1px dashed var(--sep2); }
+
+/* ── Flow split bar follows direction ── */
+#meterFII.is-buy { background: var(--os-bull) !important; }
+#meterDII.is-sell { background: var(--os-bear) !important; }
+
+/* ── Signal Stack score gauges ── */
+.sig-gauge { grid-column: 1 / -1; position: relative; display: block; height: 6px; margin: 8px 0 6px; border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--os-bear) 55%, transparent), color-mix(in srgb, var(--os-neutral) 40%, transparent) 50%, color-mix(in srgb, var(--os-bull) 55%, transparent)); }
+.sig-gauge::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--t4); opacity: .6; }
+.sig-gauge b { position: absolute; z-index: 1; top: 50%; left: 50%; width: 12px; height: 12px; border-radius: 50%; transform: translate(-50%, -50%); background: var(--t3);
+  box-shadow: 0 0 0 3px var(--l1), 0 1px 4px rgba(0, 0, 0, .35); transition: left .8s var(--os-spring), background .3s; }
+.cmd-signal-stack .signal-row { align-content: center; }
+.cmd-signal-stack .signal-row strong { font-size: 26px; }
+.signal-row.os-hide .sig-gauge { display: none; }
+
+/* ── Large displays: overlays are sized in viewport units, which the UI scale would otherwise enlarge ── */
+.sz-content { max-height: calc(min(88dvh, 820px * var(--mc-zoom, 1)) / var(--mc-zoom, 1)); }
+
+/* Export button sits on the card's top edge so it never covers header controls (range selector, status badge) */
+.cam-btn { top: -15px; right: 22px; box-shadow: var(--ctl-shadow); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }

@@ -65,7 +65,30 @@
     if (b) bullRGB = b; if (r) bearRGB = r;
     D.font.family = t.font; D.font.size = 11; D.font.weight = '500';
     D.color = t.label; D.borderColor = t.hair;
-    D.devicePixelRatio = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
+    // Render at least 2x, and account for the large-display UI scale so chart
+    // bitmaps are not stretched (blurred) on QHD/4K screens
+    var setDpr = function () { D.devicePixelRatio = Math.min(4, Math.max(2, (window.devicePixelRatio || 1) * (window.MC_ZOOM || 1))); };
+    setDpr();
+    // Under the large-display scale the browser reports pointer offsets in a
+    // different unit than the chart's own coordinates, so tooltips land on the
+    // wrong bar. Re-derive the offset from the canvas rectangle instead.
+    ['mousemove', 'mousedown', 'mouseup', 'click', 'mouseout'].forEach(function (type) {
+      document.addEventListener(type, function (e) {
+        if ((window.MC_ZOOM || 1) === 1) return;
+        var c = e.target;
+        if (!c || c.tagName !== 'CANVAS') return;
+        var r = c.getBoundingClientRect();
+        var k = (r.width / (c.clientWidth || r.width)) || 1;
+        try {
+          Object.defineProperty(e, 'offsetX', { configurable: true, value: (e.clientX - r.left) / k });
+          Object.defineProperty(e, 'offsetY', { configurable: true, value: (e.clientY - r.top) / k });
+        } catch (err) { /* read-only event: leave as is */ }
+      }, true);
+    });
+    window.addEventListener('mc-zoom', function () {
+      setDpr();
+      try { Object.keys(Chart.instances).forEach(function (k) { var c = Chart.instances[k]; c.options.devicePixelRatio = D.devicePixelRatio; c.resize(); }); } catch (e) {}
+    });
     D.animation = D.animation || {};
     D.animation.duration = reduced() ? 0 : 450;
     D.animation.easing = 'easeOutBack';
@@ -81,9 +104,11 @@
     P.legend.labels.usePointStyle = true; P.legend.labels.pointStyle = 'circle';
     P.legend.labels.boxWidth = 8; P.legend.labels.boxHeight = 8; P.legend.labels.color = t.label;
     Object.assign(P.tooltip, {
-      backgroundColor: t.glass, titleColor: t.text, bodyColor: t.label,
-      borderColor: t.hair, borderWidth: 1, cornerRadius: 10, padding: 10,
-      boxPadding: 4, usePointStyle: true, displayColors: false,
+      // Near-opaque: a translucent tooltip over dense bars is unreadable
+      backgroundColor: document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(255,255,255,0.97)' : 'rgba(20,22,27,0.96)',
+      titleColor: t.text, bodyColor: t.text,
+      borderColor: t.hair, borderWidth: 1, cornerRadius: 10, padding: 12,
+      boxPadding: 6, usePointStyle: true, bodySpacing: 5, titleMarginBottom: 8, caretPadding: 8, displayColors: false,
       titleFont: { weight: '600' }
     });
   }

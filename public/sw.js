@@ -5,7 +5,7 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v19';
+const CACHE_NAME = 'mrchartist-v20';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -14,6 +14,7 @@ const STATIC_ASSETS = [
   '/css/mc-dashboard.css',
   '/js/mc-brand.js',
   '/js/mc-freshness.js',
+  '/js/mc-scale.js',
   '/js/mc-ui.js',
   '/js/mc-motion.js',
   '/js/mc-charts.js',

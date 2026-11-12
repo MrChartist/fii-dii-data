@@ -3,6 +3,7 @@
 <head>
 <script>/* Restore saved theme before first paint to avoid a flash */
 try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
+<script src="/js/mc-scale.js?v=8"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
@@ -199,11 +200,9 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=6">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=7">
+<link rel="stylesheet" href="/css/mc.css?v=8">
+<link rel="stylesheet" href="/css/mc-dashboard.css?v=8">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
-<script src="/vendor/html2canvas-1.4.1.min.js"></script>
-<script>window.html2canvas || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>')</script>
 <script src="/js/mc-freshness.js?v=7"></script>
 <script src="/vendor/chart-3.9.1.min.js"></script>
 <script>window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>')</script>
@@ -498,16 +497,19 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
           <div class="signal-row">
             <span>Market Strength</span>
             <strong id="cmd-market-score">--</strong>
+            <i class="sig-gauge" aria-hidden="true"><b id="cmd-market-gauge"></b></i>
             <em id="cmd-market-label">Loading</em>
           </div>
           <div class="signal-row">
             <span>Stock Strength</span>
             <strong id="cmd-stock-score">--</strong>
+            <i class="sig-gauge" aria-hidden="true"><b id="cmd-stock-gauge"></b></i>
             <em id="cmd-stock-label">Loading</em>
           </div>
           <div class="signal-row">
             <span>F&O Sentiment</span>
             <strong id="cmd-fno-score">--</strong>
+            <i class="sig-gauge" aria-hidden="true"><b id="cmd-fno-gauge"></b></i>
             <em id="cmd-fno-label">Loading</em>
           </div>
           <div class="signal-row os-hide">
@@ -1107,7 +1109,34 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 
 <script>
 /* ── ELITE IMAGE EXPORT METHOD ── */
+/* The image exporter (~280 KB) is only needed when someone takes a snapshot,
+   so it is fetched on first use instead of blocking every page load. This
+   build understands modern CSS colours (color-mix / color()), which the
+   previous one rejected — every export failed with "unsupported color function". */
+let _exporterPromise = null;
+function loadExporter() {
+  if (!_exporterPromise) {
+    _exporterPromise = new Promise((resolve, reject) => {
+      const done = () => {
+        const fn = window.html2canvas && (window.html2canvas.default || window.html2canvas);
+        typeof fn === 'function' ? resolve(fn) : reject(new Error('Image exporter unavailable'));
+      };
+      if (window.html2canvas) return done();
+      const el = document.createElement('script');
+      el.src = '/vendor/html2canvas-pro-2.5.0.min.js';
+      el.onload = done;
+      el.onerror = () => reject(new Error('Image exporter failed to load'));
+      document.head.appendChild(el);
+    }).catch(err => { _exporterPromise = null; throw err; });
+  }
+  return _exporterPromise;
+}
+
 async function exportDOM(element, namePrefix) {
+  // The large-display UI scale distorts the exporter's text layout, so render
+  // at 1:1 and restore the scale afterwards (output is 3x+ regardless).
+  const _root = document.documentElement, _zoom = _root.style.zoom;
+  _root.style.zoom = '';
   try {
     const btn = element.querySelector('.cam-btn');
     if(btn) btn.style.display = 'none'; // hide button during capture
@@ -1136,16 +1165,24 @@ async function exportDOM(element, namePrefix) {
     } else {
        // For full page dump, just use original
        clone.style.display = 'none';
+       // Dashboard panels are captured in place (their layout depends on the
+       // surrounding grid), so brand them directly for the duration of the capture
+       if (element.classList.contains('terminal-panel')) {
+         if (getComputedStyle(element).position === 'static') element.style.position = 'relative';
+         element.appendChild(watermark);
+       }
     }
     
     const targetEl = clone.parentNode === document.body ? clone : element;
 
     const isLightTheme = document.documentElement.getAttribute('data-theme') === 'light';
-    const canvas = await html2canvas(targetEl, {
+    const canvas = await (await loadExporter())(targetEl, {
       backgroundColor: isLightTheme ? '#F6F5F2' : '#000000',
-      scale: 2, // High DPI
+      scale: Math.min(4, Math.max(3, window.devicePixelRatio || 1)), // 3x+ so shared snapshots stay sharp on 4K screens
       useCORS: true,
       logging: false,
+      // The capture button itself has no place in the shared image
+      ignoreElements: el => el.tagName === 'BUTTON' && /snapshot/i.test(el.textContent || ''),
       windowWidth: element.scrollWidth,
       windowHeight: element.scrollHeight
     });
@@ -1161,6 +1198,9 @@ async function exportDOM(element, namePrefix) {
   } catch (err) {
     console.error("Export failed", err);
     (window.mcToast || alert)('Export failed. Please try again.');
+  } finally {
+    document.querySelectorAll('.terminal-panel > .mc-export-mark').forEach(n => n.remove());
+    _root.style.zoom = _zoom;
   }
 }
 
@@ -1907,6 +1947,9 @@ function renderDashboard() {
     // Label depending on direction
     document.getElementById('pFii').innerText = (dailyData[0].fn < 0 ? 'FII Selling: ' : 'FII Buying: ') + pF + '%';
     document.getElementById('pFii').className = dailyData[0].fn < 0 ? 't-red' : 't-green';
+    // Bar colours follow direction (a buying FII bar must not be drawn red)
+    document.getElementById('meterFII').classList.toggle('is-buy', dailyData[0].fn >= 0);
+    document.getElementById('meterDII').classList.toggle('is-sell', dailyData[0].dn <= 0);
     
     document.getElementById('pDii').innerText = (dailyData[0].dn > 0 ? 'DII Support: ' : 'DII Selling: ') + pD + '%';
     document.getElementById('pDii').className = dailyData[0].dn > 0 ? 't-green' : 't-red';
@@ -2090,6 +2133,15 @@ function renderCommandCenter() {
   const _fnoLag = fnoLag(latestFno), _fnoStale = _fnoLag > 2;
   set('cmd-fno-score', fno.score, _fnoStale ? 'var(--t4)' : fno.color);
   set('cmd-fno-label', _fnoStale ? `STALE · ${fno.label} AS OF ${latestFno.d}` : fno.label, _fnoStale ? 'var(--t3)' : fno.color);
+  // Position each score on its scale (0–100 for flow scores, −3…+3 for F&O)
+  const gauge = (id, pct, color) => {
+    const g = document.getElementById(id); if (!g) return;
+    g.style.left = `${Math.max(0, Math.min(100, pct))}%`;
+    g.style.background = color;
+  };
+  gauge('cmd-market-gauge', market.score, market.color);
+  gauge('cmd-stock-gauge', stock.score, stock.color);
+  gauge('cmd-fno-gauge', typeof fno.score === 'number' ? ((fno.score + 3) / 6) * 100 : 50, _fnoStale ? 'var(--t4)' : fno.color);
   set('cmd-ai-regime', document.getElementById('ai-active-regime')?.innerText || '--');
   set('cmd-ai-desc', document.getElementById('ai-regime-desc')?.innerText || 'Optional signal');
 
@@ -4886,7 +4938,7 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
 <script src="/js/mc-brand.js?v=6" defer></script>
 <script src="/js/mc-ui.js?v=6" defer></script>
 <script src="/js/mc-motion.js?v=6" defer></script>
-<script src="/js/mc-charts.js?v=6" defer></script>
+<script src="/js/mc-charts.js?v=8" defer></script>
 <script src="/js/mc-ranges.js?v=6" defer></script>
 </body>
 </html>
