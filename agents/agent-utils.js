@@ -1,5 +1,5 @@
 // ── Agent Utilities — Shared infrastructure for all FII/DII agents ───────────
-// Provides: state management, run logging, Telegram alerts, data readers, formatters
+// Provides: state management, run logging, alert hook, data readers, formatters
 
 const fs = require('fs');
 const path = require('path');
@@ -78,42 +78,12 @@ function getRunHistory(limit = 50, agentFilter = null) {
     return filtered.slice(0, limit);
 }
 
-// ── Telegram Notifier ────────────────────────────────────────────────────────
-// Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from environment
-
-async function sendTelegramAlert(message, parseMode = 'HTML') {
-    const token = process.env.TELEGRAM_BOT_TOKEN;
-    // Fallback to TELEGRAM_CHANNEL_ID if TELEGRAM_CHAT_ID is not set
-    const chatId = process.env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHANNEL_ID;
-
-    // Lazy-load delivery tracker
-    let tgHealth;
-    try { tgHealth = require('../telegram-health'); } catch { tgHealth = null; }
-
-    if (!token || !chatId) {
-        console.error('[AGENT-TG] ❌ Telegram not configured (missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID/TELEGRAM_CHANNEL_ID)');
-        console.error('[AGENT-TG] Would have sent:', message.substring(0, 200) + '…');
-        if (tgHealth) tgHealth.trackFailure('agent-alert', chatId || 'NOT_SET', 'env_not_configured', message);
-        return { sent: false, reason: 'not_configured' };
-    }
-
-    try {
-        const url = `https://api.telegram.org/bot${token}/sendMessage`;
-        const res = await axios.post(url, {
-            chat_id: chatId,
-            text: message,
-            parse_mode: parseMode,
-            disable_web_page_preview: true
-        }, { timeout: 10000 });
-
-        console.log(`[AGENT-TG] ✅ Alert sent to ${chatId} (msg_id: ${res.data?.result?.message_id})`);
-        if (tgHealth) tgHealth.trackSuccess('agent-alert', chatId, message);
-        return { sent: true, message_id: res.data?.result?.message_id };
-    } catch (err) {
-        console.error(`[AGENT-TG] ❌ Failed to send to ${chatId}: ${err.message}`);
-        if (tgHealth) tgHealth.trackFailure('agent-alert', chatId, err.message, message);
-        return { sent: false, reason: err.message };
-    }
+// ── Alert delivery ───────────────────────────────────────────────────────────
+// Agents compute signals and keep state for the dashboard and API. No outbound
+// messaging channel is configured, so nothing is sent; the hook stays so a
+// channel can be added in one place later.
+async function deliverAlert(/* message */) {
+    return { sent: false, reason: 'no_alert_channel' };
 }
 
 // ── Data Readers ─────────────────────────────────────────────────────────────
@@ -235,8 +205,8 @@ module.exports = {
     // Runs
     logRun,
     getRunHistory,
-    // Telegram
-    sendTelegramAlert,
+    // Alerts
+    deliverAlert,
     // Data
     getHistory,
     getLatestEntry,

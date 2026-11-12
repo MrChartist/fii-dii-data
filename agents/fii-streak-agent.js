@@ -8,10 +8,10 @@
 //   Rule 3: Cumulative sell volume in streak > ₹20,000 Cr → 🔴 EXTREME
 //   Rule 4: DII absorption < 50% of FII sell → "DII not absorbing — RISK"
 //   Rule 5: DII absorption > 100% of FII sell → "DII fully absorbing — STABLE"
-// ACTION: Telegram alert with streak count, daily breakdown, absorption ratio
+// ACTION: alert with streak count, daily breakdown, absorption ratio
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getHistory, fmtCr, fmtDate, REGIME_EMOJI
 } = require('./agent-utils');
 
@@ -140,7 +140,7 @@ async function run() {
     if (streaks.sell && streaks.sell.length >= 5) {
         if (streaks.sell.length > alertedSell) {
             const alert = buildStreakAlert('sell', streaks.sell);
-            const result = await sendTelegramAlert(alert);
+            const result = await deliverAlert(alert);
             if (result?.sent) {
                 alertsSent++;
                 alertedSell = streaks.sell.length;
@@ -155,7 +155,7 @@ async function run() {
     if (streaks.buy && streaks.buy.length >= 5) {
         if (streaks.buy.length > alertedBuy) {
             const alert = buildStreakAlert('buy', streaks.buy);
-            const result = await sendTelegramAlert(alert);
+            const result = await deliverAlert(alert);
             if (result?.sent) {
                 alertsSent++;
                 alertedBuy = streaks.buy.length;

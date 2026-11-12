@@ -155,34 +155,6 @@ try {
     agentRunner = null;
 }
 
-// ── Telegram Bot ─────────────────────────────────────────────────────────────
-let telegram;
-let tgHealth;
-const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TG_BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || 'FlowMatrixBot';
-const TG_CHANNEL_ID = process.env.TELEGRAM_CHANNEL_ID || null;
-try {
-    telegram = require('./telegram');
-    if (TG_TOKEN) {
-        console.log(`[BOOT] telegram loaded ✓ (bot: @${TG_BOT_USERNAME}${TG_CHANNEL_ID ? ', channel: ' + TG_CHANNEL_ID : ''})`);
-    } else {
-        console.warn('[BOOT] TELEGRAM_BOT_TOKEN not set — Telegram alerts disabled');
-    }
-} catch (e) {
-    console.warn('[BOOT] telegram not available:', e.message);
-    telegram = null;
-}
-
-// ── Telegram Health Monitor (boot-time validation) ────────────────────────────
-try {
-    tgHealth = require('./telegram-health');
-    tgHealth.validateConfig();
-    console.log('[BOOT] telegram-health loaded ✓');
-} catch (e) {
-    console.warn('[BOOT] telegram-health not available:', e.message);
-    tgHealth = null;
-}
-
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -285,7 +257,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // ── One-time .env Setup (secured by SETUP_KEY or Hostinger API token) ────────
 // POST /api/setup-env — writes .env file to production, then self-disables.
-// This endpoint only works if .env is missing or TELEGRAM_BOT_TOKEN is not set.
+// This endpoint works once per process start.
 let _envSetupUsed = false;
 app.post('/api/setup-env', express.json(), (req, res) => {
     // Auth: require a setup key in the Authorization header
@@ -306,9 +278,6 @@ app.post('/api/setup-env', express.json(), (req, res) => {
     // Only allow if .env is missing critical vars or this is first use
     if (_envSetupUsed) {
         return res.status(403).json({ error: 'Setup already completed. Delete .env manually to re-run.' });
-    }
-    if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHANNEL_ID) {
-        return res.status(200).json({ ok: true, message: '.env already configured — no changes needed', already_configured: true });
     }
 
     const envVars = req.body;
@@ -533,9 +502,6 @@ app.post('/api/refresh', async (req, res) => {
     }
 });
 
-let tgMessages;
-try { tgMessages = require('./telegram-messages'); } catch (e) { console.warn('[BOOT] telegram-messages not loaded:', e.message); }
-
 // ── Category-specific notification builder ───────────────────────────────────
 // Dedupe is PERSISTED to disk so a category alerts exactly once per trading date,
 // even though the fetch pipeline runs every ~15 min (cash lands first, F&O later),
@@ -607,55 +573,6 @@ function sendDataNotifications(data) {
         }, 'fao');
     }
 
-    // 2b. Personal threshold alerts (/alert command) — once per session per user
-    if (telegram && TG_TOKEN && sendCash && typeof telegram.checkUserThresholdAlerts === 'function') {
-        telegram.checkUserThresholdAlerts(data, TG_TOKEN, axios)
-            .then(n => { if (n) console.log(`[TELEGRAM] ${n} personal threshold alert(s) sent`); })
-            .catch(err => console.error('[TELEGRAM] Threshold alerts failed:', err.message));
-    }
-
-    // 3. Telegram: Detailed messages via telegram-messages module
-    if (telegram && TG_TOKEN && tgMessages) {
-        try {
-            const { getState } = require('./agents/agent-utils');
-            const regime = getState('regime-classifier');
-            const streak = getState('fii-streak');
-            const flowStrength = getState('flow-strength');
-            const flowDiv = getState('flow-divergence');
-
-            // A. Cash Flow Message (detailed breakdown)
-            if (sendCash) {
-                const cashMsg = tgMessages.buildCashFlowMessage(data, regime, streak, flowStrength);
-                telegram.broadcastTelegram(cashMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                    console.error('[TELEGRAM] Cash broadcast failed:', err.message)
-                );
-            }
-
-            // B. Derivatives Message (30s delay to avoid flooding)
-            if (sendFao && (data.fii_idx_fut_long || data.pcr)) {
-                setTimeout(() => {
-                    const drvMsg = tgMessages.buildDerivativesMessage(data);
-                    telegram.broadcastTelegram(drvMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                        console.error('[TELEGRAM] Derivatives broadcast failed:', err.message)
-                    );
-                }, 30000);
-            }
-
-            // C. Divergence alert (if signal is active for today)
-            if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE' && flowDiv.last_signal_date === data.date &&
-                !alreadyNotified(data.date, 'divergence')) {
-                markNotified(data.date, 'divergence');
-                setTimeout(() => {
-                    const divMsg = tgMessages.buildDivergenceMessage(flowDiv, data);
-                    telegram.broadcastTelegram(divMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                        console.error('[TELEGRAM] Divergence broadcast failed:', err.message)
-                    );
-                }, 60000);
-            }
-        } catch (e) {
-            console.error('[TELEGRAM] Message build failed:', e.message);
-        }
-    }
 }
 // Status
 app.get('/api/status', async (req, res) => {
@@ -1207,178 +1124,16 @@ app.get('/api/agents/docs', (req, res) => {
     res.json(docs);
 });
 
-// ── Telegram Bot API ─────────────────────────────────────────────────────────────
-
-// Telegram bot username (served to frontend for dynamic link)
-app.get('/api/telegram/info', (req, res) => {
-    res.json({
-        enabled: !!(telegram && TG_TOKEN),
-        bot_username: TG_BOT_USERNAME,
-        subscribers: telegram ? telegram.loadChatIds().length : 0
-    });
-});
-
-// ── Telegram Health Diagnostic Endpoint ───────────────────────────────────────
-app.get('/api/telegram/health', async (req, res) => {
-    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
-    try {
-        const report = await tgHealth.getHealthReport(axios);
-        const status = report.overall === 'healthy' ? 200 : report.overall === 'degraded' ? 200 : 500;
-        res.status(status).json(report);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Telegram delivery log (recent entries)
-app.get('/api/telegram/delivery-log', (req, res) => {
-    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
-    const limit = Math.max(1, Math.min(parseInt(req.query.limit) || 50, 200));
-    const log = tgHealth.loadDeliveryLog().slice(0, limit);
-    res.json({ entries: log, count: log.length });
-});
-
-// Manual watchdog trigger
-app.post('/api/telegram/watchdog', async (req, res) => {
-    if (!tgHealth) return res.status(503).json({ error: 'telegram-health module not available' });
-    try {
-        const result = await tgHealth.runWatchdog(axios);
-        res.json(result);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Telegram webhook (alternative to polling)
-// Telegram echoes the secret_token registered in setWebhook on every delivery.
-// Without that check anyone could POST forged updates (subscribe arbitrary chat
-// IDs, unsubscribe real ones, make the bot message any chat), so the endpoint
-// stays closed unless TELEGRAM_WEBHOOK_SECRET is configured.
-const TG_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET || '';
-function _webhookSecretOk(req) {
-    if (!TG_WEBHOOK_SECRET) return false;
-    const got = Buffer.from(String(req.get('x-telegram-bot-api-secret-token') || ''));
-    const want = Buffer.from(TG_WEBHOOK_SECRET);
-    return got.length === want.length && require('crypto').timingSafeEqual(got, want);
-}
-app.post('/api/telegram/webhook', async (req, res) => {
-    if (!_webhookSecretOk(req)) return res.sendStatus(403);
-    if (!telegram || !TG_TOKEN) return res.sendStatus(200);
-    try {
-        const result = telegram.processUpdate(req.body);
-        if (result) {
-            await telegram.sendMessage(result.chatId, result.reply, TG_TOKEN, axios);
-            if (result.followUp) {
-                await new Promise(r => setTimeout(r, 1500));
-                await telegram.sendMessage(result.chatId, result.followUp, TG_TOKEN, axios);
-            }
-        }
-    } catch (err) {
-        console.error('[TELEGRAM] Webhook error:', err.message);
-    }
-    res.sendStatus(200);
-});
-
-// Setup webhook (call once to register with Telegram)
-// Only allowlisted hosts are accepted — otherwise anyone could redirect the
-// bot's update stream (and every user's chat ID) to a server they control.
-app.post('/api/telegram/setup-webhook', async (req, res) => {
-    if (!TG_TOKEN) return res.status(400).json({ error: 'TELEGRAM_BOT_TOKEN not set' });
-    if (!TG_WEBHOOK_SECRET) return res.status(400).json({ error: 'TELEGRAM_WEBHOOK_SECRET not set — the webhook cannot be authenticated without it' });
-    try {
-        const baseUrl = req.body.url || `https://mrchartist.com/fii-dii-data`;
-        let host;
-        try { host = new URL(baseUrl).hostname; } catch { return res.status(400).json({ error: 'Invalid url' }); }
-        const allowedHost = process.env.WEBHOOK_HOST || 'mrchartist.com';
-        if (host !== allowedHost && !host.endsWith('.' + allowedHost)) {
-            return res.status(403).json({ error: `Webhook host not allowed: ${host}` });
-        }
-        const webhookUrl = `${baseUrl}/api/telegram/webhook`;
-        const resp = await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/setWebhook`, {
-            url: webhookUrl,
-            allowed_updates: ['message'],
-            secret_token: TG_WEBHOOK_SECRET
-        });
-        res.json({ success: true, webhook_url: webhookUrl, telegram_response: resp.data });
-    } catch (err) {
-        res.status(500).json({ error: err.response?.data?.description || err.message });
-    }
-});
-
 // ── Start server FIRST (before anything else) ───────────────────────────────
 console.log(`[BOOT] Attempting to listen on 0.0.0.0:${PORT}…`);
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`[BOOT] ✅ Server running on port ${PORT}`);
-
-    // ── Telegram Polling (if no webhook configured) ────────────────────────
-    // Webhook mode (TELEGRAM_USE_WEBHOOK=1) and polling are mutually exclusive
-    if (telegram && TG_TOKEN && axios && process.env.TELEGRAM_USE_WEBHOOK !== '1') {
-        let lastUpdateId = 0;
-        let isPolling = false;
-
-        // Clear any stale webhook before starting polling
-        // (Webhook and polling are mutually exclusive in Telegram API)
-        (async () => {
-            try {
-                const whInfo = await axios.get(`https://api.telegram.org/bot${TG_TOKEN}/getWebhookInfo`);
-                const currentUrl = whInfo.data?.result?.url;
-                if (currentUrl) {
-                    console.log(`[TELEGRAM] Active webhook detected (${currentUrl}), deleting for local polling…`);
-                    await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/deleteWebhook`, { drop_pending_updates: false });
-                    console.log('[TELEGRAM] Webhook deleted ✓');
-                }
-            } catch (e) {
-                console.warn('[TELEGRAM] Webhook check/delete failed:', e.message);
-            }
-        })();
-
-        async function pollTelegram() {
-            if (isPolling) return;
-            isPolling = true;
-            try {
-                const res = await axios.get(`https://api.telegram.org/bot${TG_TOKEN}/getUpdates`, {
-                    params: { offset: lastUpdateId + 1, timeout: 5 },
-                    timeout: 15000
-                });
-                const updates = res.data.result || [];
-                for (const update of updates) {
-                    lastUpdateId = update.update_id;
-                    const result = telegram.processUpdate(update);
-                    if (result) {
-                        await telegram.sendMessage(result.chatId, result.reply, TG_TOKEN, axios);
-                        // Send follow-up message if present (e.g., /latest sends cash + derivatives)
-                        if (result.followUp) {
-                            await new Promise(r => setTimeout(r, 1500));
-                            await telegram.sendMessage(result.chatId, result.followUp, TG_TOKEN, axios);
-                        }
-                    }
-                }
-            } catch (err) {
-                if (err.response?.data?.error_code === 409) {
-                    // 409 Conflict: webhook is active, can't use getUpdates
-                    console.error('[TELEGRAM] 409 Conflict — webhook still active. Retrying delete…');
-                    try {
-                        await axios.post(`https://api.telegram.org/bot${TG_TOKEN}/deleteWebhook`, { drop_pending_updates: false });
-                        console.log('[TELEGRAM] Webhook re-deleted ✓');
-                    } catch (e) { /* ignore */ }
-                } else if (!err.message.includes('timeout') && !err.message.includes('canceled')) {
-                    console.error('[TELEGRAM] Poll error:', err.message);
-                }
-            } finally {
-                isPolling = false;
-                setTimeout(pollTelegram, 2000); // 2 second pause before next poll
-            }
-        }
-        pollTelegram(); // Initial poll
-        console.log(`[BOOT] ✅ Telegram polling active (@${TG_BOT_USERNAME})`);
-    }
 
     // ── Scheduler (deferred until server is listening) ─────────────────────
     if (cron) {
         try {
             async function runFetchTask(label) {
                 console.log(`[${new Date().toISOString()}] ${label} fetch starting…`);
-                if (tgHealth) tgHealth.recordHeartbeat('post-market-fetch');
                 try {
                     const data = await fetchAndProcessData();
                     console.log(`[${new Date().toISOString()}] ${label} fetch completed.`);
@@ -1409,7 +1164,6 @@ app.listen(PORT, '0.0.0.0', () => {
             // ── NSDL Sector Data Fetch ────────────────────────────────────
             async function runNSDLFetch() {
                 console.log(`[${new Date().toISOString()}] NSDL sector fetch starting…`);
-                if (tgHealth) tgHealth.recordHeartbeat('nsdl-sector-fetch');
                 try {
                     // Read existing date_code before fetch — missing/corrupt file must
                     // not abort the fetch (it's what creates the file in the first place)
@@ -1436,18 +1190,6 @@ app.listen(PORT, '0.0.0.0', () => {
                             body: `Top Inflow: ${topIn?.sector} (${fmtCr(topIn?.equity_net_inr || 0)}) | Top Outflow: ${topOut?.sector} (${fmtCr(topOut?.equity_net_inr || 0)}) | ${sectors.length} sectors updated`,
                             url: '/#t-sectors'
                         }, 'sectors');
-
-                        // Telegram: Detailed sector message
-                        if (telegram && TG_TOKEN && tgMessages) {
-                            const { getState } = require('./agents/agent-utils');
-                            const rotationState = getState('sector-rotation');
-                            const sectorMsg = tgMessages.buildSectorMessage(result.sectorData, rotationState);
-                            if (sectorMsg) {
-                                telegram.broadcastTelegram(sectorMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                                    console.error('[TELEGRAM] Sector broadcast failed:', err.message)
-                                );
-                            }
-                        }
 
                         // Run sector agents after successful NSDL fetch
                         if (agentRunner) {
@@ -1502,46 +1244,16 @@ app.listen(PORT, '0.0.0.0', () => {
                     console.log(`[${new Date().toISOString()}] Weekly digest starting…`);
                     try {
                         await agentRunner.runWeeklyDigest();
-                        // Send weekly digest to Telegram
-                        if (telegram && TG_TOKEN && tgMessages) {
-                            const { getState } = require('./agents/agent-utils');
-                            const digestState = getState('weekly-digest');
-                            const regime = getState('regime-classifier');
-                            const streak = getState('fii-streak');
-                            const history = getHistoryData(5);
-                            const wMsg = tgMessages.buildWeeklyDigestMessage(digestState, regime, streak, history);
-                            telegram.broadcastTelegram(wMsg, TG_TOKEN, axios, TG_CHANNEL_ID).catch(err =>
-                                console.error('[TELEGRAM] Weekly digest broadcast failed:', err.message)
-                            );
-                        }
                     } catch (err) {
                         console.error(`[${new Date().toISOString()}] Weekly digest failed:`, err.message);
                     }
                 }, CRON_OPTS);
 
-                // Morning pre-market brief — 8:30 AM IST Mon-Fri (03:00 UTC)
-                cron.schedule('0 3 * * 1-5', () => {
-                    console.log(`[${new Date().toISOString()}] Morning brief starting…`);
-                    if (tgHealth) tgHealth.recordHeartbeat('morning-brief');
-                    agentRunner.runAgent('morning-brief').catch(err =>
-                        console.error(`[${new Date().toISOString()}] Morning brief failed:`, err.message)
-                    );
-                }, CRON_OPTS);
-
-                console.log('[BOOT] ✅ Cron jobs scheduled (8:30 AM brief + 6PM-9PM post-market + 10 AM NSDL + 8 PM Fri digest)');
+                console.log('[BOOT] ✅ Cron jobs scheduled (6PM-9PM post-market + 10 AM NSDL + 8 PM Fri digest)');
             } else {
                 console.log('[BOOT] ✅ Cron jobs scheduled (6PM-9PM post-market IST Mon-Fri + 10:00 AM NSDL)');
             }
 
-            // Telegram Watchdog — every 6 hours, auto-heal webhook conflicts + validate config
-            if (tgHealth) {
-                cron.schedule('0 */6 * * *', () => {
-                    tgHealth.runWatchdog(axios).catch(err =>
-                        console.error('[WATCHDOG] Failed:', err.message)
-                    );
-                }, CRON_OPTS);
-                console.log('[BOOT] ✅ Telegram watchdog scheduled (every 6 hours)');
-            }
         } catch (e) {
             console.error('[BOOT] Cron scheduling failed:', e.message);
         }

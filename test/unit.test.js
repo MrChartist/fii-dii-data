@@ -44,17 +44,10 @@ test('apiGuard cannot be bypassed by changing the path case', () => {
     };
     assert.strictEqual(call('/api/agents/run-all'), 404);
     assert.strictEqual(call('/API/agents/run-all'), 404);
-    assert.strictEqual(call('/Api/Telegram/delivery-log', { origin: 'https://mrchartist.com' }), 404);
+    assert.strictEqual(call('/Api/Agents/Runs', { origin: 'https://mrchartist.com' }), 404);
     assert.strictEqual(call('/API/data'), 403);
     assert.strictEqual(call('/api/data', { 'sec-fetch-site': 'same-origin' }), 'next');
     assert.strictEqual(call('/index.html'), 'next');
-});
-
-test('F&O message does not invent signals when F&O is absent', () => {
-    const { buildDerivativesMessage } = require('../telegram-messages');
-    const msg = buildDerivativesMessage({ date: '12-Nov-2026', fii_net: 100, pcr: 0, sentiment_score: 50 });
-    assert.match(msg, /not published yet/);
-    assert.doesNotMatch(msg, /Extreme Fear|LONG HEAVY/);
 });
 
 test('trading-calendar helpers', () => {

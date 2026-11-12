@@ -7,10 +7,10 @@
 //   Rule 2: Sector AUM rises > 1% in single fortnight → "FPI increasing"
 //   Rule 3: 3+ consecutive fortnights of decline → "Sustained FPI exit"
 //   Rule 4: Compare top 5 vs bottom 5 sectors → Rotation pattern
-// ACTION: Telegram alert with sector rotation summary
+// ACTION: alert with sector rotation summary
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getSectors, fmtCr
 } = require('./agent-utils');
 
@@ -52,8 +52,8 @@ function analyzeSectors(sectors) {
             declineStreak,
             growthStreak,
             fortnightCr: sector.fortnightCr || fortnightChange,
-            fiiOwn: sector.fiiOwn || 0,
-            alpha: sector.alpha || 0
+            flowPctAuc: sector.flowPctAuc ?? null,
+            streak: sector.streak || 0
         };
     }).filter(Boolean);
 
@@ -154,7 +154,7 @@ async function run() {
         // New sector data detected — send alert
         if (rotation.significantMoves.length > 0 || rotation.sustainedExits.length > 0) {
             const alert = buildRotationAlert(rotation);
-            const sendResult = await sendTelegramAlert(alert);
+            const sendResult = await deliverAlert(alert);
             if (sendResult?.sent) alertsSent++;
             console.log(`[${AGENT_NAME}] 🏦 Sector rotation detected: ${rotation.significantMoves.length} significant moves`);
         }

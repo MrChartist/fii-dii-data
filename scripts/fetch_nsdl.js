@@ -495,6 +495,18 @@ function parseYearlyData(html) {
 }
 
 // ── Compile sectors.json for frontend & agents ─────────────────────────────
+// "Oct312026" → Date; reports are ~15 days apart, so anything over 20 days
+// means a fortnight is missing between the two
+function _fortnightDate(code) {
+    const M = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+    const m = /^([A-Za-z]{3})(\d{2})(\d{4})$/.exec(code || '');
+    return m && M[m[1]] !== undefined ? new Date(Date.UTC(+m[3], M[m[1]], +m[2])) : null;
+}
+function _adjacentFortnights(newer, older) {
+    const a = _fortnightDate(newer), b = _fortnightDate(older);
+    return !!(a && b) && (a - b) / 86400000 <= 20;
+}
+
 function compileSectorsJson(historyArray) {
     if (!historyArray || historyArray.length === 0) return;
     
@@ -525,39 +537,38 @@ function compileSectorsJson(historyArray) {
         const auc = latestInfo.equity_auc_inr || 0;
         const aumPct = totalAUM > 0 ? parseFloat(((auc / totalAUM) * 100).toFixed(1)) : 0;
         
-        // FII Ownership % and Alpha require NSE-specific stock data this script
-        // doesn't fetch — default to null (UI shows n/a) rather than fabricating
-        // random numbers that would be persisted as if real. Existing values
-        // from sectors.json are preserved below.
-        let fiiOwn = null;
-        let alpha = null;
-        
+        // Two measures derived purely from the NSDL reports:
+        //  flowPctAuc — this fortnight's net flow as a share of FPI holdings in
+        //               the sector (how big the move is relative to the position)
+        //  streak     — consecutive fortnights of net inflow (+n) or outflow (−n),
+        //               counted only across reports that are actually adjacent
+        const flowPctAuc = auc > 0 ? parseFloat(((fortnightCr / auc) * 100).toFixed(2)) : null;
+        let streak = 0;
+        const dir = Math.sign(fortnightCr);
+        if (dir !== 0) {
+            for (let i = 0; i < historyArray.length; i++) {
+                if (i > 0 && !_adjacentFortnights(historyArray[i - 1].date_code, historyArray[i].date_code)) break;
+                const sd = historyArray[i].sectors.find(x => x.sector === sectorName);
+                if (!sd || Math.sign(sd.equity_net_inr || 0) !== dir) break;
+                streak += dir;
+            }
+        }
+
         return {
             name: sectorName,
             aumPct,
             fortnightCr,
             oneYearCr,
             lastDate,
-            fiiOwn,
-            alpha,
+            flowPctAuc,
+            streak,
+            fortnights: historyArray.length,
             historyCr
         };
     });
-    
+
     // Sort by largest AUM first, like the frontend expects
     sectorsJson.sort((a, b) => b.aumPct - a.aumPct);
-    
-    // Try to preserve existing fiiOwn / alpha from current sectors.json so UI doesn't randomly flip
-    try {
-        const existingSectors = readJSON('sectors.json', []);
-        sectorsJson.forEach(s => {
-            const old = existingSectors.find(e => e.name === s.name);
-            if (old) {
-                s.fiiOwn = old.fiiOwn !== undefined ? old.fiiOwn : s.fiiOwn;
-                s.alpha = old.alpha !== undefined ? old.alpha : s.alpha;
-            }
-        });
-    } catch (e) { /* ignore */ }
     
     writeJSON('sectors.json', sectorsJson);
     console.log(`  ✅ Compiled sectors.json for ${sectorsJson.length} sectors with ${historyArray.length} fortnights of data.`);

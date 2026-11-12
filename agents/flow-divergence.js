@@ -9,7 +9,7 @@
 // Uses 30-day rolling averages for signal stability
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getHistory, fmtCr, fmtPct, fmtDate
 } = require('./agent-utils');
 
@@ -163,7 +163,7 @@ async function run() {
         // spams the channel with identical signals
         if (analysis.signal !== lastSignal) {
             const alert = buildDivergenceAlert(analysis);
-            const sendResult = await sendTelegramAlert(alert);
+            const sendResult = await deliverAlert(alert);
             if (sendResult?.sent) alertsSent++;
             console.log(`[${AGENT_NAME}] ${SIGNALS[analysis.signal].emoji} ${analysis.signal} detected`);
         }

@@ -36,8 +36,6 @@ data/fiidii.db
 # Push notification subscriptions (runtime data)
 data/subscriptions.json
 
-# Telegram delivery tracking (runtime data)
-data/telegram_delivery.json
 # Runtime state written by the server (not source data)
 data/notify_log.json
 data/market_history.json
