@@ -6,7 +6,7 @@
  *   1. Our own dashboard (same-origin browser requests), rate-limited per IP.
  *   2. Approved partners presenting a key from API_KEYS (comma-separated env var)
  *      in the `x-api-key` header (or `Authorization: Bearer <key>`).
- * Admin/operational routes (agent runs, Telegram ops, API docs) need a key always.
+ * Admin/operational routes (agent runs, API docs) need a key always.
  *
  * Note: browser headers can be forged by non-browser clients, so same-origin
  * checking deters casual scraping only. Real protection comes from keys + rate
@@ -24,11 +24,10 @@ const KEYS = (process.env.API_KEYS || '').split(',').map(s => s.trim()).filter(B
 
 // Routes that need a key even from our own origin.
 const ADMIN_ROUTES = [
-    /^\/api\/agents\/docs/, /^\/api\/agents\/runs/, /^\/api\/agents\/run(\/|-all)/,
-    /^\/api\/telegram\/(info|health|delivery-log|watchdog|setup-webhook)/
+    /^\/api\/agents\/docs/, /^\/api\/agents\/runs/, /^\/api\/agents\/run(\/|-all)/
 ];
-// Routes with their own authentication (Telegram calls the webhook; setup-env checks SETUP_KEY).
-const SELF_AUTH = [/^\/api\/telegram\/webhook$/, /^\/api\/setup-env$/];
+// Routes with their own authentication (setup-env checks SETUP_KEY).
+const SELF_AUTH = [/^\/api\/setup-env$/];
 
 function safeEq(a, b) {
     const x = Buffer.from(String(a)), y = Buffer.from(String(b));

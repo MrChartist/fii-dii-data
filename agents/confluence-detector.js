@@ -1,9 +1,9 @@
-const { getState, setState, sendTelegramAlert } = require('./agent-utils');
+const { getState, setState, deliverAlert } = require('./agent-utils');
 
 /**
  * Confluence Detector Agent
  * Analyzes states of all other independent agents to find highly actionable signals
- * when 3+ indicators align. Sends a prioritized Telegram alert on matches.
+ * when 3+ indicators align. Records a prioritized alert on matches.
  */
 
 async function run() {
@@ -105,7 +105,7 @@ async function run() {
                 msg += `\n<b>Context:</b> ${conf.action}\n`;
                 msg += `\n<a href="https://mrchartist.com/fii-dii-data/">View Live Dashboard</a>`;
 
-                const sendResult = await sendTelegramAlert(msg);
+                const sendResult = await deliverAlert(msg);
                 if (sendResult?.sent) alerts_sent++;
 
                 state[`last_${conf.type}_date`] = todayStr;

@@ -11,7 +11,7 @@
 // Alerts only on REGIME TRANSITIONS
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getHistory, fetchVIX, fmtCr, fmtDate,
     REGIME_EMOJI, REGIME_LABELS
 } = require('./agent-utils');
@@ -165,7 +165,7 @@ async function run() {
     // Alert on transition
     if (transitioned) {
         const alert = buildTransitionAlert(previousRegime, regime, metrics);
-        const sendResult = await sendTelegramAlert(alert);
+        const sendResult = await deliverAlert(alert);
         if (sendResult?.sent) alertsSent++;
         console.log(`[${AGENT_NAME}] ⚡ Regime transition: ${previousRegime} → ${regime}`);
     } else {

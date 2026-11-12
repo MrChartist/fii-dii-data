@@ -5,7 +5,7 @@
  *
  * Older ingestion paths ("live-fetch", "historical-seed") stored the raw
  * long/short columns without PCR or with a placeholder sentiment of 0, which
- * the dashboard and Telegram messages then showed as-is. Idempotent: rows that
+ * the dashboard then showed as-is. Idempotent: rows that
  * already have valid derived values are left untouched.
  *
  * Usage: node scripts/repair_derived.js

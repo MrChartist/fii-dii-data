@@ -28,7 +28,6 @@ const AGENTS = {
     'sector-rotation':   { module: './agents/sector-rotation',   group: 'sector' },
     'flow-divergence':   { module: './agents/flow-divergence',   group: 'post-market' },
     'weekly-digest':     { module: './agents/weekly-digest',     group: 'weekly' },
-    'morning-brief':     { module: './agents/morning-brief',     group: 'morning' },
 
     // Phase 3: Meta Intelligence
     'confluence-detector': { module: './agents/confluence-detector', group: 'meta' }

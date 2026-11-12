@@ -1,0 +1,26 @@
+[
+  {
+    "timestamp": "2026-11-12T13:30:34.118Z",
+    "status": "failed",
+    "type": "agent-alert",
+    "target": "NOT_SET",
+    "error": "env_not_configured",
+    "preview": "🟡 FLOW DIVERGENCE — EUPHORIA CHECK\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📅 12 Nov 2026\n\nFII buying but DII"
+  },
+  {
+    "timestamp": "2026-11-12T13:30:34.115Z",
+    "status": "failed",
+    "type": "agent-alert",
+    "target": "NOT_SET",
+    "error": "env_not_configured",
+    "preview": "🟢 FII MEGA BUY\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📅 12 Nov 2026\n\n📊 Today's Institutional Flows:\n  FII "
+  },
+  {
+    "timestamp": "2026-11-12T13:30:34.110Z",
+    "status": "failed",
+    "type": "agent-alert",
+    "target": "NOT_SET",
+    "error": "env_not_configured",
+    "preview": "⚡ REGIME SHIFT DETECTED\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n🟠 MILD BEARISH → 🟡 MILD BULLISH\n\n📊 What cha"
+  }
+]

@@ -90,7 +90,7 @@ Complete institutional flow archive with:
 NSDL Fortnightly FPI Allocation data with:
 
 - **Methodology Explainer** — How SEBI/NSDL sector data is calculated
-- **24 Sector Cards** — AUM %, FII Ownership %, sparkline mini-charts, 1Y Flow & Momentum Alpha
+- **24 Sector Cards** — AUM %, flow streak, sparkline mini-charts, 1Y flow and flow as a share of holdings
 - **Zoom Modal** — Click any sector card for a full-screen chart with 24-fortnight trend history, stat pills (1Y Flow, AUM Weight, FII Ownership, Fortnight Flow), hover tooltips
 - **Interactive Sector Chart** — Toggleable Bar / Line / Scatter views
 - **Sort Modes** — Total AUM, Fortnight Δ, 1Y Net Flow, A-Z
@@ -107,7 +107,7 @@ Comprehensive documentation covering:
 - **Dashboard Architecture** — 5-tab system overview
 - **Data Sources** — NSE TRDREQ, NSDL FPI Reports, BSE Classification
 - **Methodology** — How FII/DII data is extracted and processed
-- **Formulas** — Flow Strength Meter, Momentum Alpha, Streak calculations
+- **Formulas** — Flow Strength Meter, flow-vs-holdings, streak calculations
 - **Export Tools** — Screenshot, CSV, Post to 𝕏
 
 ![Docs Tab](public/screenshots/06_docs.png)

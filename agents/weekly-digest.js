@@ -8,10 +8,10 @@
 //   - Sector rotation highlights
 //   - Regime classification
 //   - Flow divergence status
-// FORMAT: Structured Telegram digest
+// FORMAT: Structured digest
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getHistory, fmtCr, fmtDate,
     REGIME_EMOJI, REGIME_LABELS
 } = require('./agent-utils');
@@ -175,19 +175,9 @@ async function run() {
     const weekKey = `${istNow.getFullYear()}-W${getISOWeek(istNow)}`;
     let alertsSent = 0;
     if (state.last_digest_week !== weekKey) {
-        // The Friday cron in server.js broadcasts the rich digest to the channel
-        // + subscribers right after this run — only send this plain copy when a
-        // separate admin chat is configured, to avoid double-posting the channel
-        const adminChat = process.env.TELEGRAM_CHAT_ID;
-        const channel = process.env.TELEGRAM_CHANNEL_ID;
-        if (adminChat && adminChat !== channel) {
-            const alert = buildDigestAlert(digest);
-            const result = await sendTelegramAlert(alert);
-            if (result?.sent) alertsSent++;
-        }
         console.log(`[${AGENT_NAME}] 📋 Weekly digest compiled (${digest.tradingDays} days, FII: ${fmtCr(digest.weeklyFII)})`);
     } else {
-        console.log(`[${AGENT_NAME}] Digest already sent for ${weekKey} — skipping send`);
+        console.log(`[${AGENT_NAME}] Digest already compiled for ${weekKey}`);
     }
 
     // Update state

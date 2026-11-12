@@ -156,8 +156,8 @@ async function migrate() {
         const batch = sectors.map(s => ({
             name: s.name,
             aum_pct: s.aumPct || 0,
-            fii_own: s.fiiOwn || 0,
-            alpha: s.alpha || 0,
+            fii_own: 0 /* retired */,
+            alpha: 0 /* retired */,
             fortnight_cr: s.fortnightCr || 0,
             history_cr: s.historyCr || [],
             date_code: s.dateCode || null

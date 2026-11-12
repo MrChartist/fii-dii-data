@@ -10,7 +10,7 @@
 // One-shot alert per extreme event per day
 
 const {
-    getState, setState, sendTelegramAlert,
+    getState, setState, deliverAlert,
     getLatestEntry, fmtCr, fmtDate
 } = require('./agent-utils');
 
@@ -110,7 +110,7 @@ async function run() {
         const headline = newEvents[0].label;
         const allLabels = newEvents.map(e => e.label);
         const alert = buildFlowAlert(headline, latest, allLabels);
-        const sendResult = await sendTelegramAlert(alert);
+        const sendResult = await deliverAlert(alert);
         if (sendResult?.sent) alertsSent++;
 
         console.log(`[${AGENT_NAME}] 🚨 ${newEvents.length} extreme flow event(s) detected for ${latest.date}`);

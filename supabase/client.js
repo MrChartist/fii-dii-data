@@ -195,8 +195,8 @@ async function upsertSectors(sectors) {
     const batch = sectors.map(sector => ({
         name: sector.name,
         aum_pct: sector.aumPct || 0,
-        fii_own: sector.fiiOwn || 0,
-        alpha: sector.alpha || 0,
+        fii_own: 0 /* retired */,
+        alpha: 0 /* retired */,
         fortnight_cr: sector.fortnightCr || 0,
         history_cr: sector.historyCr || [],
         date_code: sector.dateCode || null,
