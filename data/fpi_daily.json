@@ -1,20 +1,20 @@
 {
-  "fetched_at": "2026-04-23T23:00:01.747Z",
+  "fetched_at": "2026-11-12T13:34:39.439Z",
   "source": "latest",
   "rows": [
     {
-      "date": "23-Apr-2026",
-      "equity_net": 14497.08,
-      "debt_net": 1103.58,
-      "hybrid_net": 37.68,
-      "total_net": 15638.34
+      "date": "12-Nov-2026",
+      "equity_net": 14693.72,
+      "debt_net": 1295.24,
+      "hybrid_net": 44.45,
+      "total_net": 16028.21
     }
   ],
   "latest": {
-    "date": "23-Apr-2026",
-    "equity_net": 14497.08,
-    "debt_net": 1103.58,
-    "hybrid_net": 37.68,
-    "total_net": 15638.34
+    "date": "12-Nov-2026",
+    "equity_net": 14693.72,
+    "debt_net": 1295.24,
+    "hybrid_net": 44.45,
+    "total_net": 16028.21
   }
 }

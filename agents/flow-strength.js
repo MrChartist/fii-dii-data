@@ -110,8 +110,8 @@ async function run() {
         const headline = newEvents[0].label;
         const allLabels = newEvents.map(e => e.label);
         const alert = buildFlowAlert(headline, latest, allLabels);
-        await sendTelegramAlert(alert);
-        alertsSent++;
+        const sendResult = await sendTelegramAlert(alert);
+        if (sendResult?.sent) alertsSent++;
 
         console.log(`[${AGENT_NAME}] 🚨 ${newEvents.length} extreme flow event(s) detected for ${latest.date}`);
     }

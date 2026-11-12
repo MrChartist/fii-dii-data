@@ -75,7 +75,7 @@ async function migrate() {
                 fii_idx_put_short: h.fii_idx_put_short || 0,
                 fii_idx_put_net: h.fii_idx_put_net || 0,
                 pcr: h.pcr || 0,
-                sentiment_score: h.sentiment_score || 50,
+                sentiment_score: h.sentiment_score ?? 50,
                 source: h._source || 'migration'
             }));
 

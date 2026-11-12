@@ -133,11 +133,14 @@ async function run() {
     }
 
     // Fetch VIX (non-critical — defaults to 0 if unavailable)
-    const vix = await fetchVIX();
+    // A failed quote must not read as "VIX = 0 (calm)": that flips the regime
+    // and fires a bogus transition alert, then another one back on the next run.
+    const state = getState(AGENT_NAME);
+    let vix = await fetchVIX();
+    if (!vix) vix = state.vix || 0;
 
     // Classify
     const regime = classifyRegime(history, vix);
-    const state = getState(AGENT_NAME);
     const previousRegime = state.regime || 'NEUTRAL';
     const transitioned = regime !== previousRegime;
     let alertsSent = 0;
@@ -145,9 +148,11 @@ async function run() {
     // Calculate metrics for state + alerts
     const fiiCumulative = history.reduce((sum, d) => sum + d.fii_net, 0);
     const diiCumulative = history.reduce((sum, d) => sum + d.dii_net, 0);
-    const absorptionPct = Math.abs(fiiCumulative) > 0
-        ? Math.round(Math.abs(diiCumulative) / Math.abs(fiiCumulative) * 100)
+    const absorptionPct = (fiiCumulative < 0 && diiCumulative > 0)
+        ? Math.round(diiCumulative / -fiiCumulative * 100)
         : 0;
+    let fiiBuyStreak = 0;
+    for (const d of history) { if (d.fii_net > 0) fiiBuyStreak++; else break; }
 
     let fiiSellStreak = 0;
     for (const day of history) {
@@ -170,8 +175,8 @@ async function run() {
     // Alert on transition
     if (transitioned) {
         const alert = buildTransitionAlert(previousRegime, regime, metrics);
-        await sendTelegramAlert(alert);
-        alertsSent++;
+        const sendResult = await sendTelegramAlert(alert);
+        if (sendResult?.sent) alertsSent++;
         console.log(`[${AGENT_NAME}] ⚡ Regime transition: ${previousRegime} → ${regime}`);
     } else {
         console.log(`[${AGENT_NAME}] Regime unchanged: ${regime}`);
@@ -182,7 +187,7 @@ async function run() {
         regime,
         since: transitioned ? (history[0]?.date || '') : (state.since || history[0]?.date || ''),
         previous_regime: previousRegime,
-        fii_streak: fiiSellStreak > 0 ? -fiiSellStreak : (history[0]?.fii_net > 0 ? 1 : 0),
+        fii_streak: fiiSellStreak > 0 ? -fiiSellStreak : fiiBuyStreak,
         dii_absorption_pct: absorptionPct,
         vix,
         recommendation: RECOMMENDATIONS[regime],

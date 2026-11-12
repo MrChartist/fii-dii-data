@@ -59,8 +59,10 @@ function analyzeSectors(sectors) {
 
     // Sort by fortnight change
     const sorted = [...analysis].sort((a, b) => b.fortnightChange - a.fortnightChange);
-    const topInflows = sorted.slice(0, 5);
-    const topOutflows = sorted.slice(-5).reverse();
+    // Only genuine inflows/outflows — a quiet fortnight must not list a
+    // negative or zero-flow sector under "top inflows"
+    const topInflows = sorted.filter(s => s.fortnightChange > 0).slice(0, 5);
+    const topOutflows = sorted.filter(s => s.fortnightChange < 0).slice(-5).reverse();
 
     // Significant rotations
     const significantMoves = analysis.filter(s =>
@@ -152,8 +154,8 @@ async function run() {
         // New sector data detected — send alert
         if (rotation.significantMoves.length > 0 || rotation.sustainedExits.length > 0) {
             const alert = buildRotationAlert(rotation);
-            await sendTelegramAlert(alert);
-            alertsSent++;
+            const sendResult = await sendTelegramAlert(alert);
+            if (sendResult?.sent) alertsSent++;
             console.log(`[${AGENT_NAME}] 🏦 Sector rotation detected: ${rotation.significantMoves.length} significant moves`);
         }
     } else {

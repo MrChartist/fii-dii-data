@@ -17,7 +17,7 @@ async function run() {
     const flowDiv = getState('flow-divergence');
     
     if (!latest) {
-        return { error: 'No latest data available for morning brief' };
+        throw new Error('No latest data available for morning brief');
     }
 
     let tgMessages;

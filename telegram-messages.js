@@ -105,7 +105,21 @@ function buildCashFlowMessage(data, regime, streak, flowStrength) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. F&O DERIVATIVES POSITIONING
 // ─────────────────────────────────────────────────────────────────────────────
+// 1 → "1st", 22 → "22nd", 91 → "91st", 11 → "11th"
+function ord(n) {
+    const v = Math.round(Number(n) || 0), t = v % 100;
+    const suf = (t >= 11 && t <= 13) ? 'th' : (['th', 'st', 'nd', 'rd'][v % 10] || 'th');
+    return `${v}${suf}`;
+}
+
 function buildDerivativesMessage(data) {
+    // NSE publishes participant OI later than cash. An all-zero row would
+    // otherwise print invented signals ("PCR 0 — Extreme Fear", "LONG HEAVY").
+    const faoPresent = (data.fii_idx_fut_long || 0) !== 0 || (data.fii_idx_fut_short || 0) !== 0 || (data.pcr || 0) > 0;
+    if (!faoPresent) {
+        return `${BRAND} · <b>F&O Positioning</b>\n📅 <i>${data.date}</i>\n${LINE}\n\n` +
+            `⏳ F&O participant data for this session is not published yet. NSE releases it later in the evening — try /fno again in a while.` + footer();
+    }
     const pcr = data.pcr || 0;
     const sentScore = data.sentiment_score || 0;
 
@@ -187,8 +201,8 @@ function buildSectorMessage(sectorData, rotationState) {
     if (!sectors.length) return null;
 
     const sorted = [...sectors].sort((a, b) => b.equity_net_inr - a.equity_net_inr);
-    const topInflows = sorted.slice(0, 5);
-    const topOutflows = sorted.slice(-5).reverse();
+    const topInflows = sorted.filter(s => s.equity_net_inr > 0).slice(0, 5);
+    const topOutflows = sorted.filter(s => s.equity_net_inr < 0).slice(-5).reverse();
     const totalAuc = sectors.reduce((s, x) => s + (x.equity_auc_inr || 0), 0);
     const totalNet = sectors.reduce((s, x) => s + (x.equity_net_inr || 0), 0);
 
@@ -312,23 +326,23 @@ function buildDivergenceMessage(divState, data) {
     if (signal === 'CONTRARIAN_BULLISH') {
         msg += `🟢 <b>CONTRARIAN BULLISH SIGNAL</b>\n\n`;
         msg += `FII is selling aggressively, but DII absorption exceeds the selling pressure. `;
-        msg += `This divergence is at the <b>${pct}th percentile</b> vs 30-day history — historically, `;
+        msg += `This divergence is at the <b>${ord(pct)} percentile</b> vs 30-day history — historically, `;
         msg += `such extremes have preceded upward reversals.\n\n`;
     } else if (signal === 'PANIC_MODE') {
         msg += `🔴 <b>PANIC MODE</b>\n\n`;
         msg += `Both FII and DII are selling simultaneously — institutional support has withdrawn. `;
-        msg += `Divergence sits at the <b>${pct}th percentile</b> vs 30-day history. `;
+        msg += `Divergence sits at the <b>${ord(pct)} percentile</b> vs 30-day history. `;
         msg += `Such joint selling phases historically carry elevated downside risk.\n\n`;
     } else if (signal === 'EUPHORIA_CHECK') {
         msg += `🟡 <b>EUPHORIA CHECK</b>\n\n`;
-        msg += `Both FII and DII are buying aggressively at the same time. `;
-        msg += `Divergence is at the <b>${pct}th percentile</b> — broad institutional euphoria can mark `;
+        msg += `FIIs are buying aggressively while DIIs sell into the rally. `;
+        msg += `Divergence is at the <b>${ord(pct)} percentile</b> — foreign-led euphoria without domestic support can mark `;
         msg += `short-term tops; watch for exhaustion.\n\n`;
     }
 
     msg += `<b>📊 SIGNAL METRICS</b>\n`;
     msg += `    ├ Divergence: ₹${Math.abs(divState.today_divergence || 0).toLocaleString('en-IN')} Cr\n`;
-    msg += `    ├ Percentile: <b>${pct}th</b> (vs 30-day history)\n`;
+    msg += `    ├ Percentile: <b>${ord(pct)}</b> (vs 30-day history)\n`;
     msg += `    ├ DII Absorption: <b>${abs}%</b>\n`;
     msg += `    ├ FII 30d Avg: ${fmtCr(divState.avg_fii_30d || 0)}\n`;
     msg += `    └ DII 30d Avg: ${fmtCr(divState.avg_dii_30d || 0)}\n`;
@@ -380,7 +394,7 @@ function buildMorningBriefMessage(latest, regime, streak, flowDiv) {
 
     // Active signal
     if (flowDiv && flowDiv.last_signal && flowDiv.last_signal !== 'NONE') {
-        msg += `\n    ⚡ Active Signal: <b>${flowDiv.last_signal.replace(/_/g, ' ')}</b> (${flowDiv.divergence_percentile}th pctl)\n`;
+        msg += `\n    ⚡ Active Signal: <b>${flowDiv.last_signal.replace(/_/g, ' ')}</b> (${ord(flowDiv.divergence_percentile || 0)} pctl)\n`;
     }
 
     msg += `\n${THIN}\n`;

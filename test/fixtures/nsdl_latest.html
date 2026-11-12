@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><title>
+	Latest (Daily Trends in FPI Investments)
+</title>
+    
+    
+    
+        
+</head>
+<body>
+    <link href="https://www.fpi.nsdl.co.in/web/Css/nsdl.css?ref=20180306" rel="stylesheet" />
+
+    
+    <form method="post" action="./Latest.aspx" id="frmLatest">
+<div class="aspNetHidden">
+
+
+
+</div>
+
+
+
+
+<div class="aspNetHidden">
+
+	
+	
+</div>
+        <div class="mainWrapper">
+            
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+<div class="main_header position_R">
+			<div class="fL" style="background:#f5ecc4;height:100px;width:165px;">
+				<a href="https://www.fpi.nsdl.co.in/web/Default.aspx" ><img  class="mL5 mT25" src="https://www.fpi.nsdl.co.in/web/Images/nsdl_logo.png" alt="NSDL logo" height="52" width="152" /></a>
+			</div>
+			<div id="HeaderControl_fpilogo" class="fL mL20 mT50" style="display:;">
+				<a href="https://www.fpi.nsdl.co.in/web/Default.aspx"><img src="https://www.fpi.nsdl.co.in/web/Images/subhead_new.png" alt="NSDL Logo"  /></a>
+			</div>
+    		<div id="HeaderControl_tradelogo" class="fL mL20 mT50" style="display:none;">
+				<a href="https://www.fpi.nsdl.co.in/web/Default.aspx"><img src="https://www.fpi.nsdl.co.in/web/Images/subhead_new1.png" alt="NSDL Logo"  /></a>
+			</div>
+    
+			<div class="fR mT45 w350">
+				<div id="HeaderControl_dvHlinks" class="fL mR5 tabs01 mT5">
+					
+                    <div id="HeaderControl_headmenu">
+						<div class="tabslist"><a class="tabslist" href="https://www.fpi.nsdl.co.in/web/Reports/ReportsListing.aspx">FPI Investments</a></div>
+						<div class="pp1" style="color:floralwhite">|</div>
+                        <div class="tabslist"><a class="tabslist" title="Foreign Investment Limit Monitoring(FILM)" href="https://www.fpi.nsdl.co.in/web/Reports/ForeignInvestmentLimitMonitoringListing.aspx">Foreign Investment Limit Monitoring</a> </div>
+						<div class="pp1" style="color:floralwhite">|</div>
+						<div class="tabslist"> <a class="tabslist" href="https://www.fpi.nsdl.co.in/web/HomePage/FrmHomePage.aspx">Common Application Form</a></div>
+                        <div style="clear:both;"></div>
+					</div>
+                   
+				 </div>
+				
+				<div id="HeaderControl_dvLogin" class="fL mR5"><a id="HeaderControl_btnLogin" href="javascript:__doPostBack(&#39;HeaderControl$btnLogin&#39;,&#39;&#39;)"><img src="https://www.fpi.nsdl.co.in/web/Images/login.png" height="38" width="63" alt="Login" /></a></div>
+                
+				<div class="clr"></div>
+                <div class="position_A clr fontAdjust" id="sizer">
+					<div class="display_B mT4 s11 b clrYellow fL">Font Size :</div>
+					<a title="Decrease text size" href="#" class="decrease mT5 display_B fL"><img alt="" src="https://www.fpi.nsdl.co.in/web/Images/Sm_A.png"></a>
+					<a title="Restore default font-sizes" href="#" class="reset mT4 display_B fL"><img alt="" src="https://www.fpi.nsdl.co.in/web/Images/Md_A.png"></a>
+					<a title="Increase text size" href="#" class="increase mT4 display_B fL"><img alt="" src="https://www.fpi.nsdl.co.in/web/Images/Bg_A.png"></a>
+				</div>
+			</div>
+			<div class="clr"></div>
+		</div>
+
+ 
+            
+            <div id="mainContent" class="main_content">
+                
+
+<div style="padding-bottom:10px;border-bottom:1px solid #edeeee;"><!-- Breadcrumbs -->
+    <div class="fL">
+	    <div id="BrdControl_dvBreadcrumbs" class="tabs03"><ul><li><a href='https://www.fpi.nsdl.co.in/web/Default.aspx'>Home</a></li><li><a href='https://www.fpi.nsdl.co.in/web/Reports/ReportsListing.aspx'>FPI Investments</a></li><li><span class='last s12'>View Report</span></li></ul></div>
+    </div>
+    <div class="clr"></div>
+</div>
+
+                <div class="heading01 mT10">Latest</div>
+                <div class="" style="background: url(&#39;../Images/top_arrow.png&#39;) no-repeat 30px 1px; padding-top: 6px; height: 5px;">
+                    <!--height:8px; -->
+                    <div style="border-bottom: 3px solid #4d4d4d; padding-bottom: 2px;"></div>
+                </div>
+
+                
+
+                <div class="mT20">
+                    <input type="button" id="btnPrint" value="Print" onclick="PrintData()" style="background-color: #0099FF; border: solid;display:none;" />&nbsp;&nbsp;
+                    <a id="btnExcel" class="mL10" style="text-decoration:none;float:right;" onclick="ExportDIVtoExcel();" href="javascript:__doPostBack(&#39;btnExcel&#39;,&#39;&#39;)">
+					    <div class="gry_left01"></div>
+					    <div class="gry_center01 btn_Text">Export to Excel</div>
+					    <div class="gry_right01"></div>
+					    <div class="clr"></div>
+				    </a>
+                    
+                    <div id="wcfService"></div>
+                </div>
+                <div id="rpt" class="mT10"><table cellspacing='0' cellpadding='0' width='100%' class='tbls01'><tr><th  style='font-size:9pt;background-color:white;text-align:center;' colspan='9'><br/>Stock exchanges compile the provisional FII/FPI trade data on the basis of information provided by trading members during trading activities on T day. The data in respect of confirmed FII/FPI trades is compiled on the basis of reports submitted to depositories by Custodians constitutes trades conducted by FIIs/FPIs on and up to the previous trading day(s).<br/><br/></th></tr><tr><th style='text-align:center;font-size:10pt;color:blue;' colspan='9'>Daily Trends in FPI Investments on 12-Nov-2026</th></tr><tr><th align='center' width='100px'>Reporting <br/>Date</th><th>Debt/Debt-VRR/Equity/Hybrid</th><th nowrap>Investment Route</th><th>Gross Purchases(Rs. Crore)</th><th>Gross Sales (Rs. Crore)</th><th>Net Investment (Rs. Crore)</th><th>Net Investment US($) million</th><th>Conversion <br/>(1 USD TO INR)*</th></tr><tr><td rowspan='25'>12-Nov-2026</td><td rowspan='3'>Equity</td><td>Stock Exchange</td><td align='right'>32887.51</td><td align='right'>18208.79</td><td align='right'>14678.72</td><td align='right'>1564.77</td><td rowspan='25'> Rs.93.8075</td></tr><tr><td>Primary market & others</td><td align='right'>15.00</td><td align='right'>0.00</td><td align='right'>15.00</td><td align='right'>1.60</td></tr><tr><td>Sub-total</td><td align='right'>32902.51</td><td align='right'>18208.79</td><td align='right'>14693.72</td><td align='right'>1566.37</td></tr><tr><td rowspan='3'>Debt-General Limit</td><td>Stock Exchange</td><td align='right'>717.30</td><td align='right'>270.46</td><td align='right'>446.84</td><td align='right'>47.63</td></tr><tr><td>Primary market & others</td><td align='right'>0.00</td><td align='right'>1.19</td><td align='right'>(1.19)</td><td align='right'>(0.13)</td></tr><tr><td>Sub-total</td><td align='right'>717.30</td><td align='right'>271.65</td><td align='right'>445.65</td><td align='right'>47.50</td></tr><tr><td rowspan='3'>Debt-VRR</td><td>Stock Exchange</td><td align='right'>24.73</td><td align='right'>217.81</td><td align='right'>(193.08)</td><td align='right'>(20.58)</td></tr><tr><td>Primary market & others</td><td align='right'>20.00</td><td align='right'>0.14</td><td align='right'>19.86</td><td align='right'>2.12</td></tr><tr><td>Sub-total</td><td align='right'>44.73</td><td align='right'>217.95</td><td align='right'>(173.22)</td><td align='right'>(18.46)</td></tr><tr><td rowspan='3'>Debt-FAR</td><td>Stock Exchange</td><td align='right'>2368.61</td><td align='right'>1345.80</td><td align='right'>1022.81</td><td align='right'>109.03</td></tr><tr><td>Primary market & others</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Sub-total</td><td align='right'>2368.61</td><td align='right'>1345.80</td><td align='right'>1022.81</td><td align='right'>109.03</td></tr><tr><td rowspan='3'>Hybrid</td><td>Stock Exchange</td><td align='right'>95.23</td><td align='right'>60.37</td><td align='right'>34.86</td><td align='right'>3.72</td></tr><tr><td>Primary market & others</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Sub-total</td><td align='right'>95.23</td><td align='right'>60.37</td><td align='right'>34.86</td><td align='right'>3.72</td></tr><tr><td rowspan='6'>Mutual Funds</td><td>Equity schemes</td><td align='right'>3.83</td><td align='right'>0.04</td><td align='right'>3.79</td><td align='right'>0.40</td></tr><tr><td>Debt schemes</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Hybrid schemes</td><td align='right'>1.29</td><td align='right'>0.00</td><td align='right'>1.29</td><td align='right'>0.14</td></tr><tr><td>Solution oriented schemes</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Other schemes</td><td align='right'>4.51</td><td align='right'>0.00</td><td align='right'>4.51</td><td align='right'>0.48</td></tr><tr><td>Sub-total</td><td align='right'>9.63</td><td align='right'>0.04</td><td align='right'>9.59</td><td align='right'>1.02</td></tr><tr><td rowspan='4'>AIFs</td><td>Stock Exchange</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Primary market & others</td><td align='right'>0.00</td><td align='right'>5.20</td><td align='right'>(5.20)</td><td align='right'>(0.55)</td></tr><tr><td>Sub-total</td><td align='right'>0.00</td><td align='right'>5.20</td><td align='right'>(5.20)</td><td align='right'>(0.55)</td></tr><tr class='total' align='right'><td>Total</td><td>36138.01</td><td>20109.80</td><td>16028.21</td><td>1708.63</td></tr><tr><td align='center' colspan='8'><br/><tr><td align='center' colspan='8'><a onclick='fiiNote()' style='cursor:pointer;'><i style=font-weight:bold;font-size:10pt;>Note</i></a></td></tr></table><div id='chartdiv' style='height: 291px; width: 320px'></div><div id='chartdiv1' style='height: 291px; width: 55%; margin-left: 420px; margin-top: -290px;'></div><br /><table cellspacing='0' cellpadding='0' width='100%' class='tbls01'><tr><th style='text-align:center;font-size:10pt;color:blue;' colspan='8'>Daily Trends in FPI Derivative Trades on 12-Nov-2026</tr></th><tr><th align='center' rowspan='3'>Reporting Date</th><th align='center' rowspan='3'>Derivative Products</th><th align='center' rowspan='2' colspan='2'>Buy</th><th align='center' rowspan='2' colspan='2'>Sell</th><tr><th align='center' colspan='2'>Open Interest at the</br>end of the date</th></tr><tr><th align='center' nowrap>No. of Contracts</th><th align='center' nowrap>Amount in Crore</th><th align='center' nowrap>No. of Contracts</th><th align='center' nowrap>Amount in Crore</th><th align='center' nowrap>No. of Contracts</th><th align='center' nowrap>Amount in Crore</th></tr><tr><td rowspan='9'>12-Nov-2026</td><td>Index Futures</td><td align='right'>46926.00</td><td align='right'>7947.67</td><td align='right'>26621.00</td><td align='right'>4614.95</td><td align='right'>184954.00</td><td align='right'>31349.07</td></tr><tr><td>Index Options</td><td align='right'>14517699.00</td><td align='right'>2397478.52</td><td align='right'>14566762.00</td><td align='right'>2404333.50</td><td align='right'>4317978.00</td><td align='right'>720848.91</td></tr><tr><td>Stock Futures</td><td align='right'>340168.00</td><td align='right'>23625.43</td><td align='right'>339541.00</td><td align='right'>23901.06</td><td align='right'>6115686.00</td><td align='right'>410110.74</td></tr><tr><td>Stock Options</td><td align='right'>419990.00</td><td align='right'>30494.35</td><td align='right'>432056.00</td><td align='right'>31475.38</td><td align='right'>1494678.00</td><td align='right'>103262.88</td></tr><tr><td>Interest Rate Futures</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>3800.00</td><td align='right'>73.63</td></tr><tr><td>Currency Futures</td><td align='right'>39706.00</td><td align='right'>373.30</td><td align='right'>40168.00</td><td align='right'>377.43</td><td align='right'>295656.00</td><td align='right'>2.78</td></tr><tr><td>Currency Options</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td><td align='right'>0.00</td></tr><tr><td>Commodity Futures</td><td align='right'>31129.00</td><td align='right'>967.87</td><td align='right'>31951.00</td><td align='right'>1000.72</td><td align='right'>75722.00</td><td align='right'>1900.55</td></tr><tr><td>Commodity Options</td><td align='right'>976181.00</td><td align='right'>24327.39</td><td align='right'>1024879.00</td><td align='right'>25311.32</td><td align='right'>396422.00</td><td align='right'>13303.08</td></tr><tr><td align='center' colspan='8'><br/> The above report is compiled on the basis of reports submitted to depositories by NSE, BSE,MSEI,NCDEX and MCX on 12-Nov-2026 and constitutes FPIs trading /position of the previous trading day.<br/></td></tr></table></div>
+            </div>
+
+
+
+            
+
+            
+<link href="../Css/footer.css" rel="stylesheet" />
+
+
+<div class="main_footer">
+	
+		<div class="fR mR10 mT10">
+			
+
+            <div class="bottonlinks">
+              
+			    <a href="#" id="contactuslink" data-target="#modalcontactus" tabindex="19" onkeypress="" style="cursor: pointer;" data-toggle="modal" class="footlink">Contact Us:</a>
+				
+				
+				
+				
+                <a href="#" id="termsadncondition" tabindex="21" data-target="#modaltermscondition" style="cursor: pointer;" data-toggle="modal" class="footlink">Terms and Condition:</a>
+
+				  <a href="#" id="termsprivacylink" tabindex="22" data-target="#modalprivacypolicy" style="cursor: pointer;" data-toggle="modal" class="footlink">Privacy Policy:</a>
+                  
+
+                  
+			    
+				
+            <a href="#" tabindex="25" onclick="Feedback();" class="footlink">Feedback</a>
+			</div>
+
+
+			<div class="clr"></div>
+			<div class="s11 clraaa aR">
+			<label id="FooterControl_lblReleaseDate" name="lblReleaseDate">Website updated as on: 01 Oct 2026</label>&nbsp &nbsp &nbsp &nbsp	© Copyright 2014, National Securities Depository Ltd. (NSDL)
+			</div>
+		</div>
+
+     <div class="fL mL10 mT10" >
+            <div class="bottonlinks">
+               <a href="https://twitter.com/NSDL_Depository" target="_blank"> <img style="margin: 0px;border-radius: 15px;" alt="twitter" src="../Images/25X25PixTweet.jpg"></a>
+               <a href="https://www.linkedin.com/company/national-securities-depository-limited/" target="_blank"> <img style="border-radius: 15px;" alt="linkedin" src="../Images/25X25PixIn.jpg"></a>
+            <a href="https://www.facebook.com/NSDL-National-Securities-Depository-Limited-101492279013266" target="_blank"> <img style="border-radius: 15px;" alt="facebook" src="../Images/25X25PixFB.jpg"></a>     
+            <a href="https://www.youtube.com/c/NSDLNationalSecuritiesDepositoryLimited" target="_blank"> <img style="border-radius: 15px;" alt="youtube" src="../Images/25X25PixYt.jpg"></a>
+                
+                 <//div>
+            </div>
+
+      
+          <div class="modal fade" id="modalcontactus" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background:#882017;color:white;">
+                                 <button type="button" class="close" data-dismiss="modal">X</button>
+                  
+
+                        <h3 style="margin-top:0px;margin-bottom:0px"><b>Contact Us</b></h3>
+                    </div>
+                    <div class="modal-header">
+                       
+                        <h4 style="margin-top:0px;margin-bottom:0px"><b>For any queries, you can contact NSDL at</b></h4>
+                    </div>
+                    <div class="modal-body" >
+
+                        
+                          <b>Address:</b><br />
+                          <!--Changed by Shivani on 26/08/2024-->
+                          National Securities Depository Limited<br />
+                          3rd Floor, Naman Chamber,<br />
+                          Plot C-32, G-Block,<br />
+                          Bandra Kurla Complex,<br />
+                          Bandra East, Mumbai - 400 013,<br />
+                          India.<br />
+                          Tel No: 91-22-6944-8400/ 8500<br />
+                          
+                          Email :<span style="color:blue;">fpiassist[at]nsdl[dot]com</span>
+                        
+                        
+                          
+                     
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+            
+
+            <div class="modal fade" id="modalprivacypolicy" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background:#882017;color:white;">
+                       <button type="button" class="close" data-dismiss="modal">X</button>
+                        <h3><b>Privacy Policy</b></h3>
+                    </div>
+                    <div class="modal-header">
+                      
+                        <h4><b>Privacy Policy for the use of <strong>FPI</strong> services of NSDL by Shareholder.</b></h4>
+                    </div>
+                    <div class="modal-body" style="list-style: none;">
+
+                        <ul>
+                          <li>1.<strong>Definitions:</strong> In this document, the following words and phrases have the meaning set opposite them unless the context indicates otherwise:</li>
+                          <li style="margin-left: 2%;">A) <strong>NSDL:</strong> means National Securities Depository Limited, a company incorporated under the Companies Act, 1956 and registered under the Depositories Act, 1996 with Securities and Exchange Board of India.</li>
+                          <li style="margin-left: 2%;">B) <strong>FPI:</strong> means a process for recording votes by the members/shareholders using a computer based machine to display an electronic ballot and to record the vote and also the number of votes polled in favour or against such that the entire voting gets registered and counted in an electronic registry in a centralized server.</li>
+                          <li style="margin-left: 2%;">C) <strong>Internet:</strong> refers to a Global network of inter connected Computers network, each using Transmission Control Protocol / Internet Protocol or any combination thereof or such other standard network inter connection protocols as is used to transmit data that is directly or indirectly delivered to a Computer.</li>
+                          <li style="margin-left: 2%;">D) <strong>User:</strong> The User could be anyone from the following entities:-</li>
+                          <li style="margin-left: 3%;">i) Issuer who places its resolutions for voting on the <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">ii) Registrar &amp; Transfer Agent through which the Issuer has established electronic connectivity with NSDL and has been authorised by the Issuer for taking necessary actions on its behalf in respect of activities pertaining to <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">iii) Scrutinizer appointed by the Issuer to conduct the voting process in <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">iv) Shareholders who casts vote in the <strong>FPI</strong> system of NSDL.</li>
+                          <li>2.<strong>Disclosure of Personal Information:</strong> The User agrees that NSDL may hold and process its Personal Information on computer or otherwise in connection with <strong>FPI</strong> as well as for statistical analysis. The User also agrees that NSDL may disclose, in strict confidence, to other institutions, such Personal Information as may be reasonably necessary for reasons inclusive of but not limited to the following:</li>
+                          <li style="margin-left: 3%;">i) In compliance with a legal directive &amp; For fraud prevention purposes, etc.</li>
+                          <li>3.<strong>Proprietary Rights:</strong> The User acknowledges that the software underlying <strong>FPI</strong> is the legal property of NSDL. The permission given by NSDL to access&nbsp;&nbsp;&nbsp; <strong>FPI</strong> will not convey any proprietary or ownership rights in the above software. The User shall not attempt to modify, translate, disassemble, decompile or reverse engineer the software underlying <strong>FPI</strong> or create any derivative product based on that software.</li>
+                          <li>4.<strong>Safeguards:</strong></li>
+                          <li style="margin-left: 3%;">i) The User agrees to commit the password/PIN to memory and not record it in any form including written or electronic.</li>
+                             <li style="margin-left: 3%;">ii) The User agrees to keep the password/PIN confidential and to not reveal the same to any third party.</li>
+                             <li style="margin-left: 3%;">iii) The User agrees that he shall not let any unauthorised person to have access to computers or leave them unattended while accessing<strong>FPI</strong>.</li>
+                          <li>5.<strong>Voting in respect of Demat Accounts/folios held in joint name:</strong> User agrees that in respect of account/folios held in joint holding pattern, the vote casted using the User ID and password sent to first holder shall be recognized on behalf of all joint holders of that account/folio.</li>
+                          <li>6.<strong>Recognition of Vote:</strong> User agrees that by casting the vote through <strong>FPI</strong>, the same shall only be considered for voting, where any other means of voting is also undertaken by him.</li>
+                          <li>7.<strong>Change of Terms and Conditions:</strong> NSDL reserves the absolute discretion to amend or supplement any of the terms and conditions at any time and will endeavour to give prior notice of fifteen days wherever feasible for such changes. NSDL may introduce new services within <strong>FPI</strong> from time to time. The existence and availability of the new services will be notified to the Users as and when they become available. The changed terms and conditions applicable to the new features in <strong>FPI</strong> shall be communicated to the User. By using these new services, the User agrees to be bound by the revised terms and conditions as may be applicable. The availability / non-availability of a particular service shall be advised either through email, web page of NSDL or written communication.</li>
+                          <li>8.<strong>Non-Transferability:</strong> The right of use of <strong>FPI</strong> service of NSDL is not transferable by a User under any circumstance and shall be used by the concerned User only.</li>
+                          <li>9.<strong>Liability:</strong> NSDL shall not be liable to the User for any transactions executed on the <strong>FPI</strong> system and the User hereby fully indemnifies and hold NSDL harmless against any action, suit, proceeding initiated against it or any loss, cost or damage incurred by it as a result thereof. NSDL shall under no circumstance be liable to the User if the access is not available in the desired manner for reasons including but not limited to natural calamities, legal restraints, faults in the telecommunication network or network failure or any other reason beyond the control of NSDL. Under no circumstance shall NSDL be liable for damages whatsoever whether such damages are direct, indirect, incidental, consequential and irrespective whether any claim is based on loss of revenue, interruption of business, or any loss of any character or nature and whether sustained by the user or any other person. Illegal or improper use of <strong>FPI</strong> system of NSDL shall render the User liable for payment of financial charges as decided by NSDL and may result in suspension of the access to <strong>FPI</strong> system.</li>
+                          <li>10.<strong>Governing Law:</strong> These terms and conditions and / or the use of the services provided through <strong>FPI</strong> shall be governed by the laws of the Republic of India and no other nation. The User agrees to submit to the exclusive jurisdiction of the Courts located in Mumbai, India as regards any claims or matters arising under these terms and conditions. Any dispute or difference arising between the User shall be settled by mutual consultation / discussion, failing which the same shall be referred to arbitration. The Arbitration proceedings shall be governed and conducted in accordance with the Indian Arbitration and Conciliation Act, 1996 and that the Arbitration proceedings shall take place in Mumbai. NSDL accepts no liability whatsoever, direct or indirect, for non-compliance with the laws of any country other than the Republic of India. The mere fact that <strong>FPI</strong> can be accessed through Internet by a User in a country other than India shall not be interpreted to imply that the laws of the said country govern these terms and conditions.</li>
+                          <li><strong>Disclaimer:</strong></li>
+                          <li style="margin-left: 4%;">All information provided in <strong>FPI</strong> system of NSDL is obtained by NSDL from sources believed to be accurate and reliable. Access and use of <strong>FPI</strong> system of NSDL is a confirmation by the Users that they have understood and accepted the terms and conditions for using this service. All proprietary rights in the information received shall remain the property of NSDL. Reproduction, redistribution and transmission of any information contained on the website are strictly prohibited. The information provided in <strong>FPI</strong> system is without warranty of any kind and NSDL shall not be liable for any damages, losses (direct or indirect) whatsoever, due to disruption or non availability of any of services/facility(ies) due to maintenance/technical fault/error or any failure in telecommunication network or any error in any software or hardware systems. NSDL makes no representation and disclaims all express, implied and statutory warranties of any kind to the user and/or any third party including warranties as to accuracy, timeliness, completeness, merchantability or fitness of the information for any particular purpose.</li>
+                          </ul>                    
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+            
+            <div class="modal fade" id="modaltermscondition" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background:#882017;color:white;">
+               <button type="button" class="close" data-dismiss="modal">X</button>
+                        <h3><b>Terms &amp; Conditions</b></h3>
+                    </div>
+                    <div class="modal-header">
+                      
+                        <h4><b>Terms and Conditions for the use of <strong>FPI</strong> services of NSDL by Shareholder.</b></h4>
+                    </div>
+                    <div class="modal-body" style="list-style: none;">
+
+                        <ul>
+                          <li>1.<strong>Definitions:</strong> In this document, the following words and phrases have the meaning set opposite them unless the context indicates otherwise:</li>
+                          <li style="margin-left: 2%;">A) <strong>NSDL:</strong> means National Securities Depository Limited, a company incorporated under the Companies Act, 1956 and registered under the Depositories Act, 1996 with Securities and Exchange Board of India.</li>
+                          <li style="margin-left: 2%;">B) <strong>FPI:</strong> means a process for recording votes by the members/shareholders using a computer based machine to display an electronic ballot and to record the vote and also the number of votes polled in favour or against such that the entire voting gets registered and counted in an electronic registry in a centralized server.</li>
+                          <li style="margin-left: 2%;">C) <strong>Internet:</strong> refers to a Global network of inter connected Computers network, each using Transmission Control Protocol / Internet Protocol or any combination thereof or such other standard network inter connection protocols as is used to transmit data that is directly or indirectly delivered to a Computer.</li>
+                          <li style="margin-left: 2%;">D) <strong>User:</strong> The User could be anyone from the following entities:-</li>
+                          <li style="margin-left: 3%;">i) Issuer who places its resolutions for voting on the <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">ii) Registrar &amp; Transfer Agent through which the Issuer has established electronic connectivity with NSDL and has been authorised by the Issuer for taking necessary actions on its behalf in respect of activities pertaining to <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">iii) Scrutinizer appointed by the Issuer to conduct the voting process in <strong>FPI</strong> system of NSDL.</li>
+                          <li style="margin-left: 3%;">iv) Shareholders who casts vote in the <strong>FPI</strong> system of NSDL.</li>
+                          <li>2.<strong>Disclosure of Personal Information:</strong> The User agrees that NSDL may hold and process its Personal Information on computer or otherwise in connection with <strong>FPI</strong> as well as for statistical analysis. The User also agrees that NSDL may disclose, in strict confidence, to other institutions, such Personal Information as may be reasonably necessary for reasons inclusive of but not limited to the following:</li>
+                          <li style="margin-left: 3%;">i) In compliance with a legal directive &amp; For fraud prevention purposes, etc.</li>
+                          <li>3.<strong>Proprietary Rights:</strong> The User acknowledges that the software underlying <strong>FPI</strong> is the legal property of NSDL. The permission given by NSDL to access&nbsp;&nbsp;&nbsp; <strong>FPI</strong> will not convey any proprietary or ownership rights in the above software. The User shall not attempt to modify, translate, disassemble, decompile or reverse engineer the software underlying <strong>FPI</strong> or create any derivative product based on that software.</li>
+                          <li>4.<strong>Safeguards:</strong></li>
+                          <li style="margin-left: 3%;">i) The User agrees to commit the password/PIN to memory and not record it in any form including written or electronic.</li>
+                             <li style="margin-left: 3%;">ii) The User agrees to keep the password/PIN confidential and to not reveal the same to any third party.</li>
+                             <li style="margin-left: 3%;">iii) The User agrees that he shall not let any unauthorised person to have access to computers or leave them unattended while accessing<strong>FPI</strong>.</li>
+                          <li>5.<strong>Voting in respect of Demat Accounts/folios held in joint name:</strong> User agrees that in respect of account/folios held in joint holding pattern, the vote casted using the User ID and password sent to first holder shall be recognized on behalf of all joint holders of that account/folio.</li>
+                          <li>6.<strong>Recognition of Vote:</strong> User agrees that by casting the vote through <strong>FPI</strong>, the same shall only be considered for voting, where any other means of voting is also undertaken by him.</li>
+                          <li>7.<strong>Change of Terms and Conditions:</strong> NSDL reserves the absolute discretion to amend or supplement any of the terms and conditions at any time and will endeavour to give prior notice of fifteen days wherever feasible for such changes. NSDL may introduce new services within <strong>FPI</strong> from time to time. The existence and availability of the new services will be notified to the Users as and when they become available. The changed terms and conditions applicable to the new features in <strong>FPI</strong> shall be communicated to the User. By using these new services, the User agrees to be bound by the revised terms and conditions as may be applicable. The availability / non-availability of a particular service shall be advised either through email, web page of NSDL or written communication.</li>
+                          <li>8.<strong>Non-Transferability:</strong> The right of use of <strong>FPI</strong> service of NSDL is not transferable by a User under any circumstance and shall be used by the concerned User only.</li>
+                          <li>9.<strong>Liability:</strong> NSDL shall not be liable to the User for any transactions executed on the <strong>FPI</strong> system and the User hereby fully indemnifies and hold NSDL harmless against any action, suit, proceeding initiated against it or any loss, cost or damage incurred by it as a result thereof. NSDL shall under no circumstance be liable to the User if the access is not available in the desired manner for reasons including but not limited to natural calamities, legal restraints, faults in the telecommunication network or network failure or any other reason beyond the control of NSDL. Under no circumstance shall NSDL be liable for damages whatsoever whether such damages are direct, indirect, incidental, consequential and irrespective whether any claim is based on loss of revenue, interruption of business, or any loss of any character or nature and whether sustained by the user or any other person. Illegal or improper use of <strong>FPI</strong> system of NSDL shall render the User liable for payment of financial charges as decided by NSDL and may result in suspension of the access to <strong>FPI</strong> system.</li>
+                          <li>10.<strong>Governing Law:</strong> These terms and conditions and / or the use of the services provided through <strong>FPI</strong> shall be governed by the laws of the Republic of India and no other nation. The User agrees to submit to the exclusive jurisdiction of the Courts located in Mumbai, India as regards any claims or matters arising under these terms and conditions. Any dispute or difference arising between the User shall be settled by mutual consultation / discussion, failing which the same shall be referred to arbitration. The Arbitration proceedings shall be governed and conducted in accordance with the Indian Arbitration and Conciliation Act, 1996 and that the Arbitration proceedings shall take place in Mumbai. NSDL accepts no liability whatsoever, direct or indirect, for non-compliance with the laws of any country other than the Republic of India. The mere fact that <strong>FPI</strong> can be accessed through Internet by a User in a country other than India shall not be interpreted to imply that the laws of the said country govern these terms and conditions.</li>
+                          <li><strong>Disclaimer:</strong></li>
+                          <li style="margin-left: 4%;">All information provided in <strong>FPI</strong> system of NSDL is obtained by NSDL from sources believed to be accurate and reliable. Access and use of <strong>FPI</strong> system of NSDL is a confirmation by the Users that they have understood and accepted the terms and conditions for using this service. All proprietary rights in the information received shall remain the property of NSDL. Reproduction, redistribution and transmission of any information contained on the website are strictly prohibited. The information provided in <strong>FPI</strong> system is without warranty of any kind and NSDL shall not be liable for any damages, losses (direct or indirect) whatsoever, due to disruption or non availability of any of services/facility(ies) due to maintenance/technical fault/error or any failure in telecommunication network or any error in any software or hardware systems. NSDL makes no representation and disclaims all express, implied and statutory warranties of any kind to the user and/or any third party including warranties as to accuracy, timeliness, completeness, merchantability or fitness of the information for any particular purpose.</li>
+                            </ul>                    
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+          <div class="modal fade" id="aboutus" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background:#882017;color:white;">
+                       <button type="button" class="close" data-dismiss="modal"">X</button>
+                        <h3><b>About Us</b></h3>
+                    </div>
+                    <div class="modal-header">
+                      
+                        <h4><b>For any queries, you can contact NSDL at</b></h4>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+
+            <div class="modal fade" id="help" role="dialog" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header" style="background:#882017;color:white;">
+                        <button type="button" class="close" data-dismiss="modal" style="color:white;"><b>&times;</b></button>
+                        <h3><b>Help</b></h3>
+                    </div>
+                    <div class="modal-header">
+                      
+                        <h4><b>For any queries, you can contact NSDL at</b></h4>
+                    </div>
+                    
+                </div>
+
+            </div>
+        </div>
+</div>
+        </div>
+    </form>
+</body>
+</html>

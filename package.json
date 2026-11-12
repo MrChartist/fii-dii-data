@@ -16,7 +16,9 @@
     "agent:digest": "node agent-runner.js --agent=weekly-digest",
     "agent:all": "node agent-runner.js --agent=all",
     "test:ui": "node scripts/verify_terminal_ui.js",
-    "build": "echo 'No build step required'"
+    "build": "echo 'No build step required'",
+    "test": "node --test test/*.test.js && node scripts/verify_terminal_ui.js",
+    "test:data": "node --test test/data-integrity.test.js"
   },
   "engines": {
     "node": ">=18.0.0"

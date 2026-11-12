@@ -1,10 +1,10 @@
 [
   {
     "name": "Financial Services",
-    "aumPct": 30.5,
-    "fortnightCr": -28824,
-    "oneYearCr": -28430,
-    "lastDate": "Apr152026",
+    "aumPct": 30.9,
+    "fortnightCr": -8634,
+    "oneYearCr": -37064,
+    "lastDate": "Oct312026",
     "fiiOwn": 19.8,
     "alpha": -2.4,
     "historyCr": [
@@ -20,63 +20,16 @@
       -5402,
       6175,
       2243,
-      -28824
-    ]
-  },
-  {
-    "name": "Oil, Gas & Consumable Fuels",
-    "aumPct": 7.9,
-    "fortnightCr": -1197,
-    "oneYearCr": 21124,
-    "lastDate": "Apr152026",
-    "fiiOwn": 15.5,
-    "alpha": -0.8,
-    "historyCr": [
-      -1502,
-      728,
-      1086,
-      8043,
-      2992,
-      4177,
-      3001,
-      -645,
-      -549,
-      -391,
-      4678,
-      703,
-      -1197
-    ]
-  },
-  {
-    "name": "Automobile and Auto Components",
-    "aumPct": 7.5,
-    "fortnightCr": -7691,
-    "oneYearCr": -6778,
-    "lastDate": "Apr152026",
-    "fiiOwn": 7.4,
-    "alpha": 0.7,
-    "historyCr": [
-      1908,
-      1733,
-      1560,
-      -593,
-      -385,
-      -1257,
-      611,
-      -2656,
-      -500,
-      -3094,
-      511,
-      3075,
-      -7691
+      -28824,
+      -8634
     ]
   },
   {
     "name": "Healthcare",
-    "aumPct": 7.1,
-    "fortnightCr": -2202,
-    "oneYearCr": -22696,
-    "lastDate": "Apr152026",
+    "aumPct": 7.7,
+    "fortnightCr": -5497,
+    "oneYearCr": -28193,
+    "lastDate": "Oct312026",
     "fiiOwn": 18.7,
     "alpha": 4.2,
     "historyCr": [
@@ -92,15 +45,41 @@
       -5113,
       -1051,
       722,
-      -2202
+      -2202,
+      -5497
+    ]
+  },
+  {
+    "name": "Automobile and Auto Components",
+    "aumPct": 7.2,
+    "fortnightCr": -6533,
+    "oneYearCr": -13311,
+    "lastDate": "Oct312026",
+    "fiiOwn": 7.4,
+    "alpha": 0.7,
+    "historyCr": [
+      1908,
+      1733,
+      1560,
+      -593,
+      -385,
+      -1257,
+      611,
+      -2656,
+      -500,
+      -3094,
+      511,
+      3075,
+      -7691,
+      -6533
     ]
   },
   {
     "name": "Capital Goods",
-    "aumPct": 6.6,
-    "fortnightCr": -749,
-    "oneYearCr": 16404,
-    "lastDate": "Apr152026",
+    "aumPct": 7.2,
+    "fortnightCr": -3886,
+    "oneYearCr": 12518,
+    "lastDate": "Oct312026",
     "fiiOwn": 12.9,
     "alpha": -3.5,
     "historyCr": [
@@ -116,15 +95,41 @@
       2435,
       8032,
       4103,
-      -749
+      -749,
+      -3886
+    ]
+  },
+  {
+    "name": "Oil, Gas & Consumable Fuels",
+    "aumPct": 6.5,
+    "fortnightCr": -3680,
+    "oneYearCr": 17444,
+    "lastDate": "Oct312026",
+    "fiiOwn": 15.5,
+    "alpha": -0.8,
+    "historyCr": [
+      -1502,
+      728,
+      1086,
+      8043,
+      2992,
+      4177,
+      3001,
+      -645,
+      -549,
+      -391,
+      4678,
+      703,
+      -1197,
+      -3680
     ]
   },
   {
     "name": "Information Technology",
-    "aumPct": 6.3,
-    "fortnightCr": -611,
-    "oneYearCr": -32307,
-    "lastDate": "Apr152026",
+    "aumPct": 6,
+    "fortnightCr": 2599,
+    "oneYearCr": -29708,
+    "lastDate": "Oct312026",
     "fiiOwn": 24.1,
     "alpha": 5.8,
     "historyCr": [
@@ -140,15 +145,16 @@
       240,
       -10956,
       -5993,
-      -611
+      -611,
+      2599
     ]
   },
   {
     "name": "Telecommunication",
-    "aumPct": 5.5,
-    "fortnightCr": -1747,
-    "oneYearCr": 5893,
-    "lastDate": "Apr152026",
+    "aumPct": 5.2,
+    "fortnightCr": -3928,
+    "oneYearCr": 1965,
+    "lastDate": "Oct312026",
     "fiiOwn": 19,
     "alpha": 1.5,
     "historyCr": [
@@ -164,87 +170,16 @@
       -3280,
       -106,
       -1775,
-      -1747
-    ]
-  },
-  {
-    "name": "Fast Moving Consumer Goods",
-    "aumPct": 4.7,
-    "fortnightCr": -3016,
-    "oneYearCr": -31533,
-    "lastDate": "Apr152026",
-    "fiiOwn": 14.8,
-    "alpha": -1.9,
-    "historyCr": [
-      -1092,
-      -3110,
-      -2992,
-      -1267,
-      -2042,
-      -2722,
-      -1419,
-      -4425,
-      -6128,
-      -1369,
-      -1182,
-      -769,
-      -3016
-    ]
-  },
-  {
-    "name": "Metals & Mining",
-    "aumPct": 4.1,
-    "fortnightCr": -4041,
-    "oneYearCr": 20414,
-    "lastDate": "Apr152026",
-    "fiiOwn": 15.6,
-    "alpha": 2.1,
-    "historyCr": [
-      1394,
-      446,
-      1395,
-      1752,
-      -109,
-      -571,
-      807,
-      2177,
-      2689,
-      8837,
-      3279,
-      2359,
-      -4041
-    ]
-  },
-  {
-    "name": "Power",
-    "aumPct": 3.8,
-    "fortnightCr": -832,
-    "oneYearCr": -5289,
-    "lastDate": "Apr152026",
-    "fiiOwn": 11.2,
-    "alpha": -1.9,
-    "historyCr": [
-      -2107,
-      -586,
-      1103,
-      -138,
-      -2512,
-      -103,
-      -2118,
-      -635,
-      -340,
-      -1527,
-      3272,
-      1234,
-      -832
+      -1747,
+      -3928
     ]
   },
   {
     "name": "Consumer Services",
-    "aumPct": 3.6,
-    "fortnightCr": -2672,
-    "oneYearCr": -19832,
-    "lastDate": "Apr152026",
+    "aumPct": 4.4,
+    "fortnightCr": -1931,
+    "oneYearCr": -21763,
+    "lastDate": "Oct312026",
     "fiiOwn": 10.9,
     "alpha": 1.7,
     "historyCr": [
@@ -260,39 +195,91 @@
       -3561,
       1066,
       -5238,
-      -2672
+      -2672,
+      -1931
     ]
   },
   {
-    "name": "Consumer Durables",
-    "aumPct": 2.5,
-    "fortnightCr": -1175,
-    "oneYearCr": -7871,
-    "lastDate": "Apr152026",
-    "fiiOwn": 8.6,
-    "alpha": 1,
+    "name": "Fast Moving Consumer Goods",
+    "aumPct": 4.1,
+    "fortnightCr": -8172,
+    "oneYearCr": -39705,
+    "lastDate": "Oct312026",
+    "fiiOwn": 14.8,
+    "alpha": -1.9,
     "historyCr": [
-      -326,
-      -3301,
-      -213,
-      -1543,
-      -1379,
-      1273,
-      401,
-      198,
-      322,
-      -1372,
-      -434,
-      -322,
-      -1175
+      -1092,
+      -3110,
+      -2992,
+      -1267,
+      -2042,
+      -2722,
+      -1419,
+      -4425,
+      -6128,
+      -1369,
+      -1182,
+      -769,
+      -3016,
+      -8172
+    ]
+  },
+  {
+    "name": "Metals & Mining",
+    "aumPct": 4,
+    "fortnightCr": -3693,
+    "oneYearCr": 16721,
+    "lastDate": "Oct312026",
+    "fiiOwn": 15.6,
+    "alpha": 2.1,
+    "historyCr": [
+      1394,
+      446,
+      1395,
+      1752,
+      -109,
+      -571,
+      807,
+      2177,
+      2689,
+      8837,
+      3279,
+      2359,
+      -4041,
+      -3693
+    ]
+  },
+  {
+    "name": "Power",
+    "aumPct": 3.6,
+    "fortnightCr": -1732,
+    "oneYearCr": -7021,
+    "lastDate": "Oct312026",
+    "fiiOwn": 11.2,
+    "alpha": -1.9,
+    "historyCr": [
+      -2107,
+      -586,
+      1103,
+      -138,
+      -2512,
+      -103,
+      -2118,
+      -635,
+      -340,
+      -1527,
+      3272,
+      1234,
+      -832,
+      -1732
     ]
   },
   {
     "name": "Services",
-    "aumPct": 2.2,
-    "fortnightCr": -1300,
-    "oneYearCr": -7811,
-    "lastDate": "Apr152026",
+    "aumPct": 2.8,
+    "fortnightCr": 262,
+    "oneYearCr": -7549,
+    "lastDate": "Oct312026",
     "fiiOwn": 12.8,
     "alpha": 0.7,
     "historyCr": [
@@ -308,15 +295,41 @@
       -384,
       1286,
       205,
-      -1300
+      -1300,
+      262
+    ]
+  },
+  {
+    "name": "Consumer Durables",
+    "aumPct": 2.7,
+    "fortnightCr": -586,
+    "oneYearCr": -8457,
+    "lastDate": "Oct312026",
+    "fiiOwn": 8.6,
+    "alpha": 1,
+    "historyCr": [
+      -326,
+      -3301,
+      -213,
+      -1543,
+      -1379,
+      1273,
+      401,
+      198,
+      322,
+      -1372,
+      -434,
+      -322,
+      -1175,
+      -586
     ]
   },
   {
     "name": "Chemicals",
-    "aumPct": 1.7,
-    "fortnightCr": -457,
-    "oneYearCr": -2602,
-    "lastDate": "Apr152026",
+    "aumPct": 1.8,
+    "fortnightCr": 41,
+    "oneYearCr": -2561,
+    "lastDate": "Oct312026",
     "fiiOwn": 10.2,
     "alpha": 0.9,
     "historyCr": [
@@ -332,15 +345,16 @@
       71,
       642,
       -394,
-      -457
+      -457,
+      41
     ]
   },
   {
     "name": "Construction",
     "aumPct": 1.7,
-    "fortnightCr": -6179,
-    "oneYearCr": -370,
-    "lastDate": "Apr152026",
+    "fortnightCr": -1224,
+    "oneYearCr": -1594,
+    "lastDate": "Oct312026",
     "fiiOwn": 13.9,
     "alpha": -0.3,
     "historyCr": [
@@ -356,15 +370,16 @@
       -1077,
       1745,
       2742,
-      -6179
+      -6179,
+      -1224
     ]
   },
   {
     "name": "Realty",
-    "aumPct": 1.4,
-    "fortnightCr": -2560,
-    "oneYearCr": -9296,
-    "lastDate": "Apr152026",
+    "aumPct": 1.7,
+    "fortnightCr": -578,
+    "oneYearCr": -9874,
+    "lastDate": "Oct312026",
     "fiiOwn": 13.3,
     "alpha": -1.6,
     "historyCr": [
@@ -380,15 +395,41 @@
       -1956,
       786,
       -52,
-      -2560
+      -2560,
+      -578
+    ]
+  },
+  {
+    "name": "Construction Materials",
+    "aumPct": 1.4,
+    "fortnightCr": -564,
+    "oneYearCr": -7992,
+    "lastDate": "Oct312026",
+    "fiiOwn": 10.1,
+    "alpha": 2,
+    "historyCr": [
+      -1193,
+      -220,
+      -94,
+      -1198,
+      -369,
+      -492,
+      -1125,
+      -549,
+      -481,
+      -376,
+      378,
+      -57,
+      -1652,
+      -564
     ]
   },
   {
     "name": "Others",
-    "aumPct": 0.8,
-    "fortnightCr": 1967,
-    "oneYearCr": 7414,
-    "lastDate": "Apr152026",
+    "aumPct": 0.4,
+    "fortnightCr": -372,
+    "oneYearCr": 7042,
+    "lastDate": "Oct312026",
     "fiiOwn": 8.9,
     "alpha": -0.8,
     "historyCr": [
@@ -404,15 +445,16 @@
       486,
       1473,
       231,
-      1967
+      1967,
+      -372
     ]
   },
   {
     "name": "Textiles",
     "aumPct": 0.3,
-    "fortnightCr": -142,
-    "oneYearCr": -1897,
-    "lastDate": "Apr152026",
+    "fortnightCr": -59,
+    "oneYearCr": -1956,
+    "lastDate": "Oct312026",
     "fiiOwn": 8.4,
     "alpha": 0.3,
     "historyCr": [
@@ -428,15 +470,16 @@
       -99,
       -67,
       -33,
-      -142
+      -142,
+      -59
     ]
   },
   {
     "name": "Media, Entertainment & Publication",
     "aumPct": 0.2,
-    "fortnightCr": 40,
-    "oneYearCr": -664,
-    "lastDate": "Apr152026",
+    "fortnightCr": 252,
+    "oneYearCr": -412,
+    "lastDate": "Oct312026",
     "fiiOwn": 14.2,
     "alpha": 0.6,
     "historyCr": [
@@ -452,39 +495,16 @@
       -55,
       134,
       -62,
-      40
-    ]
-  },
-  {
-    "name": "Construction Materials",
-    "aumPct": 0,
-    "fortnightCr": 0,
-    "oneYearCr": 0,
-    "lastDate": "Apr152026",
-    "fiiOwn": 10.1,
-    "alpha": 2,
-    "historyCr": [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
+      40,
+      252
     ]
   },
   {
     "name": "Diversified",
-    "aumPct": 0,
-    "fortnightCr": -21,
-    "oneYearCr": -407,
-    "lastDate": "Apr152026",
+    "aumPct": 0.1,
+    "fortnightCr": 43,
+    "oneYearCr": -364,
+    "lastDate": "Oct312026",
     "fiiOwn": 6.1,
     "alpha": -0.1,
     "historyCr": [
@@ -500,15 +520,16 @@
       5,
       -2,
       2,
-      -21
+      -21,
+      43
     ]
   },
   {
     "name": "Forest Materials",
     "aumPct": 0,
-    "fortnightCr": -13,
-    "oneYearCr": 12,
-    "lastDate": "Apr152026",
+    "fortnightCr": -50,
+    "oneYearCr": -38,
+    "lastDate": "Oct312026",
     "fiiOwn": 11.7,
     "alpha": 0.2,
     "historyCr": [
@@ -524,15 +545,16 @@
       12,
       30,
       8,
-      -13
+      -13,
+      -50
     ]
   },
   {
     "name": "Utilities",
     "aumPct": 0,
-    "fortnightCr": 3,
-    "oneYearCr": -120,
-    "lastDate": "Apr152026",
+    "fortnightCr": -34,
+    "oneYearCr": -154,
+    "lastDate": "Oct312026",
     "fiiOwn": 7.3,
     "alpha": 0.3,
     "historyCr": [
@@ -548,7 +570,8 @@
       24,
       -14,
       8,
-      3
+      3,
+      -34
     ]
   },
   {
@@ -556,10 +579,11 @@
     "aumPct": 0,
     "fortnightCr": 0,
     "oneYearCr": 0,
-    "lastDate": "Apr152026",
+    "lastDate": "Oct312026",
     "fiiOwn": 8.5,
     "alpha": 2.2,
     "historyCr": [
+      0,
       0,
       0,
       0,

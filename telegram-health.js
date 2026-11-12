@@ -23,6 +23,7 @@ const REQUIRED_ENV = {
 const RECOMMENDED_ENV = {
     TELEGRAM_CHAT_ID: 'Fallback chat target for agent-utils alerts (usually same as CHANNEL_ID)',
     TELEGRAM_BOT_USERNAME: 'Bot username for display/linking',
+    TELEGRAM_ADMIN_CHAT_ID: 'Private chat for watchdog/ops alerts (they are only logged without it)',
 };
 
 // ── 1. Boot Validator ────────────────────────────────────────────────────────
@@ -106,12 +107,18 @@ function saveDeliveryLog(log) {
 }
 
 function trackDelivery(entry) {
-    const log = loadDeliveryLog();
-    log.unshift({
-        timestamp: new Date().toISOString(),
-        ...entry
-    });
-    saveDeliveryLog(log);
+    // Bookkeeping must never turn a delivered message into a "failed" send
+    // (callers track inside the send's try block and would retry/duplicate).
+    try {
+        const log = loadDeliveryLog();
+        log.unshift({
+            timestamp: new Date().toISOString(),
+            ...entry
+        });
+        saveDeliveryLog(log);
+    } catch (e) {
+        console.warn('[TELEGRAM-HEALTH] Could not record delivery:', e.message);
+    }
 }
 
 // Track a successful delivery
@@ -215,11 +222,12 @@ async function getHealthReport(axios) {
 
 // ── 4. Admin Alert — Dead Man's Switch ───────────────────────────────────────
 // Sends a critical alert directly to the admin when something goes wrong.
-// Uses TELEGRAM_ADMIN_CHAT_ID (personal DM) or falls back to TELEGRAM_CHANNEL_ID.
+// Uses TELEGRAM_ADMIN_CHAT_ID (personal DM). There is deliberately no fallback
+// to the public channel — operational alerts must never reach subscribers.
 
 async function sendAdminAlert(message, axios) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
-    const adminId = process.env.TELEGRAM_ADMIN_CHAT_ID || process.env.TELEGRAM_CHANNEL_ID;
+    const adminId = process.env.TELEGRAM_ADMIN_CHAT_ID;
     if (!token || !adminId || !axios) {
         console.error('[WATCHDOG] Cannot send admin alert — missing token or admin chat ID');
         return false;
@@ -297,7 +305,7 @@ async function runWatchdog(axios) {
         try {
             const wh = await axios.get(`https://api.telegram.org/bot${token}/getWebhookInfo`, { timeout: 5000 });
             const info = wh.data.result;
-            if (info.url) {
+            if (info.url && process.env.TELEGRAM_USE_WEBHOOK !== '1') {
                 issues.push(`Webhook still active (${info.url}) — auto-deleting…`);
                 // Auto-heal: delete the webhook
                 console.warn('[WATCHDOG] Auto-healing: deleting stale webhook…');
@@ -361,18 +369,20 @@ async function runWatchdog(axios) {
         const { getAllStates } = require('./agents/agent-utils');
         const states = getAllStates();
         const staleAgents = [];
-        const STALE_THRESHOLD_HOURS = 72; // 3 days (allows for weekends)
+        const STALE_THRESHOLD_HOURS = 100; // Fri evening → Tue morning (weekend + one holiday)
+        // Agents that legitimately run less often than daily
+        const STALE_OVERRIDES = { 'weekly-digest': 8 * 24, 'sector-rotation': 20 * 24, 'confluence-detector': 20 * 24 };
 
         for (const [name, state] of Object.entries(states)) {
             if (state._updated_at) {
                 const staleHours = (Date.now() - new Date(state._updated_at).getTime()) / (1000 * 60 * 60);
-                if (staleHours > STALE_THRESHOLD_HOURS) {
+                if (staleHours > (STALE_OVERRIDES[name] || STALE_THRESHOLD_HOURS)) {
                     staleAgents.push(`${name}: ${Math.round(staleHours)}h`);
                 }
             }
         }
         if (staleAgents.length > 0) {
-            critical.push(`Stale agents (>${STALE_THRESHOLD_HOURS}h): ${staleAgents.join(', ')}`);
+            critical.push(`Stale agents: ${staleAgents.join(', ')}`);
         }
     } catch { /* ignore */ }
 
