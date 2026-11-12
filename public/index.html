@@ -103,17 +103,40 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://fii-diidata.mrchartist.com/#organization",
   "name": "Mr. Chartist",
+  "legalName": "Investology",
+  "alternateName": "Mr. Chartist — FII & DII Data",
+  "description": "SEBI Registered Research Analyst (INH000015297) publishing daily FII/DII institutional flow data, derivatives positioning and sector rotation for Indian equities.",
   "url": "https://mrchartist.com",
-  "logo": "https://mrchartist.com/fii-dii-data/brand/mr-chartist/symbol-black-512.png",
+  "logo": "https://fii-diidata.mrchartist.com/brand/mr-chartist/symbol-black-512.png",
+  "image": "https://fii-diidata.mrchartist.com/brand/share/og-fii-dii-data.png",
+  "email": "contact@mrchartist.com",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Office No. 19, 1st Floor, Poonam Estate Cluster II, Bldg No. 7, 8, 9, Opp. Surya Shopping Center, Mira Road East",
+    "addressLocality": "Thane",
+    "addressRegion": "Maharashtra",
+    "postalCode": "401107",
+    "addressCountry": "IN"
+  },
+  "areaServed": "IN",
+  "identifier": {
+    "@type": "PropertyValue",
+    "propertyID": "SEBI Research Analyst Registration",
+    "value": "INH000015297"
+  },
   "sameAs": [
     "https://twitter.com/mr_chartist",
+    "https://t.me/official_mrchartist",
     "https://github.com/MrChartist"
   ],
   "contactPoint": {
     "@type": "ContactPoint",
     "contactType": "customer service",
-    "url": "https://twitter.com/mr_chartist"
+    "email": "contact@mrchartist.com",
+    "url": "https://fii-diidata.mrchartist.com/contact.html",
+    "areaServed": "IN"
   }
 }
 </script>
@@ -167,6 +190,8 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 
 <!-- PWA / Installability -->
+<link rel="alternate" type="text/markdown" href="/index.md" title="Markdown version">
+<link rel="help" type="text/plain" href="/llms.txt" title="llms.txt">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#000000">
 <!-- Mobile Web App tags -->
@@ -200,7 +225,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=8">
+<link rel="stylesheet" href="/css/mc.css?v=9">
 <link rel="stylesheet" href="/css/mc-dashboard.css?v=8">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
 <script src="/js/mc-freshness.js?v=7"></script>
@@ -213,7 +238,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
   <div style="padding:40px; text-align:center; font-family:sans-serif; background:#000; color:#F5F4F1; min-height:100vh;">
-    <h1>FII &amp; DII Data India — Institutional Money Flow Tracker</h1>
+    <h2>FII &amp; DII Data India — Institutional Money Flow Tracker</h2>
     <p>This dashboard requires JavaScript to display live institutional flow data, interactive charts, heatmaps, and sector analytics.</p>
     <p>Please enable JavaScript in your browser to use the full dashboard experience.</p>
     <p><strong>Key Features:</strong> Real-time FII/DII flows, F&amp;O derivatives positioning, sector-wise FPI allocation, 45-day heatmaps, daily/weekly/monthly/annual flow matrices.</p>
@@ -4936,7 +4961,8 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
 
 </script>
 <script src="/js/mc-brand.js?v=6" defer></script>
-<script src="/js/mc-ui.js?v=6" defer></script>
+<script src="/js/mc-webmcp.js?v=1" defer></script>
+<script src="/js/mc-ui.js?v=9" defer></script>
 <script src="/js/mc-motion.js?v=6" defer></script>
 <script src="/js/mc-charts.js?v=8" defer></script>
 <script src="/js/mc-ranges.js?v=6" defer></script>
