@@ -1,20 +1,6 @@
 {
-  "fetched_at": "2026-11-12T20:32:36.539Z",
+  "fetched_at": "2026-11-13T17:45:35.351Z",
   "source": "latest",
-  "rows": [
-    {
-      "date": "12-Nov-2026",
-      "equity_net": 14693.72,
-      "debt_net": 1295.24,
-      "hybrid_net": 44.45,
-      "total_net": 16028.21
-    }
-  ],
-  "latest": {
-    "date": "12-Nov-2026",
-    "equity_net": 14693.72,
-    "debt_net": 1295.24,
-    "hybrid_net": 44.45,
-    "total_net": 16028.21
-  }
+  "rows": [],
+  "latest": null
 }
