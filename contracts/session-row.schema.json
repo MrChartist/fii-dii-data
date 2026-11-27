@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Session row (data/history.json item, data/latest.json)",
-  "description": "One NSE trading session. Figures in INR crore. F&O fields are 0 until NSE publishes participant OI (later than cash). Invariants: net = buy - sell (±1); date is DD-Mon-YYYY; one row per date; history sorted newest-first.",
+  "description": "One NSE trading session. Figures in INR crore. F&O fields are 0 until NSE publishes participant OI (later than cash). Invariants: net = buy - sell (\u00b11); date is DD-Mon-YYYY; one row per date; history sorted newest-first. Rows with _source \"mirror-groww\" were recovered from public mirrors (cross-checked) when NSE blocked the feed; F&O fields fill in later from NSE archives.",
   "type": "object",
   "required": [
     "date",
@@ -101,7 +101,8 @@
         "fetch-pipeline",
         "live-fetch",
         "historical-seed",
-        "backfill-estimated"
+        "backfill-estimated",
+        "mirror-groww"
       ]
     },
     "_updated_at": {
@@ -112,6 +113,10 @@
     },
     "_fao_backfilled_at": {
       "type": "string"
+    },
+    "_cross_checked": {
+      "type": "boolean",
+      "description": "mirror-groww rows: net figures agreed with Moneycontrol"
     }
   },
   "additionalProperties": true

@@ -34,13 +34,9 @@ jobs:
 
       - name: 📡 Fetch NSE FII/DII data
         id: fetch
-        env:
-          # Optional fallback when NSE blocks GitHub runners (see CLAUDE.md > Data feed)
-          LIVE_FEED_URL: ${{ secrets.LIVE_FEED_URL }}
-          LIVE_FEED_KEY: ${{ secrets.LIVE_FEED_KEY }}
         run: npm run fetch
-        # Script exits with code 1 on critical failure — this step will fail
-        # and prevent corrupt data from being committed.
+        # NSE blocks many cloud IPs: the script then recovers sessions from the
+        # Groww/Moneycontrol mirrors (cross-checked). It exits 1 only if every source fails.
 
       - name: 🏦 Refresh NSDL sector & FPI data
         # Fortnightly/daily NSDL files; a slow or blocked NSDL must not hold

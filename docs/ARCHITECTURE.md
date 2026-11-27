@@ -33,7 +33,7 @@ Components talk only through **files and HTTP shapes that are written down in `c
 - Browser↔server date logic is duplicated deliberately (`MCFresh` vs `lib/dates.js`); both are covered by tests — change both together.
 
 ## Known debts (ordered)
-1. NSE blocks GitHub runners; the real fix is running the feed on the live server (or a self-hosted runner). The live-server fallback is the stopgap.
+1. NSE blocks cloud IPs (CI and the live server). Mirrors (Groww + Moneycontrol) are the working fallback but are third-party; the durable fix is an NSE-reachable host (self-hosted runner on an Indian IP) so NSE stays the single authoritative source.
 2. `public/app/js/dashboard.js` (3.2k lines) is still one file: split per tab (`hero`, `fno`, `analytics`, `sectors`, `export`) with a tiny module loader.
 3. `mc-ui.js` §6 (live quotes) and footer links are product-specific inside the "reusable" kit (see `public/ui/README.md`).
 4. `server/routes/market.js` holds two in-memory caches inline; move them to `services/` when the Go API port starts.

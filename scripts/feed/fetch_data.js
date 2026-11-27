@@ -9,14 +9,8 @@ const CONFIG = {
     FAO_BASE: "https://nsearchives.nseindia.com/content/nsccl",
     // NSE blocks many cloud IPs by hanging, so fail fast: a blocked run used to burn
     // ~2.5 min on 25s x 3 timeouts and then lose the session for good.
-    TIMEOUTS: { cash: 12000, fao: 15000, live: 20000 },
+    TIMEOUTS: { cash: 12000, fao: 15000, mirror: 20000 },
     RETRY: { attempts: 2, baseDelayMs: 2000 },
-    // Optional fallback: our own live server (not IP-blocked by NSE). Set both as
-    // repo secrets/env: LIVE_FEED_URL=https://fii-diidata.mrchartist.com  LIVE_FEED_KEY=<one of API_KEYS>
-    LIVE_URL: (process.env.LIVE_FEED_URL || '').replace(/\/+$/, ''),
-    LIVE_KEY: process.env.LIVE_FEED_KEY || '',
-    HISTORY_MAX: 800,
-    DATA_DIR: path.join(process.cwd(), 'data'),
 };
 
 const HEADERS = {
@@ -33,7 +27,9 @@ let nseCookies = "";
 // ── JSON Storage (replaces SQLite) ──────────────────────────────────────────
 
 const { readJSON, writeJSON } = require('../../lib/store');
-const { NSE_DATE_RE, compare: compareDates } = require('../../lib/dates');
+const { NSE_DATE_RE, compare: compareDates, missingSessions, istToday, parse: parseDate, DAY } = require('../../lib/dates');
+const { fetchGroww } = require('./sources/groww');
+const { fetchMoneycontrol } = require('./sources/moneycontrol');
 
 // "14,967.82" → 14967.82 (parseFloat alone would stop at the comma and store 14)
 function num(v) {
@@ -300,16 +296,16 @@ async function backfillMissingFao(maxAttempts = 25) {
     const recent = [...history].sort((a, b) => compareDates(b.date, a.date));
     const filled = [];
     let attempts = 0, misses = 0;
-    if (!nseCookies) await refreshNSESession();
+    // The F&O archive host needs no NSE session cookies (www.nseindia.com is often unreachable from CI)
     for (const row of recent) {
-        if (!['fetch-pipeline', 'live-fetch'].includes(row._source) || rowHasFao(row)) continue;
+        if (!['fetch-pipeline', 'live-fetch', MIRROR_SOURCE].includes(row._source) || rowHasFao(row)) continue;
         if (attempts++ >= maxAttempts) break;
         // Several misses in a row means NSE is blocking us (or the files are
         // gone) — stop instead of grinding through every remaining date
         if (misses >= 4) break;
         let csv = null;
         try { csv = await fetchFaoOi(row.date); } catch { /* not published yet */ }
-        if (!csv) { misses++; if (misses === 1) await refreshNSESession(); continue; }
+        if (!csv) { misses++; continue; }
         misses = 0;
         const fao = parseFao(csv);
         if (applyFao(row, fao) && rowHasFao(row)) {
@@ -328,6 +324,17 @@ async function backfillMissingFao(maxAttempts = 25) {
         console.log(`[F&O BACKFILL] Filled F&O for: ${filled.join(', ')}`);
     }
     return filled;
+}
+
+const istStamp = () => new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: 'medium', timeStyle: 'short' }) + " IST";
+
+// Row with every numeric field present (F&O zeros until participant OI is published)
+function emptyRow() {
+    const z = {};
+    for (const side of ['fii', 'dii']) for (const k of ['buy', 'sell', 'net']) z[`${side}_${k}`] = 0;
+    for (const side of ['fii', 'dii']) for (const k of ['idx_fut', 'stk_fut']) for (const t of ['long', 'short', 'net']) z[`${side}_${k}_${t}`] = 0;
+    for (const k of ['idx_call', 'idx_put']) for (const t of ['long', 'short', 'net']) z[`fii_${k}_${t}`] = 0;
+    return { date: "", ...z, pcr: 0, sentiment_score: 50 };
 }
 
 // ── Transform data ───────────────────────────────────────────────────────────
@@ -372,7 +379,7 @@ async function transformData(rawCash, rawFaoCsv) {
         applyFao(out, parseFao(rawFaoCsv));
     }
 
-    out._updated_at = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: 'medium', timeStyle: 'short' }) + " IST";
+    out._updated_at = istStamp();
     out._source = "fetch-pipeline";
     return out;
 }
@@ -408,37 +415,44 @@ function saveToHistory(data) {
     writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
 }
 
-// ── Fallback: recover sessions from our own live server ──────────────────────
-// The NSE cash API only ever returns the LATEST session, so a blocked run loses
-// that day permanently. The live server keeps fetching from an unblocked IP and
-// serves its last 60 sessions; merge any validated session we do not have yet.
-// Rows already in the archive are never overwritten. Returns the dates added.
-async function recoverFromLiveServer() {
-    if (!CONFIG.LIVE_URL || !CONFIG.LIVE_KEY) return [];
-    let rows;
-    try {
-        const res = await axios.get(`${CONFIG.LIVE_URL}/api/history`, {
-            headers: { 'x-api-key': CONFIG.LIVE_KEY }, timeout: CONFIG.TIMEOUTS.live
-        });
-        rows = res.data;
-    } catch (err) {
-        console.warn(`  ⚠️ Live-server fallback unavailable: ${err.message}`);
-        return [];
-    }
-    if (!Array.isArray(rows)) return [];
+// ── Fallback: recover sessions from public mirrors ───────────────────────────
+// NSE's cash API only ever returns the LATEST session and blocks many cloud IPs,
+// so a blocked run used to lose that day for good. Groww (gross buy/sell/net) and
+// Moneycontrol (net) republish the same exchange figures for the last ~10 / ~30
+// sessions and are reachable from CI. A mirror row is accepted only if it
+//   1. passes validateData (net = buy - sell, all four legs > 0), and
+//   2. agrees with Moneycontrol's independent net figures (±0.02 Cr) when MC lists that date.
+// Existing rows are never overwritten. Returns the NEW rows added (newest first).
+const MIRROR_SOURCE = 'mirror-groww';
+const NET_TOLERANCE = 0.02;
+
+async function recoverFromMirrors(src = { fetchGroww, fetchMoneycontrol }) {
+    let grow = [], mc = [];
+    const [g, m] = await Promise.allSettled([src.fetchGroww(CONFIG.TIMEOUTS.mirror), src.fetchMoneycontrol(CONFIG.TIMEOUTS.mirror)]);
+    if (g.status === 'fulfilled') grow = g.value; else console.warn(`  ⚠️ Groww mirror unavailable: ${g.reason.message}`);
+    if (m.status === 'fulfilled') mc = m.value; else console.warn(`  ⚠️ Moneycontrol cross-check unavailable: ${m.reason.message}`);
+    if (!grow.length) return [];
+
+    const mcByDate = new Map(mc.map(r => [r.date, r]));
     const history = readJSON('history.json', [], true);
     const have = new Set(history.map(r => r.date));
     const added = [];
-    for (const r of rows) {
-        if (!validateData(r) || have.has(r.date)) continue;
-        if (!['fetch-pipeline', 'live-fetch'].includes(r._source)) r._source = 'live-fetch';
-        history.push(r); have.add(r.date); added.push(r.date);
+    for (const r of grow) {
+        if (have.has(r.date) || !validateData(r)) continue;
+        const ref = mcByDate.get(r.date);
+        if (ref && (Math.abs(ref.fii_net - r.fii_net) > NET_TOLERANCE || Math.abs(ref.dii_net - r.dii_net) > NET_TOLERANCE)) {
+            console.warn(`  ⚠️ ${r.date}: Groww and Moneycontrol disagree — skipped`);
+            continue;
+        }
+        const row = { ...emptyRow(), ...r, _updated_at: istStamp(), _source: MIRROR_SOURCE, _cross_checked: !!ref };
+        history.push(row); have.add(r.date); added.push(row);
     }
     if (added.length) {
         history.sort((a, b) => compareDates(b.date, a.date));
         writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
         writeJSON('latest.json', history[0]);
-        console.log(`[LIVE FALLBACK] Recovered sessions: ${added.join(', ')}`);
+        added.sort((a, b) => compareDates(b.date, a.date));
+        console.log(`[MIRROR] Recovered sessions: ${added.map(r => r.date).join(', ')}`);
     }
     return added;
 }
@@ -453,11 +467,12 @@ async function fetchAndProcessData() {
         try {
             rawCash = await fetchNSE();
         } catch (nseErr) {
-            // NSE blocked/unreachable → try our live server before giving up
-            const recovered = await recoverFromLiveServer();
+            // NSE blocked/unreachable → recover from the public mirrors before giving up
+            let recovered = [];
+            try { recovered = await recoverFromMirrors(); } catch (e) { console.warn("  ⚠️ Mirror recovery failed:", e.message); }
             if (recovered.length) {
-                logFetch({ success: true, date: recovered[0], action: "recovered-live", count: recovered.length });
-                return { date: recovered[0], _recovered: recovered };
+                logFetch({ success: true, date: recovered[0].date, action: "recovered-mirror", count: recovered.length });
+                return recovered[0];   // newest recovered session → announced/notified by the caller
             }
             throw nseErr;
         }
@@ -467,6 +482,18 @@ async function fetchAndProcessData() {
             logFetch({ success: true, action: "idle", reason: "no_data_date" });
             return null;
         }
+
+        // NSE gives only the latest session, so any session missed earlier is gone from NSE.
+        // If the last two weeks have weekday gaps (holidays included), ask the mirrors — cheap, cross-checked.
+        try {
+            const hist = readJSON('history.json', []);
+            const until = istToday(), since = new Date(+until - 14 * DAY);
+            const gaps = missingSessions(hist.map(r => r.date).filter(d => parseDate(d) >= since), { since, until });
+            if (gaps.length) {
+                const back = await recoverFromMirrors();
+                if (back.length) logFetch({ success: true, date: back[0].date, action: "recovered-mirror", count: back.length });
+            }
+        } catch (e) { console.warn("  ⚠️ Gap recovery skipped:", e.message); }
 
         // Recover F&O for any recent cash-only rows (NSE publishes it late).
         // Cheap no-op when nothing is missing.
@@ -535,4 +562,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { recoverFromLiveServer, validateData, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };
+module.exports = { recoverFromMirrors, validateData, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };

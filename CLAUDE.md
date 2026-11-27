@@ -29,10 +29,11 @@ Indian institutional-flow dashboard (FII/FPI + DII cash, F&O participant OI, NSD
 7. Data commits come from the workflow only; code commits must not touch `data/*.json` except deliberate repairs. Running agents locally modifies `data/agent_*.json` — `git checkout data/` afterwards.
 
 ## Data feed (why dates go stale)
-- NSE's cash API returns **only the latest session**; a blocked run loses that day unless recovered.
-- GitHub runners are often blocked by NSE (timeouts/522). Fallback: our live server's `/api/history`. Enable with repo secrets **`LIVE_FEED_URL`** (`https://fii-diidata.mrchartist.com`) and **`LIVE_FEED_KEY`** (one value of the server's `API_KEYS`). `recoverFromLiveServer()` in `scripts/feed/fetch_data.js` merges only validated, missing sessions.
-- F&O publishes later than cash; `backfillMissingFao()` fills it on later runs (also from the live server's 10 PM / 8 AM IST jobs).
-- `npm run gaps` lists missing weekday sessions (holidays appear too). Never fabricate rows.
+- **Source chain** (`scripts/feed/fetch_data.js`): NSE `fiidiiTradeReact` (authoritative, latest session only, **blocks cloud IPs incl. GitHub runners and our live server**) → public mirrors in `scripts/feed/sources/`: **Groww** (gross buy/sell/net, last ~10 sessions) cross-checked against **Moneycontrol** (net, last ~30). A mirror row is accepted only if net = buy − sell, all legs > 0, and Moneycontrol's net agrees (±0.02 Cr). Never overwrites an existing row; NSE data replaces a mirror row for the same date. Rows are tagged `_source: "mirror-groww"`.
+- Mirror recovery runs when NSE fails **and** when NSE works but the last 14 days have weekday gaps. Holidays show as gaps and are simply not found on the mirrors.
+- F&O (participant OI) comes from `nsearchives.nseindia.com` (reachable from CI), published later than cash; `backfillMissingFao()` fills it on later runs, including for mirror rows.
+- Mirror parsers key on cell *content*, not CSS classes; if a site changes markup the parser returns `[]` and the chain falls through (fixtures in `test/fixtures/`). Mirrors are third-party sites: keep request volume tiny (2 GETs per run) and check their terms before commercial use.
+- `npm run gaps` lists missing weekday sessions. Never fabricate rows; net-only older sessions (Moneycontrol, ~30 days) are NOT inserted because history requires gross buy/sell.
 
 ## Commands
 `npm start` · `npm test` · `npm run seo` · `npm run gaps` · `npm run fetch` · `npm run agent:all`
