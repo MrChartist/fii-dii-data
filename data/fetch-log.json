@@ -1,5 +1,11 @@
 [
   {
+    "ts": "2026-11-27T13:14:15.109Z",
+    "success": true,
+    "action": "idle",
+    "reason": "nse_blocked_no_new_sessions"
+  },
+  {
     "ts": "2026-11-27T08:49:32.075Z",
     "success": true,
     "action": "idle",
@@ -590,12 +596,6 @@
   },
   {
     "ts": "2026-08-20T10:47:56.321Z",
-    "success": true,
-    "date": "19-Aug-2026",
-    "action": "updated"
-  },
-  {
-    "ts": "2026-08-19T13:36:51.672Z",
     "success": true,
     "date": "19-Aug-2026",
     "action": "updated"
