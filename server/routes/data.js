@@ -41,11 +41,12 @@ module.exports = function mount(app) {
             // Map to the concise format the frontend expects
             const formatted = history.map(h => ({
                 d: h.date,
-                fb: h.fii_buy || 0,
-                fs: h.fii_sell || 0,
+                p: h._partial ? 1 : 0,   // 1 = net-only session: gross legs are null (unknown), not zero
+                fb: h._partial ? null : (h.fii_buy || 0),
+                fs: h._partial ? null : (h.fii_sell || 0),
                 fn: h.fii_net || 0,
-                db: h.dii_buy || 0,
-                ds: h.dii_sell || 0,
+                db: h._partial ? null : (h.dii_buy || 0),
+                ds: h._partial ? null : (h.dii_sell || 0),
                 dn: h.dii_net || 0,
                 fii_idx_fut_long: h.fii_idx_fut_long,
                 fii_idx_fut_short: h.fii_idx_fut_short,

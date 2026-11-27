@@ -39,8 +39,8 @@ function createViews({ getHistoryData, getSectorData }) {
     function session(r) {
         return {
             date: r.date,
-            fii_net_cr: r.fii_net, fii_buy_cr: r.fii_buy, fii_sell_cr: r.fii_sell,
-            dii_net_cr: r.dii_net, dii_buy_cr: r.dii_buy, dii_sell_cr: r.dii_sell,
+            fii_net_cr: r.fii_net, fii_buy_cr: r.fii_buy ?? null, fii_sell_cr: r.fii_sell ?? null,   // null = net-only session (gross unknown)
+            dii_net_cr: r.dii_net, dii_buy_cr: r.dii_buy ?? null, dii_sell_cr: r.dii_sell ?? null,
             combined_net_cr: Math.round((r.fii_net + r.dii_net) * 100) / 100
         };
     }
@@ -120,8 +120,8 @@ function buildMarkdown(views) {
     out.push('Daily FII/FPI and DII cash flows, F&O positioning and FPI sector rotation for Indian equities, by Mr. Chartist (Investology, SEBI Registered Research Analyst INH000015297).', '');
     if (l) {
         out.push(`## Latest session: ${l.date}`, '');
-        out.push(`- **FII/FPI net:** ${cr(l.fii_net_cr)} (bought ₹${l.fii_buy_cr.toLocaleString('en-IN')} Cr, sold ₹${l.fii_sell_cr.toLocaleString('en-IN')} Cr)`);
-        out.push(`- **DII net:** ${cr(l.dii_net_cr)} (bought ₹${l.dii_buy_cr.toLocaleString('en-IN')} Cr, sold ₹${l.dii_sell_cr.toLocaleString('en-IN')} Cr)`);
+        out.push(`- **FII/FPI net:** ${cr(l.fii_net_cr)} ${l.fii_buy_cr == null ? '' : ` (bought ₹${l.fii_buy_cr.toLocaleString('en-IN')} Cr, sold ₹${l.fii_sell_cr.toLocaleString('en-IN')} Cr)`}`);
+        out.push(`- **DII net:** ${cr(l.dii_net_cr)} ${l.dii_buy_cr == null ? '' : ` (bought ₹${l.dii_buy_cr.toLocaleString('en-IN')} Cr, sold ₹${l.dii_sell_cr.toLocaleString('en-IN')} Cr)`}`);
         out.push(`- **Combined net:** ${cr(l.combined_net_cr)}`);
         if (l.fii_streak) out.push(`- **FII streak:** ${l.fii_streak.sessions} session(s) of net ${l.fii_streak.direction}, ${cr(l.fii_streak.cumulative_cr)}`);
         if (l.dii_streak) out.push(`- **DII streak:** ${l.dii_streak.sessions} session(s) of net ${l.dii_streak.direction}, ${cr(l.dii_streak.cumulative_cr)}`);

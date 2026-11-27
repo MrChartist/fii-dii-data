@@ -34,10 +34,14 @@ test('every row has a valid, unique date, newest first', () => {
 
 test('cash figures are finite and net = buy − sell', () => {
     for (const r of history) {
-        for (const k of ['fii_buy', 'fii_sell', 'fii_net', 'dii_buy', 'dii_sell', 'dii_net']) {
-            assert.ok(Number.isFinite(r[k]), `${r.date} ${k} is not a number`);
+        // Net-only rows (_partial) have real nets and null gross legs — never zeros or guesses
+        const legs = r._partial ? ['fii_net', 'dii_net'] : ['fii_buy', 'fii_sell', 'fii_net', 'dii_buy', 'dii_sell', 'dii_net'];
+        for (const k of legs) assert.ok(Number.isFinite(r[k]), `${r.date} ${k} is not a number`);
+        if (r._partial) {
+            for (const k of ['fii_buy', 'fii_sell', 'dii_buy', 'dii_sell']) assert.strictEqual(r[k], null, `${r.date} ${k} must be null on a net-only row`);
+            continue;
         }
-        // Seed rows are rounded to whole crores, hence the tolerance
+        // Tolerance covers paise rounding between buy, sell and net
         assert.ok(Math.abs(r.fii_buy - r.fii_sell - r.fii_net) <= 1.5, `${r.date} FII net does not reconcile`);
         assert.ok(Math.abs(r.dii_buy - r.dii_sell - r.dii_net) <= 1.5, `${r.date} DII net does not reconcile`);
         assert.ok(Math.abs(r.fii_net) < 100000 && Math.abs(r.dii_net) < 100000, `${r.date} net is implausible`);

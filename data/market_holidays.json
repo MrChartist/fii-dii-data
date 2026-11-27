@@ -1,0 +1,25 @@
+{
+  "note": "Weekdays with no session, derived from archives (absent from StockeZee within its range). Used only to silence gap reports.",
+  "range": [
+    "01-Dec-2025",
+    "26-Nov-2026"
+  ],
+  "dates": [
+    "25-Dec-2025",
+    "15-Jan-2026",
+    "26-Jan-2026",
+    "03-Mar-2026",
+    "26-Mar-2026",
+    "31-Mar-2026",
+    "03-Apr-2026",
+    "14-Apr-2026",
+    "01-May-2026",
+    "28-May-2026",
+    "26-Jun-2026",
+    "14-Sep-2026",
+    "02-Oct-2026",
+    "20-Oct-2026",
+    "10-Nov-2026",
+    "24-Nov-2026"
+  ]
+}

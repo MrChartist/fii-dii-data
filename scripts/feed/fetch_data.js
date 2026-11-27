@@ -28,6 +28,7 @@ let nseCookies = "";
 
 const { readJSON, writeJSON } = require('../../lib/store');
 const { NSE_DATE_RE, compare: compareDates, missingSessions, istToday, parse: parseDate, DAY } = require('../../lib/dates');
+const { istStamp, emptyRow, isPartial } = require('./row');
 const { fetchGroww } = require('./sources/groww');
 const { fetchMoneycontrol } = require('./sources/moneycontrol');
 
@@ -298,7 +299,7 @@ async function backfillMissingFao(maxAttempts = 25) {
     let attempts = 0, misses = 0;
     // The F&O archive host needs no NSE session cookies (www.nseindia.com is often unreachable from CI)
     for (const row of recent) {
-        if (!['fetch-pipeline', 'live-fetch', MIRROR_SOURCE].includes(row._source) || rowHasFao(row)) continue;
+        if (!['fetch-pipeline', 'live-fetch', MIRROR_SOURCE, 'archive-net'].includes(row._source) || rowHasFao(row)) continue;
         if (attempts++ >= maxAttempts) break;
         // Several misses in a row means NSE is blocking us (or the files are
         // gone) — stop instead of grinding through every remaining date
@@ -324,17 +325,6 @@ async function backfillMissingFao(maxAttempts = 25) {
         console.log(`[F&O BACKFILL] Filled F&O for: ${filled.join(', ')}`);
     }
     return filled;
-}
-
-const istStamp = () => new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", dateStyle: 'medium', timeStyle: 'short' }) + " IST";
-
-// Row with every numeric field present (F&O zeros until participant OI is published)
-function emptyRow() {
-    const z = {};
-    for (const side of ['fii', 'dii']) for (const k of ['buy', 'sell', 'net']) z[`${side}_${k}`] = 0;
-    for (const side of ['fii', 'dii']) for (const k of ['idx_fut', 'stk_fut']) for (const t of ['long', 'short', 'net']) z[`${side}_${k}_${t}`] = 0;
-    for (const k of ['idx_call', 'idx_put']) for (const t of ['long', 'short', 'net']) z[`fii_${k}_${t}`] = 0;
-    return { date: "", ...z, pcr: 0, sentiment_score: 50 };
 }
 
 // ── Transform data ───────────────────────────────────────────────────────────
@@ -435,7 +425,9 @@ async function recoverFromMirrors(src = { fetchGroww, fetchMoneycontrol }) {
 
     const mcByDate = new Map(mc.map(r => [r.date, r]));
     const history = readJSON('history.json', [], true);
-    const have = new Set(history.map(r => r.date));
+    // net-only (archive) rows are upgradable: a mirror row with real gross figures replaces them
+    let rows = history;
+    const have = new Set(history.filter(r => !isPartial(r)).map(r => r.date));
     const added = [];
     for (const r of grow) {
         if (have.has(r.date) || !validateData(r)) continue;
@@ -445,12 +437,13 @@ async function recoverFromMirrors(src = { fetchGroww, fetchMoneycontrol }) {
             continue;
         }
         const row = { ...emptyRow(), ...r, _updated_at: istStamp(), _source: MIRROR_SOURCE, _cross_checked: !!ref };
-        history.push(row); have.add(r.date); added.push(row);
+        rows = rows.filter(x => x.date !== r.date);
+        rows.push(row); have.add(r.date); added.push(row);
     }
     if (added.length) {
-        history.sort((a, b) => compareDates(b.date, a.date));
-        writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
-        writeJSON('latest.json', history[0]);
+        rows.sort((a, b) => compareDates(b.date, a.date));
+        writeJSON('history.json', rows.slice(0, CONFIG.HISTORY_MAX));
+        writeJSON('latest.json', rows[0]);
         added.sort((a, b) => compareDates(b.date, a.date));
         console.log(`[MIRROR] Recovered sessions: ${added.map(r => r.date).join(', ')}`);
     }
@@ -562,4 +555,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { recoverFromMirrors, validateData, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };
+module.exports = { emptyRow, recoverFromMirrors, validateData, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };

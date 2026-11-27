@@ -222,6 +222,8 @@ let yearlyData = [
 
 /* ── DOM RENDER UTILS ── */
 function fC(v) { return (v>0?'pos':'neg'); }
+// Net-only sessions (d.p): the archives publish net but not gross buy/sell — show "—", never a fake 0
+const NA_CELL = '<td colspan="2" class="na-gross" title="Gross buy/sell was not published for this session; net figures are verified against independent archives">—</td>';
 function fmt(v) { return (v>0?'+':(v<0?'-':'')) + '₹' + Math.abs(v).toLocaleString('en-IN') + ' Cr'; }
 /* Escape untrusted strings (LLM output, scraped sector names, API errors)
    before they reach an innerHTML sink */
@@ -1455,11 +1457,9 @@ function renderDailyTable() {
           `<div><div style="font-weight:700;">${d.d}</div>${tsStr}</div>` +
         `</div>` +
       `</td>` +
-      `<td class="pos" style="opacity:0.6">${fmt(d.fb)}</td>` +
-      `<td class="neg" style="opacity:0.6">${fmt(-d.fs)}</td>` +
+      (d.p ? NA_CELL : `<td class="pos" style="opacity:0.6">${fmt(d.fb)}</td><td class="neg" style="opacity:0.6">${fmt(-d.fs)}</td>`) +
       `<td class="${fC(d.fn)}" style="font-weight:800">${fmt(d.fn)}${getBar(d.fn, 20000)}</td>` +
-      `<td class="pos" style="opacity:0.6">${fmt(d.db)}</td>` +
-      `<td class="neg" style="opacity:0.6">${fmt(-d.ds)}</td>` +
+      (d.p ? NA_CELL : `<td class="pos" style="opacity:0.6">${fmt(d.db)}</td><td class="neg" style="opacity:0.6">${fmt(-d.ds)}</td>`) +
       `<td class="${fC(d.dn)}" style="font-weight:800">${fmt(d.dn)}${getBar(d.dn, 20000)}</td>` +
       `<td class="${fC(totalLiq)}">${fmt(totalLiq)}</td>` +
       `</tr>`;
@@ -1472,9 +1472,9 @@ function renderDailyTable() {
       `<div class="row-detail-inner">` +
         `<div class="detail-chart-wrap"><canvas id="detailChart-${actIdx}"></canvas></div>` +
         `<div class="detail-stat-grid">` +
-          `<div class="detail-stat"><div class="ds-label">FII Buy/Sell Ratio</div><div class="ds-value ${d.fb > d.fs ? 't-green' : 't-red'}">${d.fs > 0 ? (d.fb/d.fs).toFixed(2) : '—'}x</div></div>` +
-          `<div class="detail-stat"><div class="ds-label">DII Buy/Sell Ratio</div><div class="ds-value ${d.db > d.ds ? 't-green' : 't-red'}">${d.ds > 0 ? (d.db/d.ds).toFixed(2) : '—'}x</div></div>` +
-          `<div class="detail-stat"><div class="ds-label">FII Gross Turnover</div><div class="ds-value" style="color:var(--t2)">${fmt(d.fb + d.fs)}</div></div>` +
+          `<div class="detail-stat"><div class="ds-label">FII Buy/Sell Ratio</div><div class="ds-value ${d.p ? '' : (d.fb > d.fs ? 't-green' : 't-red')}">${d.p ? 'n/a' : d.fs > 0 ? (d.fb/d.fs).toFixed(2) + 'x' : '—'}</div></div>` +
+          `<div class="detail-stat"><div class="ds-label">DII Buy/Sell Ratio</div><div class="ds-value ${d.p ? '' : (d.db > d.ds ? 't-green' : 't-red')}">${d.p ? 'n/a' : d.ds > 0 ? (d.db/d.ds).toFixed(2) + 'x' : '—'}</div></div>` +
+          `<div class="detail-stat"><div class="ds-label">FII Gross Turnover</div><div class="ds-value" style="color:var(--t2)">${d.p ? 'n/a' : fmt(d.fb + d.fs)}</div></div>` +
           `<div class="detail-stat"><div class="ds-label">Net Liquidity</div><div class="ds-value ${fC(totalLiq)}">${fmt(totalLiq)}</div></div>` +
         `</div>` +
       `</div>` +
@@ -1555,7 +1555,7 @@ function renderDailyTotals(data) {
   const sumT  = sumFn + sumDn;
   const st = `style="`;
   tf.innerHTML = `<tr>
-    <td ${st} color:var(--t2);">∑ ${data.length} days</td>
+    <td ${st} color:var(--t2);" title="${data.some(d => d.p) ? 'Gross buy/sell totals exclude net-only sessions' : ''}">∑ ${data.length} days${data.some(d => d.p) ? ` · gross excl. ${data.filter(d => d.p).length} net-only` : ''}</td>
     <td ${st} color:var(--green);">${fmt(sumFb)}</td>
     <td ${st} color:var(--red);">${fmt(-sumFs)}</td>
     <td ${st} color:${sumFn>=0?'var(--green)':'var(--red)'};">${fmt(sumFn)}</td>
@@ -1569,7 +1569,7 @@ function renderDailyTotals(data) {
 function exportDailyCSV() {
   const data = window._lastFilteredDailyData || dailyData;
   const hdr = ['Date','FII Gross Buy (Cr)','FII Gross Sell (Cr)','FII Net (Cr)','DII Gross Buy (Cr)','DII Gross Sell (Cr)','DII Net (Cr)','Total Liquidity (Cr)'];
-  const rows = data.map(d => [d.d, d.fb, -d.fs, d.fn, d.db, -d.ds, d.dn, d.fn+d.dn].join(','));
+  const rows = data.map(d => [d.d, d.p ? '' : d.fb, d.p ? '' : -d.fs, d.fn, d.p ? '' : d.db, d.p ? '' : -d.ds, d.dn, d.fn+d.dn].join(','));
   const csv  = [hdr.join(','), ...rows].join('\n');
   const blob = new Blob([csv], {type:'text/csv'});
   const a = document.createElement('a');
@@ -1888,7 +1888,7 @@ function renderDetailChart(idx, d) {
     data: {
       labels: ['FII Buy', 'FII Sell', 'FII Net', 'DII Buy', 'DII Sell', 'DII Net', 'Net Liq.'],
       datasets: [{
-        data: [d.fb, -d.fs, d.fn, d.db, -d.ds, d.dn, d.fn + d.dn],
+        data: d.p ? [null, null, d.fn, null, null, d.dn, d.fn + d.dn] : [d.fb, -d.fs, d.fn, d.db, -d.ds, d.dn, d.fn + d.dn],
         backgroundColor: [
           'rgba(10,209,166,0.7)', 'rgba(239,68,68,0.7)', d.fn >= 0 ? 'rgba(10,209,166,0.9)' : 'rgba(239,68,68,0.9)',
           'rgba(10,209,166,0.7)', 'rgba(239,68,68,0.7)', d.dn >= 0 ? 'rgba(10,209,166,0.9)' : 'rgba(239,68,68,0.9)',

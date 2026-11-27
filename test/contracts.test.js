@@ -10,7 +10,9 @@ function check(row) {
     for (const k of schema.required) if (!(k in row)) errs.push(`missing ${k}`);
     for (const [k, def] of Object.entries(schema.properties)) {
         if (!(k in row)) continue;
-        if (def.type === 'number' && typeof row[k] !== 'number') errs.push(`${k} not a number`);
+        const types = [].concat(def.type);
+        if (types.includes('number') && !(typeof row[k] === 'number' || (row[k] === null && types.includes('null')))) errs.push(`${k} not a number`);
+        if (row[k] === null && !types.includes('null')) errs.push(`${k} is null`);
         if (def.pattern && !new RegExp(def.pattern).test(row[k])) errs.push(`${k} bad format`);
         if (def.enum && !def.enum.includes(row[k])) errs.push(`${k} not in enum`);
     }

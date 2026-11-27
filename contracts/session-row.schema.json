@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Session row (data/history.json item, data/latest.json)",
-  "description": "One NSE trading session. Figures in INR crore. F&O fields are 0 until NSE publishes participant OI (later than cash). Invariants: net = buy - sell (\u00b11); date is DD-Mon-YYYY; one row per date; history sorted newest-first. Rows with _source \"mirror-groww\" were recovered from public mirrors (cross-checked) when NSE blocked the feed; F&O fields fill in later from NSE archives.",
+  "description": "One NSE trading session. Figures in INR crore. F&O fields are 0 until NSE publishes participant OI (later than cash). Invariants: net = buy - sell (\u00b11); date is DD-Mon-YYYY; one row per date; history sorted newest-first. Rows with _source \"mirror-groww\" were recovered from public mirrors (cross-checked) when NSE blocked the feed; F&O fields fill in later from NSE archives. Rows with _partial=true (_source \"archive-net\") carry real net figures but null gross legs; they are cross-checked against independent archives.",
   "type": "object",
   "required": [
     "date",
@@ -18,19 +18,35 @@
       "pattern": "^\\d{2}-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\\d{4}$"
     },
     "fii_buy": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Gross \u20b9 Cr. null only on _partial (net-only) rows \u2014 never a guess."
     },
     "fii_sell": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Gross \u20b9 Cr. null only on _partial (net-only) rows \u2014 never a guess."
     },
     "fii_net": {
       "type": "number"
     },
     "dii_buy": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Gross \u20b9 Cr. null only on _partial (net-only) rows \u2014 never a guess."
     },
     "dii_sell": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ],
+      "description": "Gross \u20b9 Cr. null only on _partial (net-only) rows \u2014 never a guess."
     },
     "dii_net": {
       "type": "number"
@@ -102,7 +118,8 @@
         "live-fetch",
         "historical-seed",
         "backfill-estimated",
-        "mirror-groww"
+        "mirror-groww",
+        "archive-net"
       ]
     },
     "_updated_at": {
@@ -117,6 +134,10 @@
     "_cross_checked": {
       "type": "boolean",
       "description": "mirror-groww rows: net figures agreed with Moneycontrol"
+    },
+    "_partial": {
+      "type": "boolean",
+      "description": "true = net-only session: gross buy/sell unknown (published only as net by the archives)."
     }
   },
   "additionalProperties": true
