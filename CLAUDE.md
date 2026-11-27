@@ -1,42 +1,31 @@
-# FII & DII Data — agent guide (read this first, then open only the module you need)
+# FII & DII Data — project guide
 
-Indian institutional-flow dashboard (FII/FPI + DII cash, F&O participant OI, NSDL sectors). Node/Express server + static front end in `public/`. Data is JSON in `data/`, committed by a GitHub Action. Architecture and the planned Go/Rust migration: `docs/ARCHITECTURE.md`.
+Indian institutional-flow dashboard: FII/FPI + DII cash flows, F&O participant OI, NSDL sectors. Node/Express server + framework-free front end in `public/`. Data is JSON in `data/`, refreshed by a GitHub Action. Architecture and the planned Go/Rust migration: `docs/ARCHITECTURE.md`.
 
-## Module map — one folder = one concern. Work inside ONE row at a time.
+**How to use this guide.** Everything here is a default with a reason, not a wall. If a better approach exists, take it and update the guide in the same change so it stays true. Module-specific guidance lives next to the code (`<folder>/CLAUDE.md`) and loads only when you work there, so start in the folder you are changing.
 
-| Concern | Folder | Open first | Notes |
-|---|---|---|---|
-| **UI kit** (reusable across projects) | `public/ui/` | `public/ui/README.md` | Tokens, navbar, dock, buttons, popovers, toast, motion, chart helpers. No FII/DII logic. |
-| **App front end** (this product) | `public/*.html`, `public/app/` | `public/app/README.md` | `index.html` is markup only; behaviour in `app/js/dashboard.js` + `pwa.js`. |
-| **SEO** | `seo/`, root files in `public/` | `seo/README.md` | `npm run seo` (runs in CI). |
-| **Data feed** (NSE/NSDL → `data/`) | `scripts/feed/` | "Data feed" below | `fetch_data.js` (cash+F&O), `fetch_nsdl.js` (sectors). Run by `.github/workflows/update_data.yml`. |
-| **Server** (API + jobs) | `server.js` → `server/` | `server/README.md` | `routes/` HTTP, `services/` logic, `jobs/` cron. `api-guard.js` access control, `agent-ready.js` Markdown/MCP/llms endpoints. |
-| **Agents** (signals) | `agents/` | `agents/runner.js` header | Each agent `run()` reads `data/`, writes `data/agent_state.json`. Shared helpers `agents/agent-utils.js`. |
-| **Contracts** | `contracts/` | `docs/ARCHITECTURE.md` | OpenAPI + JSON Schema. Language-agnostic; any port must satisfy them. |
-| **Shared backend utils** | `lib/` | — | `dates.js` (ALL date maths), `store.js` (ALL JSON I/O). Never re-implement. |
-| **One-off backfills** | `scripts/backfill/` | script header | Not run in CI. |
-| **Checks** | `scripts/checks/`, `test/` | — | `npm test` = unit + contracts + data integrity + UI contract. |
-| **Brand** | `brand-source/`, `scripts/brand/` | — | Generates `public/brand/*`. |
-| **Docs** | `docs/` (`plans/`, `marketing/`, `manual.md`) | — | Plans mention removed features (Telegram); treat as history. |
+## Module map
+| Concern | Folder | Guide |
+|---|---|---|
+| UI kit (portable across projects) | `public/ui/` | `public/ui/CLAUDE.md` |
+| App front end (this product) | `public/*.html`, `public/app/` | `public/app/CLAUDE.md` |
+| SEO | `seo/`, root files of `public/` | `seo/CLAUDE.md` |
+| Data feed (NSE / mirrors / archives → `data/`) | `scripts/feed/` | `scripts/feed/CLAUDE.md` |
+| Server (API, jobs) | `server.js`, `server/`, `api-guard.js`, `agent-ready.js` | `server/CLAUDE.md` |
+| Agents (signals) | `agents/` | `agents/CLAUDE.md` |
+| Contracts (OpenAPI + JSON Schema) | `contracts/` | `docs/ARCHITECTURE.md` |
+| Shared backend helpers | `lib/` | `lib/dates.js` (all date maths), `lib/store.js` (all JSON I/O) |
+| Backfills / checks / brand | `scripts/backfill/`, `scripts/checks/`, `scripts/brand/` | script header comments |
+| Docs | `docs/` | `docs/plans/` mention removed features (Telegram): history, not spec |
 
-## Rules that save tokens and prevent bugs
-1. **Dates**: canonical `DD-Mon-YYYY` (`20-Nov-2026`). Server: `lib/dates.js`. Browser: `MCFresh` (`public/app/js/mc-freshness.js`). Never `new Date(y, m, d)` (local tz) or hand-rolled month tables.
-2. **Data files**: only via `lib/store.js`; use `readJSON(f, def, true)` (strict) before read-modify-write.
-3. **Never read whole**: `data/*.json` (history ≈ 190 KB, sector_history ≈ 360 KB) — slice with `node -e`/`jq`. `public/app/js/dashboard.js` (3.2k lines) — `grep -n` then read a range.
-4. Front-end paths: `/ui/css/mc.css`, `/ui/js/mc-*.js`, `/app/...`. If you move/add one, update `public/sw.js` (and bump `CACHE_NAME`), the `<script>/<link>` tags, `scripts/checks/verify_terminal_ui.js`.
-5. New server endpoint = add to the matching `server/routes/*.js` AND `contracts/api.openapi.yaml`.
-6. After any change: `npm test && npm run seo`. UI change → also load the page in headless Chromium (Playwright is preinstalled) and check for console errors.
-7. Data commits come from the workflow only; code commits must not touch `data/*.json` except deliberate repairs. Running agents locally modifies `data/agent_*.json` — `git checkout data/` afterwards.
-
-## Data feed (why dates go stale)
-- **Source chain** (`scripts/feed/fetch_data.js`): NSE `fiidiiTradeReact` (authoritative, latest session only, **blocks cloud IPs incl. GitHub runners and our live server**) → public mirrors in `scripts/feed/sources/`: **Groww** (gross buy/sell/net, last ~10 sessions) cross-checked against **Moneycontrol** (net, last ~30). A mirror row is accepted only if net = buy − sell, all legs > 0, and Moneycontrol's net agrees (±0.02 Cr). Never overwrites an existing row; NSE data replaces a mirror row for the same date. Rows are tagged `_source: "mirror-groww"`.
-- Mirror recovery runs when NSE fails **and** when NSE works but the last 14 days have weekday gaps. Holidays show as gaps and are simply not found on the mirrors.
-- F&O (participant OI) comes from `nsearchives.nseindia.com` (reachable from CI), published later than cash; `backfillMissingFao()` fills it on later runs, including for mirror rows.
-- Mirror parsers key on cell *content*, not CSS classes; if a site changes markup the parser returns `[]` and the chain falls through (fixtures in `test/fixtures/`). Mirrors are third-party sites: keep request volume tiny (2 GETs per run) and check their terms before commercial use.
-- `npm run gaps` lists missing weekday sessions. Never fabricate rows; net-only older sessions (Moneycontrol, ~30 days) are NOT inserted because history requires gross buy/sell.
+## Working agreements (short, and they exist to save time)
+1. **Verify what you change.** `npm test` and `npm run seo` for code; for UI also open the page in headless Chromium (Playwright is preinstalled) and watch the console. Add a test when you fix a bug or add a parser.
+2. **Real data only.** Unknown is `null` (or a flagged partial row), never a guessed number or a silent zero. This is the one firm rule, because wrong market figures look identical to right ones.
+3. **Reuse the helpers.** Dates through `lib/dates.js` (canonical `DD-Mon-YYYY`), data files through `lib/store.js`. They exist because four hand-rolled date parsers had drifted apart.
+4. **Contracts follow code.** Changing an API shape or a row field means updating `contracts/` and its test in the same change.
+5. **Keep context cheap.** `data/*.json` and `public/app/js/dashboard.js` are large: slice with `node -e`/`jq` or `grep -n` first. A tip, not a prohibition.
+6. **Data commits.** The workflow normally commits `data/`; deliberate repairs and backfills by hand are fine, just say so in the message.
+7. **Leave it tidier.** Remove dead code you find; mention anything bigger in the summary.
 
 ## Commands
-`npm start` · `npm test` · `npm run seo` · `npm run gaps` · `npm run fetch` · `npm run agent:all`
-
-## Shared-component contract (for reuse in sibling projects)
-Anything in `public/ui/` stays free of FII/DII wording, data URLs and page ids; configuration via `data-*` attributes/globals; styling only through `mc.css` tokens. To lift a component: copy its numbered section from `mc.css` + its `mc-*.js`, list it in `public/ui/README.md`.
+`npm start` · `npm test` · `npm run seo` · `npm run gaps` · `npm run fetch` · `npm run agent:all` · `node scripts/backfill/backfill_net_archives.js --dry`

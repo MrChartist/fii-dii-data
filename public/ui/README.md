@@ -1,6 +1,6 @@
 # UI kit (`public/ui/`) — reusable across projects
 
-Served at `/ui/...`. Contains **no product logic** — only look-and-feel and behaviour that any Mr. Chartist project can reuse.
+Served at `/ui/...`. Look-and-feel and behaviour meant to be reusable across Mr. Chartist projects. Guidance (and permission to experiment freely with motion and visuals): `CLAUDE.md`.
 
 ## CSS — `ui/css/mc.css` (numbered sections; grep `── N.`)
 1 Tokens (colours, fonts, spacing; dark default, `html[data-theme=light]`) · 2 Base · 3 Layout · 4 Brand lockup · 5 Capsule navbar (desktop) · 6 Controls/buttons · 7 Badges · 8 Surfaces (glass cards) · 9 Tables · 10 Info popovers/tooltips · 11 Overlays (sheets, modals, tour) · 12 Footer · 13 Page header / search / KPI grid / empty state · 14 Motion · 15 Mobile top capsule + dock · 16 Context notes, skeletons, notices · 17 Accessibility (jump strip, high contrast)

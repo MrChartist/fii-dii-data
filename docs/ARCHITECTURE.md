@@ -13,7 +13,7 @@ Components talk only through **files and HTTP shapes that are written down in `c
 
 | Layer | Today (folder) | Contract it must keep | Planned language |
 |---|---|---|---|
-| **Feed** (fetch, validate, merge sessions) | `scripts/feed/`, `lib/` | writes `data/history.json`, `latest.json` per `contracts/session-row.schema.json`; invariants in the schema description | Node now → Rust candidate (single static binary, fast CI) |
+| **Feed** (fetch, validate, merge sessions) | `scripts/feed/`, `lib/` | writes `data/history.json`, `latest.json` per `contracts/session-row.schema.json`; invariants in the schema description. Source chain: NSE → Groww/Moneycontrol mirrors → net-only archives (`_partial` rows, gross = null) — see `scripts/feed/CLAUDE.md` | Node now → Rust candidate (single static binary, fast CI) |
 | **Data store** | `data/*.json` | Schema + sorted newest-first + one row per `DD-Mon-YYYY` | unchanged (JSON in git); a SQL store can be added behind `lib/store.js` later |
 | **API** | `server/`, `api-guard.js`, `agent-ready.js` | `contracts/api.openapi.yaml` (+ access rules in `api-guard.js`) | Node now → **Go** |
 | **Agents** | `agents/` | read `history.json`; write only `data/agent_state.json`, `agent_runs.json` | stay Node until the API moves, then Go |
