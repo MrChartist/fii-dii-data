@@ -26,3 +26,5 @@ jobs:
         run: npm ci
       - name: Tests
         run: npm test
+      - name: SEO audit
+        run: npm run seo

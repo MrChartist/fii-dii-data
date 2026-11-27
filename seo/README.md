@@ -10,4 +10,4 @@ Files crawlers need **must be served from the site root**, so they stay in `publ
 | AI discovery | `public/llms.txt`, `agent-ready.js` (Markdown endpoints, MCP) | keep in sync with real pages |
 | Share cards / icons | `public/brand/share`, `brand-source/` | regenerate via `scripts/brand/` |
 
-`npm run seo` → `seo/audit.js`. Current warnings (content decisions, not bugs): `index.html` title 69 chars and description 243 chars; `deals.html` title 68 chars.
+`npm run seo` → `seo/audit.js` (also runs in CI). Currently 0 errors, 0 warnings.

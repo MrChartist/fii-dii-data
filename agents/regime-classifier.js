@@ -12,7 +12,7 @@
 
 const {
     getState, setState, deliverAlert,
-    getHistory, fetchVIX, fmtCr, fmtDate,
+    getHistory, fetchVIX, fmtCr,
     REGIME_EMOJI, REGIME_LABELS
 } = require('./agent-utils');
 
@@ -31,7 +31,6 @@ function classifyRegime(history10, vix) {
     const fiiBuyDays = history10.filter(d => d.fii_net > 0).length;
     const fiiSellDays = history10.filter(d => d.fii_net < 0).length;
     const diiBuyDays = history10.filter(d => d.dii_net > 0).length;
-    const diiSellDays = history10.filter(d => d.dii_net < 0).length;
 
     const fiiCumulative = history10.reduce((sum, d) => sum + d.fii_net, 0);
     const diiCumulative = history10.reduce((sum, d) => sum + d.dii_net, 0);
@@ -40,13 +39,6 @@ function classifyRegime(history10, vix) {
     let fiiSellStreak = 0;
     for (const day of history10) {
         if (day.fii_net < 0) fiiSellStreak++;
-        else break;
-    }
-
-    // FII consecutive buying streak (from newest)
-    let fiiBuyStreak = 0;
-    for (const day of history10) {
-        if (day.fii_net > 0) fiiBuyStreak++;
         else break;
     }
 

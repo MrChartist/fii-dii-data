@@ -10,7 +10,7 @@
 
 const {
     getState, setState, deliverAlert,
-    getHistory, fmtCr, fmtPct, fmtDate
+    getHistory, fmtCr, fmtDate
 } = require('./agent-utils');
 
 const AGENT_NAME = 'flow-divergence';
@@ -155,7 +155,6 @@ async function run() {
 
     // Alert only on new or changed signals
     const lastSignal = state.last_signal || 'NONE';
-    const lastSignalDate = state.last_signal_date || '';
 
     if (analysis.signal !== 'NONE') {
         // Alert only when the signal itself changes — divergence conditions

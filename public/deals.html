@@ -31,7 +31,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
-<link rel="stylesheet" href="/ui/css/mc.css?v=10">
+<link rel="stylesheet" href="/ui/css/mc.css?v=11">
+<link rel="stylesheet" href="/app/css/deals.css?v=1">
 </head>
 <body>
 <div id="os-nav-mount" data-active="deals"></div>
@@ -65,7 +66,7 @@
 
   <div class="mc-active" id="deals-active" hidden></div>
 
-  <div class="card os-deals-card" id="large-deals-card">
+  <div class="card os-deals-card" id="large-deals-card" hidden>
     <div class="tbl-wrap">
       <table class="os-deals-table">
         <thead><tr>
@@ -83,7 +84,7 @@
     </div>
     <div class="os-deals-more" id="deals-more" hidden><button type="button" class="mc-btn" id="deals-more-btn">Show more</button></div>
   </div>
-  <div class="os-empty" id="deals-empty" hidden></div>
+  <div class="os-empty" id="deals-empty" role="status" aria-live="polite">Loading the latest bulk and block deals…</div>
   <p class="os-note"><strong>Bulk deal:</strong> one client trades more than 0.5% of a company's shares in a day. <strong>Block deal:</strong> a single negotiated trade of at least &#8377;10 Cr in a special window. Deal value is quantity × average price, shown in crores.</p>
 </div>
 <div id="os-footer-mount"></div>

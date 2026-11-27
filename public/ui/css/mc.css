@@ -676,6 +676,8 @@ body > .os-info-pop { position: fixed; }
 .alert-subscribe-prompt { padding: 22px 26px 26px; text-align: center; }
 .alert-subscribe-prompt p { font-size: 13.5px; color: var(--t3); line-height: 1.6; margin-bottom: 18px; }
 .tour-overlay { z-index: 10010; animation: os-fade .3s ease both; }
+/* modal cards sit above the dock/nav: opaque so nothing bleeds through (legibility on phones) */
+.tour-card, .alert-settings-content, .sz-content { background: var(--surface-solid, #1C1C1E); }
 .tour-card { max-width: 440px; padding: 28px; transform: none; animation: os-sheet .5s var(--os-spring-pop) both; }
 .tour-card h3 { font: 700 18px/1.3 var(--font-display); letter-spacing: -.02em; margin-bottom: 10px; }
 .tour-card p { font: 400 14px/1.65 var(--font-body); color: var(--t3); margin-bottom: 22px; }
@@ -772,12 +774,10 @@ html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-
 @media (max-width: 640px) { .os-footer { margin-top: 40px; } .os-footer-card { padding: 26px 18px 18px; border-radius: var(--r-lg); } .os-footer-grid { gap: 22px 16px; } .os-sebi { padding: 16px; } .os-sebi-grid { grid-template-columns: 1fr; gap: 12px; } }
 @media (max-width: 380px) { .os-footer-grid { grid-template-columns: 1fr; } }
 
-/* ── 13. Deals page ────────────────────────────────────────────────────── */
+/* ── 13. Page header, segmented counts, search field, KPI grid, empty state (generic) ── */
 .os-page-head { margin: 4px 0 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .os-page-title { margin: 0 0 6px; font: 700 clamp(26px, 4vw, 34px)/1.1 var(--font-display); letter-spacing: -.03em; color: var(--t1); }
 .os-page-sub { margin: 0; color: var(--t3); font-size: 14px; line-height: 1.6; max-width: 640px; }
-.os-deals-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 12px; margin-bottom: 14px; }
-.os-deals-bar .os-seg-btn { min-width: 72px; height: 34px; }
 .os-seg-btn .count { font: 600 11px/1 var(--font-mono); padding: 2px 6px; border-radius: 999px; background: var(--os-fill-2); color: var(--t3); }
 .os-seg-btn.active .count { background: var(--os-fill-2); color: var(--t2); }
 .mc-search { position: relative; display: inline-flex; align-items: center; flex: 1 1 220px; max-width: 320px; }
@@ -785,41 +785,10 @@ html[data-motion="reduced"] *, html[data-motion="reduced"] *::before, html[data-
 .mc-search input { width: 100%; padding-left: 34px; border-radius: 999px; }
 .mc-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
 .mc-kpis .mc-stat-value { font-size: 20px; }
-.os-deals-card { padding: 4px !important; }
-.os-deals-card .tbl-wrap { margin: 0; border: 0; background-image: none; }
-.os-deals-table { min-width: 0 !important; table-layout: auto; }
-.os-deals-table th.num, .os-deals-table td.num { text-align: right; }
-.os-deals-table td.sym { font-family: var(--font-body); font-weight: 700; color: var(--t1); }
-.os-deals-table td.cli { font-family: var(--font-body); font-weight: 400; color: var(--t3); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.os-deals-table td.dt { color: var(--t3); font-weight: 500; }
-.os-deals-table td.pos, .os-deals-table td.neg { font-family: var(--font-body); font-weight: 700; }
-.os-deals-table th.sortable { cursor: pointer; user-select: none; }
-.os-deals-table th.sortable:hover { color: var(--t1); }
-.os-deals-table th.sorted::after { content: ''; display: inline-block; width: 5px; height: 5px; margin-left: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); }
-.os-deals-table th.sorted.asc::after { transform: rotate(-135deg) translateY(-1px); }
-.os-deals-more { display: flex; justify-content: center; padding: 12px; }
 .os-empty { padding: 40px 20px; text-align: center; color: var(--t3); font-size: 14px; border: 1px dashed var(--os-hairline); border-radius: var(--r-lg); }
 .os-note { margin: 16px 2px 0; }
 @media (max-width: 900px) { .mc-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) {
-  .os-deals-table thead { display: none; }
-  .os-deals-table, .os-deals-table tbody, .os-deals-table tr, .os-deals-table td { display: block; width: 100%; }
-  .os-deals-table tr { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "type side" "sym val" "cli cli" "qty price" "dt dt"; gap: 4px 12px; align-items: center; padding: 12px 14px; border-bottom: var(--hair) solid var(--os-hairline-soft); }
-  .os-deals-table td:nth-child(8) { grid-area: val; text-align: right; font-weight: 700; color: var(--t1); }
-  .os-deals-table tr:last-child { border-bottom: 0; }
-  .os-deals-table td { padding: 0 !important; border: 0 !important; width: auto; white-space: normal; text-align: left; }
-  .os-deals-table td.dt { grid-area: dt; font-size: 11.5px; color: var(--t4); }
-  .os-deals-table td:nth-child(2) { grid-area: type; }
-  .os-deals-table td.sym { grid-area: sym; font-size: 16px; }
-  .os-deals-table td.cli { grid-area: cli; max-width: none; white-space: normal; text-overflow: clip; font-size: 12.5px; }
-  .os-deals-table td.pos, .os-deals-table td.neg { grid-area: side; text-align: right; }
-  .os-deals-table td:nth-child(6) { grid-area: qty; text-align: left; }
-  .os-deals-table td:nth-child(7) { grid-area: price; text-align: right; }
-  .os-deals-table td.num::before { color: var(--t4); font: 500 11px/1 var(--font-body); margin-right: 6px; }
-  .os-deals-table td:nth-child(6)::before { content: "Qty"; }
-  .os-deals-table td:nth-child(7)::before { content: "Avg"; }
-  .mc-search { max-width: none; }
-}
+@media (max-width: 560px) { .mc-search { max-width: none; } }
 
 /* ── 14. Motion ────────────────────────────────────────────────────────── */
 .os-pill { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 0; border-radius: 999px; pointer-events: none; opacity: 0; background: var(--os-glass-solid); box-shadow: 0 1px 2px rgb(0 0 0 / .2), inset 0 1px 0 rgb(255 255 255 / .12); will-change: transform, width; }

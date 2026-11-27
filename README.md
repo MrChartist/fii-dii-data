@@ -1,8 +1,5 @@
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1a1a2e,100:6366f1&height=180&section=header&text=FII%20%26%20DII%20Data&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=35&desc=Institutional%20Money%20Matrix&descSize=16&descAlignY=55&descColor=8b5cf6" width="100%" />
 
-<p align="center">
-  <img src="docs/dashboard_hero.png" alt="FII & DII Data Dashboard Hero" width="100%">
-</p>
 
 > **Live Dashboard** for tracking Foreign Institutional Investor (FII/FPI) and Domestic Institutional Investor (DII) flows in Indian equity markets.
 >
@@ -51,8 +48,6 @@ The default landing view showing the **latest extracted session** with:
 - **Quick Stats** — 5-Year cumulative flows, SIP run-rate, FII NSE500 ownership
 - **45-Day Heatmaps** — Color-coded concentration matrices (FII sell depth & DII absorption)
 
-![45-Day Heatmaps](docs/heatmaps.png)
-![FII/DII Data Tab](public/screenshots/01_home_fii_dii_date.png)
 
 ---
 
@@ -65,7 +60,6 @@ Derivatives positioning analysis with:
 - **Long vs Short Ratio Bars** — Visual ratio indicators for each instrument
 - **Historical Positioning Chart** — 20-period trajectory with toggleable FII Futures, Calls, Puts & DII Futures
 
-![F&O Positions Tab](public/screenshots/02_fno_positions.png)
 
 ---
 
@@ -80,8 +74,6 @@ Complete institutional flow archive with:
 - **CSV Export** — Download filtered data
 - **Expandable Row Details** — Click any row for a breakdown chart + buy/sell ratios
 
-![Databases Matrix](docs/matrix.png)
-![Flow Analytics Tab](public/screenshots/03_databases_matrices.png)
 
 ---
 
@@ -96,7 +88,6 @@ NSDL Fortnightly FPI Allocation data with:
 - **Sort Modes** — Total AUM, Fortnight Δ, 1Y Net Flow, A-Z
 - **Backend Data** — Sector data served via `/api/sectors` endpoint
 
-![Sectors Tab](public/screenshots/05_sectors.png)
 
 ---
 
@@ -110,7 +101,6 @@ Comprehensive documentation covering:
 - **Formulas** — Flow Strength Meter, flow-vs-holdings, streak calculations
 - **Export Tools** — Screenshot, CSV, Post to 𝕏
 
-![Docs Tab](public/screenshots/06_docs.png)
 
 ---
 
@@ -133,14 +123,14 @@ The front end ships as two stylesheets and six small scripts, all brand-owned:
 
 | File | Purpose |
 |------|---------|
-| `public/css/mc.css` | Tokens (colour, type, radius, motion), base styles, navigation (top bar on desktop, iOS-style tab bar on phones), buttons, badges, cards, tables, popovers, modals, footer, deals page |
-| `public/css/mc-dashboard.css` | Home command center, F&O, Flow Analytics and Sectors sections, plus their phone layouts |
-| `public/js/mc-brand.js` | Brand registry: Mr. Chartist logo lockups, product name, tagline |
-| `public/js/mc-ui.js` | Navigation + footer templates, info popovers, menus, live quotes, toast, theme-color sync |
-| `public/js/mc-motion.js` | Sliding capsule, scroll reveal, count-ups, battery/data-saver hints |
-| `public/js/mc-charts.js` | Chart.js theming from CSS tokens and the Customise sheet (appearance, accent, density, motion, palette) |
-| `public/js/mc-ranges.js` | Chart range selector (1M/3M/6M/1Y/All) with empty-state handling and auto-fallback to the latest data |
-| `public/js/mc-deals.js` | Bulk & block deals page: filters, search, sortable columns, summary tiles |
+| `public/ui/css/mc.css` | Tokens (colour, type, radius, motion), base styles, navigation (top bar on desktop, iOS-style tab bar on phones), buttons, badges, cards, tables, popovers, modals, footer, deals page |
+| `public/app/css/mc-dashboard.css` | Home command center, F&O, Flow Analytics and Sectors sections, plus their phone layouts |
+| `public/ui/js/mc-brand.js` | Brand registry: Mr. Chartist logo lockups, product name, tagline |
+| `public/ui/js/mc-ui.js` | Navigation + footer templates, info popovers, menus, live quotes, toast, theme-color sync |
+| `public/ui/js/mc-motion.js` | Sliding capsule, scroll reveal, count-ups, battery/data-saver hints |
+| `public/ui/js/mc-charts.js` | Chart.js theming from CSS tokens and the Customise sheet (appearance, accent, density, motion, palette) |
+| `public/ui/js/mc-ranges.js` | Chart range selector (1M/3M/6M/1Y/All) with empty-state handling and auto-fallback to the latest data |
+| `public/app/js/mc-deals.js` | Bulk & block deals page: filters, search, sortable columns, summary tiles |
 
 Visual language: Liquid Glass in the spirit of the latest iOS and macOS. Surfaces are translucent (`--glass-fill`, about 20% fill in dark) with `backdrop-filter` blur and specular rim highlights over a fixed ambient colour field (`--orb-1…4`). Navigation is a floating capsule on desktop and a floating dock on phones, matching mrchartist.com. The brand accent is `hsl(16 100% 60%)` ("Signal"), the logo stays monochrome, gains/losses use `--os-bull` / `--os-bear`, headings use Plus Jakarta Sans and numerals use Inter with tabular figures. Dark is the default; `html[data-theme="light"]` switches to the paper palette. Browsers without `backdrop-filter` and users with reduced transparency get solid surfaces.
 
@@ -148,16 +138,17 @@ Visual language: Liquid Glass in the spirit of the latest iOS and macOS. Surface
 
 ```
 FII and DII data/   (see CLAUDE.md for the module map)
-├── server.js / api-guard.js / agent-ready.js   # Express backend, access control, agent-ready endpoints
+├── server.js → server/           # Boot → routes/ services/ jobs/ (see server/README.md)
+├── api-guard.js / agent-ready.js # Access control, Markdown/MCP endpoints
 ├── lib/                          # dates.js + store.js — shared backend utilities
 ├── public/
 │   ├── index.html, deals.html …  # Pages
 │   ├── ui/                       # Reusable UI kit (css/mc.css, js/mc-*.js) — see ui/README.md
 │   ├── app/                      # Dashboard-only CSS/JS
-│   ├── vendor/ brand/ screenshots/
+│   ├── vendor/ brand/
 │   └── sw.js manifest.json robots.txt sitemap.xml llms.txt
 ├── seo/                          # SEO rules + audit (npm run seo)
-├── agents/ agent-runner.js       # Signal agents
+├── agents/                       # Signal agents + runner.js
 ├── scripts/
 │   ├── feed/                     # fetch_data.js (NSE), fetch_nsdl.js (sectors) — run by CI
 │   ├── backfill/                 # one-off historical backfills & repairs
@@ -165,7 +156,7 @@ FII and DII data/   (see CLAUDE.md for the module map)
 │   └── brand/                    # icon/share-card generation
 ├── data/                         # JSON archive (committed by CI)
 ├── test/                         # node --test suites
-├── docs/ (marketing/, superpowers/) · tools/legacy/ · brand-source/ · supabase/
+├── docs/ (plans/, marketing/) · brand-source/
 └── CLAUDE.md                     # Agent guide
 ```
 
@@ -174,9 +165,6 @@ FII and DII data/   (see CLAUDE.md for the module map)
 ```bash
 # 1. Install dependencies
 npm install
-
-# 2. Seed historical data (first time only)
-node scripts/backfill/seed_history.js
 
 # 3. Start the server
 npm start

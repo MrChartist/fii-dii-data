@@ -1,7 +1,6 @@
 // ── Agent Utilities — Shared infrastructure for all FII/DII agents ───────────
 // Provides: state management, run logging, alert hook, data readers, formatters
 
-const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 

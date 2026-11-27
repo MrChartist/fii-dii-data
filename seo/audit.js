@@ -11,7 +11,8 @@ const PUB = path.join(__dirname, '..', 'public');
 const pages = fs.readdirSync(PUB).filter(f => f.endsWith('.html'));
 const errors = [], warns = [];
 const E = (p, m) => errors.push(`${p}: ${m}`), W = (p, m) => warns.push(`${p}: ${m}`);
-const tag = (h, re) => (h.match(re) || [])[1];
+const decode = (t) => t && t.replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+const tag = (h, re) => decode((h.match(re) || [])[1]);
 
 for (const f of pages) {
     const h = fs.readFileSync(path.join(PUB, f), 'utf8');

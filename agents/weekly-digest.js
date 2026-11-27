@@ -11,7 +11,7 @@
 // FORMAT: Structured digest
 
 const {
-    getState, setState, deliverAlert,
+    getState, setState,
     getHistory, fmtCr, fmtDate,
     REGIME_EMOJI, REGIME_LABELS
 } = require('./agent-utils');
@@ -93,51 +93,6 @@ function compileWeeklyDigest(history5, allStates) {
         tradingDays: history5.length,
         dateRange: `${fmtDate(history5[history5.length - 1]?.date)} — ${fmtDate(history5[0]?.date)}`
     };
-}
-
-// ── Alert Builder ────────────────────────────────────────────────────────────
-
-function buildDigestAlert(digest) {
-    let sectorSection = '';
-    if (digest.topInflow !== 'N/A' || digest.topOutflow !== 'N/A') {
-        sectorSection = `
-🏦 Sector Highlights:
-  📈 Top Inflow: ${digest.topInflow}
-  📉 Top Outflow: ${digest.topOutflow}`;
-
-        if (digest.sustainedExits.length > 0) {
-            sectorSection += `\n  ⚠️ Sustained exits: ${digest.sustainedExits.join(', ')}`;
-        }
-    }
-
-    const divergeText = digest.divergeSignal !== 'NONE'
-        ? `\n⚡ Divergence: ${digest.divergeSignal.replace(/_/g, ' ')}`
-        : '';
-
-    return `📋 WEEKLY INSTITUTIONAL DIGEST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-📅 ${digest.dateRange} (${digest.tradingDays} trading days)
-
-💰 Weekly Totals:
-  FII Net: ${fmtCr(digest.weeklyFII)}
-  DII Net: ${fmtCr(digest.weeklyDII)}
-  Combined: ${fmtCr(digest.weeklyNet)}
-
-📉 Daily Breakdown:
-${digest.dailyBreakdown}
-
-📊 Best FII Day: ${fmtDate(digest.bestDay?.date)} (${fmtCr(digest.bestDay?.fii_net || 0)})
-📉 Worst FII Day: ${fmtDate(digest.worstDay?.date)} (${fmtCr(digest.worstDay?.fii_net || 0)})
-
-🔥 Streaks:
-  ${digest.streakText}
-
-🏷️ Regime: ${digest.regimeEmoji} ${digest.regimeLabel}${digest.regimeSince ? ` (since ${fmtDate(digest.regimeSince)})` : ''}${divergeText}
-${sectorSection}
-
-🤖 Weekly Institutional Digest
-@Mr_Chartist`;
 }
 
 // ── Main Agent Logic ─────────────────────────────────────────────────────────

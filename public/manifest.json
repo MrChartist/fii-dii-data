@@ -40,22 +40,6 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/screenshots/01_home_fii_dii_date.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "FII DII Dashboard - Home View"
-    },
-    {
-      "src": "/screenshots/02_fno_positions.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "F&O Derivatives Positioning"
-    }
-  ],
   "display_override": [
     "standalone",
     "minimal-ui"

@@ -12,8 +12,6 @@
  * visitor: the latest session, the recent sessions, current F&O positioning and
  * the sector board. The full archive stays behind the keyed /api routes.
  */
-const fs = require('fs');
-const path = require('path');
 
 const SITE = (process.env.SITE_URL || 'https://fii-diidata.mrchartist.com').replace(/\/+$/, '');
 const SERVER_INFO = { name: 'fii-dii-data', title: 'FII & DII Data (Mr. Chartist)', version: '1.0.0' };

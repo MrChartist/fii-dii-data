@@ -12,7 +12,7 @@
 
 const {
     getState, setState, deliverAlert,
-    getHistory, fmtCr, fmtDate, REGIME_EMOJI
+    getHistory, fmtCr, fmtDate
 } = require('./agent-utils');
 
 const AGENT_NAME = 'fii-streak';

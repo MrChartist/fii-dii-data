@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 
 const indexPath = path.join(__dirname, '..', '..', 'public', 'index.html');
-const html = fs.readFileSync(indexPath, 'utf8');
+// index.html + the dashboard scripts that used to be inlined in it
+const appJs = ['dashboard.js', 'pwa.js'].map(f => fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'app', 'js', f), 'utf8')).join('\n');
+const html = fs.readFileSync(indexPath, 'utf8') + '\n' + appJs;
 const dealsHtml = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'deals.html'), 'utf8');
 
 const requiredMarkers = [
