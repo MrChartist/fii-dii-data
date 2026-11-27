@@ -111,7 +111,7 @@ Comprehensive documentation covering:
 | **Node.js + Express** | Backend API server with cron-based NSE data fetching |
 | **HTML5** | Single-file dashboard (`public/index.html`) plus `deals.html` |
 | **CSS3** | `css/mc.css` design system (tokens, chrome, components) + `css/mc-dashboard.css` (page sections). OLED dark default, warm light theme, safe-area aware |
-| **JavaScript** | Vanilla JS with Chart.js 3.9.1; shared chrome, motion, chart theming and range selector live in `public/js/mc-*.js` |
+| **JavaScript** | Vanilla JS with Chart.js 3.9.1; shared chrome, motion, chart theming and range selector live in `public/ui/js/mc-*.js` |
 | **Chart.js** | Interactive bar/line charts + sector sparklines |
 | **html2canvas** | Full-page screenshot export |
 | **node-cron** | Automated data fetching (6:00, 6:30, 7:00 PM IST Mon-Fri) |
