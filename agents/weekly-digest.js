@@ -18,13 +18,14 @@ const {
 
 const AGENT_NAME = 'weekly-digest';
 
-// ISO-8601 week number (weeks start Monday, week 1 contains the first Thursday)
-function getISOWeek(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+// ISO-8601 week key "YYYY-Www" for a UTC-midnight calendar date. Uses the ISO
+// week-year (the Thursday's year) so 29 Dec–3 Jan never get the wrong year.
+function isoWeekKey(date) {
+    const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    const week = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
 }
 
 // ── Digest Compiler ──────────────────────────────────────────────────────────
@@ -149,9 +150,7 @@ async function run() {
     let history = recent.slice(0, 5);
     const newest = recent.length ? parseDate(recent[0].date) : null;
     if (newest) {
-        const monday = new Date(newest);
-        monday.setDate(newest.getDate() - ((newest.getDay() + 6) % 7));
-        monday.setHours(0, 0, 0, 0);
+        const monday = new Date(newest.getTime() - ((newest.getUTCDay() + 6) % 7) * 86400000);
         history = recent.filter(d => { const t = parseDate(d.date); return t && t >= monday; });
     }
     if (history.length === 0) {
@@ -171,8 +170,7 @@ async function run() {
     // /api/agents/run-all and `--agent=all`, which previously fired a digest
     // to the channel on every invocation
     const state = getState(AGENT_NAME);
-    const istNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-    const weekKey = `${istNow.getFullYear()}-W${getISOWeek(istNow)}`;
+    const weekKey = isoWeekKey(require('../lib/dates').istToday());
     let alertsSent = 0;
     if (state.last_digest_week !== weekKey) {
         console.log(`[${AGENT_NAME}] 📋 Weekly digest compiled (${digest.tradingDays} days, FII: ${fmtCr(digest.weeklyFII)})`);

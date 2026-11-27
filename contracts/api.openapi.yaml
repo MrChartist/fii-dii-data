@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  title: FII & DII Data API
+  version: 2.0.0
+  description: |
+    Contract for the public read API. The Node server (server.js) is the reference
+    implementation; a Go service must reproduce these shapes byte-for-byte in field
+    names/types. Access rules live in api-guard.js (same-origin browser or x-api-key).
+    Row shape: contracts/session-row.schema.json. Dates are DD-Mon-YYYY.
+servers: [{ url: https://fii-diidata.mrchartist.com }]
+components:
+  securitySchemes: { apiKey: { type: apiKey, in: header, name: x-api-key } }
+  schemas:
+    Session: { $ref: './session-row.schema.json' }
+    CompactSession:
+      type: object
+      description: /api/history-full row (short keys for payload size)
+      properties: { d: {type: string}, fb: {type: number}, fs: {type: number}, fn: {type: number}, db: {type: number}, ds: {type: number}, dn: {type: number}, pcr: {type: number}, sentiment_score: {type: number} }
+      additionalProperties: { type: number }
+paths:
+  /api/data:         { get: { summary: Latest session, security: [{apiKey: []}], responses: { '200': { description: ok, content: { application/json: { schema: { $ref: '#/components/schemas/Session' } } } }, '404': { description: no data } } } }
+  /api/history:      { get: { summary: Last 60 sessions newest-first, responses: { '200': { description: ok, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Session' } } } } } } } }
+  /api/history-full: { get: { summary: Up to 800 sessions, compact keys, responses: { '200': { description: ok, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/CompactSession' } } } } } } } }
+  /api/sectors:      { get: { summary: NSDL sector allocation, responses: { '200': { description: ok } } } }
+  /api/status:       { get: { summary: Feed health and recent fetch log, responses: { '200': { description: ok } } } }
+  /api/stream:       { get: { summary: Server-sent events (data-update), responses: { '200': { description: event stream } } } }
+  /api/agents/regime: { get: { summary: Market regime agent output, responses: { '200': { description: ok } } } }
+  /api/agents/streaks: { get: { summary: FII streak agent output, responses: { '200': { description: ok } } } }

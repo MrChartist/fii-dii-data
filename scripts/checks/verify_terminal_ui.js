@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const indexPath = path.join(__dirname, '..', 'public', 'index.html');
+const indexPath = path.join(__dirname, '..', '..', 'public', 'index.html');
 const html = fs.readFileSync(indexPath, 'utf8');
-const dealsHtml = fs.readFileSync(path.join(__dirname, '..', 'public', 'deals.html'), 'utf8');
+const dealsHtml = fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'deals.html'), 'utf8');
 
 const requiredMarkers = [
   ['terminal theme class', 'terminal-shell'],
@@ -37,9 +37,9 @@ const requiredMarkers = [
   ['first-visit tour', 'function initTour('],
   ['sticky KPI strip', 'id="stickyKpi"'],
   ['NSDL confirmation line', 'id="nsdlConfirm"'],
-  ['design system stylesheet', '/css/mc.css'],
-  ['dashboard stylesheet', '/css/mc-dashboard.css'],
-  ['shared chrome script', '/js/mc-ui.js'],
+  ['design system stylesheet', '/ui/css/mc.css'],
+  ['dashboard stylesheet', '/app/css/mc-dashboard.css'],
+  ['shared chrome script', '/ui/js/mc-ui.js'],
   ['safe-area viewport', 'viewport-fit=cover'],
   ['self-hosted chart.js', '/vendor/chart-3.9.1.min.js'],
   ['HTML escaping helper', 'function escapeHtml(']
@@ -47,8 +47,8 @@ const requiredMarkers = [
 
 const missing = requiredMarkers.filter(([, marker]) => !html.includes(marker));
 if (!dealsHtml.includes('id="large-deals-card"')) missing.push(['bulk/block deals panel (deals.html)', 'id="large-deals-card"']);
-for (const f of ['css/mc.css', 'css/mc-dashboard.css', 'js/mc-ui.js', 'js/mc-brand.js', 'js/mc-charts.js', 'js/mc-motion.js', 'js/mc-ranges.js', 'js/mc-deals.js', 'js/mc-freshness.js', 'js/mc-scale.js']) {
-  if (!fs.existsSync(path.join(__dirname, '..', 'public', f))) missing.push(['front-end file', f]);
+for (const f of ['ui/css/mc.css', 'app/css/mc-dashboard.css', 'ui/js/mc-ui.js', 'ui/js/mc-brand.js', 'ui/js/mc-charts.js', 'ui/js/mc-motion.js', 'ui/js/mc-ranges.js', 'app/js/mc-deals.js', 'app/js/mc-freshness.js', 'ui/js/mc-scale.js']) {
+  if (!fs.existsSync(path.join(__dirname, '..', '..', 'public', f))) missing.push(['front-end file', f]);
 }
 
 if (html.includes('FLOWMATRIX')) {

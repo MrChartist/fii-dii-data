@@ -190,7 +190,7 @@ async function backfillSectorHistory() {
     let newCount = 0;
 
     // Import the main fetch function
-    const { fetchFortnightlySectorData } = require('./fetch_nsdl.js');
+    const { fetchFortnightlySectorData } = require('../feed/fetch_nsdl.js');
 
     for (const code of candidates) {
         if (existingCodes.has(code)) {

@@ -13,7 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = path.join(__dirname, '..', '..', 'data');
 const DRY_RUN = process.argv.includes('--dry-run');
 
 function readJSON(file) {

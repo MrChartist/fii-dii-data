@@ -7,8 +7,14 @@ const CONFIG = {
     NSE_HOME: "https://www.nseindia.com/",
     NSE_API: "https://www.nseindia.com/api/fiidiiTradeReact",
     FAO_BASE: "https://nsearchives.nseindia.com/content/nsccl",
-    TIMEOUTS: { cash: 25000, fao: 15000 },
-    RETRY: { attempts: 3, baseDelayMs: 2000 },
+    // NSE blocks many cloud IPs by hanging, so fail fast: a blocked run used to burn
+    // ~2.5 min on 25s x 3 timeouts and then lose the session for good.
+    TIMEOUTS: { cash: 12000, fao: 15000, live: 20000 },
+    RETRY: { attempts: 2, baseDelayMs: 2000 },
+    // Optional fallback: our own live server (not IP-blocked by NSE). Set both as
+    // repo secrets/env: LIVE_FEED_URL=https://fii-diidata.mrchartist.com  LIVE_FEED_KEY=<one of API_KEYS>
+    LIVE_URL: (process.env.LIVE_FEED_URL || '').replace(/\/+$/, ''),
+    LIVE_KEY: process.env.LIVE_FEED_KEY || '',
     HISTORY_MAX: 800,
     DATA_DIR: path.join(process.cwd(), 'data'),
 };
@@ -26,33 +32,13 @@ let nseCookies = "";
 
 // ── JSON Storage (replaces SQLite) ──────────────────────────────────────────
 
-// strict = true: a file that exists but cannot be parsed THROWS instead of
-// returning the default. Write paths must use it — otherwise a truncated or
-// conflict-marked history.json reads as [] and is then overwritten with a
-// single row, destroying the archive.
-function readJSON(filename, defaultVal, strict = false) {
-    const p = path.join(CONFIG.DATA_DIR, filename);
-    if (!fs.existsSync(p)) return defaultVal;
-    try {
-        return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch (err) {
-        if (strict) throw new Error(`${filename} is unreadable (${err.message}) — refusing to overwrite it`);
-        return defaultVal;
-    }
-}
+const { readJSON, writeJSON } = require('../../lib/store');
+const { NSE_DATE_RE, compare: compareDates } = require('../../lib/dates');
 
-const NSE_DATE_RE = /^\d{2}-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$/;
 // "14,967.82" → 14967.82 (parseFloat alone would stop at the comma and store 14)
 function num(v) {
     const n = parseFloat(String(v ?? '').replace(/,/g, ''));
     return Number.isFinite(n) ? n : NaN;
-}
-
-function writeJSON(filename, data) {
-    const p = path.join(CONFIG.DATA_DIR, filename);
-    const tmp = p + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(tmp, p);
 }
 
 // ── JSON Accessors (replaces SQLite API) ──────────────────────────────────
@@ -74,16 +60,6 @@ function getFetchLogs(limit = 5) {
 
 function getSectorData() {
     return readJSON('sectors.json', []);
-}
-
-function compareDates(a, b) {
-    const M = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
-    const p1 = (a || '').split('-');
-    const p2 = (b || '').split('-');
-    if (p1.length !== 3 || p2.length !== 3) return 0;
-    const d1 = new Date(parseInt(p1[2]), M[p1[1]] ?? 0, parseInt(p1[0]));
-    const d2 = new Date(parseInt(p2[2]), M[p2[1]] ?? 0, parseInt(p2[0]));
-    return d1 - d2;
 }
 
 // ── Log fetch ──────────────────────────────────────────────────────────────
@@ -432,13 +408,59 @@ function saveToHistory(data) {
     writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
 }
 
+// ── Fallback: recover sessions from our own live server ──────────────────────
+// The NSE cash API only ever returns the LATEST session, so a blocked run loses
+// that day permanently. The live server keeps fetching from an unblocked IP and
+// serves its last 60 sessions; merge any validated session we do not have yet.
+// Rows already in the archive are never overwritten. Returns the dates added.
+async function recoverFromLiveServer() {
+    if (!CONFIG.LIVE_URL || !CONFIG.LIVE_KEY) return [];
+    let rows;
+    try {
+        const res = await axios.get(`${CONFIG.LIVE_URL}/api/history`, {
+            headers: { 'x-api-key': CONFIG.LIVE_KEY }, timeout: CONFIG.TIMEOUTS.live
+        });
+        rows = res.data;
+    } catch (err) {
+        console.warn(`  ⚠️ Live-server fallback unavailable: ${err.message}`);
+        return [];
+    }
+    if (!Array.isArray(rows)) return [];
+    const history = readJSON('history.json', [], true);
+    const have = new Set(history.map(r => r.date));
+    const added = [];
+    for (const r of rows) {
+        if (!validateData(r) || have.has(r.date)) continue;
+        if (!['fetch-pipeline', 'live-fetch'].includes(r._source)) r._source = 'live-fetch';
+        history.push(r); have.add(r.date); added.push(r.date);
+    }
+    if (added.length) {
+        history.sort((a, b) => compareDates(b.date, a.date));
+        writeJSON('history.json', history.slice(0, CONFIG.HISTORY_MAX));
+        writeJSON('latest.json', history[0]);
+        console.log(`[LIVE FALLBACK] Recovered sessions: ${added.join(', ')}`);
+    }
+    return added;
+}
+
 // ── Pipeline ─────────────────────────────────────────────────────────────────
 async function fetchAndProcessData() {
     const timestamp = new Date().toISOString();
     console.log(`[${timestamp}] Pipeline started…`);
 
     try {
-        const rawCash = await fetchNSE();
+        let rawCash;
+        try {
+            rawCash = await fetchNSE();
+        } catch (nseErr) {
+            // NSE blocked/unreachable → try our live server before giving up
+            const recovered = await recoverFromLiveServer();
+            if (recovered.length) {
+                logFetch({ success: true, date: recovered[0], action: "recovered-live", count: recovered.length });
+                return { date: recovered[0], _recovered: recovered };
+            }
+            throw nseErr;
+        }
         let targetDate = (rawCash.find(r => /FII|FPI|DII/i.test(r.category)) || {}).date;
         if (!targetDate) {
             console.log("ℹ️ No target date found in NSE response.");
@@ -513,4 +535,4 @@ if (require.main === module) {
     fetchAndProcessData().catch(() => process.exit(1));
 }
 
-module.exports = { fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };
+module.exports = { recoverFromLiveServer, validateData, fetchAndProcessData, getLatestData, getHistoryData, getSectorData, getFetchLogs, backfillMissingFao, rowHasFao, parseFao, applyFao };

@@ -13,7 +13,7 @@ test('package-lock.json satisfies package.json', () => {
 });
 
 test('parseFao reads the real NSE participant-OI file (title row + CRLF)', () => {
-    const { parseFao } = require('../scripts/fetch_data');
+    const { parseFao } = require('../scripts/feed/fetch_data');
     const csv = fs.readFileSync(path.join(__dirname, 'fixtures', 'fao_participant_oi.csv'), 'utf8');
     assert.ok(csv.startsWith('""Participant wise'), 'fixture must keep the malformed title row');
     const out = parseFao(csv);
@@ -26,7 +26,7 @@ test('parseFao reads the real NSE participant-OI file (title row + CRLF)', () =>
 });
 
 test('parseFao tolerates junk and a missing title row', () => {
-    const { parseFao } = require('../scripts/fetch_data');
+    const { parseFao } = require('../scripts/feed/fetch_data');
     assert.deepStrictEqual(parseFao('<!DOCTYPE html><html>404</html>'), {});
     assert.deepStrictEqual(parseFao(''), {});
     const csv = fs.readFileSync(path.join(__dirname, 'fixtures', 'fao_participant_oi.csv'), 'utf8');
@@ -51,7 +51,7 @@ test('apiGuard cannot be bypassed by changing the path case', () => {
 });
 
 test('trading-calendar helpers', () => {
-    const cal = require('../public/js/mc-freshness.js');
+    const cal = require('../public/app/js/mc-freshness.js');
     const d = (y, m, day) => new Date(Date.UTC(y, m - 1, day));
     // Thu 12 Nov 2026, before the evening publish → expect Wed 11 Nov
     assert.strictEqual(cal.lastExpectedSession(new Date('2026-11-12T08:00:00Z')).toISOString().slice(0, 10), '2026-11-11');
@@ -65,7 +65,7 @@ test('trading-calendar helpers', () => {
 });
 
 test('NSDL daily parser reads net (not gross purchases) and ignores the derivatives table', () => {
-    const { parseDailyTrends } = require('../scripts/fetch_nsdl');
+    const { parseDailyTrends } = require('../scripts/feed/fetch_nsdl');
     const html = fs.readFileSync(path.join(__dirname, 'fixtures', 'nsdl_latest.html'), 'utf8');
     const out = parseDailyTrends(html);
     assert.strictEqual(out.rows.length, 1);
@@ -76,7 +76,7 @@ test('NSDL daily parser reads net (not gross purchases) and ignores the derivati
 
 test('agent-ready: Markdown, MCP protocol and server card', () => {
     const ar = require('../agent-ready');
-    const { getHistoryData, getSectorData } = require('../scripts/fetch_data');
+    const { getHistoryData, getSectorData } = require('../scripts/feed/fetch_data');
     const views = ar.createViews({ getHistoryData, getSectorData });
 
     const md = ar.buildMarkdown(views);
@@ -111,6 +111,6 @@ test('agent-ready static files', () => {
     for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(m[1]);
     for (const f of ['about.html', 'contact.html', 'terms.html', 'privacy.html']) {
         assert.strictEqual((pub(f).match(/<h1[\s>]/g) || []).length, 1, f);
-        assert.ok(pub('js/mc-ui.js').includes('href="/' + f), 'footer links ' + f);
+        assert.ok(pub('ui/js/mc-ui.js').includes('href="/' + f), 'footer links ' + f);
     }
 });

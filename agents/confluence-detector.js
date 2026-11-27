@@ -92,7 +92,7 @@ async function run() {
     let alerts_sent = 0;
     // Dedupe key must be the IST calendar day — UTC flips at 05:30 IST, which
     // would allow a morning + evening double-alert on the same trading day
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const todayStr = require('../lib/dates').istDateKey();
 
     if (confluences.length > 0) {
         // Only alert once per day per confluence type

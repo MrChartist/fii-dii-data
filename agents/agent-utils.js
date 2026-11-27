@@ -7,24 +7,7 @@ const axios = require('axios');
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 
-// ── JSON Read/Write Helpers ──────────────────────────────────────────────────
-
-function readJSON(filename, defaultVal) {
-    try {
-        const p = path.join(DATA_DIR, filename);
-        if (!fs.existsSync(p)) return defaultVal;
-        return JSON.parse(fs.readFileSync(p, 'utf8'));
-    } catch {
-        return defaultVal;
-    }
-}
-
-function writeJSON(filename, data) {
-    const p = path.join(DATA_DIR, filename);
-    const tmp = p + '.tmp';
-    fs.writeFileSync(tmp, JSON.stringify(data, null, 2), 'utf8');
-    fs.renameSync(tmp, p);
-}
+const { readJSON, writeJSON } = require('../lib/store');
 
 // ── Agent State Management ───────────────────────────────────────────────────
 // Each agent gets a namespace in data/agent_state.json
@@ -88,26 +71,9 @@ async function deliverAlert(/* message */) {
 
 // ── Data Readers ─────────────────────────────────────────────────────────────
 
-const MONTHS = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
-
-function parseDate(dateStr) {
-    // Parses "01-Apr-2026" → Date object
-    if (!dateStr) return null;
-    const parts = dateStr.split('-');
-    if (parts.length !== 3) return null;
-    const day = parseInt(parts[0], 10);
-    const month = MONTHS[parts[1]];
-    const year = parseInt(parts[2], 10);
-    if (month === undefined || isNaN(day) || isNaN(year)) return null;
-    return new Date(year, month, day);
-}
-
-function compareDates(a, b) {
-    const dA = parseDate(a);
-    const dB = parseDate(b);
-    if (!dA || !dB) return 0;
-    return dA - dB;
-}
+const dates = require('../lib/dates');
+const parseDate = dates.parse;
+const compareDates = dates.compare;
 
 function getHistory(days = 60) {
     const history = readJSON('history.json', []);

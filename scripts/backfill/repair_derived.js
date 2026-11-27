@@ -12,7 +12,7 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { applyFao, rowHasFao } = require('./fetch_data');
+const { applyFao, rowHasFao } = require('../feed/fetch_data');
 
 const file = path.join(process.cwd(), 'data', 'history.json');
 const history = JSON.parse(fs.readFileSync(file, 'utf8'));

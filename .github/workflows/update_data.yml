@@ -34,6 +34,10 @@ jobs:
 
       - name: 📡 Fetch NSE FII/DII data
         id: fetch
+        env:
+          # Optional fallback when NSE blocks GitHub runners (see CLAUDE.md > Data feed)
+          LIVE_FEED_URL: ${{ secrets.LIVE_FEED_URL }}
+          LIVE_FEED_KEY: ${{ secrets.LIVE_FEED_KEY }}
         run: npm run fetch
         # Script exits with code 1 on critical failure — this step will fail
         # and prevent corrupt data from being committed.
@@ -43,7 +47,11 @@ jobs:
         # up the NSE update, so this step is allowed to fail.
         continue-on-error: true
         timeout-minutes: 6
-        run: node scripts/fetch_nsdl.js
+        run: node scripts/feed/fetch_nsdl.js
+
+      - name: 🕳️ Report missing sessions
+        if: always()
+        run: node scripts/checks/gaps.js | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: 🔎 Verify data integrity
         if: steps.fetch.outcome == 'success'

@@ -5,26 +5,26 @@
  * The dashboard is inherently a live-data app, so we prioritize fresh network responses.
  */
 
-const CACHE_NAME = 'mrchartist-v23';
+const CACHE_NAME = 'mrchartist-v24';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/deals.html',
-  '/css/mc.css',
-  '/css/mc-dashboard.css',
-  '/js/mc-brand.js',
-  '/js/mc-freshness.js',
-  '/js/mc-scale.js',
-  '/js/mc-webmcp.js',
+  '/ui/css/mc.css',
+  '/app/css/mc-dashboard.css',
+  '/ui/js/mc-brand.js',
+  '/app/js/mc-freshness.js',
+  '/ui/js/mc-scale.js',
+  '/app/js/mc-webmcp.js',
   '/about.html',
   '/contact.html',
   '/terms.html',
   '/privacy.html',
-  '/js/mc-ui.js',
-  '/js/mc-motion.js',
-  '/js/mc-charts.js',
-  '/js/mc-ranges.js',
-  '/js/mc-deals.js',
+  '/ui/js/mc-ui.js',
+  '/ui/js/mc-motion.js',
+  '/ui/js/mc-charts.js',
+  '/ui/js/mc-ranges.js',
+  '/app/js/mc-deals.js',
   '/vendor/chart-3.9.1.min.js',
   '/manifest.json',
   '/favicon.ico',

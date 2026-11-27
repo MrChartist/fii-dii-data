@@ -119,7 +119,7 @@ try {
 }
 
 try {
-    const fetchModule = require('./scripts/fetch_data');
+    const fetchModule = require('./scripts/feed/fetch_data');
     fetchAndProcessData = fetchModule.fetchAndProcessData;
     getLatestData = fetchModule.getLatestData;
     getHistoryData = fetchModule.getHistoryData;
@@ -137,7 +137,7 @@ try {
 }
 
 try {
-    const nsdlModule = require('./scripts/fetch_nsdl');
+    const nsdlModule = require('./scripts/feed/fetch_nsdl');
     fetchAllNSDL = nsdlModule.fetchAllNSDL;
     console.log('[BOOT] fetch_nsdl loaded ✓');
 } catch (e) {

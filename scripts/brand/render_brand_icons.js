@@ -1,7 +1,7 @@
 // Rasterises brand-source/generated/* into public/brand/*. Needs: npm i --no-save playwright-core (+ a Chromium; set CHROME_PATH).
 const { chromium } = require('playwright-core');
 const fs = require('fs'), path = require('path');
-const R = path.join(__dirname, '..'), G = path.join(R, 'brand-source', 'generated');
+const R = path.join(__dirname, '..', '..'), G = path.join(R, 'brand-source', 'generated');
 (async () => {
   const b = await chromium.launch({ executablePath: process.env.CHROME_PATH });
   for (const f of fs.readdirSync(G).filter(f => f.endsWith('.svg'))) {

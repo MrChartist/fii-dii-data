@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Session row (data/history.json item, data/latest.json)",
+  "description": "One NSE trading session. Figures in INR crore. F&O fields are 0 until NSE publishes participant OI (later than cash). Invariants: net = buy - sell (±1); date is DD-Mon-YYYY; one row per date; history sorted newest-first.",
+  "type": "object",
+  "required": [
+    "date",
+    "fii_buy",
+    "fii_sell",
+    "fii_net",
+    "dii_buy",
+    "dii_sell",
+    "dii_net"
+  ],
+  "properties": {
+    "date": {
+      "type": "string",
+      "pattern": "^\\d{2}-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\\d{4}$"
+    },
+    "fii_buy": {
+      "type": "number"
+    },
+    "fii_sell": {
+      "type": "number"
+    },
+    "fii_net": {
+      "type": "number"
+    },
+    "dii_buy": {
+      "type": "number"
+    },
+    "dii_sell": {
+      "type": "number"
+    },
+    "dii_net": {
+      "type": "number"
+    },
+    "fii_idx_fut_long": {
+      "type": "number"
+    },
+    "fii_idx_fut_short": {
+      "type": "number"
+    },
+    "fii_idx_fut_net": {
+      "type": "number"
+    },
+    "dii_idx_fut_long": {
+      "type": "number"
+    },
+    "dii_idx_fut_short": {
+      "type": "number"
+    },
+    "dii_idx_fut_net": {
+      "type": "number"
+    },
+    "fii_stk_fut_long": {
+      "type": "number"
+    },
+    "fii_stk_fut_short": {
+      "type": "number"
+    },
+    "fii_stk_fut_net": {
+      "type": "number"
+    },
+    "dii_stk_fut_long": {
+      "type": "number"
+    },
+    "dii_stk_fut_short": {
+      "type": "number"
+    },
+    "dii_stk_fut_net": {
+      "type": "number"
+    },
+    "fii_idx_call_long": {
+      "type": "number"
+    },
+    "fii_idx_call_short": {
+      "type": "number"
+    },
+    "fii_idx_call_net": {
+      "type": "number"
+    },
+    "fii_idx_put_long": {
+      "type": "number"
+    },
+    "fii_idx_put_short": {
+      "type": "number"
+    },
+    "fii_idx_put_net": {
+      "type": "number"
+    },
+    "pcr": {
+      "type": "number"
+    },
+    "sentiment_score": {
+      "type": "number"
+    },
+    "_source": {
+      "type": "string",
+      "enum": [
+        "fetch-pipeline",
+        "live-fetch",
+        "historical-seed",
+        "backfill-estimated"
+      ]
+    },
+    "_updated_at": {
+      "type": "string"
+    },
+    "_fao_summary": {
+      "type": "object"
+    },
+    "_fao_backfilled_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

@@ -3,8 +3,8 @@
 
 Parent logo: built with the Mr. Chartist logo kit's own recipe (approved four-band
 path data, Plus Jakarta Sans 800 outlined, tracking -55/1000 em, same layout constants).
-App icons / favicon / share card: Mr. Chartist symbol (white on kit charcoal #0D0D0D); SVG sources are written to brand-source/generated, then rasterised by scripts/render_brand_icons.js.
-Usage: python3 scripts/build_brand_assets.py && node scripts/render_brand_icons.js && python3 scripts/build_brand_assets.py --ico
+App icons / favicon / share card: Mr. Chartist symbol (white on kit charcoal #0D0D0D); SVG sources are written to brand-source/generated, then rasterised by scripts/brand/render_brand_icons.js.
+Usage: python3 scripts/brand/build_brand_assets.py && node scripts/brand/render_brand_icons.js && python3 scripts/brand/build_brand_assets.py --ico
 Requires: pip install fonttools pillow; npm i playwright-core (renderer only)
 """
 import json
@@ -14,7 +14,7 @@ from fontTools.varLib.instancer import instantiateVariableFont
 from fontTools.pens.svgPathPen import SVGPathPen
 from PIL import Image, ImageFont
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 SRC = ROOT / 'brand-source'
 OUT = ROOT / 'public' / 'brand'
 PATHS = json.loads((SRC / 'mr-chartist-symbol-paths.json').read_text())

@@ -147,33 +147,26 @@ Visual language: Liquid Glass in the spirit of the latest iOS and macOS. Surface
 ## 📂 Project Structure
 
 ```
-FII and DII data/
-├── server.js                     # Express backend + cron scheduler
-├── package.json                  # Dependencies & scripts
+FII and DII data/   (see CLAUDE.md for the module map)
+├── server.js / api-guard.js / agent-ready.js   # Express backend, access control, agent-ready endpoints
+├── lib/                          # dates.js + store.js — shared backend utilities
 ├── public/
-│   ├── index.html                # Main dashboard (single-file SPA)
-│   ├── deals.html                # Bulk & block deals page
-│   ├── manifest.json             # PWA manifest (icons, shortcuts)
-│   ├── sw.js                     # Service Worker (network-first, API bypass)
-│   ├── robots.txt / sitemap.xml  # SEO
-│   ├── css/
-│   │   ├── mc.css                # Design system + chrome + components
-│   │   └── mc-dashboard.css      # Page sections
-│   ├── js/
-│   │   └── mc-*.js               # Brand, UI chrome, motion, charts, ranges, deals
-│   ├── vendor/                   # Self-hosted Chart.js + html2canvas
-│   ├── brand/                    # Mr. Chartist logo + app icons (see brand-source/)
-│   └── screenshots/              # Tab screenshots for README
+│   ├── index.html, deals.html …  # Pages
+│   ├── ui/                       # Reusable UI kit (css/mc.css, js/mc-*.js) — see ui/README.md
+│   ├── app/                      # Dashboard-only CSS/JS
+│   ├── vendor/ brand/ screenshots/
+│   └── sw.js manifest.json robots.txt sitemap.xml llms.txt
+├── seo/                          # SEO rules + audit (npm run seo)
+├── agents/ agent-runner.js       # Signal agents
 ├── scripts/
-│   ├── fetch_data.js             # NSE data fetcher + JSON storage
-│   ├── verify_terminal_ui.js     # Front-end contract test (npm run test:ui)
-│   ├── seed_history.js           # Historical data seeder
-│   └── seed_sectors.js           # Sector data seeder
-├── data/
-│   ├── history.json              # Rolling FII/DII daily history
-│   ├── sectors.json              # Sector allocation data (24 sectors)
-│   └── fetch-log.json            # Fetch activity log
-└── README.md                     # This file
+│   ├── feed/                     # fetch_data.js (NSE), fetch_nsdl.js (sectors) — run by CI
+│   ├── backfill/                 # one-off historical backfills & repairs
+│   ├── checks/                   # gaps.js, verify_terminal_ui.js
+│   └── brand/                    # icon/share-card generation
+├── data/                         # JSON archive (committed by CI)
+├── test/                         # node --test suites
+├── docs/ (marketing/, superpowers/) · tools/legacy/ · brand-source/ · supabase/
+└── CLAUDE.md                     # Agent guide
 ```
 
 ## 🚀 Quick Start
@@ -183,8 +176,7 @@ FII and DII data/
 npm install
 
 # 2. Seed historical data (first time only)
-node scripts/seed_history.js
-node scripts/seed_sectors.js
+node scripts/backfill/seed_history.js
 
 # 3. Start the server
 npm start

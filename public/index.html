@@ -3,7 +3,7 @@
 <head>
 <script>/* Restore saved theme before first paint to avoid a flash */
 try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark') document.documentElement.setAttribute('data-theme', _t); } catch (e) {}</script>
-<script src="/js/mc-scale.js?v=8"></script>
+<script src="/ui/js/mc-scale.js?v=8"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
@@ -224,10 +224,10 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- Last Updated (for search engines) -->
 <meta name="revised" content="2026-10-24">
 <meta name="date" content="2026-10-24">
-<link rel="stylesheet" href="/css/mc.css?v=10">
-<link rel="stylesheet" href="/css/mc-dashboard.css?v=8">
+<link rel="stylesheet" href="/ui/css/mc.css?v=10">
+<link rel="stylesheet" href="/app/css/mc-dashboard.css?v=8">
 <!-- Self-hosted (works offline via SW, no CDN dependency); CDN as fallback -->
-<script src="/js/mc-freshness.js?v=7"></script>
+<script src="/app/js/mc-freshness.js?v=7"></script>
 <script src="/vendor/chart-3.9.1.min.js"></script>
 <script>window.Chart || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>')</script>
 </head>
@@ -4914,12 +4914,12 @@ function renderFnoHistoryChart(mode = _fnoHistoryMode) {
   // Market ticker polling now lives in js/mc-ui.js (single shared poll for Nifty, Sensex and VIX)
 
 </script>
-<script src="/js/mc-brand.js?v=6" defer></script>
-<script src="/js/mc-webmcp.js?v=1" defer></script>
-<script src="/js/mc-ui.js?v=11" defer></script>
-<script src="/js/mc-motion.js?v=6" defer></script>
-<script src="/js/mc-charts.js?v=8" defer></script>
-<script src="/js/mc-ranges.js?v=6" defer></script>
+<script src="/ui/js/mc-brand.js?v=6" defer></script>
+<script src="/app/js/mc-webmcp.js?v=1" defer></script>
+<script src="/ui/js/mc-ui.js?v=11" defer></script>
+<script src="/ui/js/mc-motion.js?v=6" defer></script>
+<script src="/ui/js/mc-charts.js?v=8" defer></script>
+<script src="/ui/js/mc-ranges.js?v=6" defer></script>
 </body>
 </html>
 

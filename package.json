@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "fetch": "node scripts/fetch_data.js",
+    "fetch": "node scripts/feed/fetch_data.js",
     "agents": "node agent-runner.js",
     "agent:streak": "node agent-runner.js --agent=fii-streak",
     "agent:regime": "node agent-runner.js --agent=regime-classifier",
@@ -15,9 +15,11 @@
     "agent:diverge": "node agent-runner.js --agent=flow-divergence",
     "agent:digest": "node agent-runner.js --agent=weekly-digest",
     "agent:all": "node agent-runner.js --agent=all",
-    "test:ui": "node scripts/verify_terminal_ui.js",
+    "test:ui": "node scripts/checks/verify_terminal_ui.js",
     "build": "echo 'No build step required'",
-    "test": "node --test test/*.test.js && node scripts/verify_terminal_ui.js",
+    "test": "node --test test/*.test.js && node scripts/checks/verify_terminal_ui.js",
+    "seo": "node seo/audit.js",
+    "gaps": "node scripts/checks/gaps.js",
     "test:data": "node --test test/data-integrity.test.js"
   },
   "engines": {
