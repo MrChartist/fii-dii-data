@@ -67,7 +67,12 @@ module.exports = function mount(app) {
                 res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
             }
             // HTML should revalidate on every request (stale-while-revalidate)
-            if (filePath.endsWith('.html')) {
+            // CSS/JS: always revalidate (cheap 304 via ETag). Design and motion change often, and a stale
+        // cached stylesheet next to a new script is exactly how a redesign "doesn't show up".
+        if (/\.(css|js)$/.test(filePath) && !filePath.includes(`${path.sep}vendor${path.sep}`)) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        }
+        if (filePath.endsWith('.html')) {
                 res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
             }
         }

@@ -83,7 +83,7 @@
       $$('.tab[data-tab="deals"]', frag).forEach(function (t) { if (active === 'deals') t.setAttribute('aria-current', 'page'); });
       nm.parentNode.insertBefore(frag, nm); nm.parentNode.removeChild(nm);
     }
-    if (fm) { fm.parentNode.insertBefore(html(footHtml()), fm); fm.parentNode.removeChild(fm); }
+    if (fm) { fm.parentNode.insertBefore(html(footHtml()), fm); fm.parentNode.removeChild(fm); MCFooter.bind($('.os-footer')); }
   }
   mountChrome();
 

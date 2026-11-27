@@ -9,3 +9,4 @@ Look-and-feel and behaviour meant to be reusable across Mr. Chartist projects. C
 - **Phones.** Check ~390px wide (modal cards sit above the bottom dock; keep them opaque).
 - **Paths.** `/ui/css/mc.css`, `/ui/js/mc-*.js`. When you add/move a file update `public/sw.js` (bump `CACHE_NAME`), the `<script>/<link>` tags and `scripts/checks/verify_terminal_ui.js`; bump the `?v=` query on a changed asset.
 - **Extraction backlog** is in `README.md`.
+- **Caching.** The server revalidates `.css`/`.js` on every load (ETag/304), so a redesign shows up on the next reload. Still bump the `?v=` on a changed asset: it is what rescues browsers holding an older cached copy.
