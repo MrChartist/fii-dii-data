@@ -142,8 +142,8 @@
 @media (max-width: 400px) { .cash-tape-grid { grid-template-columns: 1fr; } .terminal-value, .terminal-value-sm { font-size: 24px; } }
 
 /* ── F&O tab ───────────────────────────────────────────────────────────── */
-#t-fno .card.hero-banner { background: linear-gradient(120deg, hsl(150 80% 50% / .14), transparent 55%), var(--glass-fill) !important; }
-#t-matrix .card.hero-banner { background: linear-gradient(120deg, hsl(270 90% 66% / .16), transparent 55%), var(--glass-fill) !important; }
+#t-fno .card.hero-banner { background: var(--card-sheen), var(--glass-fill) !important; }
+#t-matrix .card.hero-banner { background: var(--card-sheen), var(--glass-fill) !important; }
 .fno-header { display: flex; justify-content: space-between; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid var(--os-hairline-soft); }
 .fno-header > div:first-child > div:first-child { font: 700 16px/1.3 var(--font-display) !important; letter-spacing: -.03em; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
 .fno-header svg { display: none; }
@@ -273,7 +273,7 @@
 .agent-row:hover .agent-share-btn { opacity: 1 !important; }
 
 /* ── Data freshness & archive gaps ── */
-.mc-stale { margin: 0 0 var(--gap-card); padding: 11px 14px; border-radius: var(--r-compact); background: var(--os-neutral-bg); border: 1px solid color-mix(in srgb, var(--os-neutral) 45%, transparent); color: var(--t1); font: 450 13.5px/1.5 var(--font-body); }
+.mc-stale { margin: 0 0 var(--gap-card); padding: 11px 14px; border-radius: var(--r-compact); background: var(--card-sheen), var(--glass-fill); border: 1px solid var(--os-hairline-strong); color: var(--t1); font: 450 13.5px/1.5 var(--font-body); }
 .mc-stale b { font-weight: 650; }
 .mc-stale[hidden] { display: none; }
 #sPill[data-feed="stale"] .status-dot { background: var(--os-neutral); box-shadow: 0 0 0 3px var(--os-neutral-bg); animation: none; }
