@@ -43,34 +43,19 @@
       <a class="os-cta" href="https://mrchartist.com" target="_blank" rel="noopener">Explore ${ICON.arrow}</a>
     </div>
   </nav>`;
-  var FOOT = `<footer class="os-footer">
-  <div class="os-footer-card">
-    <div class="os-footer-grid">
-      <div class="os-fbrand">
-        <div class="os-fbrand-name">${MCBrand.lockup({size:'footer'})}</div>
-        <p>Daily FII and DII cash flows, derivatives positioning, sector rotation and large deals for Indian equities, in one place. Free, fast and updated every evening after the close.</p>
-        <p class="os-ftag">${MCBrand.tagline || 'Read the market before you trade it.'}</p>
-      </div>
-      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5z"/><path d="m3 13 9 5 9-5"/></svg>Dashboard</h4><ul><li><a href="/#t-hero">FII/DII flows</a></li><li><a href="/#t-fno">F&amp;O positioning</a></li><li><a href="/#t-matrix">Flow analytics</a></li><li><a href="/#t-sector">Sector rotation</a></li><li><a href="/deals.html">Bulk &amp; block deals</a></li></ul></div>
-      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16M9 4v16M14 6v14M19 8v12"/></svg>Mr. Chartist</h4><ul><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Ecosystem</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Investology</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Weekly ChartBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Scanner Pro</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">OptionsDesk</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">TradeBook</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">NISM exams</a></li></ul></div>
-      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M5 8h14M5 8l-3 7a3 3 0 0 0 6 0zM19 8l-3 7a3 3 0 0 0 6 0z"/></svg>Legal</h4><ul><li><a href="/terms.html#regulatory">SEBI registration</a></li><li><a href="/terms.html#grievance">Grievance redressal</a></li><li><a href="/terms.html#disclaimer">Disclaimer</a></li><li><a href="/privacy.html">Privacy policy</a></li><li><a href="/terms.html">Terms of service</a></li><li><a href="/about.html">About</a></li><li><a href="/contact.html">Contact</a></li></ul></div>
-      <div class="os-fcol"><h4 class="os-fhead"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg>Connect</h4><ul><li><a href="https://twitter.com/mr_chartist" target="_blank" rel="noopener">X / Twitter</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">YouTube</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://mrchartist.com" target="_blank" rel="noopener">LinkedIn</a></li><li><a href="https://github.com/MrChartist" target="_blank" rel="noopener">GitHub</a></li></ul></div>
-    </div>
-    <div class="os-wordmark" aria-hidden="true">FII &amp; DII Data.</div>
-    <section class="os-sebi" aria-label="SEBI registration">
-      <h3><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>SEBI Registered Research Analyst &mdash; INH000015297</h3>
-      <div class="os-sebi-grid">
-        <dl><div><dt>Trade name:</dt><dd>INVESTOLOGY</dd></div><div><dt>Registration no:</dt><dd>INH000015297</dd></div><div><dt>Validity:</dt><dd>Mar 01, 2024 &mdash; Perpetual</dd></div></dl>
-        <dl><div class="os-addr"><dt>Office address:</dt><dd>Office No. 19, 1st Floor, Poonam Estate Cluster II, Bldg No. 7, 8, 9, Opp. Surya Shopping Center, Mira Road East, Thane, Maharashtra 401107</dd></div></dl>
-      </div>
-      <p class="os-fdisc">Investments in securities markets are subject to market risks. Read all related documents carefully before investing. Registration granted by SEBI and certification from NISM in no way guarantee performance or provide any assurance of returns. The data on this page is sourced from NSE and NSDL publications and is provided for information only, not as investment advice.</p>
-    </section>
-    <div class="os-fbottom">
-      <p>&copy; 2024&ndash;2026 Mr. Chartist (Investology) &middot; Personal use only, all rights reserved.</p>
-      <p class="os-fnote">Built with conviction. For traders, by a trader.</p>
-    </div>
-  </div>
-</footer>`;
+  /* Footer: the shared ecosystem footer lives in mc-footer.js; this product only supplies its own column */
+  function footHtml() {
+    return MCFooter.html({
+      brand: MCBrand.lockup({ size: 'footer' }),
+      note: 'The data on this page is sourced from NSE and NSDL publications and is provided for information only, not as investment advice.',
+      product: {
+        name: 'FII & DII Data', head: 'Dashboard',
+        blurb: 'Daily FII and DII cash flows, derivatives positioning, sector rotation and large deals for Indian equities, in one place. Free, fast and updated every evening after the close.',
+        tagline: MCBrand.tagline || 'Read the market before you trade it.',
+        links: [['FII/DII flows', '/#t-hero'], ['F&amp;O positioning', '/#t-fno'], ['Flow analytics', '/#t-matrix'], ['Sector rotation', '/#t-sector'], ['Bulk &amp; block deals', '/deals.html']]
+      }
+    });
+  }
   var doc = document;
   function $(s, r) { return (r || doc).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || doc).querySelectorAll(s)); }
@@ -98,7 +83,7 @@
       $$('.tab[data-tab="deals"]', frag).forEach(function (t) { if (active === 'deals') t.setAttribute('aria-current', 'page'); });
       nm.parentNode.insertBefore(frag, nm); nm.parentNode.removeChild(nm);
     }
-    if (fm) { fm.parentNode.insertBefore(html(FOOT), fm); fm.parentNode.removeChild(fm); }
+    if (fm) { fm.parentNode.insertBefore(html(footHtml()), fm); fm.parentNode.removeChild(fm); }
   }
   mountChrome();
 
@@ -280,68 +265,7 @@
   }
   if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initInfos); else initInfos();
 
-  /* ---- 6. Live quotes: single shared poll for Nifty 50, Sensex and India VIX (same ids as the original ticker) ---- */
-  function initTicker() {
-    if (!$('#marketTicker')) return;
-    var KEY = 'os27-quotes', last = 0, timer = null, prev = {}, inflight = false;
-    function fmt(n) { return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-    function ist() { var n = new Date(); return new Date(n.getTime() + 5.5 * 3600e3 + n.getTimezoneOffset() * 60e3); }
-    function live() { var d = ist(), m = d.getHours() * 60 + d.getMinutes(), w = d.getDay(); return w > 0 && w < 6 && m >= 540 && m <= 945; }
-    function zone(v) { return v < 14 ? ['Low Fear', 'low'] : v < 20 ? ['Normal', 'normal'] : v < 30 ? ['Elevated', 'elevated'] : ['High Fear', 'high']; }
-    function flash(el, dir) { if (!el) return; el.classList.remove('tick-up', 'tick-down'); void el.offsetWidth; el.classList.add(dir > 0 ? 'tick-up' : 'tick-down'); setTimeout(function () { el.classList.remove('tick-up', 'tick-down'); }, 1000); }
-    function put(k, q, pe, ce, invert) {
-      var p = $(pe), c = $(ce); if (!q || !p || !c || !isFinite(q.price)) return;
-      p.textContent = fmt(q.price);
-      if (prev[k] != null && prev[k] !== q.price) flash(p, q.price > prev[k] ? 1 : -1);
-      prev[k] = q.price;
-      var pct = Number(q.pct) || 0, band = invert ? 0.5 : 0.05;
-      c.textContent = (pct >= 0 ? '▲ +' : '▼ ') + pct.toFixed(2) + '%';
-      c.className = 'ticker-change ' + (invert ? (pct > band ? 'down' : pct < -band ? 'up' : 'flat') : (pct > band ? 'up' : pct < -band ? 'down' : 'flat'));
-    }
-    function render(d, cached) {
-      put('n', d.nifty, '#tickerNiftyPrice', '#tickerNiftyChange', false);
-      put('s', d.sensex, '#tickerSensexPrice', '#tickerSensexChange', false);
-      put('v', d.vix, '#tickerVixPrice', '#tickerVixChange', true);
-      if (d.vix) { var z = zone(d.vix.price), ze = $('#tickerVixZone'); if (ze) { ze.textContent = z[0]; ze.className = 'vix-zone ' + z[1]; } }
-      var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot');
-      if (ts) { var t = new Date(d.ts || Date.now()); ts.textContent = 'Updated ' + t.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + (d.stale ? ' (delayed)' : ''); ts.classList.toggle('cached', !!cached); }
-      if (dot) dot.className = 'ticker-live-dot' + (cached || d.stale ? ' stale' : '');
-      // Show the ticker only when real quotes exist; hide any quote that is missing.
-      var box = $('#marketTicker'), any = false;
-      [['nifty', '#tickerNiftyPrice'], ['sensex', '#tickerSensexPrice'], ['vix', '#tickerVixPrice']].forEach(function (p) {
-        var ok = !!(d[p[0]] && Number.isFinite(Number(d[p[0]].price))), el = $(p[1]);
-        var item = el && el.closest('.ticker-item');
-        if (item) {
-          item.hidden = !ok;
-          var prev = item.previousElementSibling, next = item.nextElementSibling;
-          [prev, next].forEach(function (s) { if (s && s.classList.contains('ticker-divider')) s.hidden = true; });
-        }
-        if (ok) any = true;
-      });
-      if (box) box.hidden = !any;
-    }
-    function schedule() { clearTimeout(timer); if (doc.hidden) return; timer = setTimeout(poll, live() ? 15000 : 300000); }
-    function poll() {
-      if (inflight || doc.hidden) { schedule(); return; }
-      inflight = true; last = Date.now();
-      var ac = window.AbortController ? new AbortController() : null, to = setTimeout(function () { if (ac) ac.abort(); }, 8000);
-      fetch('/api/market', { cache: 'no-store', signal: ac ? ac.signal : undefined })
-        .then(function (r) { if (!r.ok) throw new Error('bad'); return r.json(); })
-        .then(function (d) { render(d, false); try { localStorage.setItem(KEY, JSON.stringify(d)); } catch (e) {} })
-        .catch(function () {
-          var ts = $('#tickerUpdatedAt'), dot = $('#tickerDot'); if (dot) dot.className = 'ticker-live-dot stale';
-          if (!ts) return;
-          if (/Updated/.test(ts.textContent)) { if (!/\(delayed\)$/.test(ts.textContent)) ts.textContent += ' (delayed)'; } else ts.textContent = 'Market data unavailable';
-        })
-        .then(function () { clearTimeout(to); inflight = false; schedule(); });
-    }
-    try { var c = JSON.parse(localStorage.getItem(KEY) || 'null'); if (c && (c.nifty || c.vix)) render(c, true); } catch (e) {}
-    doc.addEventListener('visibilitychange', function () { if (doc.hidden) clearTimeout(timer); else if (Date.now() - last > 3000) poll(); else schedule(); });
-    poll();
-  }
-  if (doc.readyState === 'loading') doc.addEventListener('DOMContentLoaded', initTicker); else initTicker();
-
-  /* ---- 7. Toast, theme-color sync (Safari tab tint / Android status bar), standalone flag ---- */
+  /* ---- 6. Toast, theme-color sync (Safari tab tint / Android status bar), standalone flag ---- */
   var toastT = null;
   window.mcToast = function (msg) {
     var t = $('.mc-toast'); if (!t) { t = doc.createElement('div'); t.className = 'mc-toast'; t.setAttribute('role', 'status'); doc.body.appendChild(t); }

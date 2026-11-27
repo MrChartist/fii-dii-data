@@ -49,7 +49,7 @@ const requiredMarkers = [
 
 const missing = requiredMarkers.filter(([, marker]) => !html.includes(marker));
 if (!dealsHtml.includes('id="large-deals-card"')) missing.push(['bulk/block deals panel (deals.html)', 'id="large-deals-card"']);
-for (const f of ['ui/css/mc.css', 'app/css/mc-dashboard.css', 'ui/js/mc-ui.js', 'ui/js/mc-brand.js', 'ui/js/mc-charts.js', 'ui/js/mc-motion.js', 'ui/js/mc-ranges.js', 'app/js/mc-deals.js', 'app/js/mc-freshness.js', 'ui/js/mc-scale.js']) {
+for (const f of ['ui/css/mc.css', 'app/css/mc-dashboard.css', 'ui/js/mc-ui.js', 'ui/js/mc-brand.js', 'ui/js/mc-footer.js', 'ui/js/mc-charts.js', 'ui/js/mc-motion.js', 'ui/js/mc-ranges.js', 'app/js/mc-deals.js', 'app/js/mc-freshness.js', 'ui/js/mc-scale.js']) {
   if (!fs.existsSync(path.join(__dirname, '..', '..', 'public', f))) missing.push(['front-end file', f]);
 }
 

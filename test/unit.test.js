@@ -111,6 +111,6 @@ test('agent-ready static files', () => {
     for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(m[1]);
     for (const f of ['about.html', 'contact.html', 'terms.html', 'privacy.html']) {
         assert.strictEqual((pub(f).match(/<h1[\s>]/g) || []).length, 1, f);
-        assert.ok(pub('ui/js/mc-ui.js').includes('href="/' + f), 'footer links ' + f);
+        assert.ok(pub('ui/js/mc-footer.js').includes("'/" + f), 'footer links ' + f);
     }
 });

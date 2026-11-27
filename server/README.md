@@ -3,7 +3,7 @@
 
 | Folder | Files | Purpose |
 |---|---|---|
-| `routes/` | `pages` (HTML, OG injection, static) · `data` · `push` · `system` (refresh/status/health/stream) · `market` (Yahoo/NSE proxies) · `agents` · `admin` (one-time `.env` setup) | Thin HTTP handlers. Mount order is set in `app.js` and matters (pages before API). |
+| `routes/` | `pages` (HTML, OG injection, static) · `data` · `push` · `system` (refresh/status/health/stream) · `market` (Nifty history, NSE large deals, NSDL daily, persisted closes) · `agents` · `admin` (one-time `.env` setup) | Thin HTTP handlers. Mount order is set in `app.js` and matters (pages before API). |
 | `services/` | `feed` (only door to `scripts/feed`) · `pipeline` (what happens on a new session: SSE → clear AI cache → market close → agents → notifications) · `notify` · `push` · `sse` · `market` · `synthesis-cache` | Business logic, no Express. |
 | `jobs/` | `scheduler` | Cron (UTC): post-market fetch every 15 min 6–9 PM IST, NSDL 10 AM, F&O recovery 10 PM/8 AM, weekly digest Fri 8 PM. |
 

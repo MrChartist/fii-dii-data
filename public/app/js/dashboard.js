@@ -474,21 +474,33 @@ function openSession(dateStr) {
 
 /* ── Sticky KPI strip — headline numbers follow the user down the page ── */
 let _stickyKpiWired = false;
+/* Flow island: latest session in a floating capsule at the bottom (desktop). Shows after the hero scrolls away,
+   tucks away while the footer is on screen, and jumps back to the cash-flow tape on click. */
 function renderStickyKpi() {
   const el = document.getElementById('stickyKpi');
   if (!el || !dailyData.length || dailyData[0].d === 'N/A') return;
   const d = dailyData[0];
   const clr = v => v >= 0 ? 'var(--green)' : 'var(--red)';
+  const fresh = (window.MCFresh && MCFresh.assess(d.d)) || { status: 'fresh' };
   el.innerHTML =
+    `<span class="sk-dot ${fresh.status === 'fresh' ? '' : fresh.status}" title="${fresh.status === 'fresh' ? 'Up to date' : 'Data is ' + (fresh.behind || 0) + ' session(s) behind'}"></span>` +
     `<span class="sk-item">${escapeHtml(d.d)}</span>` +
     `<span class="sk-item">FII <b style="color:${clr(d.fn)}">${fmt(d.fn)}</b></span>` +
     `<span class="sk-item">DII <b style="color:${clr(d.dn)}">${fmt(d.dn)}</b></span>` +
-    `<span class="sk-item">Net <b style="color:${clr(d.fn + d.dn)}">${fmt(d.fn + d.dn)}</b></span>`;
+    `<span class="sk-item">Net <b style="color:${clr(d.fn + d.dn)}">${fmt(d.fn + d.dn)}</b></span>` +
+    `<span class="sk-up" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span>`;
   if (!_stickyKpiWired) {
     _stickyKpiWired = true;
-    window.addEventListener('scroll', () => {
-      el.classList.toggle('visible', window.scrollY > 480);
-    }, { passive: true });
+    el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0'); el.setAttribute('aria-label', 'Latest session — back to top');
+    el.removeAttribute('aria-hidden');
+    const top = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    el.addEventListener('click', top);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); top(); } });
+    window.addEventListener('scroll', () => { el.classList.toggle('visible', window.scrollY > 480); }, { passive: true });
+    const foot = document.querySelector('.os-footer');
+    if (foot && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => el.classList.toggle('tucked', e.isIntersecting), { threshold: 0.05 }).observe(foot);
+    }
   }
 }
 

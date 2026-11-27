@@ -97,7 +97,7 @@
     }
 
     /* ── Count-up ───────────────────────────────────── */
-    var NUM_SEL = '.num-xl, .num-m, .num-s, .terminal-value, .sz-stat-value, .fno-3d-value, .ticker-value, .hero-num, .kpi-value';
+    var NUM_SEL = '.num-xl, .num-m, .num-s, .terminal-value, .sz-stat-value, .fno-3d-value, .hero-num, .kpi-value';
     var RE = /^(\D{0,4}?)(\d[\d,]*)(\.\d+)?(\D{0,10})$/;
     var st = new WeakMap(); // textNode -> {last, raf, val}
     function parse(s) {

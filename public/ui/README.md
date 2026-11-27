@@ -10,11 +10,11 @@ Served at `/ui/...`. Look-and-feel and behaviour meant to be reusable across Mr.
 |---|---|---|
 | `mc-scale.js` | QHD/4K zoom → `window.MC_ZOOM` (load first, blocking) | — |
 | `mc-brand.js` | `window.MCBrand` logo lockup | — |
-| `mc-ui.js` | Shared chrome mounted once per page: navbar, dropdown, dock, info popovers, toast, theme sync, back-to-top, keyboard shortcuts, live-quote poll (⚠ quotes/footer links are product-specific) | mc.css |
+| `mc-footer.js` | `window.MCFooter.html({product, brand, note})`: the ecosystem footer (Products, Resources, Legal, Connect, SEBI card) shared by every project; a product passes only its own column | mc.css §12 |
+| `mc-ui.js` | Shared chrome mounted once per page: navbar, dropdown, dock, info popovers, toast, theme sync, back-to-top, keyboard shortcuts, footer | mc.css |
 | `mc-motion.js` | Scroll/number reveal animations | mc.css §14 |
 | `mc-charts.js` | Chart.js defaults, DPR handling | `vendor/chart-*.js`, `MC_ZOOM` |
 | `mc-ranges.js` | Date-range preset controls | — |
 
 ## Extraction backlog (do before the next sibling project)
-- `mc-ui.js` §6 (live quotes) and its footer link list are product-specific → move to `app/js/`.
 - Add a standalone `clock` component (currently inline in the dashboard).

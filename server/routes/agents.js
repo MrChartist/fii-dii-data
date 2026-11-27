@@ -340,7 +340,6 @@ module.exports = function mount(app) {
                 { method: 'GET', path: '/api/history', description: 'Last 60 days of history' },
                 { method: 'GET', path: '/api/history-full', description: 'Full 800-day history (compressed)' },
                 { method: 'GET', path: '/api/sectors', description: '24-sector FPI allocation with trend data' },
-                { method: 'GET', path: '/api/market', description: 'NIFTY 50, SENSEX & India VIX (Yahoo Finance proxy, 10s cache)' },
                 { method: 'POST', path: '/api/refresh', description: 'Trigger manual NSE data fetch' }
             ]
         };

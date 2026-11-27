@@ -182,7 +182,6 @@ npm run dev
 | `GET` | `/api/history` | Last 60 days of history |
 | `GET` | `/api/history-full` | Full history (800 records) for charts |
 | `GET` | `/api/sectors` | Sector allocation with trend data |
-| `GET` | `/api/market` | Nifty 50 & India VIX (Yahoo Finance proxy) |
 | `GET` | `/api/status` | Server health + recent fetch logs |
 | `POST` | `/api/refresh` | Trigger manual NSE data fetch |
 

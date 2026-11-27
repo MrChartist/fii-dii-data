@@ -1,24 +1,10 @@
 'use strict';
-/** Market data proxies: live quotes, Nifty history, NSE large deals, NSDL daily FPI, persisted closes. */
+/** Market data proxies: Nifty history, NSE large deals, NSDL daily FPI, persisted closes. */
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const { DATA_DIR } = require('../../lib/store');
-const market = require('../services/market');
 module.exports = function mount(app) {
-    // Live quotes (shared 10s cache)
-    app.get('/api/market', async (req, res) => {
-        try {
-            const { data } = await market.getQuotes();
-            res.set('Cache-Control', 'public, max-age=5');
-            res.json(data);
-        } catch (err) {
-            const last = market.lastQuotes();
-            if (last) return res.json({ ...last, stale: true });
-            res.status(500).json({ error: err.message });
-        }
-    });
-
     // Nifty 50 daily close history (Yahoo proxy, cached 1h) — powers the
     // cumulative-flows-vs-Nifty overlay on the dashboard
     let _niftyHistCache = { data: null, ts: 0 };

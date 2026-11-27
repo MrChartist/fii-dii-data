@@ -1,38 +1,9 @@
 'use strict';
-/** Yahoo Finance quotes (10s shared cache) and persisted daily Nifty/VIX closes. */
+/** Persisted daily Nifty/VIX closes (Yahoo Finance), appended after each new session. */
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const { DATA_DIR } = require('../../lib/store');
-
-const MARKET_TICKERS = { nifty: '^NSEI', sensex: '^BSESN', vix: '^INDIAVIX' };
-const MARKET_TTL_MS = 10 * 1000;
-let _marketCache = { data: null, ts: 0, inflight: null };
-async function fetchMarketQuote(ticker) {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
-    const { data } = await axios.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' }, timeout: 5000 });
-    const m = data?.chart?.result?.[0]?.meta;
-    const price = m?.regularMarketPrice;
-    const prev = m?.previousClose || m?.chartPreviousClose;
-    if (!Number.isFinite(price) || !Number.isFinite(prev) || prev === 0) {
-        throw new Error(`Yahoo returned incomplete quote for ${ticker}`);
-    }
-    return { price, change: price - prev, pct: ((price - prev) / prev) * 100 };
-}
-async function refreshMarket() {
-    const keys = Object.keys(MARKET_TICKERS);
-    const results = await Promise.allSettled(keys.map(k => fetchMarketQuote(MARKET_TICKERS[k])));
-    const prevData = _marketCache.data || {};
-    const out = { ts: Date.now() };
-    let ok = 0;
-    keys.forEach((k, i) => {
-        if (results[i].status === 'fulfilled') { out[k] = results[i].value; ok++; }
-        else if (prevData[k]) out[k] = { ...prevData[k], stale: true };
-    });
-    if (!ok && !Object.keys(out).some(k => k !== 'ts')) throw new Error('Market quotes unavailable');
-    _marketCache = { data: out, ts: Date.now(), inflight: null };
-    return out;
-}
 
 // Append today's Nifty + VIX close to data/market_history.json (idempotent per date)
 async function persistMarketClose(dateStr) {
@@ -59,14 +30,4 @@ async function persistMarketClose(dateStr) {
     }
 }
 
-/** Cached quotes for /api/market; coalesces concurrent refreshes. */
-async function getQuotes() {
-    if (_marketCache.data && Date.now() - _marketCache.ts < MARKET_TTL_MS) return { data: _marketCache.data, fresh: true };
-    if (!_marketCache.inflight) {
-        _marketCache.inflight = refreshMarket().finally(() => { _marketCache.inflight = null; });
-    }
-    return { data: await _marketCache.inflight, fresh: false };
-}
-function lastQuotes() { return _marketCache.data; }
-
-module.exports = { getQuotes, lastQuotes, persistMarketClose };
+module.exports = { persistMarketClose };

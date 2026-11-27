@@ -232,7 +232,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 </head>
 <body>
 <a class="mc-skip" href="#t-hero">Skip to content</a>
-<div class="sticky-kpi" id="stickyKpi" aria-hidden="true"></div>
+<div class="sticky-kpi" id="stickyKpi"></div>
 <!-- Noscript Fallback for SEO crawlers -->
 <noscript>
   <div style="padding:40px; text-align:center; font-family:sans-serif; background:#000; color:#F5F4F1; min-height:100vh;">
@@ -300,33 +300,6 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
       </div>
     </div>
   </header>
-
-  <!-- LIVE MARKET TICKER BAR -->
-  <div class="market-ticker" id="marketTicker" hidden>
-    <div class="ticker-live-dot" id="tickerDot" title="Live market data"></div>
-    <div class="ticker-item">
-      <span class="ticker-label">Nifty 50</span>
-      <span class="ticker-value" id="tickerNiftyPrice"><span class="ticker-skeleton"></span></span>
-      <span class="ticker-change flat" id="tickerNiftyChange">--</span>
-    </div>
-    <div class="ticker-divider"></div>
-    <div class="ticker-item">
-      <span class="ticker-label">Sensex</span>
-      <span class="ticker-value" id="tickerSensexPrice"><span class="ticker-skeleton"></span></span>
-      <span class="ticker-change flat" id="tickerSensexChange">--</span>
-    </div>
-    <div class="ticker-divider"></div>
-    <div class="ticker-item">
-      <span class="ticker-label">India VIX</span>
-      <span class="ticker-value" id="tickerVixPrice"><span class="ticker-skeleton"></span></span>
-      <span class="ticker-change flat" id="tickerVixChange">--</span>
-      <span class="vix-zone normal" id="tickerVixZone">Loading</span>
-    </div>
-    <div class="ticker-divider"></div>
-    <div class="ticker-item" style="font-size:10px; color:var(--t4);">
-      <span id="tickerUpdatedAt">Fetching market data</span>
-    </div>
-  </div>
 
   <!-- ALERT SETTINGS MODAL -->
   <div id="alert-settings-modal">
@@ -1132,6 +1105,7 @@ try { var _t = localStorage.getItem('theme'); if (_t === 'light' || _t === 'dark
 <!-- PWA Service Worker Registration, Installation & Push Notifications -->
 <script src="/app/js/pwa.js?v=1"></script>
 <script src="/ui/js/mc-brand.js?v=6" defer></script>
+<script src="/ui/js/mc-footer.js?v=1" defer></script>
 <script src="/app/js/mc-webmcp.js?v=1" defer></script>
 <script src="/ui/js/mc-ui.js?v=11" defer></script>
 <script src="/ui/js/mc-motion.js?v=6" defer></script>
