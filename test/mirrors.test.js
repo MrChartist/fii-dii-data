@@ -66,8 +66,23 @@ test('recoverFromMirrors rejects a session when the two mirrors disagree on net'
 test('recoverFromMirrors rejects rows whose net does not equal buy - sell, and survives a dead mirror', async () => {
     await inTempData([], async (feed) => {
         const broken = G.map(r => ({ ...r, fii_net: r.fii_net + 500 }));
-        assert.deepStrictEqual(await feed.recoverFromMirrors(stub(broken, [])), []);
+        assert.deepStrictEqual([...await feed.recoverFromMirrors(stub(broken, []))], []);
         const dead = { fetchGroww: async () => { throw new Error('boom'); }, fetchMoneycontrol: async () => MC };
-        assert.deepStrictEqual(await feed.recoverFromMirrors(dead), []);
+        const fromDead = await feed.recoverFromMirrors(dead);
+        assert.deepStrictEqual([...fromDead], []);
+        assert.strictEqual(fromDead.reachable, false, 'a dead Groww means the mirrors are down');
+    });
+});
+
+test('recoverFromMirrors reports reachability so a quiet run is not mistaken for an outage', async () => {
+    await inTempData([], async (feed) => {
+        const none = await feed.recoverFromMirrors(stub([], []));
+        assert.strictEqual(none.length, 0);
+        assert.strictEqual(none.reachable, false, 'no mirror rows → treated as down');
+        const first = await feed.recoverFromMirrors(stub(G, MC));
+        assert.strictEqual(first.reachable, true);
+        const again = await feed.recoverFromMirrors(stub(G, MC));   // everything already stored
+        assert.strictEqual(again.length, 0);
+        assert.strictEqual(again.reachable, true, 'mirrors up, nothing new');
     });
 });

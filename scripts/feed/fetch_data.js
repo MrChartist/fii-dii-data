@@ -421,7 +421,8 @@ async function recoverFromMirrors(src = { fetchGroww, fetchMoneycontrol }) {
     const [g, m] = await Promise.allSettled([src.fetchGroww(CONFIG.TIMEOUTS.mirror), src.fetchMoneycontrol(CONFIG.TIMEOUTS.mirror)]);
     if (g.status === 'fulfilled') grow = g.value; else console.warn(`  ⚠️ Groww mirror unavailable: ${g.reason.message}`);
     if (m.status === 'fulfilled') mc = m.value; else console.warn(`  ⚠️ Moneycontrol cross-check unavailable: ${m.reason.message}`);
-    if (!grow.length) return [];
+    // `reachable` lets the caller tell "mirrors are up, nothing new" apart from "every source is down"
+    if (!grow.length) return Object.assign([], { reachable: false });
 
     const mcByDate = new Map(mc.map(r => [r.date, r]));
     const history = readJSON('history.json', [], true);
@@ -447,7 +448,7 @@ async function recoverFromMirrors(src = { fetchGroww, fetchMoneycontrol }) {
         added.sort((a, b) => compareDates(b.date, a.date));
         console.log(`[MIRROR] Recovered sessions: ${added.map(r => r.date).join(', ')}`);
     }
-    return added;
+    return Object.assign(added, { reachable: true });
 }
 
 // ── Pipeline ─────────────────────────────────────────────────────────────────
@@ -467,7 +468,14 @@ async function fetchAndProcessData() {
                 logFetch({ success: true, date: recovered[0].date, action: "recovered-mirror", count: recovered.length });
                 return recovered[0];   // newest recovered session → announced/notified by the caller
             }
-            throw nseErr;
+            if (recovered.reachable) {
+                // NSE is blocked but the mirrors answered and hold nothing newer than the archive: the data is
+                // current as far as anyone has published. A quiet run, not a failure.
+                console.warn(`::warning::NSE unreachable (${nseErr.message}); mirrors reachable and nothing new to add.`);
+                logFetch({ success: true, action: "idle", reason: "nse_blocked_no_new_sessions" });
+                return null;
+            }
+            throw nseErr;   // every source is down — this one should fail loudly
         }
         let targetDate = (rawCash.find(r => /FII|FPI|DII/i.test(r.category)) || {}).date;
         if (!targetDate) {
